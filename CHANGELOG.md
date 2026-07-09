@@ -26,3 +26,10 @@
 - registry/apps.yml 을 실제 스택·배포·버전으로 갱신(이종 앱 대응).
 - 앱별 가드레일 원칙 확정(D8), 편입 방식 결정(D9).
 - AGENTS.md 추가(모든 AI 온보딩·업데이트내역 안내), guardrails 3개 앱 대응(앱별 검사 + registry 정합성).
+
+## [0.2.1] - 2026-07-09
+
+### 추가 (첫 daily 사이클 · 홍보)
+- 홍보팀: zoopzoopcall 다채널 콘텐츠팩 생성 → `ops/content/2026-07-09/zoopzoopcall/`
+  (youtube-shorts / instagram / blog-seo / community-replies). 상태=게시대기, 외부 게시는 사람 승인.
+- 기록팀: state·changelog 갱신. 성장 루프 첫 산출물 기록.
