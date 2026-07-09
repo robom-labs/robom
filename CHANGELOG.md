@@ -67,3 +67,19 @@
 ### 추가
 - ops/handoff/update-prompts.md — 각 앱(runningcall/pushrun/zoopzoopcall) 저장소 AI에게
   진단 결과+업데이트 지시를 넘기는 자체완결 프롬프트(의견 요청 → 안전 항목 PR 실행).
+
+## [0.2.7] - 2026-07-09
+
+### 추가 (첫 코드 데일리 사이클 — 3개 앱)
+- runningcall: ROADMAP P0(레이트리밋/오리진 제한) 실행 — `/api/search-location`, `/api/reverse-location`,
+  `/api/forecast`에 in-memory 레이트리밋(IP당 분당 20회) + same-origin 검증 추가. Kakao 유료 API 키 소진
+  방지(D12/R9) 위험 종결. PR #2(draft).
+- zoopzoopcall: `apps/web` 테스트를 no-op에서 실제 vitest 실행으로 전환 + `collectPendingAlerts` 단위테스트
+  4개 추가. PR #3(draft). (P0 Edge Function↔packages/core 정규화 중복 제거는 조사 결과 하루 범위 초과 판단,
+  미착수·제안서 필요 상태로 ROADMAP에 보류 표기)
+- pushrun: 모달(alertModal/permissionModal/batteryModal) Esc 키 닫기 추가. PR #2(draft). (races.json
+  http→https, 버전/캐시버스트 단일화는 위험 판단으로 보류)
+- 세 저장소 모두 draft PR만 생성(main 직접 push 없음), 사람 머지 대기.
+
+### 다음
+- 3개 앱 draft PR 검수·머지(사람), zoopzoopcall P0 dedup 제안서 작성.

@@ -27,8 +27,8 @@
 > D11: 앱 코드는 각 원본 저장소에서 실행. holdings는 우선순위만 관리.
 
 ### P0 — 보안/정확성 (먼저)
-- [ ] runningcall: `/api/{search-location,reverse-location,forecast}` 레이트리밋/오리진 제한 (Kakao 유료키 소진 방지) — repo:runningcall
-- [ ] zoopzoopcall: Edge Function ↔ packages/core 정규화 중복 제거(단일 소스) — repo:zoopzoopcall
+- [x] runningcall: `/api/{search-location,reverse-location,forecast}` 레이트리밋/오리진 제한 (Kakao 유료키 소진 방지) — repo:runningcall (2026-07-09 PR #2 draft, 사람 머지 대기)
+- [ ] zoopzoopcall: Edge Function ↔ packages/core 정규화 중복 제거(단일 소스) — repo:zoopzoopcall (2026-07-09 조사 결과 하루 범위 초과 — Deno import 확장자 전면 수정 + 로컬 배포검증 불가. 제안서 필요, 다음 사이클에서 별도 검토)
 
 ### P1 — 포트폴리오 레버리지 (지주회사 핵심)
 - [ ] 공유 core 패키지: zoopzoopcall `packages/core`의 KST/time·alarm/offset·notification 어댑터를
@@ -38,5 +38,7 @@
 - [ ] runningcall: ESLint + lint 스크립트 + CI 연결(숨은 exhaustive-deps 노출) — repo:runningcall
 - [ ] runningcall: page.tsx(2,180줄)·gacha.tsx 점진적 컴포넌트/훅 분해 — repo:runningcall
 - [ ] runningcall: lib/insights.ts(1,049줄) 테스트 추가, `--webpack` 사유 문서화 — repo:runningcall
-- [ ] zoopzoopcall: apps/web 실제 테스트 연결(현재 no-op), 폰트 self-host + SW 셸 precache — repo:zoopzoopcall
-- [ ] pushrun: races.json http→https 정규화, 버전/캐시버스트 단일화, 모달 focus-trap+Esc — repo:pushrun
+- [x] zoopzoopcall: apps/web 실제 테스트 연결(현재 no-op) — repo:zoopzoopcall (2026-07-09 PR #3 draft)
+- [ ] zoopzoopcall: 폰트 self-host + SW 셸 precache — repo:zoopzoopcall
+- [ ] pushrun: races.json http→https 정규화, 버전/캐시버스트 단일화 — repo:pushrun
+- [x] pushrun: 모달 Esc 키 닫기 (2026-07-09 PR #2 draft) — focus-trap 전체(Tab 순환)는 별도

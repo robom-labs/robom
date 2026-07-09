@@ -6,10 +6,12 @@
 - 저장소: github.com/runnerpyrri-lgtm/Zoop-holdings (main)
 
 ## 방금 한 일 (최근)
+- 2026-07-09: 3개 앱(zoopzoopcall/runningcall/pushrun) 각 1개 소규모 안전 변경 + draft PR 3개 생성.
 - 2026-07-09: Day1 — 3개 앱 홍보 콘텐츠팩 생성(게시대기), CI 자기수정(D10).
 - 2026-07-09: 관제 저장소 부트스트랩 + 3개 앱 편입 + main push.
 
 ## Next
+- [ ] 3개 앱 draft PR 검수·머지(사람)
 - [ ] ANTHROPIC_API_KEY 시크릿 등록(사장) → 매일 자동 가동
 - [ ] Day1 PR 검수·머지
 - [ ] 코드 개선 사이클(앱 최적화 백로그는 ROADMAP)
