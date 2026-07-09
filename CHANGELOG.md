@@ -67,3 +67,9 @@
 ### 추가
 - ops/handoff/update-prompts.md — 각 앱(runningcall/pushrun/zoopzoopcall) 저장소 AI에게
   진단 결과+업데이트 지시를 넘기는 자체완결 프롬프트(의견 요청 → 안전 항목 PR 실행).
+
+## [0.2.7] - 2026-07-10
+
+### 추가 (daily · 실전 테스트 실행)
+- 홍보팀: runningcall 여름 폭염/시간대 앵글 다채널 콘텐츠팩 → ops/content/2026-07-10/runningcall/ (게시대기).
+- 기록팀: runningcall state·changelog 갱신. Routine 실전 사이클 검증용 실행.
