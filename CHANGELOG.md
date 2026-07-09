@@ -54,3 +54,10 @@
 - claude-code-action 워크플로 3종: --max-turns 비용 상한 + issues:write 권한(GA @v1 인터페이스 확인).
 - 문서 정리: REPO-SETUP 완료표시, STRUCTURE→AGENTS.md 정본 안내.
 - 점검 결과: 커밋에 secret/빌드산출물 없음(clean). 앱 코드 최적화는 각 앱 저장소에서(D11).
+
+## [0.2.5] - 2026-07-09
+
+### 추가 (전수 진단 결과 반영)
+- ROADMAP 앱 최적화 백로그(P0~P2), RISK_REGISTER R9(러닝콜 API키)·R10(공유코드 중복).
+- ci-pushrun: races.json 검증(JSON 파싱 + http:// mixed-content 경고).
+- DECISIONS D12(진단 요약).

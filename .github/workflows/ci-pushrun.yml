@@ -1,5 +1,4 @@
-# pushrun(정적 사이트) — apps/pushrun 가 바뀔 때만 실행.
-# 빌드 없음. 핵심 산출물 존재만 검증.
+# pushrun(정적) — apps/pushrun 가 바뀔 때만 실행.
 name: CI · pushrun
 
 on:
@@ -15,9 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: 정적 사이트 필수 파일 확인
+      - name: 필수 산출물 존재
         run: |
           for f in index.html app.js races.json styles.css; do
             test -f "apps/pushrun/outputs/pushrun-site/$f" \
               || { echo "::error::pushrun 산출물 누락: $f"; exit 1; }
           done
+      - name: races.json 검증(JSON 파싱 + mixed-content 경고)
+        run: |
+          node -e '
+            const fs=require("fs");
+            const p="apps/pushrun/outputs/pushrun-site/races.json";
+            let data;
+            try { data=JSON.parse(fs.readFileSync(p,"utf8")); }
+            catch(e){ console.log("::error::races.json JSON 파싱 실패: "+e.message); process.exit(1); }
+            const arr=Array.isArray(data)?data:(data.races||[]);
+            const http=JSON.stringify(data).match(/http:\/\//g);
+            if(http){ console.log("::warning::races.json 에 http:// 링크 "+http.length+"개(HTTPS 정규화 권장)"); }
+            console.log("races 항목수: "+arr.length);
+          '

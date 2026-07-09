@@ -22,3 +22,21 @@
 ## 앱별 백로그
 - zoopzoopcall: `apps/zoopzoopcall/docs/ROADMAP.md`(v0.2.0 서버푸시 등) 참조
 - runningcall / pushrun: stub — 최초 세팅 대기
+
+## 앱 최적화 백로그 (2026-07-09 전수 진단 결과)
+> D11: 앱 코드는 각 원본 저장소에서 실행. holdings는 우선순위만 관리.
+
+### P0 — 보안/정확성 (먼저)
+- [ ] runningcall: `/api/{search-location,reverse-location,forecast}` 레이트리밋/오리진 제한 (Kakao 유료키 소진 방지) — repo:runningcall
+- [ ] zoopzoopcall: Edge Function ↔ packages/core 정규화 중복 제거(단일 소스) — repo:zoopzoopcall
+
+### P1 — 포트폴리오 레버리지 (지주회사 핵심)
+- [ ] 공유 core 패키지: zoopzoopcall `packages/core`의 KST/time·alarm/offset·notification 어댑터를
+      공유 패키지로 승격 → runningcall·pushrun 가 소비(3벌 중복 → 1벌) — cross-repo
+
+### P2 — 품질/퀵윈
+- [ ] runningcall: ESLint + lint 스크립트 + CI 연결(숨은 exhaustive-deps 노출) — repo:runningcall
+- [ ] runningcall: page.tsx(2,180줄)·gacha.tsx 점진적 컴포넌트/훅 분해 — repo:runningcall
+- [ ] runningcall: lib/insights.ts(1,049줄) 테스트 추가, `--webpack` 사유 문서화 — repo:runningcall
+- [ ] zoopzoopcall: apps/web 실제 테스트 연결(현재 no-op), 폰트 self-host + SW 셸 precache — repo:zoopzoopcall
+- [ ] pushrun: races.json http→https 정규화, 버전/캐시버스트 단일화, 모달 focus-trap+Esc — repo:pushrun

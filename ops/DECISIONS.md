@@ -74,3 +74,10 @@
   - 구식 문서 정리(REPO-SETUP 완료표시, STRUCTURE→AGENTS.md 정본 안내), state 최신화.
 - 검증: 커밋된 파일에 node_modules/.next/dist/.env/secret 없음(clean) 확인.
 - 미해결(구조): vendored 사본 드리프트 → git submodule 전환 검토(D-open-4 유지).
+
+### D12. 전수 진단(2026-07-09) 요약
+- 보안 양호(커밋 secret 없음, 키 서버보관, 입력검증, HTML 이스케이프).
+- 단 1건 실사용 리스크: runningcall 무인증 /api/* → Kakao 키 소진(R9, P0).
+- 최대 레버리지: 3개 앱 공통 로직 중복 → 공유 core 패키지(R10, P1).
+- 실제 적용(holdings 안전범위): ci-pushrun 에 races.json 검증(mixed-content 경고) 추가.
+- 앱 코드 개선은 백로그화(ROADMAP), 각 앱 저장소에서 실행.
