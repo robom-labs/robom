@@ -1,0 +1,23 @@
+# pushrun(정적 사이트) — apps/pushrun 가 바뀔 때만 실행.
+# 빌드 없음. 핵심 산출물 존재만 검증.
+name: CI · pushrun
+
+on:
+  pull_request:
+    paths:
+      - "apps/pushrun/**"
+
+permissions:
+  contents: read
+
+jobs:
+  static-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 정적 사이트 필수 파일 확인
+        run: |
+          for f in index.html app.js races.json styles.css; do
+            test -f "apps/pushrun/outputs/pushrun-site/$f" \
+              || { echo "::error::pushrun 산출물 누락: $f"; exit 1; }
+          done

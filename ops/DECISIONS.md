@@ -49,3 +49,15 @@
 ### D9. 앱 편입 방식 = 당분간 vendored 복사, 추후 submodule 검토
 - 지금은 개발/기록용 복사(freeze 원칙). 3개 앱 모두 독립 배포 중이라 **배포 소스는 각 원본 저장소**.
 - 드리프트 위험(R2) 있으므로, 실제 운영 전 git submodule 전환을 D-open-4 로 검토.
+
+## 2026-07-09 · 첫 CI 실패에서 배운 것 (자기수정)
+
+### D10. 앱별 CI는 path 필터로 분리 + 앱별 pnpm 버전
+- 증상: daily#1(홍보 콘텐츠만 변경) PR에서 runningcall-ci 실패 — `pnpm install: packages field missing`.
+- 원인: (1) 앱 안 건드린 PR인데 3개 앱 빌드를 다 돌림 (2) runningcall 워크스페이스가 pnpm10 문법인데 CI가 pnpm9.
+- 결정:
+  - guardrails.yml = 범용 검사만(base-path/registry/lockfile/secret), 항상 실행.
+  - 앱별 CI를 ci-<app>.yml 로 분리, `on.pull_request.paths` 로 그 앱 변경 시에만 실행.
+  - runningcall CI는 pnpm 10 사용(스택 일치). pushrun 은 정적 파일 검증만.
+- 효과: 콘텐츠/문서 PR은 앱 빌드 안 돌려 빠르고 안 깨짐. 앱 변경 시에만 해당 앱 CI 작동.
+- 주의: 나중에 branch protection의 required checks 지정 시, path-filter로 안 도는 체크를 required로 걸면 안 됨(pending 고착). D-open-5.

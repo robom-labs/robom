@@ -1,6 +1,5 @@
-# 안전 레일 — PR마다 자동 실행. 사람도 AI도 못 우회.
-# holdings는 3개 이종 앱(federated)을 담으므로 앱별로 다른 검사를 돈다.
-# (deep 배포는 각 앱 원본 저장소가 담당. 여기선 회사 관점 안전 게이트.)
+# 안전 레일(범용) — 모든 PR에 항상 실행. 빠르고 스택 무관.
+# 앱별 test/build 는 각 ci-<app>.yml 이 '그 앱이 바뀔 때만' 실행한다(path 필터).
 name: Guardrails
 
 on:
@@ -10,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  # 1) 금지선: zoopzoopcall base path 는 절대 변경 금지
+  # 금지선: zoopzoopcall base path 변경 차단
   base-path-guard:
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +22,7 @@ jobs:
               || { echo "::error file=$f::base path가 /zoopzoopcall/ 에서 바뀌었다. 배포 URL이 깨진다."; exit 1; }
           fi
 
-  # 2) 장부 정합성: registry에 적힌 앱 폴더가 실제로 존재하는가
+  # 장부 정합성: registry에 적힌 앱 폴더가 실제로 존재
   registry-sanity:
     runs-on: ubuntu-latest
     steps:
@@ -35,48 +34,7 @@ jobs:
             test -d "apps/$a" || { echo "::error::apps/$a 폴더 없음(registry와 불일치)"; exit 1; }
           done
 
-  # 3) zoopzoopcall (Vite PWA): typecheck + test + build
-  zoopzoopcall-ci:
-    runs-on: ubuntu-latest
-    defaults: { run: { working-directory: apps/zoopzoopcall } }
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: 9 }
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm, cache-dependency-path: apps/zoopzoopcall/pnpm-lock.yaml }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm -r typecheck
-      - run: pnpm -r test
-      - run: pnpm -r build
-
-  # 4) runningcall (Next.js): typecheck + test  (배포 build는 Vercel이 담당)
-  runningcall-ci:
-    runs-on: ubuntu-latest
-    defaults: { run: { working-directory: apps/runningcall } }
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: 9 }
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm, cache-dependency-path: apps/runningcall/pnpm-lock.yaml }
-      - run: pnpm install --no-frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm test
-
-  # 5) pushrun (정적): 핵심 산출물 존재 확인
-  pushrun-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: 정적 사이트 필수 파일 확인
-        run: |
-          for f in index.html app.js races.json styles.css; do
-            test -f "apps/pushrun/outputs/pushrun-site/$f" \
-              || { echo "::error::pushrun 산출물 누락: $f"; exit 1; }
-          done
-
-  # 6) lockfile 대량 변경 차단(의도치 않은 의존성 변화)
+  # lockfile 대량 변경 차단
   lockfile-guard:
     runs-on: ubuntu-latest
     steps:
@@ -91,7 +49,7 @@ jobs:
             echo "::error::pnpm-lock.yaml 변경이 200줄을 초과했다. 사람 검토 필요."; exit 1
           fi
 
-  # 7) secret 노출 차단
+  # secret 노출 차단
   secret-scan:
     runs-on: ubuntu-latest
     steps:
