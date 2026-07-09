@@ -46,3 +46,11 @@
 - 홍보팀: runningcall·pushrun 다채널 콘텐츠팩 생성 → ops/content/2026-07-09/{runningcall,pushrun}/.
   → 3개 앱 전부 첫 홍보 콘텐츠 확보. 상태=게시대기(외부 게시는 사람 승인).
 - 기록팀: runningcall·pushrun state 갱신.
+
+## [0.2.4] - 2026-07-09
+
+### 변경 (전체 점검·최적화 1차 — 관제 레이어)
+- .gitignore 확장(Next.js/빌드 산출물), state(holdings) 최신화.
+- claude-code-action 워크플로 3종: --max-turns 비용 상한 + issues:write 권한(GA @v1 인터페이스 확인).
+- 문서 정리: REPO-SETUP 완료표시, STRUCTURE→AGENTS.md 정본 안내.
+- 점검 결과: 커밋에 secret/빌드산출물 없음(clean). 앱 코드 최적화는 각 앱 저장소에서(D11).

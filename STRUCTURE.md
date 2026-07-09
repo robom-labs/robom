@@ -1,3 +1,5 @@
+> 이 문서는 파일구조 참고용. **회사 전체 파악은 AGENTS.md 를 먼저 읽으세요(정본).**
+
 # zoop-holdings — 최종 파일 구조 (v1.0.0 착수용 블루프린트)
 
 > 이 폴더(`docs/zoop-holdings/blueprint/`)의 파일들을 **새 `zoop-holdings` 저장소 루트로 복사**하면 바로 뼈대가 된다.

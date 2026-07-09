@@ -61,3 +61,16 @@
   - runningcall CI는 pnpm 10 사용(스택 일치). pushrun 은 정적 파일 검증만.
 - 효과: 콘텐츠/문서 PR은 앱 빌드 안 돌려 빠르고 안 깨짐. 앱 변경 시에만 해당 앱 CI 작동.
 - 주의: 나중에 branch protection의 required checks 지정 시, path-filter로 안 도는 체크를 required로 걸면 안 됨(pending 고착). D-open-5.
+
+## 2026-07-09 · 전체 점검·최적화 1차
+
+### D11. 최적화 대상 = 관제 레이어. 앱 코드 최적화는 각 앱 저장소에서.
+- 이유: holdings의 apps/* 는 vendored 사본(D9). 여기서 앱 코드를 고치면 배포에 안 닿고 드리프트만 커짐.
+- 결정: 이번 최적화는 관제 레이어(workflows/ops/docs/CI/gitignore)만 적용.
+  앱 개선 후보는 ROADMAP '앱 최적화 백로그'로 모아 각 앱 원본 저장소에서 실행.
+- 적용:
+  - .gitignore 확장(.next/out/.vercel/coverage/*.tsbuildinfo) — 빌드 산출물 커밋 방지.
+  - claude-code-action 워크플로에 claude_args(--max-turns) 비용 상한 + issues:write 권한.
+  - 구식 문서 정리(REPO-SETUP 완료표시, STRUCTURE→AGENTS.md 정본 안내), state 최신화.
+- 검증: 커밋된 파일에 node_modules/.next/dist/.env/secret 없음(clean) 확인.
+- 미해결(구조): vendored 사본 드리프트 → git submodule 전환 검토(D-open-4 유지).

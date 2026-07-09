@@ -1,7 +1,21 @@
+# deps
 node_modules/
+
+# builds / outputs
 dist/
+build/
+.next/
+out/
+.vercel/
+coverage/
+*.tsbuildinfo
+
+# env / secrets
 .env
 .env.local
+.env.*.local
 *.local
+
+# os
 .DS_Store
 Thumbs.db
