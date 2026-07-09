@@ -7,9 +7,14 @@ name: daily-kakao-report
 # REST API 키는 클라이언트 공개용 값이라 시크릿이 아니라 아래 client_id에 직접 사용.
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "카카오로 보낼 내용 (비우면 기본 문구로 발송)"
+        required: false
+        default: ""
   schedule:
-    - cron: "3 0 * * *" # UTC 00:03 = KST 09:03
+    - cron: "0 23 * * *" # UTC 23:00 = KST 08:00
 
 jobs:
   send-report:
@@ -34,10 +39,14 @@ jobs:
           echo "::add-mask::$ACCESS_TOKEN"
           echo "access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
 
-      - name: "나에게 보내기" 발송
+      - name: 나에게 보내기 발송
         env:
           ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+          MSG: ${{ github.event.inputs.message }}
         run: |
+          DEFAULT="[Zoop Holdings 일일보고] 오늘자 데일리 사이클 draft PR을 확인해주세요."
+          TEXT="${MSG:-$DEFAULT}"
+          TEMPLATE=$(jq -nc --arg t "$TEXT" '{object_type:"text",text:$t,link:{web_url:"https://github.com/runnerpyrri-lgtm/Zoop-holdings/pulls"},button_title:"PR 목록 보기"}')
           curl -sS -X POST "https://kapi.kakao.com/v2/api/talk/memo/default/send" \
             -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-            --data-urlencode 'template_object={"object_type":"text","text":"[Zoop Holdings 일일보고]\n오늘자 데일리 사이클 draft PR을 확인해주세요.","link":{"web_url":"https://github.com/runnerpyrri-lgtm/Zoop-holdings/pulls"},"button_title":"PR 목록 보기"}'
+            --data-urlencode "template_object=${TEMPLATE}"
