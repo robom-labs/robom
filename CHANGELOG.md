@@ -83,3 +83,21 @@
 
 ### 다음
 - 3개 앱 draft PR 검수·머지(사람), zoopzoopcall P0 dedup 제안서 작성.
+
+## [0.2.8] - 2026-07-09
+
+### 변경 (관제 레이어 전수 리뷰·정합화 — 시스템 최적화 2차)
+- **직원 편성 확정(D13)**: 11명 로스터를 매일5·매일홍보1·주간3·월간2로 명문화. 승격/강등 트리거·역할중복 중재규칙 정리.
+- **월간 워크플로 신설** `monthly-board-run.yml`: strategist·architect 가 그전엔 정의만 있고 호출 경로가 없었음 → 실제 실행 가능.
+- **버전 단일화**: VERSION/CHANGELOG/README/AGENTS/state 5곳 불일치를 0.2.8로 통일 + 손기입 금지 명시.
+- **프롬프트 교정(D10 반복실패 원인 제거)**: inspector 를 앱별 registry 명령+스택 인식으로(루트 `pnpm -r` 금지), inspector/builder/release 의 base-path·빌드 경로에 `apps/<app>/` 접두사.
+- **누락 참조 파일 생성**: `ops/scorecards/agent-performance.md`, `ops/playbooks/{rollback,new-app-onboarding,security-boundaries}.md`.
+- **문서 정합화**: STRUCTURE.md 를 실제 구조로, "stub" 오표기(3앱 모두 live) 제거, README/growth-marketer 낡은 서술 갱신, DECISIONS D-번호 네임스페이스 분리 명시(D14).
+
+### 추가 (앱 백로그 — D11: 각 원본 저장소에서 수정)
+- 4개 병렬 심층감사에서 3개 앱 공통 "알림 조용히 실패" HIGH 버그 발굴(R11) → ROADMAP P0-신규 + handoff/update-prompts.md 반영.
+  (zoopzoopcall scheduler markFired 선행 / runningcall 한글 정규식 검색차단 / pushrun 24.8일 타이머·매초 리셋·불안정 ID)
+- 전수 리뷰 리포트: `ops/reviews/2026-07-09-system-review.md`.
+
+### 안 건드림
+- 앱 코드 직접 수정 없음(D11). base path·secret·prod DB·배포 워크플로 무변경(금지작업 준수).

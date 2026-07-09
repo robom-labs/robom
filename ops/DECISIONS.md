@@ -81,3 +81,23 @@
 - 최대 레버리지: 3개 앱 공통 로직 중복 → 공유 core 패키지(R10, P1).
 - 실제 적용(holdings 안전범위): ci-pushrun 에 races.json 검증(mixed-content 경고) 추가.
 - 앱 코드 개선은 백로그화(ROADMAP), 각 앱 저장소에서 실행.
+
+> 참고: 이 문서의 D-번호는 **DECISIONS 네임스페이스**다. `ops/DESIGN.md`의 D1~D12(권장안 결정표)와는 **별개**다. 같은 번호라도 의미가 다르니 교차참조 시 어느 문서인지 명시할 것. (D6은 결번 — 초기 번호 정리 흔적)
+
+## 2026-07-09 · 관제 레이어 전수 점검 2차 (직원 편성·정합화)
+
+### D13. v1 직원 로스터 확정 — 11명 정의, 9명 스케줄, 2명 온디맨드
+- **배경**: DESIGN v0.4.0은 "v1 실동 6명"을 권장했으나, 그 후 회사가 **3개 앱 + 매일 홍보**로 커졌다. 실제 편성을 아래로 확정한다.
+- **매일(daily-company-run.yml, ≤5 하드리밋 준수)**: ceo-orchestrator · planner · builder · inspector · recorder = **5명**.
+- **매일(daily-marketing.yml, 별도 버킷)**: growth-marketer = 1명. (DESIGN은 이를 v2로 봤으나 사업결정 D4로 매일 편성 — DESIGN 서술이 낡음. D4가 우선.)
+- **주간(weekly-review.yml)**: supervisor(자기개선·필수) · upgrader(R&D) · release-manager = 3명.
+- **월간(monthly-board-run.yml, 이번에 신설)**: strategist(포트폴리오, 트리거 "앱 3개↑" 충족) · architect(구조, 트리거 "앱 6개↑" 미충족 → **온디맨드 TF 성격**, 월간엔 가볍게 점검만).
+- **승격/강등 트리거(유지)**: 병목 없으면 미리 고용 안 함. 앱 6개↑ → architect 상시화. 릴리스 주 2회↑ → release-manager 상시화. DAU 유의미 → analytics 추가.
+- **갭 해소**: strategist·architect 는 정의만 있고 **부르는 워크플로가 없어 실행 불가**였다 → `monthly-board-run.yml` 신설로 실제 호출 경로 확보.
+- **역할 중복 정리**: "다음에 뭐 할지"를 ROADMAP에 넣는 주체가 planner(오늘)·upgrader(주간 후보)·strategist(월간 포트폴리오)로 겹친다. **중재 규칙**: 월간 strategist가 ROADMAP 상단 우선순위를 정하고, 주간 upgrader는 그 아래 후보를 채우고, 매일 planner는 거기서 가장 작은 것부터 집는다(위→아래 우선).
+
+### D14. 관제 문서 정합화 (버전·경로·누락파일)
+- 버전 단일 소스 = `VERSION` + `CHANGELOG.md` 최신 항목. README/AGENTS/state 에 손으로 적던 버전을 0.2.8로 통일하고 "손기입 금지" 명시. (기존 버그: VERSION 0.2.6인데 CHANGELOG 0.2.7 — VERSION 미bump)
+- inspector/builder/release-manager 프롬프트의 zoopzoopcall 전용 경로에 `apps/<app>/` 접두사 부여 + 앱별 스택 인식(루트 `pnpm -r` 금지). D10 반복실패의 프롬프트 원인 제거.
+- 참조되나 없던 파일 생성: `ops/scorecards/agent-performance.md`, `ops/playbooks/{rollback,new-app-onboarding,security-boundaries}.md`. STRUCTURE.md 를 블루프린트→실제 구조로 갱신.
+- "stub" 오표기(runningcall/pushrun) 제거 — 3개 앱 모두 live(D7).

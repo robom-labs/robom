@@ -3,7 +3,7 @@
 1인 지주회사 — 여러 앱을 **매일 스스로 개선·홍보**하는 자동 운영 회사.
 
 - **본사(관제)**: 이 저장소. 운영 장부(`ops/`) + AI 직원(`.claude/agents/`) + 자동화(`.github/workflows/`).
-- **제품(앱)**: `apps/` 아래. 각 앱은 독립 워크스페이스(federated). 현재 `zoopzoopcall`(live).
+- **제품(앱)**: `apps/` 아래. 각 앱은 독립 워크스페이스(federated). 현재 3개 앱 관리 — `zoopzoopcall`·`runningcall`·`pushrun`(모두 live).
 - **결재**: 모든 변경은 PR로. main merge·배포·비밀키·큰 변경은 **사람(사장)**이 승인.
 
 ## 조직 (요약)
@@ -15,7 +15,7 @@
 자세한 설계는 `ops/DESIGN.md`, 확정 결정은 `ops/DECISIONS.md`, 구조는 `STRUCTURE.md`.
 
 ## 버전
-- 시스템 버전: `VERSION` (현재 0.1.0) — 회사 운영 방식/자동화 변경 시 bump.
+- 시스템 버전: `VERSION` (현재 0.2.8) — 회사 운영 방식/자동화 변경 시 bump. **단일 소스 = `VERSION` + `CHANGELOG.md` 최신 항목.** 다른 문서에 버전을 손으로 적지 않는다.
 - 앱 버전: `apps/<app>/package.json` — 앱 기능 변경 시 bump.
 
 ## 원칙

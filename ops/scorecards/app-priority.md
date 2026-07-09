@@ -21,5 +21,5 @@
 
 ## 규칙
 - 최고점 앱 선택. 음수 위험이 큰 작업은 "제안서 PR"로 전환.
-- stub 앱(runningcall/pushrun)은 "초기 세팅" 작업이 있을 때만 후보.
+- 3개 앱 모두 **live**다(zoopzoopcall v0.1.0 / runningcall v0.13.1 / pushrun v0.6.6). "stub" 아님(D7). "신규 앱 초기 세팅" 항목은 앞으로 편입될 신규 앱에만 적용.
 - 매일 한 앱만. 나머지 앱은 최소 **주 1회 touch** SLA로 방치 방지.

@@ -1,0 +1,37 @@
+# 월 1회(매월 1일 09시 KST) — 이사회 리뷰: 전략(포트폴리오)·설계(구조).
+# strategist·architect 는 이 워크플로가 유일한 자동 호출 경로다(그전엔 정의만 있고 실행 불가였음 — D13).
+name: Monthly Board Run
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"     # 매월 1일 00:00 UTC = 09:00 KST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: monthly-board-run
+  cancel-in-progress: false
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--max-turns 20"
+          prompt: |
+            너는 zoop-holdings의 이사회(월간 보드)다. CLAUDE.md 금지작업을 지킨다. 순서대로 수행:
+            1) strategist(.claude/agents/strategist.md): 앱별 키움/보류/리팩토링/폐기 판정 →
+               ops/ROADMAP.md 상단 포트폴리오 우선순위 갱신. 신규 앱 요청 있으면
+               ops/playbooks/new-app-onboarding.md 게이트로 판단.
+            2) architect(.claude/agents/architect.md): 관제 저장소 모델(A) 유지 여부, 공유 core 중복(R3/R10),
+               vendored 사본 드리프트(R2, D-open-4 submodule)를 점검. 구조 결정은 ops/DECISIONS.md 에 기록.
+            3) MAJOR 후보는 코드가 아니라 **제안서(RFC)**로만. 착수는 사장 승인 후.
+            결과를 요약하고 변경이 있으면 draft PR 을 연다(main 직접 push 금지).

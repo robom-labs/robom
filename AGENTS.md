@@ -12,7 +12,7 @@
 ## 1. 새 AI는 이 순서로 읽어라 (딱 5개)
 1. **이 파일(AGENTS.md)** — 규칙과 지도
 2. **`CHANGELOG.md`** — 회사 시스템 업데이트 내역(무엇이 언제 바뀌었나)
-3. **`ops/DECISIONS.md`** — 왜 이렇게 만들었나(확정 결정 D1~D9, 열린 결정 D-open)
+3. **`ops/DECISIONS.md`** — 왜 이렇게 만들었나(확정 결정 D1~D13, D6 결번, 열린 결정 D-open)
 4. **`ops/state/*.md`** — 각 앱의 현재 상태·다음 할 일·인수인계 (가장 최신 실황)
 5. **`ops/registry/apps.yml`** — 앱 목록 단일 소스(스택·배포·버전)
 
@@ -33,7 +33,7 @@
 zoop-holdings/
   AGENTS.md          ← 지금 이 문서 (AI 온보딩)
   CLAUDE.md          ← 절대 규칙 / 금지작업
-  VERSION            ← 시스템 버전 (현재 0.2.0)
+  VERSION            ← 시스템 버전 (현재 0.2.8 — 단일 소스는 VERSION+CHANGELOG)
   CHANGELOG.md       ← 시스템 업데이트 내역
   README.md          ← 사람용 소개
   STRUCTURE.md       ← 파일구조 설명
@@ -84,4 +84,4 @@ zoop-holdings/
 - [ ] 새 결정을 했으면 `ops/DECISIONS.md`에 추가했는가
 
 ---
-*이 문서는 회사가 바뀌면 같이 갱신한다. 마지막 갱신: 2026-07-09 (시스템 v0.2.0, 앱 3개 편입).*
+*이 문서는 회사가 바뀌면 같이 갱신한다. 마지막 갱신: 2026-07-09 (시스템 v0.2.8, 관제 레이어 전수 점검·정합화).*
