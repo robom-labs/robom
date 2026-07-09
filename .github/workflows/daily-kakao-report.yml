@@ -7,9 +7,9 @@ name: daily-kakao-report
 # REST API 키는 클라이언트 공개용 값이라 시크릿이 아니라 아래 client_id에 직접 사용.
 
 on:
+  workflow_dispatch: {}
   schedule:
     - cron: "3 0 * * *" # UTC 00:03 = KST 09:03
-  workflow_dispatch: {}
 
 jobs:
   send-report:
