@@ -9,7 +9,7 @@ name: daily-kakao-report
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "3 0 * * *" # UTC 00:03 = KST 09:03
+    - cron: "0 23 * * *" # UTC 23:00 = KST 08:00
 
 jobs:
   send-report:
@@ -34,7 +34,7 @@ jobs:
           echo "::add-mask::$ACCESS_TOKEN"
           echo "access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
 
-      - name: "나에게 보내기" 발송
+      - name: 나에게 보내기 발송
         env:
           ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
         run: |
