@@ -1,2 +1,43 @@
-bmFtZTogZGFpbHkta2FrYW8tcmVwb3J0CgojIOycpeydvOyekCDsl4Xsl4Ug67O07YOd6riAKO2CpOydtOuLpCkg7Iuk7Yq47YSwIOydvOydhCDsnbTsmqku
-IyD
+name: daily-kakao-report
+
+# 매일 draft PR 현황을 카카오톡 "나에게 보내기"로 발송한다.
+# 필요한 GitHub Secrets (사람이 직접 등록, Claude는 값에 접근하지 않음):
+#   - KAKAO_CLIENT_SECRET : 카카오 디벨로퍼스 > 플랫폼 키 > 클라이언트 시크릿
+#   - KAKAO_REFRESH_TOKEN : 카카오 로그인 OAuth로 발급받은 refresh_token
+# REST API 키는 클라이언트 공개용 값이라 시크릿이 아니라 아래 client_id에 직접 사용.
+
+on:
+  schedule:
+    - cron: "3 0 * * *" # UTC 00:03 = KST 09:03
+  workflow_dispatch: {}
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 카카오 액세스 토큰 갱신
+        id: token
+        env:
+          CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.KAKAO_REFRESH_TOKEN }}
+        run: |
+          RESPONSE=$(curl -sS -X POST "https://kauth.kakao.com/oauth/token" \
+            -d "grant_type=refresh_token" \
+            -d "client_id=30dbc23cb8c40f05689b66eb425539d6" \
+            -d "client_secret=${CLIENT_SECRET}" \
+            -d "refresh_token=${REFRESH_TOKEN}")
+          ACCESS_TOKEN=$(echo "$RESPONSE" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+          if [ -z "$ACCESS_TOKEN" ]; then
+            echo "::error::카카오 토큰 갱신 실패: $RESPONSE"
+            exit 1
+          fi
+          echo "::add-mask::$ACCESS_TOKEN"
+          echo "access_token=$ACCESS_TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: "나에게 보내기" 발송
+        env:
+          ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+        run: |
+          curl -sS -X POST "https://kapi.kakao.com/v2/api/talk/memo/default/send" \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            --data-urlencode 'template_object={"object_type":"text","text":"[Zoop Holdings 일일보고]\n오늘자 데일리 사이클 draft PR을 확인해주세요.","link":{"web_url":"https://github.com/runnerpyrri-lgtm/Zoop-holdings/pulls"},"button_title":"PR 목록 보기"}'
