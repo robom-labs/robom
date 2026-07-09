@@ -68,6 +68,7 @@ zoop-holdings/
 5. 주간: `supervisor`(직원 평가·프롬프트 개선)·`upgrader`·`release-manager` / 월간: `strategist`·`architect`
 
 ## 6. 절대 규칙 (자세한 건 CLAUDE.md)
+- **사장님은 비전문가 → 보고·질문은 초등학생도 알아듣게 쉬운 말로. 전문용어 금지(쓰면 괄호로 뜻 붙이기), 질문은 선택지로.** (CLAUDE.md 최상단 규칙)
 - main 직접 push ✗ / PR만 ✓
 - secret·OAuth·prod DB·배포설정 변경 ✗ (사람만)
 - `/zoopzoopcall/` base path 변경 ✗ (guardrails가 차단)
