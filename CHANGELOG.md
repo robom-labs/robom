@@ -61,3 +61,9 @@
 - ROADMAP 앱 최적화 백로그(P0~P2), RISK_REGISTER R9(러닝콜 API키)·R10(공유코드 중복).
 - ci-pushrun: races.json 검증(JSON 파싱 + http:// mixed-content 경고).
 - DECISIONS D12(진단 요약).
+
+## [0.2.6] - 2026-07-09
+
+### 추가
+- ops/handoff/update-prompts.md — 각 앱(runningcall/pushrun/zoopzoopcall) 저장소 AI에게
+  진단 결과+업데이트 지시를 넘기는 자체완결 프롬프트(의견 요청 → 안전 항목 PR 실행).
