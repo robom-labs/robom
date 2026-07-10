@@ -102,3 +102,11 @@
     참조만 되고 없던 문서(agent-performance·security-boundaries·operating-model) · 앱 알림 버그 백로그(R11).
   - 버림(이미 #9에 반영): 버전 통일·inspector 경로교정·CODEOWNERS·rollback/new-app-onboarding.
 - #3 governance 사실 기록: 홍보팀(daily-marketing) 보류 상태 · runningcall API 보안(R9) 착수는 유효 — state/RISK에 반영.
+
+## 2026-07-10 · 출시 준비 점검
+
+### D15. 실제 릴리스 게이트는 앱 원본 저장소에 둔다
+- 결정: `apps/*` vendored 사본 CI는 추가 스모크일 뿐이다. 배포되는 원본 저장소의 PR CI가 타입·테스트·빌드·정적 데이터 검증의 정본이다.
+- 적용: zoopzoopcall #8, runningcall #5, pushrun #4에 원본 CI와 출시 보완을 추가하고 holdings 사본을 해당 PR head와 동기화했다.
+- 결정: 서버 Web Push가 없는 상태에서는 브라우저 종료 후 알림을 보장한다고 표현하지 않는다. 완전한 백그라운드 알림은 별도 MAJOR RFC와 사람 승인을 거친다.
+- 머지 순서: 앱 PR 3개를 먼저 머지·배포 확인한 뒤 이 holdings PR을 머지한다.

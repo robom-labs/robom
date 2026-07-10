@@ -36,6 +36,8 @@ jobs:
             test -d "apps/$a" || { echo "::error::apps/$a 폴더 없음(registry와 불일치)"; exit 1; }
           done
           echo "registry 앱: $(echo $ids | tr '\n' ' ')"
+      - name: registry 버전 ↔ package.json 일치
+        run: bash ops/scripts/verify-app-registry.sh
 
   # lockfile 대량 변경 차단
   lockfile-guard:

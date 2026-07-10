@@ -1,6 +1,5 @@
 # runningcall(Next.js) — apps/runningcall 가 바뀔 때만 실행.
-# 배포 build 는 Vercel 담당. 여기선 typecheck + test 만.
-# pnpm 10: runningcall 워크스페이스 파일이 allowBuilds(=pnpm10 문법)을 쓰므로 버전 맞춤.
+# 원본 저장소 CI가 정본이며, holdings 사본 변경 시에도 동일 검증을 반복한다.
 name: CI · runningcall
 
 on:
@@ -18,9 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: 10 }
+        with: { version: 10.17.1 }
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm, cache-dependency-path: apps/runningcall/pnpm-lock.yaml }
-      - run: pnpm install --no-frozen-lockfile
+        with: { node-version: 22, cache: pnpm, cache-dependency-path: apps/runningcall/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm build
+      - run: pnpm audit --prod --audit-level high
