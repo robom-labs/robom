@@ -3,6 +3,17 @@
 이 회사의 **운영 방식/자동화** 변경 이력. [SemVer](https://semver.org/lang/ko/).
 (앱 자체 변경은 각 `apps/<app>/CHANGELOG.md` 참조.)
 
+## [0.3.3] - 2026-07-10
+
+### 변경 (3앱 순차 점검 daily#3)
+- 세 앱의 출시 준비 PR(zoopzoopcall #8, runningcall #5, pushrun #4)이 모두 머지되어 자동 배포 완료된 것을 확인했다(이전 ops/state의 "머지 대기" 기술은 stale 정보였음).
+- 각 앱 원본 저장소에서 우선순위 백로그 기준 작고 안전한 변경 1개씩 진행 후 draft PR 생성:
+  - zoopzoopcall #9: 서비스워커 install 단계 앱 셸(manifest·아이콘) 사전 캐시.
+  - runningcall #6: `lib/insights.ts` 추천 로직 단위테스트 16개 추가.
+  - pushrun #5: 검색창 Enter 키로 필터 즉시 적용.
+- 세 건 모두 typecheck/test/build(또는 정적 검증) 통과를 확인한 뒤에만 PR을 생성했다.
+- 조사 후 보류: runningcall ESLint 신규 설치(lockfile 대규모 변경 위험), pushrun races.json 최신화(화면 노출은 이미 필터링돼 버그 아님, 데이터 자체 갱신은 외부 검증 필요), zoopzoopcall 폰트 self-host(바이너리·라이선스 확인 필요) — 상세 사유는 `ops/ROADMAP.md`.
+
 ## [0.3.2] - 2026-07-10
 
 ### 변경 (출시 준비 정합화)

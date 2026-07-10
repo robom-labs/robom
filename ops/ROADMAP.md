@@ -43,10 +43,12 @@
       공유 패키지로 승격 → runningcall·pushrun 가 소비(3벌 중복 → 1벌) — cross-repo
 
 ### P2 — 품질/퀵윈
-- [ ] runningcall: ESLint + lint 스크립트 + CI 연결(숨은 exhaustive-deps 노출) — repo:runningcall
+- [ ] runningcall: ESLint + lint 스크립트 + CI 연결(숨은 exhaustive-deps 노출) — repo:runningcall (2026-07-10 재조사: eslint 신규 설치 시 lockfile 대규모 변경(금지 규칙 5번, >200줄) 위험 있어 보류. 실제 변경량 측정 후 재검토 필요.)
 - [ ] runningcall: page.tsx(2,180줄)·gacha.tsx 점진적 컴포넌트/훅 분해 — repo:runningcall
-- [ ] runningcall: lib/insights.ts(1,049줄) 테스트 추가, `--webpack` 사유 문서화 — repo:runningcall
+- [x] runningcall: lib/insights.ts(1,049줄) 테스트 추가 — PR #6 (getRankedWindows·getDayParts·getConditionChips·getMetricDetail 16개). `--webpack` 사유 문서화는 미착수로 남음.
 - [x] zoopzoopcall: apps/web 실제 테스트와 원본 CI 연결 — PR #8.
-- [ ] zoopzoopcall: 폰트 self-host + SW 셸 precache — repo:zoopzoopcall
-- [ ] pushrun: HTTP 외부 링크 178개를 도메인별 HTTPS 지원 확인 후 점진 교체 — repo:pushrun.
+- [x] zoopzoopcall: SW 셸 precache — PR #9 (install 단계에서 manifest·아이콘 사전 캐시). 폰트 self-host(pretendard/Gowun Batang CDN→로컬)는 바이너리 확보·라이선스 확인 필요해 별도 작업으로 분리, 미착수.
+- [ ] pushrun: HTTP 외부 링크 178개를 도메인별 HTTPS 지원 확인 후 점진 교체 — repo:pushrun. (2026-07-10 재조사에서도 도메인별 개별 검증 필요해 보류 유지)
+- [ ] pushrun: races.json 대회 데이터 최신화 — repo:pushrun. (2026-07-10 조사: 100개 중 지난 날짜 11개 확인했으나 `isVisibleRace()`가 이미 화면 노출에서 필터링 중이라 버그 아님. 정확한 최신 일정으로 교체하려면 외부 검증 필요해 미착수.)
 - [x] pushrun: 버전/캐시버스트 정합성 검사, PWA 자산, 모달 Esc·focus-trap — PR #4.
+- [x] pushrun: 검색창 Enter 키로 필터 적용 — PR #5 (2026-07-10 daily, 소규모 UX 추가).

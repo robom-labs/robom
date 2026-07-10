@@ -2,7 +2,13 @@
 
 > 앱 상세 이력은 원본 저장소 CHANGELOG. 여기는 holdings 관점 요약.
 
-## 2026-07-10 (출시 준비 RC)
+## 2026-07-10 (daily #3 · 코드) — PATCH 후보
+- 검색창 Enter 키로 필터 즉시 적용(기존 applyFilters 재사용, 순수 추가).
+- HTTP→HTTPS 178개·races.json 최신화·app.js 모듈분리는 재조사 후 재차 보류(사유: ROADMAP 참고).
+- 검증: node --check, npm test(정적 검증 100건) 통과.
+- PR #5(draft): https://github.com/runnerpyrri-lgtm/pushrun/pull/5
+
+## 2026-07-10 (출시 준비 RC) — 머지 완료
 - 앱 종료 후 알림을 보장하지 않는다고 명시하고 manifest·service worker·아이콘을 추가했다.
 - 장기 타이머 재예약, 모달 focus-trap, 알림 실패 폴백을 보강했다.
 - 100개 대회 데이터·PWA 자산·버전/캐시버스트를 검사하는 원본 CI를 추가했다.
