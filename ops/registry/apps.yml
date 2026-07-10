@@ -5,7 +5,7 @@ apps:
   - id: zoopzoopcall
     name: 줍줍콜
     status: live
-    version: 0.1.0
+    version: 0.1.3
     repo: runnerpyrri-lgtm/zoopzoopcall
     stack: pnpm + Vite + React PWA
     test: "pnpm -r test"          # vitest
@@ -13,29 +13,33 @@ apps:
     deploy: github-pages           # gh-pages 브랜치(수동)
     base_path: /zoopzoopcall/      # ★ 변경 금지 (가드레일이 지킴)
     url: https://runnerpyrri-lgtm.github.io/zoopzoopcall/
+    release_pr: https://github.com/runnerpyrri-lgtm/zoopzoopcall/pull/8
     marketing_tone: "청약 무순위/줍줍 알림 · 마감 긴급성 + 무료·간편"
 
   - id: runningcall
     name: 러닝콜 (running-day-score)
     status: live
-    version: 0.13.1
+    version: 0.13.3
     repo: runnerpyrri-lgtm/runningcall
     stack: Next.js 16 + React 19 (pnpm)
     test: "pnpm test"              # vitest run (러닝 골든마스터 등)
     build: "pnpm build"           # next build --webpack
     deploy: vercel
     url: https://runningcall.vercel.app
+    release_pr: https://github.com/runnerpyrri-lgtm/runningcall/pull/5
     marketing_tone: "날씨·대기질로 '지금 나가도 돼? 언제가 좋아?' 야외활동 컨디션(걷기·산책·러닝·등산·자전거)"
 
   - id: pushrun
     name: PushRun (pushrun-web-demo)
     status: live
-    version: 0.6.6
+    version: 0.6.8
     repo: runnerpyrri-lgtm/pushrun
-    stack: static site (빌드 없음)
-    test: "none"
+    stack: static PWA (HTML/CSS/JS)
+    test: "npm test"
     build: "none"                 # 정적: outputs/pushrun-site 를 그대로 배포
     deploy: github-pages + vercel  # peaceiris → gh-pages, publish_dir=outputs/pushrun-site
+    url: https://runnerpyrri-lgtm.github.io/pushrun/
+    release_pr: https://github.com/runnerpyrri-lgtm/pushrun/pull/4
     marketing_tone: "러닝 대회 접수 시작 시간 알림 · 놓치지 마세요"
 
 # 앱 추가 시: 위 형식으로 한 블록 + ops/state/<id>.md + ops/changelog/<id>.md 생성.

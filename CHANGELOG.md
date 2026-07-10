@@ -3,6 +3,17 @@
 이 회사의 **운영 방식/자동화** 변경 이력. [SemVer](https://semver.org/lang/ko/).
 (앱 자체 변경은 각 `apps/<app>/CHANGELOG.md` 참조.)
 
+## [0.3.2] - 2026-07-10
+
+### 변경 (출시 준비 정합화)
+- 세 앱 원본 저장소의 출시 보완 draft PR을 생성하고 holdings 사본을 각 PR head에 동기화했다.
+  - zoopzoopcall #8: 알림 표시 성공 후 발송 기록, 원본 CI, 실공고 포함 Pages 빌드.
+  - runningcall #5: 위치 오답 차단, API 입력·출처·Nominatim 정책, 알림 한계, 취약점·원본 CI.
+  - pushrun #4: PWA 셸, 알림 한계 고지, 모달 포커스, 100개 데이터 검증과 배포 게이트.
+- registry 앱 버전을 0.1.3 / 0.13.3 / 0.6.8 RC로 갱신하고 package.json과 자동 대조하는 가드레일을 추가했다.
+- PushRun CI가 실제 `featuredRaces`·`scheduleFeed`를 무시하고 0개로 세던 검사를 원본 `npm test`로 교체했다.
+- 앱 원본 CI를 릴리스 게이트 정본으로 확정(D15). 서버 Web Push 없는 종료 후 알림은 별도 MAJOR 과제로 유지한다.
+
 ## [0.1.0] - 2026-07-09
 
 ### 추가 (회사 착수)

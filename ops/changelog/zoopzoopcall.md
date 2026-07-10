@@ -2,6 +2,12 @@
 
 > 앱 상세 이력은 `apps/zoopzoopcall/CHANGELOG.md`. 여기는 holdings 관점 요약.
 
+## 2026-07-10 (출시 준비 RC)
+- 알림 표시 성공 뒤에만 발송 완료 기록, 동일 알림 중복 전달 방지, 실패 경로 테스트를 추가했다.
+- 원본 저장소 CI와 실공고 URL을 주입하는 Pages 빌드를 추가했다.
+- 검증: typecheck, core 44 tests, web 6 tests, production build 통과.
+- PR #8(draft): https://github.com/runnerpyrri-lgtm/zoopzoopcall/pull/8
+
 ## 2026-07-09
 - holdings에 federated 편입(v0.1.0 스냅샷). 코드 변경 없음.
 

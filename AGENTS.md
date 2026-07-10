@@ -53,12 +53,12 @@ zoop-holdings/
     zoopzoopcall/  runningcall/  pushrun/   ← 독립 앱 3개(각자 스택)
 ```
 
-## 4. 지금 관리 중인 앱 3개 (2026-07-09 기준)
+## 4. 지금 관리 중인 앱 3개 (2026-07-10 기준)
 | 앱 | 정체 | 버전 | 스택 | 배포 | 특이사항 |
 |---|---|---|---|---|---|
-| **zoopzoopcall** | 줍줍콜(청약 무순위 알림) | 0.1.0 | Vite+React PWA | GitHub Pages `/zoopzoopcall/` | base path 변경 금지 |
-| **runningcall** | 러닝콜(야외활동 컨디션) | 0.13.1 | Next.js16+React19 | Vercel | 러닝 골든마스터 테스트 |
-| **pushrun** | PushRun(러닝대회 알림) | 0.6.6 | 정적 사이트 | Pages+Vercel | 빌드 없음(outputs/pushrun-site) |
+| **zoopzoopcall** | 줍줍콜(청약 무순위 알림) | 0.1.3 RC | Vite+React PWA | GitHub Pages `/zoopzoopcall/` | PR #8 머지 시 자동 배포 |
+| **runningcall** | 러닝콜(야외활동 컨디션) | 0.13.3 RC | Next.js16+React19 | Vercel | PR #5 · Kakao 키 필요 |
+| **pushrun** | PushRun(러닝대회 알림) | 0.6.8 RC | 정적 PWA | GitHub Pages | PR #4 · 앱 실행 중 알림 |
 > 앱 코드는 각자 원본 저장소에도 존재하고 **거기서 배포된다.** 여기 `apps/`는 관제·개발 사본(D1/D9). 원본 배포는 건드리지 않는다.
 
 ## 5. 어떻게 일하나 (하루 사이클)
@@ -85,4 +85,4 @@ zoop-holdings/
 - [ ] 새 결정을 했으면 `ops/DECISIONS.md`에 추가했는가
 
 ---
-*이 문서는 회사가 바뀌면 같이 갱신한다. 시스템 버전 숫자는 루트 `VERSION` 파일이 단일 소스다. 마지막 갱신: 2026-07-10 (운영 규율 정합화).*
+*이 문서는 회사가 바뀌면 같이 갱신한다. 시스템 버전 숫자는 루트 `VERSION` 파일이 단일 소스다. 마지막 갱신: 2026-07-10 (출시 준비 정합화).*

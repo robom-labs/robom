@@ -14,22 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
       - name: 필수 산출물 존재
         run: |
-          for f in index.html app.js races.json styles.css; do
+          for f in index.html app.js races.json styles.css manifest.webmanifest sw.js icon.svg; do
             test -f "apps/pushrun/outputs/pushrun-site/$f" \
               || { echo "::error::pushrun 산출물 누락: $f"; exit 1; }
           done
-      - name: races.json 검증(JSON 파싱 + mixed-content 경고)
-        run: |
-          node -e '
-            const fs=require("fs");
-            const p="apps/pushrun/outputs/pushrun-site/races.json";
-            let data;
-            try { data=JSON.parse(fs.readFileSync(p,"utf8")); }
-            catch(e){ console.log("::error::races.json JSON 파싱 실패: "+e.message); process.exit(1); }
-            const arr=Array.isArray(data)?data:(data.races||[]);
-            const http=JSON.stringify(data).match(/http:\/\//g);
-            if(http){ console.log("::warning::races.json 에 http:// 링크 "+http.length+"개(HTTPS 정규화 권장)"); }
-            console.log("races 항목수: "+arr.length);
-          '
+      - name: JavaScript 문법 검사
+        run: node --check apps/pushrun/outputs/pushrun-site/app.js && node --check apps/pushrun/outputs/pushrun-site/sw.js
+      - name: 정적 자산·대회 데이터 검사
+        working-directory: apps/pushrun
+        run: npm test
