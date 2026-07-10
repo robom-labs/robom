@@ -26,6 +26,12 @@
 ## 앱 최적화 백로그 (2026-07-09 전수 진단 결과)
 > D11: 앱 코드는 각 원본 저장소에서 실행. holdings는 우선순위만 관리.
 
+### P0 — 앱 알림 버그 (R11, 2026-07-10 전수리뷰에서 발견 · 각 원본 저장소)
+> 세 앱 모두 "알림"이 핵심인데 알림이 조용히 안 가는 HIGH 버그. 각 앱 저장소에서 수정.
+- [ ] zoopzoopcall `scheduler.ts`: 권한 미허용 시에도 `markFired` 선행 → 알림 영구 억제.
+- [ ] runningcall `page.tsx`: 한글 동네명 정규식 `\b`가 한글 뒤 미매치 → 위치검색 차단.
+- [ ] pushrun `app.js`: setTimeout 24.8일 초과 미예약(8·9월 대회) / 모달 매초 리셋 / 배열-index ID로 저장 알림 유실.
+
 ### P0 — 보안/정확성 (먼저)
 - [x] runningcall: `/api/{search-location,reverse-location,forecast}` 레이트리밋/오리진 제한 (Kakao 유료키 소진 방지) — repo:runningcall (2026-07-09 PR #2 draft, 사람 머지 대기)
 - [ ] zoopzoopcall: Edge Function ↔ packages/core 정규화 중복 제거(단일 소스) — repo:zoopzoopcall (2026-07-09 조사 결과 하루 범위 초과 — Deno import 확장자 전면 수정 + 로컬 배포검증 불가. 제안서 필요, 다음 사이클에서 별도 검토)

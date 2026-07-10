@@ -39,7 +39,7 @@ zoop-holdings/
   STRUCTURE.md       ← 파일구조 설명
   REPO-SETUP.md      ← 저장소 셋업 이력
   .claude/agents/    ← AI 직원 11명(프롬프트). 마스터가 이들을 호출
-  .github/workflows/ ← daily-company-run · daily-marketing · weekly-review · guardrails(범용 CI)
+  .github/workflows/ ← daily-company-run · daily-marketing · weekly-review · monthly-board-run · guardrails(범용 CI)
                        ci-{zoopzoopcall,runningcall,pushrun}(앱별 path 필터) · daily-kakao-report(일일보고)
   ops/
     DESIGN.md  DECISIONS.md  ROADMAP.md  RISK_REGISTER.md
