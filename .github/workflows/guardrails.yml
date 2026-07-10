@@ -52,6 +52,14 @@ jobs:
             echo "::error::pnpm-lock.yaml 변경이 200줄을 초과했다. 사람 검토 필요."; exit 1
           fi
 
+  # 시스템 버전 단일 소스: 문서에 버전 숫자 하드코딩 차단(드리프트 재발 방지)
+  version-single-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 시스템 버전은 VERSION 파일만 (D13)
+        run: bash ops/scripts/check-version-single-source.sh
+
   # secret 노출 차단
   secret-scan:
     runs-on: ubuntu-latest

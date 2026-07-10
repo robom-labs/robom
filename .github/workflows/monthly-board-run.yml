@@ -1,0 +1,36 @@
+# 월 1회(매월 1일 09시 KST) — 경영진 회의: 전략·설계.
+# strategist·architect 는 프롬프트만 있고 부르는 워크플로가 없어 실행 불가였다 — 이 파일이 그 갭을 메운다.
+name: Monthly Board Run
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"     # 매월 1일 00:00 UTC = 09:00 KST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: monthly-board-run
+  cancel-in-progress: false
+
+jobs:
+  board:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--max-turns 20"
+          prompt: |
+            너는 zoop-holdings의 월간 경영진(전략·설계)이다. 순서대로 수행:
+            1) strategist: 앱 포트폴리오(키움/보류/리팩토링/폐기)를 판정해 ops/ROADMAP.md 상단에 반영.
+               신규 앱 요청이 있으면 ops/playbooks/new-app-onboarding.md 게이트로 판단.
+            2) architect: 관제 저장소 모델(A) 유지 여부 점검, 공유 core 중복(R10)·구조 변경 후보를
+               제안서(RFC)로만 정리해 ops/DECISIONS.md 에 근거를 남긴다.
+            MAJOR·구조 변경은 코드 대신 제안서만. 결과를 요약하고 변경이 있으면 draft PR을 연다.
+            main 직접 push 금지, 배포·비밀키·base path 변경 금지(사장 승인 필수).

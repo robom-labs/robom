@@ -93,3 +93,12 @@
   agent 프롬프트(inspector/builder/release-manager)의 경로를 holdings 레이아웃(`apps/<app>/...`)에 맞게 교정.
   참조만 되고 없던 playbook(rollback·new-app-onboarding) 생성. CODEOWNERS 추가(단, branch protection은 사장 설정 필요).
 - 미해결(사장): main branch protection + "Require review from Code Owners" 활성화(R7). 켜기 전엔 PR-only가 물리 강제되지 않음.
+
+### D14. 중복 PR 정리 + 살릴 것만 통합 (PR #3·#7·#8 클로즈)
+- 상황: 여러 세션이 병렬로 만든 관제 리뷰 PR 3개(#3 경영지시기록·#7 운영모델정합·#8 전수리뷰)가 열려 있었고,
+  대부분 이미 머지된 #9(v0.3.0)와 겹쳤다. 그대로 두면 D-번호·버전 충돌.
+- 결정: 세 PR을 **클로즈**하고, 아직 main에 없던 쓸만한 것만 이 통합 PR로 살린다.
+  - 살림: `monthly-board-run.yml`(전략·설계팀 호출 갭 해소) · 버전 드리프트 방지 검사(guardrails) ·
+    참조만 되고 없던 문서(agent-performance·security-boundaries·operating-model) · 앱 알림 버그 백로그(R11).
+  - 버림(이미 #9에 반영): 버전 통일·inspector 경로교정·CODEOWNERS·rollback/new-app-onboarding.
+- #3 governance 사실 기록: 홍보팀(daily-marketing) 보류 상태 · runningcall API 보안(R9) 착수는 유효 — state/RISK에 반영.

@@ -101,6 +101,16 @@
 ### 사장 액션 필요
 - GitHub → Settings → Branches → main 보호 + "Require review from Code Owners" 활성화(R7). 켜야 PR-only가 실제 강제됨.
 
+## [0.3.1] - 2026-07-10
+
+### 추가 (중복 PR 정리 + 살릴 것 통합 · D14)
+- 열린 중복 PR 3개(#3·#7·#8, #9와 겹침)를 정리하고, main에 없던 쓸만한 것만 통합:
+  - `monthly-board-run.yml` 신설 — 월간 전략·설계팀(strategist·architect)을 실제로 부르는 경로(그동안 정의만 있고 호출 워크플로 없었음).
+  - guardrails `version-single-source` 잡 + `ops/scripts/check-version-single-source.sh` — 문서 버전 하드코딩 차단(드리프트 재발 방지).
+  - 참조만 되고 없던 문서 생성: `ops/scorecards/agent-performance.md`, `ops/playbooks/{security-boundaries,operating-model}.md`.
+  - 앱 알림 버그 백로그 등록: RISK R11 + ROADMAP P0(zoopzoopcall/runningcall/pushrun 알림 무력화 버그, 각 원본 저장소에서 수정).
+- 카카오 일일보고 자동 메시지 "시간 먼저" 통일(3채널 형식 일치).
+
 ### 앱 코드(D11 — 각 원본 저장소에서, holdings 미변경)
 - runningcall: `docs/TODO.md`에 유출 `ghp_` 토큰 폐기 항목 → 실제 폐기 확인 필요(보안).
 - zoopzoopcall: core↔edge 정규화 복사본이 이미 갈라짐(edge가 과거공고 필터·정렬 추가). 테스트 있는 쪽이 배포 안 됨 → dedup 시급(R3/R10).

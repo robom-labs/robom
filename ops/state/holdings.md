@@ -6,8 +6,10 @@
 - 저장소: github.com/runnerpyrri-lgtm/Zoop-holdings (main)
 
 ## 방금 한 일 (최근)
-- 2026-07-10: 전체 코드리뷰 → 운영 규율 정합화(v0.3.0). 버전 5곳 불일치 단일화, 데일리 프롬프트 근본원인 교정,
-  agent 경로 holdings 레이아웃 정합, registry-sanity apps.yml 기반화, CODEOWNERS·rollback·new-app-onboarding 추가. draft PR.
+- 2026-07-10: 중복 PR 정리(#3·#7·#8 클로즈) + 살릴 것 통합(v0.3.1) — monthly-board-run(전략·설계 호출),
+  버전 드리프트 방지 검사, 빠진 문서 3개, 앱 알림 버그 백로그(R11), 카카오 시간먼저. 8시 보고는 슬랙·노션·카카오 3채널 가동.
+- 2026-07-10: 전체 코드리뷰 → 운영 규율 정합화(v0.3.0, #9 머지). 버전 5곳 불일치 단일화, 데일리 프롬프트 근본원인 교정,
+  agent 경로 holdings 레이아웃 정합, registry-sanity apps.yml 기반화, CODEOWNERS·rollback·new-app-onboarding 추가.
 - 2026-07-09: 3개 앱 각 1개 소규모 안전 변경 + draft PR 3개 생성.
 - 2026-07-09: Day1 — 3개 앱 홍보 콘텐츠팩 생성(게시대기), CI 자기수정(D10).
 
