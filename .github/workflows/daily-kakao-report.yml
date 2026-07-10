@@ -43,9 +43,19 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
           MSG: ${{ github.event.inputs.message }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          DEFAULT="[Zoop Holdings 일일보고] 오늘자 데일리 사이클 draft PR을 확인해주세요."
-          TEXT="${MSG:-$DEFAULT}"
+          if [ -n "$MSG" ]; then
+            # 수동 발송: 입력한 문구 그대로
+            TEXT="$MSG"
+          else
+            # 스케줄 자동 발송: 맨 위에 한국시간, 그 아래 진행 PR 건수(내용)
+            NOW=$(TZ=Asia/Seoul date +"%p %-I시 %-M분" | sed 's/AM/오전/;s/PM/오후/')
+            TODAY=$(TZ=Asia/Seoul date +%Y-%m-%d)
+            PRCOUNT=$(curl -sS -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=open&per_page=100" | jq 'length' 2>/dev/null || echo "?")
+            TEXT=$(printf '🕒 %s 기준\n황준필 회장님, 보고드리겠습니다!\n[Zoop Holdings 일일보고 · %s]\n🟢 진행 PR %s건 (검토 대기) — 자세한 내용은 아래 버튼' "$NOW" "$TODAY" "$PRCOUNT")
+          fi
           TEMPLATE=$(jq -nc --arg t "$TEXT" '{object_type:"text",text:$t,link:{web_url:"https://github.com/runnerpyrri-lgtm/Zoop-holdings/pulls"},button_title:"PR 목록 보기"}')
           curl -sS -X POST "https://kapi.kakao.com/v2/api/talk/memo/default/send" \
             -H "Authorization: Bearer ${ACCESS_TOKEN}" \
