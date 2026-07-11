@@ -39,8 +39,9 @@ test("server-renders the finished Robom signal hub", async () => {
   assert.match(html, /오늘의 타이밍/);
   assert.match(html, /알림은 많아도/);
   assert.match(html, /https:\/\/runningcall\.vercel\.app/);
-  assert.match(html, /https:\/\/runnerpyrri-lgtm\.github\.io\/zoopzoopcall\//);
-  assert.match(html, /https:\/\/runnerpyrri-lgtm\.github\.io\/pushrun\//);
+  assert.match(html, /https:\/\/robom-labs\.github\.io\/homebom\//);
+  assert.match(html, /https:\/\/robom-labs\.github\.io\/runningbom\//);
+  assert.doesNotMatch(html, /runnerpyrri-lgtm\.github\.io\/(zoopzoopcall|pushrun)/);
   assert.match(html, /https:\/\/robom\.kr\/og\.png/);
   assert.match(html, /twitter:card/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/);
