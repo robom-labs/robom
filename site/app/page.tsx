@@ -92,7 +92,7 @@ function SignalArtwork({ tone }: { tone: string }) {
 
 export default function Home() {
   return (
-    <div className="site-shell">
+    <div className="site-shell" id="top">
       <aside className="side-nav" aria-label="로봄 앱 메뉴">
         <a href="#top" aria-label="로봄 처음으로">
           <BrandLockup />
@@ -133,7 +133,37 @@ export default function Home() {
       </aside>
 
       <main className="content-area">
-        <section className="hero" id="top">
+        <section className="app-home" aria-label="로봄 모바일 홈">
+          <header className="app-home-head">
+            <a href="#top" aria-label="로봄 처음으로">
+              <BrandLockup compact />
+            </a>
+            <span className="app-live"><span className="pulse-dot" aria-hidden="true" />먼저 보는 중</span>
+          </header>
+
+          <div className="app-greeting">
+            <span className="app-sun" aria-hidden="true" />
+            <h2>오늘도 <em>좋은 타이밍</em>이<br />기다리고 있어요.</h2>
+            <p>나갈 때, 기회가 열릴 때, 출발선에 설 때.<br />로봄이 먼저 보고 제때 알려드릴게요.</p>
+          </div>
+
+          <p className="app-tiles-label">어떤 순간부터 볼까요?</p>
+          <nav className="app-tiles" aria-label="로봄 앱 열기">
+            {signals.map((signal) => (
+              <a className={`app-tile ${signal.tone}`} href={signal.href} key={signal.appName}>
+                <span className="app-tile-mark" aria-hidden="true" />
+                <span className="app-tile-copy">
+                  <small>{signal.label}</small>
+                  <strong>{signal.appName}</strong>
+                  <span>{signal.title}</span>
+                </span>
+                <b className="app-tile-go" aria-hidden="true">→</b>
+              </a>
+            ))}
+          </nav>
+        </section>
+
+        <section className="hero">
           <nav className="top-nav" aria-label="주요 메뉴">
             <a className="mobile-brand" href="#top" aria-label="로봄 처음으로">
               <BrandLockup compact />
@@ -254,6 +284,19 @@ export default function Home() {
           <a className="footer-domain" href="https://robom.kr">robom.kr</a>
           <span>© 2026 ROBOM</span>
         </footer>
+
+        <nav className="app-tabbar" aria-label="로봄 하단 탭">
+          <a href="#top" aria-current="page">
+            <span className="tab-mark home" aria-hidden="true" />
+            <span>홈</span>
+          </a>
+          {signals.map((signal) => (
+            <a href={signal.href} key={signal.appName}>
+              <span className={`tab-mark ${signal.tone}`} aria-hidden="true" />
+              <span>{signal.appName}</span>
+            </a>
+          ))}
+        </nav>
       </main>
     </div>
   );
