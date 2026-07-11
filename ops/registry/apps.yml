@@ -32,7 +32,7 @@ apps:
   - id: pushrun
     name: PushRun (pushrun-web-demo)
     status: live
-    version: 0.6.9
+    version: 0.6.10
     repo: runnerpyrri-lgtm/pushrun
     stack: static PWA (HTML/CSS/JS)
     test: "npm test"
