@@ -10,9 +10,9 @@ const signals = [
     number: "01",
     appName: "야외봄",
     englishName: "OUTBOM",
-    label: "바깥의 좋은 때",
-    title: "나가기 좋은 순간을 봐요.",
-    body: "날씨와 공기를 살펴 걷기·산책·러닝·등산·자전거를 시작하기 좋은 시간을 알려줍니다.",
+    label: "바깥바람이 좋은 때",
+    title: "걷기 좋은 하늘, 먼저 봐 둘게요.",
+    body: "하늘과 바람, 공기를 미리 살펴 걷고 달리기 좋은 시간이 오면 살며시 알려드려요.",
     cue: "오늘 18:20",
     note: "공기 맑음 · 바람 잔잔",
     tone: "outdoor",
@@ -22,9 +22,9 @@ const signals = [
     number: "02",
     appName: "청약봄",
     englishName: "HOMBOM",
-    label: "기회가 열리는 때",
-    title: "신청할 순간을 놓치지 않아요.",
-    body: "무순위 청약의 접수 시작과 마감처럼, 지나가면 다시 오지 않을 기회를 제때 알려줍니다.",
+    label: "다시 없을 기회의 날",
+    title: "그 접수, 잊지 않게 챙겨드려요.",
+    body: "무순위 청약처럼 지나가면 아쉬운 기회, 접수 시작부터 마감까지 곁에서 챙겨드립니다.",
     cue: "접수 D-1",
     note: "내일 09:00 시작",
     tone: "chance",
@@ -34,9 +34,9 @@ const signals = [
     number: "03",
     appName: "러닝봄",
     englishName: "RUNNINGBOM",
-    label: "출발선이 열리는 때",
-    title: "대회 접수의 출발을 잡아요.",
-    body: "선착순 러닝 대회 접수 오픈부터 마감까지, 출발선에 설 기회를 놓치지 않게 알려줍니다.",
+    label: "출발선에 서는 날",
+    title: "접수가 열리기 전에 깨워드려요.",
+    body: "금세 마감되는 러닝 대회 접수, 열리기 전에 미리 알려 출발선에 설 수 있게 합니다.",
     cue: "OPEN 10:00",
     note: "접수 시작 12분 전",
     tone: "start",
@@ -143,11 +143,11 @@ export default function Home() {
 
           <div className="app-greeting">
             <span className="app-sun" aria-hidden="true" />
-            <h2>오늘의 좋은 순간,<br /><em>로봄이 먼저 봐요.</em></h2>
-            <p>나갈 때, 기회가 열릴 때, 출발선에 설 때.<br />놓치기 전에, 제때 알려드릴게요.</p>
+            <h2>오늘도 좋은 순간이 와요.<br /><em>먼저 보고 있을게요.</em></h2>
+            <p>바람 좋은 저녁도, 다시 없을 기회도.<br />때가 되면 잊지 않고 말씀드릴게요.</p>
           </div>
 
-          <p className="app-tiles-label">어떤 순간이 궁금하세요?</p>
+          <p className="app-tiles-label">오늘은 어떤 순간을 기다리세요?</p>
           <nav className="app-tiles" aria-label="로봄 앱 열기">
             {signals.map((signal) => (
               <a className={`app-tile ${signal.tone}`} href={signal.href} key={signal.appName}>
