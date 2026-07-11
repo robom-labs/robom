@@ -10,6 +10,7 @@
 
 ## Next
 
-- [ ] 야외봄 브랜딩 PR merge.
-- [ ] 저장소 이전 뒤 Vercel Git 연결과 Kakao 키를 확인한다.
+- [x] 야외봄 브랜딩 PR을 merge했다.
+- [x] 저장소 이전 뒤 Vercel 운영 주소와 CI 응답을 확인했다.
+- [ ] Vercel의 Git 연결과 Kakao 운영 키를 설정 화면에서 최종 확인한다.
 - [ ] 새 독립 도메인을 연결하기 전까지 기존 배포 URL을 유지한다.

@@ -3,6 +3,14 @@
 이 회사의 **운영 방식/자동화** 변경 이력. [SemVer](https://semver.org/lang/ko/). 최신 버전이 맨 위.
 (앱 자체 변경은 각 독립 앱 저장소의 `CHANGELOG.md`를 참조합니다.)
 
+## [1.0.3] - 2026-07-11
+
+### 변경
+
+- 야외봄·청약봄·러닝봄 브랜딩 PR 병합과 각 운영 주소의 HTTP 200 응답을 확인했다.
+- 청약봄과 러닝봄의 홈페이지 연결을 각각 `robom-labs.github.io/homebom/`, `robom-labs.github.io/runningbom/`으로 전환했다.
+- 포트폴리오 registry와 앱별 상태 문서를 실제 배포 상태에 맞게 `live`로 갱신했다.
+
 ## [1.0.2] - 2026-07-11
 
 ### 변경

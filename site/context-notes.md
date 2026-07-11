@@ -17,8 +17,8 @@
 ## 현재 직접 연결 URL
 
 - 야외봄: https://runningcall.vercel.app
-- 청약봄: https://runnerpyrri-lgtm.github.io/zoopzoopcall/
-- 러닝봄: https://runnerpyrri-lgtm.github.io/pushrun/
+- 청약봄: https://robom-labs.github.io/homebom/
+- 러닝봄: https://robom-labs.github.io/runningbom/
 
 ## 출시 전 위험
 

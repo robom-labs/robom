@@ -28,7 +28,7 @@ const signals = [
     cue: "접수 D-1",
     note: "내일 09:00 시작",
     tone: "chance",
-    href: "https://runnerpyrri-lgtm.github.io/zoopzoopcall/",
+    href: "https://robom-labs.github.io/homebom/",
   },
   {
     number: "03",
@@ -40,7 +40,7 @@ const signals = [
     cue: "OPEN 10:00",
     note: "접수 시작 12분 전",
     tone: "start",
-    href: "https://runnerpyrri-lgtm.github.io/pushrun/",
+    href: "https://robom-labs.github.io/runningbom/",
   },
 ];
 
