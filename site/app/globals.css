@@ -52,9 +52,13 @@ em { font-style: normal; }
 .app-menu > p { margin: 0 0 6px 7px; color: #788395; font-size: 10px; font-weight: 900; letter-spacing: 0.12em; }
 .app-menu-link { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 11px; border: 1px solid transparent; border-radius: 16px; padding: 12px 10px; transition: transform 180ms ease, border-color 180ms ease, background 180ms ease; }
 .app-menu-link:hover { transform: translateX(4px); border-color: var(--line); background: var(--paper-strong); }
-.app-menu-mark { width: 14px; height: 14px; border-radius: 50%; background: var(--sky); }
-.app-menu-link.chance .app-menu-mark { border-radius: 3px; background: var(--butter); }
-.app-menu-link.start .app-menu-mark { border-radius: 999px 3px 3px 999px; background: var(--coral); }
+.app-menu-mark { width: 14px; height: 14px; border-radius: 50%; }
+.app-menu-link.chance .app-menu-mark { border-radius: 3px; }
+.app-menu-link.start .app-menu-mark { border-radius: 999px 3px 3px 999px; }
+/* tone 마크 색상 단일 소스 — 사이드 앱메뉴와 모바일 히어로 런처가 함께 참조한다. */
+.app-menu-mark, .hero-app-link .launch-mark { background: var(--sky); }
+.app-menu-link.chance .app-menu-mark, .hero-app-link.chance .launch-mark { background: var(--butter); }
+.app-menu-link.start .app-menu-mark, .hero-app-link.start .launch-mark { background: var(--coral); }
 .app-menu-link strong, .app-menu-link small { display: block; }
 .app-menu-link strong { font-size: 14px; font-weight: 900; letter-spacing: -0.045em; }
 .app-menu-link small { margin-top: 3px; color: #758093; font-size: 10px; }
@@ -67,9 +71,8 @@ em { font-style: normal; }
 
 .hero { min-height: 790px; padding: 30px clamp(30px, 5.8vw, 92px) 30px; background: radial-gradient(circle at 78% 19%, rgba(255, 214, 107, 0.2), transparent 24%), var(--paper); }
 .top-nav, footer { display: flex; align-items: center; justify-content: space-between; }
-.mobile-brand { display: none; }
+.mobile-brand, .hero-app-launch { display: none; }
 .top-status { display: flex; align-items: center; gap: 10px; margin: 0 0 0 auto; color: #68768a; font-size: 11px; font-weight: 800; letter-spacing: 0.03em; }
-.mobile-nav-links { display: none; }
 .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; align-items: center; gap: clamp(54px, 7vw, 112px); max-width: 1450px; margin: 92px auto 0; }
 .eyebrow, .section-kicker { color: var(--coral-deep); font-size: 11px; font-weight: 950; letter-spacing: 0.13em; }
 .eyebrow { display: flex; align-items: center; gap: 8px; }
@@ -196,10 +199,18 @@ footer .brand-en { color: var(--butter); }
   .content-area { margin-left: 0; }
   .hero { min-height: auto; padding: 22px 20px 27px; }
   .top-nav { justify-content: space-between; }
-  .mobile-brand, .mobile-nav-links { display: flex; }
+  .mobile-brand { display: flex; }
   .top-status { display: none; }
-  .mobile-nav-links { gap: 10px; }
-  .mobile-nav-links a { color: #6e7c90; font-size: 10px; font-weight: 850; }
+  .hero-app-launch { display: grid; gap: 10px; margin-top: 22px; }
+  .hero-app-link { display: grid; grid-template-columns: 16px 1fr auto; align-items: center; gap: 13px; min-height: 56px; border: 1px solid var(--line); border-radius: 16px; background: var(--white); padding: 12px 16px; box-shadow: 0 1px 0 var(--shadow); transition: transform 160ms ease, border-color 160ms ease; }
+  .hero-app-link:active { transform: scale(0.99); border-color: var(--ink); }
+  .hero-app-link .launch-mark { width: 15px; height: 15px; border-radius: 50%; }
+  .hero-app-link.chance .launch-mark { border-radius: 3px; }
+  .hero-app-link.start .launch-mark { border-radius: 999px 3px 3px 999px; }
+  .hero-app-link .launch-text { display: grid; gap: 2px; }
+  .hero-app-link strong { font-size: 15px; font-weight: 900; letter-spacing: -0.03em; }
+  .hero-app-link small { color: #6b7789; font-size: 11px; }
+  .hero-app-link b { color: #8792a1; font-size: 15px; font-weight: 500; }
   .brand-lockup.compact { gap: 6px; }
   .brand-lockup.compact .brand-ko { font-size: 24px; }
   .brand-lockup.compact .brand-en { font-size: 11px; }
@@ -239,5 +250,5 @@ footer .brand-en { color: var(--butter); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .pulse-dot { animation: none; }
-  .app-menu-link, .signal-card, .primary-link, .closing-link { transition: none; }
+  .app-menu-link, .signal-card, .primary-link, .closing-link, .hero-app-link { transition: none; }
 }

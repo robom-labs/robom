@@ -67,4 +67,8 @@ test("keeps production branding and accessibility assets in place", async () => 
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   assert.doesNotMatch(page, /SkeletonPreview|codex-preview/);
+  // 모바일 히어로 앱 열기 런처 도입 + 저품질 상단 텍스트 링크(mobile-nav-links) 제거를 고정한다.
+  assert.match(page, /hero-app-launch/);
+  assert.doesNotMatch(page, /mobile-nav-links/);
+  assert.match(css, /hero-app-launch/);
 });
