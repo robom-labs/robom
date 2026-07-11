@@ -1,35 +1,24 @@
-> ✅ 완료됨 (2026-07-09): 저장소 생성·최초 push 완료. 아래는 착수 이력 기록용.
-> 이후 사람 설정 작업(시크릿·브랜치 보호 등)은 **ops/HUMAN-TASKS.md** 가 단일 목록이다(D19).
+# 로봄 저장소 설정
 
-# zoop-holdings 저장소 생성 안내 (사장 30초 작업)
+## GitHub 목표 구조
 
-## 왜 이 문서가 필요한가
-AI(나)는 **새 GitHub 저장소를 만들 권한이 없다**(API 403 — integration 권한 제한).
-그래서 빈 저장소만 사장이 만들어주면, 내가 완성된 회사(3개 앱 + 관제)를 통째로 push한다.
+```text
+robom-labs/robom
+robom-labs/outbom
+robom-labs/homebom
+robom-labs/runningbom
+```
 
-## 지금 준비된 것 (로컬 /home/user/zoop-holdings, 완성본)
-- 관제: `CLAUDE.md`, `ops/`(설계·결정·로드맵·리스크·registry·state·플레이북), `.claude/agents/`(11), `.github/workflows/`(8: daily-company-run·daily-marketing·weekly-review·guardrails·ci-3종·daily-kakao-report)
-- 앱 3개 편입 완료:
-  - `apps/zoopzoopcall` (줍줍콜, v0.1.0, Vite PWA)
-  - `apps/runningcall` (러닝콜, v0.13.1, Next.js/Vercel)
-  - `apps/pushrun` (PushRun, v0.6.6, 정적)
-- 시스템 버전 숫자는 루트 `VERSION` 파일이 단일 소스(이 문서에 복제하지 않는다).
+저장소를 조직으로 이전한 뒤 각 앱의 Pages, Vercel, Actions 권한과 브랜치 보호를 다시 확인합니다.
 
-## 사장이 할 일 (택1)
-### 방법 A — 빈 저장소 직접 생성 (권장, 30초)
-1. GitHub → **New repository**
-2. 이름: `zoop-holdings` / Private / **README·gitignore·license 체크 안 함(빈 걸로)**
-3. Create
-4. 나에게 "만들었어"라고 말하기 → 내가 `add_repo` 후 완성본 전체를 push하고 자동화를 켠다.
+## 로컬 목표 구조
 
-### 방법 B — 권한 부여
-- 이 세션의 GitHub App/Integration에 **repository 생성 권한**을 부여 → 내가 직접 만든다.
+```text
+/Users/runner706/Developer/로봄/
+  robom/
+  야외봄/
+  청약봄/
+  러닝봄/
+```
 
-## 저장소 생긴 뒤 내가 할 일 (자동)
-1. `add_repo runnerpyrri-lgtm/zoop-holdings`
-2. 로컬 완성본 push (main → 이후 작업은 PR 브랜치)
-3. `ANTHROPIC_API_KEY` secret 등록 요청(사장)
-4. `guardrails.yml` 동작 확인 → 첫 `daily-company-run` 수동 시범
-
-## 안전
-- 기존 3개 앱 저장소와 각자의 배포(Pages/Vercel)는 **건드리지 않는다**. holdings는 관제·개발 사본만.
+이전 이름의 로컬 폴더는 미커밋 변경 보존을 위해 즉시 삭제하지 않습니다.

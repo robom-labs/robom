@@ -1,8 +1,0 @@
-.agents/
-.codex/
-work/
-outputs/*.pid
-outputs/*.log
-outputs/cloudflared*
-*.tmp
-*.bak

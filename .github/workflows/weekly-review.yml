@@ -30,7 +30,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: "--max-turns 20"
           prompt: |
-            너는 zoop-holdings의 개선 엔진이다. 순서대로 수행:
+            너는 로봄의 개선 엔진이다. 순서대로 수행:
             1) supervisor: 지난주 PR 머지율/재작업률/반복 실패 분석 →
                ops/scorecards/agent-performance.md 갱신 + 고칠 agent 프롬프트 목록
             2) upgrader(R&D): 각 앱 다음 업그레이드/리팩토링 후보를 ROADMAP에 제안

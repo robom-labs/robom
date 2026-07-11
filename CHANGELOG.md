@@ -1,7 +1,17 @@
-# CHANGELOG — zoop-holdings 시스템
+# CHANGELOG — 로봄 시스템
 
 이 회사의 **운영 방식/자동화** 변경 이력. [SemVer](https://semver.org/lang/ko/). 최신 버전이 맨 위.
-(앱 자체 변경은 각 `apps/<app>/CHANGELOG.md` 참조.)
+(앱 자체 변경은 각 독립 앱 저장소의 `CHANGELOG.md`를 참조합니다.)
+
+## [1.0.0] - 2026-07-11
+
+### 변경
+
+- 지주회사 이름을 로봄으로 확정하고 목표 저장소를 `robom-labs/robom`으로 정했다.
+- 앱 이름을 야외봄, 청약봄, 러닝봄으로 확정하고 독립 저장소 `outbom`, `homebom`, `runningbom`으로 분리했다.
+- `apps/` vendored 사본과 본사 앱별 CI를 제거해 앱 원본 저장소를 유일한 코드 정본으로 만들었다.
+- 별도 로봄 홈페이지 프로젝트를 `site/`로 이관해 본사에서 운영과 홈페이지를 함께 관리하도록 했다.
+- registry, state, CODEOWNERS와 본사 guardrails를 새 포트폴리오 구조에 맞췄다.
 
 ## [0.4.1] - 2026-07-11
 

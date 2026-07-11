@@ -36,20 +36,17 @@ jobs:
           # 비용 상한: 회차당 실행이 폭주하지 않게 turn 제한
           claude_args: "--max-turns 20"
           prompt: |
-            너는 zoop-holdings의 본부장(오케스트레이터)이다.
+            너는 로봄의 본부장(오케스트레이터)이다.
             .claude/agents/ceo-orchestrator.md 규칙과 CLAUDE.md 금지작업을 그대로 따른다.
             이번 회차 데일리 런(오전 06시 / 오후 18시 KST 중 현재 시각으로 판단):
-            1) 상태 점검: 세 앱 원본 저장소의 최신 package.json 버전
-               (https://raw.githubusercontent.com/<repo>/main/package.json — 공개 저장소, 인증 불필요)과
-               ops/registry/apps.yml · apps/ 사본 버전을 대조하고, 이 저장소의 열린 PR과
-               최근 실패한 워크플로를 확인한다.
+            1) 상태 점검: ops/registry/apps.yml의 세 앱 원본 저장소, 열린 PR, 최신 버전과
+               최근 실패한 워크플로를 확인한다. 본사에는 앱 사본이 없다.
             2) 본부장 보고서 작성: ops/reports/TEMPLATE.md 틀에 맞춰
                ops/reports/<YYYY-MM-DD>-<am|pm>.md 를 생성한다.
                회장님은 비전공자다 — 전문용어 없이, 오늘 한 일 / 앱 신호등 / 승인 대기 PR /
                사람이 해야 할 일 / 다음 계획을 쉬운 한국어로 쓴다.
             3) ops 개선 딱 1건: 문서 정확화, 가드레일 보강, stale 기록 갱신 중 가장 가치 있는 것.
-               ★ apps/ 사본의 앱 코드는 절대 수정하지 않는다(읽기 전용 미러 — apps/README.md 참조).
-               앱 코드 개선은 각 원본 저장소의 daily-self-improve 워크플로가 담당한다(D16).
+               ★ 앱 코드는 각 독립 저장소에서만 수정한다. robom에 앱 소스를 추가하지 않는다.
             4) 브랜치 claude/daily-<날짜>-<회차> 로 커밋하고 **draft PR**을 연다(main 직접 push 금지).
             5) PR 설명 맨 위에 보고서 요약을 붙여 회장이 PR만 봐도 이해되게 한다.
                기록 필수: ops/state·changelog 갱신.

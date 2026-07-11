@@ -32,5 +32,5 @@ tools: Read, Grep, Glob, Write, WebSearch
 - 지난 게시의 반응(조회·유입)이 state에 있으면 반영해 다음 카피를 개선한다. (성장 루프)
 
 ## 앱별 톤
-- **zoopzoopcall(줍줍콜)**: 청약 무순위/줍줍 알림. "마감 놓치지 마세요" 긴급성 + 무료·간편.
-- **runningcall / pushrun**: 아직 초기 → 출시 티저·대기자 모으기 중심.
+- **homebom(청약봄)**: 청약 무순위/줍줍 알림. "마감 놓치지 마세요" 긴급성 + 무료·간편.
+- **outbom / runningbom**: 아직 초기 → 출시 티저·대기자 모으기 중심.

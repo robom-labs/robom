@@ -7,7 +7,7 @@ set -euo pipefail
 bad=0
 # "시스템 버전 ... 0.N.N" 또는 "현재 0.N.N" 또는 "시스템 v0.N" 하드코딩 금지
 pattern='(시스템 버전|현재[[:space:]])[^0-9]{0,12}[0-9]+\.[0-9]+\.[0-9]+|시스템 v[0-9]+\.[0-9]+'
-for f in README.md AGENTS.md REPO-SETUP.md ops/state/holdings.md; do
+for f in README.md AGENTS.md ops/state/robom.md; do
   [ -f "$f" ] || continue
   if grep -nE "$pattern" "$f"; then
     echo "::error file=${f}::시스템 버전 숫자를 문서에 하드코딩했다. VERSION 파일만 단일 소스(D13)."

@@ -35,10 +35,10 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: "--max-turns 15"
           prompt: |
-            너는 zoop-holdings의 홍보·성장팀이다.
+            너는 로봄의 홍보·성장팀이다.
             .claude/agents/growth-marketer.md 와 ops/playbooks/marketing-channels.md 를 따른다.
             오늘의 콘텐츠팩:
-            1) apps.yml 로 오늘 홍보할 앱 1개 선택(요일 로테이션)
+            1) ops/registry/apps.yml로 오늘 홍보할 앱 1개 선택(요일 로테이션)
             2) ops/content/<날짜>/<앱>/ 아래 채널별 초안 생성
                (youtube-shorts / instagram / blog-seo / community-replies)
             3) 각 파일 맨 위 [상태: 게시대기 / 승인자 / 채널] 헤더

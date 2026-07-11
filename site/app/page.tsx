@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 const signals = [
   {
     number: "01",
-    appName: "러닝콜",
+    appName: "야외봄",
     label: "바깥의 신호",
     title: "오늘, 나가기 좋은 때",
     body: "날씨와 공기를 보고 걷기·산책·러닝·등산·자전거를 시작할 좋은 순간을 먼저 봅니다.",
@@ -17,7 +17,7 @@ const signals = [
   },
   {
     number: "02",
-    appName: "줍줍콜",
+    appName: "청약봄",
     label: "기회의 신호",
     title: "지금, 신청할 수 있는 때",
     body: "무순위 청약의 시작과 마감. 놓치면 끝나는 기회를 필요한 순간에 알려줍니다.",
@@ -26,7 +26,7 @@ const signals = [
   },
   {
     number: "03",
-    appName: "PushRun",
+    appName: "러닝봄",
     label: "출발의 신호",
     title: "드디어, 접수가 열린 때",
     body: "선착순 러닝 대회 접수 오픈부터 마감까지, 출발선에 설 기회를 놓치지 않게 합니다.",

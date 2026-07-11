@@ -1,45 +1,51 @@
-# 앱 목록 단일 소스. 앱 추가 = 여기에 한 블록 + ops/state·changelog 파일 생성.
-# 3개 앱은 스택·배포가 제각각(federated). 팀·자동화는 이 파일을 보고 앱별로 다르게 동작한다.
+# 로봄 앱 포트폴리오 단일 소스.
+# 앱 코드는 각 원본 저장소에서만 관리하며 robom에는 복사하지 않는다.
 
 apps:
-  - id: zoopzoopcall
-    name: 줍줍콜
-    status: live
-    version: 0.1.4
-    repo: runnerpyrri-lgtm/zoopzoopcall
-    stack: pnpm + Vite + React PWA
-    test: "pnpm -r test"          # vitest
-    build: "pnpm -r build"
-    deploy: github-pages           # gh-pages 브랜치(수동)
-    base_path: /zoopzoopcall/      # ★ 변경 금지 (가드레일이 지킴)
-    url: https://runnerpyrri-lgtm.github.io/zoopzoopcall/
-    release_pr: https://github.com/runnerpyrri-lgtm/zoopzoopcall/pull/8
-    marketing_tone: "청약 무순위/줍줍 알림 · 마감 긴급성 + 무료·간편"
-
-  - id: runningcall
-    name: 러닝콜 (running-day-score)
+  - id: outbom
+    name: 야외봄
+    english_name: OutBom
+    legacy_id: runningcall
     status: live
     version: 0.13.4
-    repo: runnerpyrri-lgtm/runningcall
+    repo: robom-labs/outbom
+    legacy_repo: runnerpyrri-lgtm/runningcall
     stack: Next.js 16 + React 19 (pnpm)
-    test: "pnpm test"              # vitest run (러닝 골든마스터 등)
-    build: "pnpm build"           # next build --webpack
+    test: "pnpm typecheck && pnpm test"
+    build: "pnpm build"
     deploy: vercel
     url: https://runningcall.vercel.app
-    release_pr: https://github.com/runnerpyrri-lgtm/runningcall/pull/5
-    marketing_tone: "날씨·대기질로 '지금 나가도 돼? 언제가 좋아?' 야외활동 컨디션(걷기·산책·러닝·등산·자전거)"
+    marketing_tone: "날씨와 대기질로 야외활동하기 좋은 시간을 알려주는 앱"
 
-  - id: pushrun
-    name: PushRun (pushrun-web-demo)
-    status: live
+  - id: homebom
+    name: 청약봄
+    english_name: HomeBom
+    legacy_id: zoopzoopcall
+    status: migrating
+    version: 0.1.4
+    repo: robom-labs/homebom
+    legacy_repo: runnerpyrri-lgtm/zoopzoopcall
+    stack: pnpm + Vite + React PWA
+    test: "pnpm typecheck && pnpm test"
+    build: "pnpm build"
+    deploy: github-pages
+    base_path: /homebom/
+    current_url: https://runnerpyrri-lgtm.github.io/zoopzoopcall/
+    target_url: https://robom-labs.github.io/homebom/
+    marketing_tone: "청약 공고와 접수 시작·마감을 놓치지 않게 챙기는 앱"
+
+  - id: runningbom
+    name: 러닝봄
+    english_name: RunningBom
+    legacy_id: pushrun
+    status: migrating
     version: 0.6.10
-    repo: runnerpyrri-lgtm/pushrun
+    repo: robom-labs/runningbom
+    legacy_repo: runnerpyrri-lgtm/pushrun
     stack: static PWA (HTML/CSS/JS)
     test: "npm test"
-    build: "none"                 # 정적: outputs/pushrun-site 를 그대로 배포
-    deploy: github-pages + vercel  # peaceiris → gh-pages, publish_dir=outputs/pushrun-site
-    url: https://runnerpyrri-lgtm.github.io/pushrun/
-    release_pr: https://github.com/runnerpyrri-lgtm/pushrun/pull/4
-    marketing_tone: "러닝 대회 접수 시작 시간 알림 · 놓치지 마세요"
-
-# 앱 추가 시: 위 형식으로 한 블록 + ops/state/<id>.md + ops/changelog/<id>.md 생성.
+    build: "none"
+    deploy: github-pages + vercel
+    current_url: https://runnerpyrri-lgtm.github.io/pushrun/
+    target_url: https://robom-labs.github.io/runningbom/
+    marketing_tone: "러닝 대회 탐색과 접수 시작 시간을 알려주는 앱"
