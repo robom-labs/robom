@@ -3,6 +3,17 @@
 이 회사의 **운영 방식/자동화** 변경 이력. [SemVer](https://semver.org/lang/ko/). 최신 버전이 맨 위.
 (앱 자체 변경은 각 `apps/<app>/CHANGELOG.md` 참조.)
 
+## [0.4.1] - 2026-07-11
+
+### 변경 (자동화 비용 구조 전환, D20 — 회장 지시)
+- 하루 2회 자동화를 **유료 API 키 없이** 회장 Claude 구독 기반 본부장 루틴(Claude Code Remote
+  Routine, KST 06:00·18:00)으로 전환. 루틴이 앱 개선 draft PR을 만들고 카카오톡·슬랙(#회사)·
+  노션(회장보고)으로 결재 요청을 보낸다. merge는 회장.
+- Actions의 Claude 워크플로 4종(daily-company-run·daily-marketing·weekly-review·monthly-board-run)
+  스케줄 제거 → 수동 실행(workflow_dispatch) 예비 경로로만 유지. 앱 3개의 daily-self-improve도 동일
+  (각 앱 저장소 PR로 처리).
+- HUMAN-TASKS 1번(ANTHROPIC_API_KEY 등록) 불필요 처리 — 이제 등록 안 해도 자동화가 돈다.
+
 ## [0.4.0] - 2026-07-10
 
 ### 변경 (출시 심사 → 자가발전 체계 개편, D16~D19)

@@ -1,9 +1,8 @@
 # 주 1회(월요일 09시 KST) — 개선 엔진: 감독·개선연구·릴리즈.
 name: Weekly Review
 
+# [예비용 — 스케줄 없음] 유료 API 키 대신 구독 기반 본부장 루틴이 주간 리뷰를 담당한다(D20).
 on:
-  schedule:
-    - cron: "0 0 * * 1"     # 매주 월요일 00:00 UTC = 09:00 KST
   workflow_dispatch:
 
 permissions:

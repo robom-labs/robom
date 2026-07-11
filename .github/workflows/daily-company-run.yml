@@ -1,12 +1,9 @@
-# 하루 2회(KST 06:00·18:00) 회사 운영 — 상태 점검 + 본부장 보고 + ops 개선 1건을 PR로 상신한다.
-# Claude는 브랜치 push + draft PR 생성까지만. main merge는 회장이 한다.
-# 앱 코드 개선은 각 원본 저장소의 daily-self-improve.yml 이 담당한다(D16 — apps/ 사본은 읽기 전용 미러).
+# [예비용 — 스케줄 없음] 하루 2회 운영은 유료 API 키 대신 회장 Claude 구독 기반의
+# 본부장 루틴(Claude Code Remote Routine)이 수행한다(D20 — 추가 비용 0원).
+# 이 워크플로는 ANTHROPIC_API_KEY를 등록한 경우에만 수동 실행(workflow_dispatch)으로 쓸 수 있다.
 name: Daily Company Run
 
 on:
-  schedule:
-    - cron: "0 21 * * *"     # 21:00 UTC = 06:00 KST (오전 회차)
-    - cron: "0 9 * * *"      # 09:00 UTC = 18:00 KST (오후 회차)
   workflow_dispatch:
 
 permissions:

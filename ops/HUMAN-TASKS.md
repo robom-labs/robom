@@ -3,14 +3,12 @@
 > 본부장이 관리한다. 완료되면 체크하고 날짜를 적는다.
 > 아래 작업들은 비밀키·계정 권한이 필요해서 **회장님만** 할 수 있다.
 
-## 1. AI 자동화 켜기 — `ANTHROPIC_API_KEY` 등록 (앱마다 1회, 총 4곳)
-자동화(하루 2회 자가개선·일일보고)가 지금 전부 이 키가 없어 멈춰 있다.
-각 저장소에서: **Settings → Secrets and variables → Actions → New repository secret**
-이름은 `ANTHROPIC_API_KEY`, 값은 Anthropic 콘솔(console.anthropic.com)에서 발급한 API 키.
-- [ ] Zoop-holdings
-- [ ] zoopzoopcall
-- [ ] runningcall
-- [ ] pushrun
+## 1. ~~ANTHROPIC_API_KEY 등록~~ → **불필요해짐 (2026-07-11, D20)**
+하루 2회 자동화는 유료 API 키 대신 **회장 Claude 구독으로 도는 본부장 루틴**(Claude Code Remote
+Routine, KST 06:00·18:00)이 수행한다 — 추가 비용 0원. 루틴이 작업 후 카카오톡·슬랙(#회사)·
+노션(회장보고)으로 결재 요청을 보내고, 회장은 링크 타고 들어가 merge만 하면 된다.
+GitHub Actions 쪽 Claude 워크플로들은 스케줄을 제거하고 수동 실행 전용으로 남겨뒀다
+(나중에 API 키를 등록하면 백업 경로로 쓸 수 있음 — 선택사항, 지금은 아무것도 안 해도 됨).
 
 ## 2. main 브랜치 보호 (저장소마다 1회, 총 4곳)
 지금은 실수로 main에 직접 push해도 막을 장치가 없다.

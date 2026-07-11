@@ -24,7 +24,7 @@
 - [ ] Web Push RFC-001 회장 검토 → 승인 시 상세 설계
 
 ## Blocked
-- 자동화 가동: ANTHROPIC_API_KEY 등록 전까지 preflight에서 명시적으로 정지(D18 — 조용한 실패는 제거됨)
+- 없음 — 자동화는 API 키 불필요한 구독 기반 본부장 루틴(D20)으로 가동. Actions 쪽 Claude 워크플로는 수동 예비 경로.
 
 ## 최근 실패
 - 2026-07-10: daily-company-run·daily-marketing 첫 스케줄 실행 실패(secret 미등록 → OIDC 폴백). D18로 fail-fast화.

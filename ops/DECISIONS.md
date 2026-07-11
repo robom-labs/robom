@@ -135,3 +135,15 @@
 - 결정: "승인 1명 필수"는 1인 회사에서 본인 PR을 본인이 승인 못 해 운영이 막힌다(외부 자문 지적 수용).
   권장 설정 = PR 경유 필수 + required checks + conversation resolution + force push/삭제 차단 + **승인 수 0**
   (외부 리뷰어 합류 시 1로 상향). 상세 절차는 ops/HUMAN-TASKS.md 2번.
+
+## 2026-07-11 · 자동화 비용 구조 전환
+
+### D20. 자동화 실행 주체를 유료 API에서 구독 기반 루틴으로 전환 (회장 지시)
+- 문제: GitHub Actions의 claude-code-action은 ANTHROPIC_API_KEY(별도 과금)가 필요하다.
+  회장 방침: 추가 비용 없이, 하루 2번 업그레이드 제안을 카톡·슬랙·노션으로 받고 본인이 merge만 한다.
+- 결정: (1) 하루 2회(KST 06:00·18:00) 실행은 회장 Claude 구독으로 도는 **본부장 루틴**
+  (Claude Code Remote Routine → 이 관제 세션을 깨움)이 수행 — 앱 개선 draft PR 생성 + 3채널 보고.
+  (2) Actions의 Claude 워크플로 5종(회사 4 + 앱별 daily-self-improve 3)은 스케줄 제거,
+  workflow_dispatch 예비 경로로만 유지(API 키 등록 시 백업 경로). (3) 보고 채널: 카카오
+  (기존 daily-kakao-report dispatch, 무료), 슬랙 #회사, 노션 '회장보고' 페이지.
+  (4) merge 권한은 변함없이 회장 단독 — 루틴은 draft PR과 보고까지만.

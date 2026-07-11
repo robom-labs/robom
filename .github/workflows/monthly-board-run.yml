@@ -2,9 +2,8 @@
 # strategist·architect 는 프롬프트만 있고 부르는 워크플로가 없어 실행 불가였다 — 이 파일이 그 갭을 메운다.
 name: Monthly Board Run
 
+# [예비용 — 스케줄 없음] 유료 API 키 대신 구독 기반 본부장 루틴이 월간 경영 점검을 담당한다(D20).
 on:
-  schedule:
-    - cron: "0 0 1 * *"     # 매월 1일 00:00 UTC = 09:00 KST
   workflow_dispatch:
 
 permissions:
