@@ -19,7 +19,7 @@ apps:
   - id: runningcall
     name: 러닝콜 (running-day-score)
     status: live
-    version: 0.13.3
+    version: 0.13.4
     repo: runnerpyrri-lgtm/runningcall
     stack: Next.js 16 + React 19 (pnpm)
     test: "pnpm test"              # vitest run (러닝 골든마스터 등)
