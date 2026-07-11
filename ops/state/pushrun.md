@@ -1,7 +1,7 @@
 # state: pushrun (PushRun)
 
 ## 현재 상태
-- 버전: live 0.6.8 (main = 배포본, gh-pages 전 파일 일치 검증됨) / 강화 PR 0.6.9 승인 대기
+- 버전: live 0.6.9 (강화 PR #6 머지 완료, 2026-07-11 — verify CI 통과 후 Pages 자동배포)
 - 출시 판정: **제한 베타 가능** (알림 시각 재계산·데이터 신선도 게이트가 강화 PR로 해소되면 정식 공개 상향 검토)
 - 스택: 정적 PWA(HTML/CSS/JS), node 검증 스크립트
 

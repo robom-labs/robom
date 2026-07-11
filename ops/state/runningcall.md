@@ -1,7 +1,7 @@
 # state: runningcall (러닝콜)
 
 ## 현재 상태
-- 버전: live 0.13.3 (main 머지 완료) / 강화 PR 0.13.4 승인 대기
+- 버전: live 0.13.3 / 강화 PR 0.13.4 승인 대기 (PR #7, Vercel 프리뷰 Ready 확인)
 - 출시 판정: **보류 — 제한 베타 가능** (검색 3겹 결함 중 2겹은 강화 PR로 해소, 나머지는 사람 확인)
 - 스택: Next.js 16 + React 19, pnpm, vitest
 
