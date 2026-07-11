@@ -147,3 +147,15 @@
   workflow_dispatch 예비 경로로만 유지(API 키 등록 시 백업 경로). (3) 보고 채널: 카카오
   (기존 daily-kakao-report dispatch, 무료), 슬랙 #회사, 노션 '회장보고' 페이지.
   (4) merge 권한은 변함없이 회장 단독 — 루틴은 draft PR과 보고까지만.
+
+## 2026-07-11 · 로봄 브랜드와 저장소 구조 확정
+
+### D21. 로봄은 본사·홈페이지, 세 앱은 독립 저장소로 관리
+- 모브랜드와 지주회사 이름을 `로봄(ROBOM)`으로 확정한다.
+- 서비스 이름을 야외봄(OutBom), 청약봄(HomeBom), 러닝봄(RunningBom)으로 확정한다.
+- GitHub 목표 구조는 `robom-labs/robom`, `robom-labs/outbom`, `robom-labs/homebom`,
+  `robom-labs/runningbom`이다.
+- `robom`은 운영 장부와 통합 홈페이지만 관리한다. 앱 소스 사본, subtree, submodule을 두지 않는다.
+- 앱 소스와 CI, 배포 설정은 각 앱 저장소가 유일한 정본이다.
+- 기존 localStorage 키, 내부 코드 네임과 현재 배포 URL은 사용자 호환과 안전한 이전을 위해 단계적으로 유지한다.
+- D9의 vendored 사본 방식과 D16의 읽기 전용 미러는 이 결정으로 폐기한다.

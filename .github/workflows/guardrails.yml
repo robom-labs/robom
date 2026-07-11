@@ -1,5 +1,4 @@
-# 안전 레일(범용) — 모든 PR에 항상 실행. 빠르고 스택 무관.
-# 앱별 test/build 는 각 ci-<app>.yml 이 '그 앱이 바뀔 때만' 실행한다(path 필터).
+# 로봄 본사 저장소의 구조·보안·홈페이지 검증.
 name: Guardrails
 
 on:
@@ -9,66 +8,45 @@ permissions:
   contents: read
 
 jobs:
-  # 금지선: zoopzoopcall base path 변경 차단
-  base-path-guard:
+  portfolio-structure:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: base path "/zoopzoopcall/" 유지 확인
+      - name: 본사에 앱 소스 사본이 없는지 확인
         run: |
-          f="apps/zoopzoopcall/apps/web/vite.config.ts"
-          # 파일이 없어도 실패한다 — 삭제·이동으로 가드가 조용히 무력화되는 것을 막는다.
-          [ -f "$f" ] || { echo "::error::$f 가 없다. base path 가드 대상 파일이 삭제·이동되면 안 된다."; exit 1; }
-          grep -q 'base: *"/zoopzoopcall/"' "$f" \
-            || { echo "::error file=$f::base path가 /zoopzoopcall/ 에서 바뀌었다. 배포 URL이 깨진다."; exit 1; }
+          test ! -d apps || { echo "::error::robom에는 앱 소스 사본을 둘 수 없습니다."; exit 1; }
+          test -f ops/registry/apps.yml || { echo "::error::앱 registry가 없습니다."; exit 1; }
+          ruby -e 'require "yaml"; data=YAML.load_file("ops/registry/apps.yml"); apps=data.fetch("apps"); abort "앱 3개가 필요합니다" unless apps.size == 3; apps.each { |app| %w[id name repo test build].each { |key| abort "#{app["id"]}: #{key} 누락" unless app.key?(key) }; abort "조직 불일치: #{app["repo"]}" unless app["repo"].start_with?("robom-labs/") }; puts apps.map { |app| "#{app["name"]}=#{app["repo"]}" }.join("\n")'
 
-  # 장부 정합성: registry에 적힌 앱 폴더가 실제로 존재
-  registry-sanity:
+  site:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
     steps:
       - uses: actions/checkout@v4
-      - name: apps.yml ↔ apps/ 폴더 일치 (앱 목록은 registry에서 읽는다 — 하드코딩 금지)
-        run: |
-          test -f ops/registry/apps.yml || { echo "::error::registry 없음"; exit 1; }
-          ids=$(grep -E '^[[:space:]]*-[[:space:]]*id:' ops/registry/apps.yml | sed -E 's/.*id:[[:space:]]*//')
-          test -n "$ids" || { echo "::error::registry에 앱 id가 없다"; exit 1; }
-          for a in $ids; do
-            test -d "apps/$a" || { echo "::error::apps/$a 폴더 없음(registry와 불일치)"; exit 1; }
-          done
-          echo "registry 앱: $(echo $ids | tr '\n' ' ')"
-      - name: registry 버전 ↔ package.json 일치
-        run: bash ops/scripts/verify-app-registry.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
 
-  # lockfile 대량 변경 차단
-  lockfile-guard:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - name: lockfile diff 200줄 초과 차단
-        run: |
-          base="${{ github.event.pull_request.base.sha }}"
-          changed=$(git diff --numstat "$base"...HEAD -- '**/pnpm-lock.yaml' | awk '{s+=$1+$2} END{print s+0}')
-          echo "lockfile 변경 라인수: $changed"
-          if [ "$changed" -gt 200 ]; then
-            echo "::error::pnpm-lock.yaml 변경이 200줄을 초과했다. 사람 검토 필요."; exit 1
-          fi
-
-  # 시스템 버전 단일 소스: 문서에 버전 숫자 하드코딩 차단(드리프트 재발 방지)
   version-single-source:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: 시스템 버전은 VERSION 파일만 (D13)
-        run: bash ops/scripts/check-version-single-source.sh
+      - run: bash ops/scripts/check-version-single-source.sh
 
-  # secret 노출 차단
   secret-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - name: gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          fetch-depth: 0
+      - name: 비밀정보 검사
+        uses: docker://ghcr.io/gitleaks/gitleaks:v8.30.1
+        with:
+          args: git --redact --verbose --no-banner

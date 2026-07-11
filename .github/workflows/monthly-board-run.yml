@@ -35,7 +35,7 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: "--max-turns 20"
           prompt: |
-            너는 zoop-holdings의 월간 경영진(전략·설계)이다. 순서대로 수행:
+            너는 robom의 월간 경영진(전략·설계)이다. 순서대로 수행:
             1) strategist: 앱 포트폴리오(키움/보류/리팩토링/폐기)를 판정해 ops/ROADMAP.md 상단에 반영.
                신규 앱 요청이 있으면 ops/playbooks/new-app-onboarding.md 게이트로 판단.
             2) architect: 관제 저장소 모델(A) 유지 여부 점검, 공유 core 중복(R10)·구조 변경 후보를

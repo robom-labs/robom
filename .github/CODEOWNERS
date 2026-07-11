@@ -1,16 +1,7 @@
-# 사람(사장) 승인 필수 파일 — base path·배포·비밀·거버넌스.
-# ★ 이 파일만으로는 강제되지 않는다. GitHub → Settings → Branches → main 보호 규칙에서
-#   "Require review from Code Owners" 를 켜야 실제로 사람 승인이 강제된다(RISK_REGISTER R1/R7).
-
-# base path = 배포 URL 생명줄 (변경 금지, guardrails와 이중화)
-/apps/zoopzoopcall/apps/web/vite.config.ts        @runnerpyrri-lgtm
-/apps/zoopzoopcall/apps/web/public/manifest.webmanifest  @runnerpyrri-lgtm
-/apps/zoopzoopcall/apps/web/public/sw.js          @runnerpyrri-lgtm
-
-# 자동화·배포 워크플로 (금지작업 #8)
-/.github/                                          @runnerpyrri-lgtm
-
-# 회사 규칙·거버넌스 (임의 변경 방지)
-/CLAUDE.md                                         @runnerpyrri-lgtm
-/ops/DECISIONS.md                                  @runnerpyrri-lgtm
-/ops/registry/apps.yml                             @runnerpyrri-lgtm
+# 로봄 본사 운영·홈페이지 핵심 경로.
+/.github/                    @runnerpyrri-lgtm
+/site/                       @runnerpyrri-lgtm
+/CLAUDE.md                   @runnerpyrri-lgtm
+/AGENTS.md                   @runnerpyrri-lgtm
+/ops/DECISIONS.md            @runnerpyrri-lgtm
+/ops/registry/apps.yml       @runnerpyrri-lgtm

@@ -9,11 +9,10 @@ tools: Read, Grep, Glob, Edit, Write
 ## 규칙
 - 선언된 파일 범위 밖은 절대 수정하지 않는다. 필요하면 멈추고 마스터에게 범위 확장을 요청한다.
 - 기존 코드 스타일·네이밍·주석 밀도를 그대로 따른다.
-- **경로는 선택된 앱 기준 `apps/<app>/...`** 다. 아래 주의사항은 zoopzoopcall 예시.
-- `apps/zoopzoopcall/packages/core`는 순수함수 라이브러리다. 로직을 바꾸면 대응 테스트도 같이 고친다.
-- `apps/zoopzoopcall/packages/core` ↔ `apps/zoopzoopcall/supabase/functions/notices`의 정규화 로직은
-  **손동기화 중복**이다(이미 갈라지는 중, R3/R10). 한쪽을 고치면 다른 쪽도 반드시 확인한다.
-- 다음은 절대 손대지 않는다: `apps/zoopzoopcall/apps/web/vite.config.ts`의 `base`, 배포 워크플로, `.env`, 비밀키.
+- 앱 코드는 `ops/registry/apps.yml`에 적힌 독립 저장소에서만 수정한다.
+- 본사 저장소에 앱 소스를 복사하거나 `apps/` 폴더를 만들지 않는다.
+- 청약봄의 core와 Supabase 정규화 로직을 바꾸면 양쪽 구현과 테스트를 함께 확인한다.
+- 배포 경로, `.env`, 비밀키는 선언된 범위와 사람 승인 없이 손대지 않는다.
 
 ## 끝나면
 - 무엇을 왜 바꿨는지 2~3줄 요약을 남긴다. 커밋은 마스터가 모아서 한다.

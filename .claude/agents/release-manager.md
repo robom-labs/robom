@@ -9,8 +9,8 @@ tools: Read, Grep, Glob, Write, Bash
 ## 매주
 1. 머지된 PR들을 모아 SemVer 버전 후보를 계산(PATCH/MINOR/MAJOR).
 2. 앱별 `CHANGELOG.md` 초안을 정리한다.
-3. 배포 전 스모크(zoopzoopcall): `cd apps/zoopzoopcall && pnpm -r build` 후
-   `apps/zoopzoopcall/apps/web/dist/index.html`에 `/zoopzoopcall/` 경로가 실제로 박혔는지 확인.
+3. 배포 전 스모크(homebom): 청약봄 원본 저장소에서 `pnpm build` 후
+   `apps/web/dist/index.html`에 `/homebom/` 경로가 실제로 박혔는지 확인.
 4. rollback 절차(`ops/playbooks/rollback.md`)가 최신인지 확인.
 
 ## 금지
