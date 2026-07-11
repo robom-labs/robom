@@ -10,10 +10,11 @@ const signals = [
     number: "01",
     appName: "야외봄",
     englishName: "OUTBOM",
+    quickLabel: "날씨·야외",
     label: "바깥의 좋은 때",
     title: "나가기 좋은 순간을 봐요.",
     body: "날씨와 공기를 살펴 걷기·산책·러닝·등산·자전거를 시작하기 좋은 시간을 알려줍니다.",
-    cue: "오늘 18:20",
+    cue: "좋은 때",
     note: "공기 맑음 · 바람 잔잔",
     tone: "outdoor",
     href: "https://runningcall.vercel.app",
@@ -21,12 +22,13 @@ const signals = [
   {
     number: "02",
     appName: "청약봄",
-    englishName: "HOMBOM",
+    englishName: "HOMEBOM",
+    quickLabel: "청약",
     label: "기회가 열리는 때",
     title: "신청할 순간을 놓치지 않아요.",
     body: "무순위 청약의 접수 시작과 마감처럼, 지나가면 다시 오지 않을 기회를 제때 알려줍니다.",
-    cue: "접수 D-1",
-    note: "내일 09:00 시작",
+    cue: "접수 예정",
+    note: "시작 전에 알려드려요",
     tone: "chance",
     href: "https://robom-labs.github.io/homebom/",
   },
@@ -34,11 +36,12 @@ const signals = [
     number: "03",
     appName: "러닝봄",
     englishName: "RUNNINGBOM",
+    quickLabel: "러닝대회",
     label: "출발선이 열리는 때",
     title: "대회 접수의 출발을 잡아요.",
     body: "선착순 러닝 대회 접수 오픈부터 마감까지, 출발선에 설 기회를 놓치지 않게 알려줍니다.",
-    cue: "OPEN 10:00",
-    note: "접수 시작 12분 전",
+    cue: "오픈 예정",
+    note: "접수 전에 알려드려요",
     tone: "start",
     href: "https://robom-labs.github.io/runningbom/",
   },
@@ -138,7 +141,7 @@ export default function Home() {
             <a className="mobile-brand" href="#top" aria-label="로봄 처음으로">
               <BrandLockup compact />
             </a>
-            <p className="top-status"><span className="pulse-dot" aria-hidden="true" />오늘의 중요한 순간을 살펴보는 중</p>
+            <p className="top-status"><span className="pulse-dot" aria-hidden="true" />세 가지 알림 예시를 보여드려요</p>
           </nav>
 
           <div className="hero-grid">
@@ -158,32 +161,34 @@ export default function Home() {
                       className={`quick-launch-link ${signal.tone}`}
                       href={signal.href}
                       key={signal.appName}
-                      aria-label={`${signal.appName} ${signal.label} 앱 열기`}
+                      aria-label={`${signal.appName} ${signal.quickLabel} 앱 열기`}
                     >
                       <span aria-hidden="true" />
-                      <strong>{signal.appName}</strong>
-                      <b aria-hidden="true">→</b>
+                      <span className="quick-launch-copy">
+                        <strong>{signal.appName}</strong>
+                        <small>{signal.quickLabel}</small>
+                      </span>
                     </a>
                   ))}
                 </div>
               </nav>
               <div className="hero-actions">
-                <a className="primary-link" href="#signals">지금 필요한 앱 찾기 <span aria-hidden="true">↘</span></a>
+                <a className="primary-link" href="#signals">세 앱 자세히 보기 <span aria-hidden="true">↘</span></a>
                 <a className="text-link" href="#philosophy">로봄이 알리는 방식</a>
               </div>
             </div>
 
-            <div className="timing-board" aria-label="로봄이 살펴보는 세 가지 알림 순간">
+            <div className="timing-board" aria-label="로봄의 세 가지 알림 예시">
               <div className="board-head">
-                <span>오늘의 타이밍</span>
-                <b>LIVE</b>
+                <span>알림 예시</span>
+                <b>PREVIEW</b>
               </div>
-              <div className="board-time"><strong>08:42</strong><span>JUL 11 · SEOUL</span></div>
+              <div className="board-time"><strong>READY</strong><span>OUTSIDE · CHANCE · START</span></div>
               <div className="board-orbit" aria-hidden="true"><i /><i /><i /></div>
               <div className="board-signals">
-                <div className="board-signal outdoor"><span /> <p><small>야외봄</small><b>저녁 바람이 좋아요</b></p><em>18:20</em></div>
-                <div className="board-signal chance"><span /> <p><small>청약봄</small><b>접수가 곧 열려요</b></p><em>D-1</em></div>
-                <div className="board-signal start"><span /> <p><small>러닝봄</small><b>출발선이 가까워요</b></p><em>12분</em></div>
+                <div className="board-signal outdoor"><span /> <p><small>야외봄</small><b>저녁 바람이 좋아요</b></p><em>좋은 때</em></div>
+                <div className="board-signal chance"><span /> <p><small>청약봄</small><b>접수가 곧 열려요</b></p><em>곧</em></div>
+                <div className="board-signal start"><span /> <p><small>러닝봄</small><b>출발선이 가까워요</b></p><em>준비</em></div>
               </div>
             </div>
           </div>
