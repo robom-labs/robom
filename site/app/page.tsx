@@ -156,7 +156,7 @@ export default function Home() {
                 늦지 않게 알려주는 생활 알림 앱 스튜디오입니다.
               </p>
               <div className="hero-actions">
-                <a className="primary-link" href="#signals">지금 필요한 앱 찾기 <span aria-hidden="true">↘</span></a>
+                <a className="primary-link" href="#signals">세 앱 자세히 보기 <span aria-hidden="true">↘</span></a>
                 <a className="text-link" href="#philosophy">로봄이 알리는 방식</a>
               </div>
             </div>
