@@ -20,6 +20,15 @@ jobs:
   board:
     runs-on: ubuntu-latest
     steps:
+      - name: ANTHROPIC_API_KEY 등록 확인 (없으면 즉시 실패)
+        env:
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "::error::ANTHROPIC_API_KEY secret이 등록되어 있지 않습니다. GitHub Settings > Secrets and variables > Actions 에서 등록하세요. (사람 작업 — ops/HUMAN-TASKS.md 1번)"
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
 
       - uses: anthropics/claude-code-action@v1

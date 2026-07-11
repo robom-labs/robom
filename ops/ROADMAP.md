@@ -1,16 +1,19 @@
 # ROADMAP — zoop-holdings
 
-## 지금 (v0.3.x, 출시 준비)
-- [x] 관제 저장소 뼈대 + 앱 편입
-- [x] GitHub 저장소 생성 + 최초 push
-- [ ] `ANTHROPIC_API_KEY` secret 등록 (사장)
-- [x] `guardrails.yml` 실제 동작 확인
-- [ ] 첫 `daily-company-run` 수동 실행(workflow_dispatch) 시범
-- [ ] 첫 홍보 콘텐츠팩 1개 실제 생성 확인
+## 지금 (v0.4.x, 출시 강화 + 자가발전 가동)
+- [x] 앱 3개 출시 준비 PR(#8/#5/#4) 머지·배포 (줍줍콜·PushRun 배포=main 검증)
+- [x] 출시 심사(전수 리뷰 + 외부 자문 교차 검증) → 판정·개편 반영(D16~D19)
+- [ ] 앱 출시 강화 PR 3개(0.1.4/0.13.4/0.6.9) + holdings 개편 PR 회장 승인
+- [ ] `ANTHROPIC_API_KEY` secret 등록 — **4개 저장소 전부** (회장, HUMAN-TASKS 1번)
+- [ ] 자가개선 자동화 첫 가동 확인(각 앱 daily-self-improve + 본사 daily-company-run 하루 2회)
+- [ ] 러닝콜 Vercel Kakao 키 확인 → 검색 복구 → 판정 "정식 공개 가능" 상향(회장)
+- [ ] 본부장 일일보고(ops/reports/) 첫 회 발행
 
 ## 다음
-- [x] 앱별 CI로 guardrails 확장
-- [ ] branch protection + required checks + CODEOWNERS 설정(사장)
+- [ ] branch protection 4개 저장소(회장, HUMAN-TASKS 2번 — 1인 회사용 D19 설정)
+- [ ] 앱 PR 머지 후 사본·registry 동기화 PR(drift-check 녹색 확인)
+- [ ] Web Push RFC-001 회장 검토 → 승인 시 줍줍콜 1단계 상세 설계
+- [ ] 브랜드 네이밍 통일 + 광고(오프닝/배너) 전략 → 안드로이드 앱 출시 준비(회장 지시, 세 앱 정식 공개 후)
 - [ ] weekly-review 첫 회 + agent-performance 첫 기록
 - [ ] 홍보 성과 측정 필드를 state에 연결(성장 루프)
 

@@ -110,3 +110,28 @@
 - 적용: zoopzoopcall #8, runningcall #5, pushrun #4에 원본 CI와 출시 보완을 추가하고 holdings 사본을 해당 PR head와 동기화했다.
 - 결정: 서버 Web Push가 없는 상태에서는 브라우저 종료 후 알림을 보장한다고 표현하지 않는다. 완전한 백그라운드 알림은 별도 MAJOR RFC와 사람 승인을 거친다.
 - 머지 순서: 앱 PR 3개를 먼저 머지·배포 확인한 뒤 이 holdings PR을 머지한다.
+
+## 2026-07-10 · 출시 심사 → 운영 체계 개편 (v0.4.0)
+
+### D16. 앱 자가개선은 각 원본 저장소에서 — 하루 2회, PR로만
+- 문제: daily-company-run이 holdings 안의 apps/ 사본을 고치게 되어 있었다. 사본 수정은 배포에 닿지 않으면서
+  CI를 초록으로 만들어 "고쳐졌다"는 착시와 드리프트를 동시에 생산한다. 또한 holdings의 GITHUB_TOKEN으로는
+  다른 저장소에 브랜치·PR을 만들 수 없다(외부 자문 검토에서 확인).
+- 결정: (1) 각 앱 원본 저장소에 `daily-self-improve.yml`(하루 2회, KST 06:00·18:00)을 두고, 그 저장소의
+  자체 토큰으로 draft PR을 만든다. 승인은 회장. (2) holdings의 apps/ 사본은 **읽기 전용 미러**로 격하
+  (apps/README.md). (3) `drift-check.yml`이 매일 원본(raw.githubusercontent) ↔ registry ↔ 사본 버전을 대조한다.
+
+### D17. 본부장 보고 체계
+- 결정: daily-company-run은 코드 대신 "본부장 업무"를 한다 — 상태 점검 + 비전공자용 일일보고
+  (`ops/reports/<날짜>-<회차>.md`, 틀은 `ops/reports/TEMPLATE.md`) + ops 개선 1건 + draft PR.
+  사람 전용 작업은 `ops/HUMAN-TASKS.md` 한 곳에서 관리한다.
+
+### D18. 자동화 fail-fast
+- 문제: ANTHROPIC_API_KEY 미등록 상태에서 Claude 워크플로가 OIDC 폴백을 시도하다 알아보기 어려운
+  에러로 죽었다 (Daily Company Run·Daily Marketing 실행 로그로 확인. Weekly·Monthly는 같은 구조라 동일 실패 예상).
+- 결정: 4개 Claude 워크플로 모두 첫 스텝에서 secret 존재를 확인하고, 없으면 한국어 안내와 함께 즉시 실패한다.
+
+### D19. 1인 회사 브랜치 보호 규칙
+- 결정: "승인 1명 필수"는 1인 회사에서 본인 PR을 본인이 승인 못 해 운영이 막힌다(외부 자문 지적 수용).
+  권장 설정 = PR 경유 필수 + required checks + conversation resolution + force push/삭제 차단 + **승인 수 0**
+  (외부 리뷰어 합류 시 1로 상향). 상세 절차는 ops/HUMAN-TASKS.md 2번.

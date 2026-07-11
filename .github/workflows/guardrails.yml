@@ -17,10 +17,10 @@ jobs:
       - name: base path "/zoopzoopcall/" 유지 확인
         run: |
           f="apps/zoopzoopcall/apps/web/vite.config.ts"
-          if [ -f "$f" ]; then
-            grep -q 'base: *"/zoopzoopcall/"' "$f" \
-              || { echo "::error file=$f::base path가 /zoopzoopcall/ 에서 바뀌었다. 배포 URL이 깨진다."; exit 1; }
-          fi
+          # 파일이 없어도 실패한다 — 삭제·이동으로 가드가 조용히 무력화되는 것을 막는다.
+          [ -f "$f" ] || { echo "::error::$f 가 없다. base path 가드 대상 파일이 삭제·이동되면 안 된다."; exit 1; }
+          grep -q 'base: *"/zoopzoopcall/"' "$f" \
+            || { echo "::error file=$f::base path가 /zoopzoopcall/ 에서 바뀌었다. 배포 URL이 깨진다."; exit 1; }
 
   # 장부 정합성: registry에 적힌 앱 폴더가 실제로 존재
   registry-sanity:

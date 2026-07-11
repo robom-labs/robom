@@ -6,6 +6,11 @@ name: daily-kakao-report
 #   - KAKAO_REFRESH_TOKEN : 카카오 로그인 OAuth로 발급받은 refresh_token
 # REST API 키는 클라이언트 공개용 값이라 시크릿이 아니라 아래 client_id에 직접 사용.
 
+# 최소 권한: PR 개수 조회(read)만 필요하다.
+permissions:
+  contents: read
+  pull-requests: read
+
 on:
   workflow_dispatch:
     inputs:
@@ -25,10 +30,13 @@ jobs:
         env:
           CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
           REFRESH_TOKEN: ${{ secrets.KAKAO_REFRESH_TOKEN }}
+          # 사람 작업(ops/HUMAN-TASKS.md): Settings > Secrets and variables > Actions > Variables 에
+          # KAKAO_CLIENT_ID 를 등록하면 아래 하드코딩 fallback을 제거할 수 있다.
+          CLIENT_ID: ${{ vars.KAKAO_CLIENT_ID || '30dbc23cb8c40f05689b66eb425539d6' }}
         run: |
           RESPONSE=$(curl -sS -X POST "https://kauth.kakao.com/oauth/token" \
             -d "grant_type=refresh_token" \
-            -d "client_id=30dbc23cb8c40f05689b66eb425539d6" \
+            -d "client_id=${CLIENT_ID}" \
             -d "client_secret=${CLIENT_SECRET}" \
             -d "refresh_token=${REFRESH_TOKEN}")
           ACCESS_TOKEN=$(echo "$RESPONSE" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)

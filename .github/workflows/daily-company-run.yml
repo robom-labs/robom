@@ -1,10 +1,12 @@
-# 매일 09시(KST) 회사 운영 — 실행 4팀이 앱 1개를 개선하고 PR을 연다.
-# Claude는 브랜치 push + PR 생성까지만. main merge는 사람이 한다.
+# 하루 2회(KST 06:00·18:00) 회사 운영 — 상태 점검 + 본부장 보고 + ops 개선 1건을 PR로 상신한다.
+# Claude는 브랜치 push + draft PR 생성까지만. main merge는 회장이 한다.
+# 앱 코드 개선은 각 원본 저장소의 daily-self-improve.yml 이 담당한다(D16 — apps/ 사본은 읽기 전용 미러).
 name: Daily Company Run
 
 on:
   schedule:
-    - cron: "0 0 * * *"      # 00:00 UTC = 09:00 KST
+    - cron: "0 21 * * *"     # 21:00 UTC = 06:00 KST (오전 회차)
+    - cron: "0 9 * * *"      # 09:00 UTC = 18:00 KST (오후 회차)
   workflow_dispatch:
 
 permissions:
@@ -20,22 +22,38 @@ jobs:
   company-run:
     runs-on: ubuntu-latest
     steps:
+      - name: ANTHROPIC_API_KEY 등록 확인 (없으면 즉시 실패)
+        env:
+          HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          if [ "$HAS_KEY" != "true" ]; then
+            echo "::error::ANTHROPIC_API_KEY secret이 등록되어 있지 않습니다. GitHub Settings > Secrets and variables > Actions 에서 등록하세요. (사람 작업 — ops/HUMAN-TASKS.md 1번)"
+            exit 1
+          fi
+
       - uses: actions/checkout@v4
 
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          # 비용 상한: 하루 실행이 폭주하지 않게 turn 제한
+          # 비용 상한: 회차당 실행이 폭주하지 않게 turn 제한
           claude_args: "--max-turns 20"
           prompt: |
-            너는 zoop-holdings의 마스터(오케스트레이터)다.
+            너는 zoop-holdings의 본부장(오케스트레이터)이다.
             .claude/agents/ceo-orchestrator.md 규칙과 CLAUDE.md 금지작업을 그대로 따른다.
-            오늘의 데일리 런:
-            1) ops/registry/apps.yml 와 ops/scorecards/app-priority.md 로 오늘 앱 1개 선택
-            2) planner → builder → inspector → recorder 순으로 수행
-            3) 변경은 선언한 파일 범위 안에서만. 하루 = 앱1·목표1·PR1.
-            4) 위험 점수가 높으면 코드 대신 제안서 PR만 만든다.
-            5) 브랜치 claude/daily-<날짜> 로 커밋하고 **draft PR**을 연다(main 직접 push 금지).
-            6) PR 설명: 결과 / 테스트 / 위험 / 다음 작업.
-               기록 필수: ops/state·changelog 갱신 + **앱 코드 변경이면 그 앱 package.json 버전만 bump**.
+            이번 회차 데일리 런(오전 06시 / 오후 18시 KST 중 현재 시각으로 판단):
+            1) 상태 점검: 세 앱 원본 저장소의 최신 package.json 버전
+               (https://raw.githubusercontent.com/<repo>/main/package.json — 공개 저장소, 인증 불필요)과
+               ops/registry/apps.yml · apps/ 사본 버전을 대조하고, 이 저장소의 열린 PR과
+               최근 실패한 워크플로를 확인한다.
+            2) 본부장 보고서 작성: ops/reports/TEMPLATE.md 틀에 맞춰
+               ops/reports/<YYYY-MM-DD>-<am|pm>.md 를 생성한다.
+               회장님은 비전공자다 — 전문용어 없이, 오늘 한 일 / 앱 신호등 / 승인 대기 PR /
+               사람이 해야 할 일 / 다음 계획을 쉬운 한국어로 쓴다.
+            3) ops 개선 딱 1건: 문서 정확화, 가드레일 보강, stale 기록 갱신 중 가장 가치 있는 것.
+               ★ apps/ 사본의 앱 코드는 절대 수정하지 않는다(읽기 전용 미러 — apps/README.md 참조).
+               앱 코드 개선은 각 원본 저장소의 daily-self-improve 워크플로가 담당한다(D16).
+            4) 브랜치 claude/daily-<날짜>-<회차> 로 커밋하고 **draft PR**을 연다(main 직접 push 금지).
+            5) PR 설명 맨 위에 보고서 요약을 붙여 회장이 PR만 봐도 이해되게 한다.
+               기록 필수: ops/state·changelog 갱신.
                루트 VERSION(시스템 버전)은 회사 운영방식·자동화 변경 때만 올린다(앱 작업에선 건드리지 않는다).

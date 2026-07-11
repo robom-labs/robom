@@ -1,27 +1,27 @@
 # state: runningcall (러닝콜)
 
 ## 현재 상태
-- 버전: 0.13.3 RC
-- 상태: live 0.13.2 / 출시 준비 PR #5·Kakao 키 확인 대기
+- 버전: live 0.13.3 (main 머지 완료) / 강화 PR 0.13.4 승인 대기
+- 출시 판정: **보류 — 제한 베타 가능** (검색 3겹 결함 중 2겹은 강화 PR로 해소, 나머지는 사람 확인)
 - 스택: Next.js 16 + React 19, pnpm, vitest
 
 ## 방금 한 일 (최근)
-- 2026-07-10: PR #5 — Nominatim 위치 오답 폴백 제거, same-origin·좌표검증·역지오코딩 속도/캐시, 출처·GPS 안내, 앱 실행 중 알림 고지, PostCSS 취약점·원본 CI. typecheck·36 tests·build·audit 통과.
-- 2026-07-09 daily#2(코드): P0 해결 — `/api/search-location`, `/api/reverse-location`, `/api/forecast`에 in-memory 레이트리밋(IP당 분당 20회) + same-origin 검증 추가(`lib/rate-limit.ts` 신규, 외부 유료 서비스 미사용). Kakao 유료 API 키 소진 방지(D12/R9). pnpm install(lockfile 변경 없음)/pnpm test 31/31(신규 rate-limit 테스트 포함)/pnpm build 정상. PR #2(draft): https://github.com/runnerpyrri-lgtm/runningcall/pull/2
-- 2026-07-09 daily#1: 홍보 다채널 콘텐츠팩 생성(ops/content/2026-07-09/runningcall/). 게시대기.
-- 2026-07-09: holdings에 federated 편입.
+- 2026-07-10(밤): 출시 강화 PR(0.13.4) 상신 — ① 검색 서버가 Kakao 오류를 "결과 없음"으로 숨기던 것 수정
+  (양쪽 다 실패=502, 부분 성공=부분 결과, 장애성 빈 응답 캐시 금지, 정상 무결과만 짧은 캐시),
+  ② 역명·도로명을 막던 클라이언트 게이트 제거(회장 승인), ③ 대기질 결측을 0("매우 좋음")으로 위장하던
+  것을 "정보 없음" 정직 처리(가중치 재정규화+UI 표시), ④ 오류 경로 테스트 신설, ⑤ 문서 정확화(낡은
+  Nominatim 문구), ⑥ 하루 2회 자가개선 워크플로.
+- 2026-07-10(낮): PR #5 **머지 완료** — Nominatim 오답 폴백 제거, origin·좌표검증·속도제한, 출처·GPS 안내, 알림 범위 고지.
 
 ## Next
-- [ ] 콘텐츠팩 검수 → 게시 → 반응 측정
-- [ ] Vercel Production `KAKAO_REST_API_KEY` 등록 확인 후 PR #5 머지·재배포
-- [ ] 과거 노출 GitHub 토큰 폐기 확인(사람)
-- [ ] docs/superpowers/plans 의 미완 로드맵 중 작은 것부터(코드 사이클)
+- [ ] 강화 PR 회장 승인 → Vercel 자동배포
+- [ ] **회장**: Vercel `KAKAO_REST_API_KEY` 존재·유효 확인(HUMAN-TASKS 3번) — 정식 공개의 마지막 조각
+- [ ] **회장**: 과거 노출 GitHub 토큰 폐기 확인(HUMAN-TASKS 4번)
+- [ ] 위 3개 완료 후 실기기에서 "성수동·강남역" 검색 확인 → 판정을 "정식 공개 가능"으로 상향
+- [ ] (다음 사이클) page.tsx 2,148줄 등 대형 파일 분리 — 검색·데이터 신뢰 안정화 후
 
 ## Blocked
-- 없음
+- 정식 공개: Vercel Kakao 키 확인(사람) 전까지
 
 ## 최근 실패
-- 없음
-
-## 홍보 성과 (성장 루프)
-- 2026-07-09: 콘텐츠팩 4채널 초안 생성(게시 전).
+- 프로덕션 위치 검색 빈 결과(성수동·강남역·도로명) — 원인 3겹 규명 완료, 강화 PR로 코드측 해소
