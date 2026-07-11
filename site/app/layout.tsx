@@ -1,6 +1,12 @@
 // 로봄 브랜드 사이트의 전역 메타데이터와 문서 구조를 설정한다.
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+// 모바일에서 브라우저 UI까지 크림색으로 물들이고, 하단 탭바가 기기 안전 영역을 존중하게 한다.
+export const viewport: Viewport = {
+  themeColor: "#fffaf1",
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://robom.kr"),
