@@ -66,6 +66,7 @@ test("keeps production branding and accessibility assets in place", async () => 
   assert.match(layout, /metadataBase:\s*new URL\("https:\/\/robom\.kr"\)/);
   assert.match(layout, /summary_large_image/);
   assert.match(css, /a:focus-visible/);
+  assert.match(css, /\.mobile-nav-links a \{[^}]*min-width: 46px;[^}]*min-height: 44px;/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   assert.doesNotMatch(page, /SkeletonPreview|codex-preview/);
