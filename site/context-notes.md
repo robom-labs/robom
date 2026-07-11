@@ -20,6 +20,11 @@
 - 앱 홈 타일에는 `18:20`, `D-1` 같은 실시간 수치를 표기하지 않는다. 수치는 각 앱에 들어가 확인하게 하고, 홈에는 생활어 문구만 담는다.
 - 하단 탭바는 `env(safe-area-inset-bottom)`을 존중하고 모든 터치 영역은 44px 이상을 유지한다.
 
+## 배포 경로
+
+- 정본 배포: GitHub Pages 자동배포(`deploy-site-pages.yml`) — main 머지 = 배포. 미리보기 URL: https://robom-labs.github.io/robom/
+- robom.kr 도메인은 DNS 전환 전까지 기존 Sites 배포본을 서빙한다. 전환 절차는 checklist 참조.
+
 ## 현재 직접 연결 URL
 
 - 야외봄: https://runningcall.vercel.app

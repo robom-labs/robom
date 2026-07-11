@@ -3,6 +3,17 @@
 이 회사의 **운영 방식/자동화** 변경 이력. [SemVer](https://semver.org/lang/ko/). 최신 버전이 맨 위.
 (앱 자체 변경은 각 독립 앱 저장소의 `CHANGELOG.md`를 참조합니다.)
 
+## [1.2.0] - 2026-07-11
+
+### 추가
+
+- `site/`(robom.kr 홈페이지) GitHub Pages 자동배포 체계: main 머지 시 테스트 → 정적 프리렌더(`site/scripts/prerender-static.mjs`) → Pages 배포 → 배포본 검증까지 자동 실행(`deploy-site-pages.yml`). 비밀키 불필요.
+- 프리렌더는 기존 렌더링 테스트와 동일한 워커 경로로 HTML을 생성하고, 자산 경로를 상대화해 프로젝트 페이지(`/robom/`)와 커스텀 도메인(robom.kr) 양쪽에서 동작한다.
+
+### 변경
+
+- 기존 Sites 수동 배포 경로와 독립 — robom.kr DNS를 GitHub Pages로 전환하기 전까지 운영 도메인에 영향 없음. 전환 절차는 `site/checklist.md`에 기록.
+
 ## [1.1.0] - 2026-07-11
 
 ### 추가

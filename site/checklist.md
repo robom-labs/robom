@@ -100,3 +100,12 @@
 - [x] 빌드·렌더링 테스트 2/2·ESLint 통과
 - [x] 390/360px 실측: 가로 넘침 0, 탭 터치 92×50px, 첫 화면에 타일 3개 노출
 - [ ] `robom.kr` 배포 후 실제 휴대폰에서 앱 홈·탭바 최종 확인
+
+## 2026-07-11 GitHub Pages 자동배포 체계
+
+- [x] `scripts/prerender-static.mjs` — 워커 렌더 → `dist/static` 정적 사이트(자산 상대경로화, sanity 체크 포함)
+- [x] `deploy-site-pages.yml` — main 머지 시 테스트→프리렌더→Pages 배포→배포본 curl 검증
+- [x] 로컬 검증: `/robom/` 서브패스 서빙에서 index·자산 200, 페이지 에러 0, 하이드레이션 정상 (중복 프리로드 힌트 404는 무해·루트 도메인에서 소멸)
+- [ ] 머지 후 첫 워크플로 성공 확인 — 실패 시 저장소 Settings → Pages → Source를 "GitHub Actions"로 1회 수동 지정
+- [ ] robom.kr DNS 전환(회장): 등록기관에서 A 레코드 4개(185.199.108.153 / .109. / .110. / .111.) 또는 CNAME → robom-labs.github.io 지정, 완료 후 CNAME 파일 추가 PR 요청
+- [ ] DNS 전환 후 Sites 쪽 구버전 비활성화(Codex)

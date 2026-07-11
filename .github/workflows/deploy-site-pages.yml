@@ -1,0 +1,78 @@
+# robom.kr 홈페이지(site/) GitHub Pages 자동배포.
+# main 에 site/ 변경이 머지되면: 테스트 → 정적 프리렌더 → Pages 배포 → 배포본 검증.
+# 비밀키 불필요(GITHUB_TOKEN 내장). 기존 Sites 배포 경로와 독립적이라 robom.kr DNS 전환 전까지 서로 간섭 없음.
+name: Deploy robom site to Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/deploy-site-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: deploy-site-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Enable GitHub Pages (first run only)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+        continue-on-error: true
+      - run: npm ci
+      - name: Build + rendered-html tests
+        run: npm test
+      - name: Prerender static site
+        run: node scripts/prerender-static.mjs
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist/static
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify deployed page renders the app home
+        run: |
+          URL="${{ needs.deploy.outputs.page_url }}"
+          if [ -z "$URL" ]; then URL="https://robom-labs.github.io/robom/"; fi
+          echo "checking $URL"
+          for i in 1 2 3 4 5; do
+            BODY=$(curl -fsSL "$URL" || true)
+            if echo "$BODY" | grep -q "app-home" && echo "$BODY" | grep -q "야외봄"; then
+              echo "OK: app home markers found"; exit 0
+            fi
+            echo "retry $i..."; sleep 10
+          done
+          echo "FAIL: deployed page missing expected markers"; exit 1
