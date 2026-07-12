@@ -54,7 +54,7 @@ export default function Home() {
                 <div className="app-hero-card"><span className="card-rule" /><p className="card-eyebrow">{app.eyebrow}</p><h3>{app.heroTitle}</h3><p>{app.heroBody}</p><div className="metric-row">{app.metrics.map((metric) => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}</div><Link className="card-cta" href={app.hubPath}>자세히 보기 <span aria-hidden="true">→</span></Link></div>
                 <div className="short-list"><strong>이 앱이 챙기는 것</strong>{app.highlights.slice(0, 2).map((item, index) => <span key={item}>{item}<b>{index === 0 ? "핵심" : "보기"}</b></span>)}</div>
                 <div className="ad-placeholder" aria-label="광고 영역 비활성"><span>광고</span><p>추천 정보 영역 · 현재 비활성</p><b>OFF</b></div>
-                <a className="web-access" href={app.webUrl}>{app.accessLabel} <span aria-hidden="true">↗</span></a>
+                <a className="web-access" href={app.webUrl} target="_blank" rel="noopener noreferrer">{app.accessLabel} <span aria-hidden="true">↗</span></a>
               </article>
             ))}
           </div>
@@ -65,7 +65,7 @@ export default function Home() {
           <ol><li><span>01</span><div><b>한눈에 이해합니다.</b><p>첫 화면에서 오늘 가장 중요한 신호와 다음 행동을 확인합니다.</p></div></li><li><span>02</span><div><b>한 손으로 움직입니다.</b><p>모바일 버튼과 탭은 충분히 크고 기기 안전 영역을 침범하지 않습니다.</p></div></li><li><span>03</span><div><b>앱 사이를 잃지 않습니다.</b><p>안정적인 로봄 허브에서 다른 패밀리 앱과 지원 정보로 이동합니다.</p></div></li></ol>
         </section>
 
-        <section className="support-band" aria-labelledby="support-title"><div><p>지원과 제휴</p><h2 id="support-title">궁금한 점은 로봄에 바로 알려주세요.</h2><span>일반 문의와 광고·제휴 문의를 구분해 더 빠르게 확인합니다.</span></div><Link className="button light" href="/support">지원 페이지 열기 <span aria-hidden="true">→</span></Link></section>
+        <section className="support-band" aria-labelledby="support-title"><div><p>문의 · 광고 · 제휴</p><h2 id="support-title">궁금한 내용은 한곳으로 편하게 보내주세요.</h2><span>서비스 문의와 광고·제휴 제안 모두 hello.robom@gmail.com에서 확인합니다.</span></div><a className="button light" href="mailto:hello.robom@gmail.com?subject=%5B%EB%A1%9C%EB%B4%84%5D%20%EB%AC%B8%EC%9D%98%C2%B7%EA%B4%91%EA%B3%A0%2F%EC%A0%9C%ED%9C%B4">이메일 보내기 <span aria-hidden="true">→</span></a></section>
       </main>
       <FamilyFooter />
       <MobileNav />

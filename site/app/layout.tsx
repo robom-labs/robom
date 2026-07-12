@@ -5,8 +5,8 @@ import "./globals.css";
 // 모바일에서 브라우저 UI까지 패밀리 배경색으로 맞추고 하단 탭바가 기기 안전 영역을 존중하게 한다.
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4f7f5" },
-    { media: "(prefers-color-scheme: dark)", color: "#111714" },
+    { media: "(prefers-color-scheme: light)", color: "#fff8ef" },
+    { media: "(prefers-color-scheme: dark)", color: "#fff8ef" },
   ],
   viewportFit: "cover",
 };

@@ -60,7 +60,7 @@ export function FamilyFooter() {
       </div>
       <div className="footer-links" aria-label="앱과 지원 링크">
         <div><strong>로봄 패밀리</strong>{familyApps.map((app) => <Link href={app.hubPath} key={app.id}>{app.name}</Link>)}</div>
-        <div><strong>지원</strong><a href={contactHref("general")}>일반 문의</a><a href={contactHref("partnership")}>광고·제휴 문의</a><Link href="/support">고객 지원</Link></div>
+        <div><strong>지원</strong><a href={contactHref("general")}>문의 · 광고 · 제휴</a><Link href="/support">고객 지원</Link></div>
         <div><strong>정보</strong><Link href="/privacy">개인정보처리방침</Link><Link href="/terms">이용약관</Link><Link href="/licenses">오픈소스 라이선스</Link><a href="https://robom.kr">robom.kr</a></div>
       </div>
       <div className="footer-meta"><span>개발자 로봄</span><span>hello.robom@gmail.com</span><span>웹 v1.4.0</span><span>© 2026 ROBOM</span></div>
