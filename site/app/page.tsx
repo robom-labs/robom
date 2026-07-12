@@ -1,8 +1,17 @@
 // 로봄의 세 알림 앱을 따뜻한 타이밍 신호로 소개하는 통합 홈페이지다.
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ROBOM_VERSION } from "./version";
 
 export const metadata: Metadata = {
   title: "중요한 순간을 먼저 봅니다",
+};
+
+// 각 앱 Play 스토어 URL. 등록 전에는 null — null이면 다운로드 버튼을 렌더하지 않는다(죽은 링크 금지).
+const PLAY_URLS: Record<string, string | null> = {
+  outbom: null,
+  homebom: null,
+  runningbom: null,
 };
 
 const signals = [
@@ -16,6 +25,7 @@ const signals = [
     cue: "오늘 18:20",
     note: "공기 맑음 · 바람 잔잔",
     tone: "outdoor",
+    slug: "outbom",
     href: "https://runningcall.vercel.app",
   },
   {
@@ -28,6 +38,7 @@ const signals = [
     cue: "접수 D-1",
     note: "내일 09:00 시작",
     tone: "chance",
+    slug: "homebom",
     href: "https://robom-labs.github.io/homebom/",
   },
   {
@@ -40,15 +51,56 @@ const signals = [
     cue: "OPEN 10:00",
     note: "접수 시작 12분 전",
     tone: "start",
+    slug: "runningbom",
     href: "https://robom-labs.github.io/runningbom/",
   },
 ];
 
+// "봄" 커스텀 마크 — brand/bom-mark/HANDOFF.md(§4) 좌표. 본사=3색(코랄·청록·금 2:2:1), 앱=단색.
+const BOM_PETAL =
+  "M0 -1.4 C -4.6 -1.8 -6 -6.2 -3.7 -9.2 C -2.5 -10.7 -1.2 -9.4 0 -7.7 C 1.2 -9.4 2.5 -10.7 3.7 -9.2 C 6 -6.2 4.6 -1.8 0 -1.4 Z";
+const HOUSE_COLORS = ["#f35f46", "#2f95a0", "#f35f46", "#2f95a0", "#d99a1f"];
+const SCATTER = [
+  [96, 58, 15, 1.0],
+  [120, 52, -20, 1.1],
+  [164, 46, 50, 1.3],
+  [172, 62, 80, 1.1],
+] as const;
+
+function BomMark() {
+  return (
+    <svg className="bom-mark-svg" viewBox="0 0 200 120" aria-hidden="true" overflow="visible">
+      <g stroke="var(--ink)" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" fill="none">
+        <path d="M28 8 L28 46 M72 8 L72 46 M28 28 L72 28 M28 46 L72 46" />
+        <path d="M10 64 L142 64 M50 64 L50 47" />
+        <path d="M28 76 L72 76 L72 110 L28 110 Z" />
+      </g>
+      <g transform="translate(148 60) scale(1.8)">
+        {HOUSE_COLORS.map((c, i) => (
+          <path key={i} d={BOM_PETAL} fill={c} transform={`rotate(${i * 72 + (i % 2 ? 2 : -2)})`} />
+        ))}
+        <circle r="2.4" fill="#fffefb" />
+        <circle r="1.2" fill="#d99a1f" opacity="0.5" />
+      </g>
+      {SCATTER.map(([x, y, r, k], i) => (
+        <path
+          key={i}
+          d={BOM_PETAL}
+          fill={HOUSE_COLORS[i % 3 === 0 ? 0 : i % 3 === 1 ? 1 : 4]}
+          transform={`translate(${x} ${y}) rotate(${r}) scale(${k * 0.9})`}
+        />
+      ))}
+    </svg>
+  );
+}
+
 function BrandLockup({ compact = false }: { compact?: boolean }) {
   return (
     <span className={`brand-lockup${compact ? " compact" : ""}`}>
-      <span className="brand-ko">로봄</span>
-      <span className="brand-signal" aria-hidden="true" />
+      <span className="brand-ko">
+        로<span className="sr-only">봄</span>
+        <BomMark />
+      </span>
       <span className="brand-en">robom</span>
     </span>
   );
@@ -239,14 +291,22 @@ export default function Home() {
 
           <div className="signal-grid">
             {signals.map((signal) => (
-              <a className={`signal-card ${signal.tone}`} href={signal.href} key={signal.number} aria-label={`${signal.appName} 열기`}>
-                <div className="card-topline"><span>{signal.number} · {signal.englishName}</span><span>앱 열기 →</span></div>
+              <div className={`signal-card ${signal.tone}`} key={signal.number}>
+                <div className="card-topline"><span>{signal.number} · {signal.englishName}</span></div>
                 <SignalArtwork tone={signal.tone} />
                 <p className="signal-label">{signal.label}</p>
                 <h3>{signal.appName}<br /><span>{signal.title}</span></h3>
                 <p className="signal-body">{signal.body}</p>
                 <div className="signal-preview"><strong>{signal.cue}</strong><small>{signal.note}</small></div>
-              </a>
+                <div className="signal-ctas">
+                  <a className="card-cta" href={signal.href} aria-label={`${signal.appName} 웹으로 열기`}>웹으로 열기</a>
+                  {PLAY_URLS[signal.slug] ? (
+                    <a className="card-cta ghost" href={PLAY_URLS[signal.slug]!} aria-label={`${signal.appName} 앱 다운로드`}>앱 다운로드</a>
+                  ) : (
+                    <span className="card-cta soon" aria-hidden="true">앱 출시 준비 중</span>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         </section>
@@ -278,11 +338,36 @@ export default function Home() {
           </div>
         </section>
 
-        <footer>
-          <a href="#top"><BrandLockup compact /></a>
-          <p>좋은 타이밍을 먼저 보는 알림 앱 스튜디오.</p>
-          <a className="footer-domain" href="https://robom.kr">robom.kr</a>
-          <span>© 2026 ROBOM</span>
+        <footer className="site-footer">
+          <div className="footer-brand">
+            <a href="#top"><BrandLockup compact /></a>
+            <p>좋은 타이밍을 먼저 보는 알림 앱 스튜디오.</p>
+          </div>
+          <div className="footer-grid">
+            <div className="footer-col" aria-label="로봄 패밀리 앱">
+              <small>로봄 패밀리</small>
+              {signals.map((signal) => (
+                <a href={signal.href} key={signal.slug} className="footer-app">
+                  <span className={`tab-mark ${signal.tone}`} aria-hidden="true" />
+                  {signal.appName}
+                  <em>{PLAY_URLS[signal.slug] ? "다운로드" : "웹으로 열기"}</em>
+                </a>
+              ))}
+            </div>
+            <div className="footer-col">
+              <small>로봄</small>
+              <span>제공: 로봄</span>
+              <span>버전 v{ROBOM_VERSION}</span>
+              <a href="mailto:hello.robom@gmail.com" aria-label="로봄에 이메일 보내기">문의·광고 hello.robom@gmail.com</a>
+            </div>
+            <div className="footer-col">
+              <small>정책</small>
+              <Link href="/privacy">개인정보처리방침</Link>
+              <Link href="/terms">이용약관</Link>
+              <a className="footer-domain" href="https://robom.kr">robom.kr</a>
+            </div>
+          </div>
+          <span className="footer-copy">© 2026 ROBOM</span>
         </footer>
 
         <nav className="app-tabbar" aria-label="로봄 하단 탭">

@@ -297,3 +297,45 @@ footer .brand-en { color: var(--butter); }
   .pulse-dot { animation: none; }
   .app-menu-link, .signal-card, .primary-link, .closing-link, .app-tile { transition: none; }
 }
+
+
+/* ---------- 봄 마크(브랜드 정본 PR #33) ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.brand-ko { display: inline-flex; align-items: baseline; }
+.bom-mark-svg { height: 0.96em; width: auto; margin-left: 0.08em; transform: translateY(0.1em); overflow: visible; }
+.brand-signal { display: none; }
+
+/* ---------- 시그널 카드 이중 CTA (파스텔 프레시) ---------- */
+.signal-ctas { display: flex; gap: 9px; margin-top: 14px; }
+.card-cta { flex: 1; display: inline-flex; align-items: center; justify-content: center; min-height: 48px; border-radius: 999px; background: var(--ink); color: var(--white); font-size: 13px; font-weight: 900; transition: transform 160ms ease; }
+.card-cta:hover { transform: translateY(-2px); }
+.card-cta.ghost { background: rgba(255, 254, 251, 0.85); color: var(--ink); border: 1.5px solid rgba(29, 48, 71, 0.25); }
+.card-cta.soon { background: rgba(255, 254, 251, 0.55); color: var(--ink-soft); border: 1.5px dashed rgba(29, 48, 71, 0.2); font-weight: 800; }
+.start .card-cta { background: var(--white); color: var(--coral-deep); }
+.start .card-cta.soon { background: rgba(255, 255, 255, 0.2); color: var(--white); border-color: rgba(255, 255, 255, 0.45); }
+
+/* ---------- 패밀리 푸터 ---------- */
+.site-footer { display: flex; flex-direction: column; gap: 22px; align-items: stretch; }
+.footer-brand { display: flex; align-items: center; gap: 18px; }
+.footer-brand p { margin: 0; color: #bdc8d3; font-size: 12px; }
+.footer-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; border-top: 1px solid rgba(255, 255, 255, 0.14); padding-top: 20px; }
+.footer-col { display: flex; flex-direction: column; gap: 9px; font-size: 13px; color: #d6dde4; }
+.footer-col small { color: #8fa0b0; font-size: 11px; font-weight: 900; letter-spacing: 0.1em; }
+.footer-col a { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; color: #eef2f5; }
+.footer-col a:hover { color: var(--butter); }
+.footer-app em { font-style: normal; margin-left: auto; font-size: 11px; color: #9fb0bf; }
+.footer-copy { color: #8fa0b0; font-size: 11px; }
+@media (max-width: 780px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .site-footer { gap: 16px; }
+}
+
+/* ---------- 정책 페이지 ---------- */
+.policy-page { max-width: 720px; margin: 0 auto; padding: 48px 24px 90px; }
+.policy-back { display: inline-block; margin-bottom: 26px; font-size: 14px; font-weight: 800; color: var(--coral-deep); }
+.policy-page h1 { font-size: clamp(30px, 5vw, 40px); letter-spacing: -0.04em; margin-bottom: 8px; }
+.policy-updated { color: var(--ink-mute); font-size: 13px; margin-bottom: 34px; }
+.policy-page section { margin-bottom: 26px; }
+.policy-page h2 { font-size: 19px; margin-bottom: 8px; }
+.policy-page p { font-size: 15.5px; line-height: 1.85; color: var(--ink-soft); }
+.policy-page a { color: var(--coral-deep); font-weight: 700; }
