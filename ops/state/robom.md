@@ -21,6 +21,7 @@
 
 ## Next
 
+- [ ] v1.4.0 패밀리 허브 전면 재디자인 Draft PR을 검토하고 PR #33 뒤에 병합한다.
 - [x] `robom-labs` GitHub 조직 생성과 네 저장소 이전을 완료했다.
 - [x] 앱별 브랜딩 PR을 검토하고 merge했다.
 - [x] 새 Pages URL 응답을 확인하고 registry 상태를 `live`로 갱신했다.

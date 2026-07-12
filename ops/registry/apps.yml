@@ -7,7 +7,7 @@ apps:
     english_name: OutBom
     legacy_id: runningcall
     status: live
-    version: 0.13.4
+    version: 0.14.0
     repo: robom-labs/outbom
     legacy_repo: runnerpyrri-lgtm/runningcall
     stack: Next.js 16 + React 19 (pnpm)
@@ -22,7 +22,7 @@ apps:
     english_name: HomeBom
     legacy_id: zoopzoopcall
     status: live
-    version: 0.1.4
+    version: 0.2.0
     repo: robom-labs/homebom
     legacy_repo: runnerpyrri-lgtm/zoopzoopcall
     stack: pnpm + Vite + React PWA
@@ -39,7 +39,7 @@ apps:
     english_name: RunningBom
     legacy_id: pushrun
     status: live
-    version: 0.6.10
+    version: 0.7.0
     repo: robom-labs/runningbom
     legacy_repo: runnerpyrri-lgtm/pushrun
     stack: static PWA (HTML/CSS/JS)

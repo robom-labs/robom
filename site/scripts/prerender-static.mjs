@@ -7,13 +7,25 @@ import { resolve } from "node:path";
 const root = new URL("..", import.meta.url);
 const staticDir = resolve(root.pathname, "dist", "static");
 
-async function render() {
+const routes = [
+  "/",
+  "/apps/outbom",
+  "/apps/homebom",
+  "/apps/runningbom",
+  "/support",
+  "/privacy",
+  "/terms",
+  "/licenses",
+  "/open-source",
+];
+
+async function render(path) {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("prerender", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("https://robom.kr/", { headers: { accept: "text/html" } }),
+    new Request(`https://robom.kr${path}`, { headers: { accept: "text/html" } }),
     {
       ASSETS: {
         fetch: async () => new Response("Not found", { status: 404 }),
@@ -26,32 +38,33 @@ async function render() {
   );
 }
 
-const response = await render();
-if (response.status !== 200) {
-  throw new Error(`prerender failed: HTTP ${response.status}`);
-}
-
-let html = await response.text();
-
-// 루트 절대경로 자산 참조를 상대경로로 바꾼다. (외부 https:// URL은 건드리지 않는다)
-html = html
-  .replaceAll('"/assets/', '"./assets/')
-  .replaceAll('"/favicon.svg', '"./favicon.svg');
-
-if (!html.includes("app-home") || !html.includes("야외봄")) {
-  throw new Error("prerender sanity check failed: expected markers missing");
-}
-if (html.includes('"/assets/')) {
-  throw new Error("prerender sanity check failed: absolute /assets/ path remains");
-}
-
 await rm(staticDir, { recursive: true, force: true });
 await mkdir(staticDir, { recursive: true });
 await cp(resolve(root.pathname, "dist", "client"), staticDir, {
   recursive: true,
   filter: (src) => !src.includes("/.vite") && !src.endsWith("/.assetsignore") && !src.endsWith("/_headers"),
 });
-await writeFile(resolve(staticDir, "index.html"), html);
+for (const path of routes) {
+  const response = await render(path);
+  if (response.status !== 200) {
+    throw new Error(`prerender failed for ${path}: HTTP ${response.status}`);
+  }
+
+  const depth = path === "/" ? 0 : path.split("/").filter(Boolean).length;
+  const prefix = depth === 0 ? "./" : "../".repeat(depth);
+  const html = (await response.text())
+    .replaceAll('"/assets/', `"${prefix}assets/`)
+    .replaceAll('"/favicon.svg', `"${prefix}favicon.svg`)
+    .replaceAll('"/brand/', `"${prefix}brand/`);
+
+  if (html.includes('"/assets/')) {
+    throw new Error(`prerender sanity check failed for ${path}: absolute /assets/ path remains`);
+  }
+
+  const outputDir = path === "/" ? staticDir : resolve(staticDir, path.slice(1));
+  await mkdir(outputDir, { recursive: true });
+  await writeFile(resolve(outputDir, "index.html"), html);
+}
 await writeFile(resolve(staticDir, ".nojekyll"), "");
 
-console.log(`prerendered static site → ${staticDir}`);
+console.log(`prerendered ${routes.length} static routes → ${staticDir}`);

@@ -1,303 +1,74 @@
-// 로봄의 세 알림 앱을 따뜻한 타이밍 신호로 소개하는 통합 홈페이지다.
+// 로봄의 세 앱을 하나의 제품 문법으로 소개하고 안정 경로로 연결하는 공식 패밀리 허브다.
 import type { Metadata } from "next";
+import Link from "next/link";
+import { AppGlyph, FamilyFooter, MobileNav, SiteHeader, Wordmark } from "./components";
+import { familyApps } from "./app-data";
 
 export const metadata: Metadata = {
   title: "중요한 순간을 먼저 봅니다",
 };
 
-const signals = [
-  {
-    number: "01",
-    appName: "야외봄",
-    englishName: "OUTBOM",
-    label: "바깥바람이 좋은 때",
-    title: "걷기 좋은 하늘, 먼저 봐 둘게요.",
-    body: "하늘과 바람, 공기를 미리 살펴 걷고 달리기 좋은 시간이 오면 살며시 알려드려요.",
-    cue: "오늘 18:20",
-    note: "공기 맑음 · 바람 잔잔",
-    tone: "outdoor",
-    href: "https://runningcall.vercel.app",
-  },
-  {
-    number: "02",
-    appName: "청약봄",
-    englishName: "HOMBOM",
-    label: "다시 없을 기회의 날",
-    title: "그 접수, 잊지 않게 챙겨드려요.",
-    body: "무순위 청약처럼 지나가면 아쉬운 기회, 접수 시작부터 마감까지 곁에서 챙겨드립니다.",
-    cue: "접수 D-1",
-    note: "내일 09:00 시작",
-    tone: "chance",
-    href: "https://robom-labs.github.io/homebom/",
-  },
-  {
-    number: "03",
-    appName: "러닝봄",
-    englishName: "RUNNINGBOM",
-    label: "출발선에 서는 날",
-    title: "접수가 열리기 전에 깨워드려요.",
-    body: "금세 마감되는 러닝 대회 접수, 열리기 전에 미리 알려 출발선에 설 수 있게 합니다.",
-    cue: "OPEN 10:00",
-    note: "접수 시작 12분 전",
-    tone: "start",
-    href: "https://robom-labs.github.io/runningbom/",
-  },
-];
-
-function BrandLockup({ compact = false }: { compact?: boolean }) {
-  return (
-    <span className={`brand-lockup${compact ? " compact" : ""}`}>
-      <span className="brand-ko">로봄</span>
-      <span className="brand-signal" aria-hidden="true" />
-      <span className="brand-en">robom</span>
-    </span>
-  );
-}
-
-function SignalArtwork({ tone }: { tone: string }) {
-  if (tone === "outdoor") {
-    return (
-      <div className="card-art outdoor-art" aria-hidden="true">
-        <span className="sun-disc" />
-        <span className="horizon horizon-one" />
-        <span className="horizon horizon-two" />
-        <span className="breeze breeze-one" />
-        <span className="breeze breeze-two" />
-      </div>
-    );
-  }
-
-  if (tone === "chance") {
-    return (
-      <div className="card-art chance-art" aria-hidden="true">
-        <span className="calendar-top" />
-        <span className="calendar-sheet">
-          <i /><i /><i /><i /><i /><i />
-        </span>
-        <span className="calendar-alert" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="card-art start-art" aria-hidden="true">
-      <span className="track track-one" />
-      <span className="track track-two" />
-      <span className="track track-three" />
-      <span className="start-line" />
-      <span className="start-dot" />
-    </div>
-  );
-}
-
 export default function Home() {
   return (
-    <div className="site-shell" id="top">
-      <aside className="side-nav" aria-label="로봄 앱 메뉴">
-        <a href="#top" aria-label="로봄 처음으로">
-          <BrandLockup />
-        </a>
-
-        <div className="side-statement">
-          <span className="pulse-dot" aria-hidden="true" />
-          <p>놓치면 끝나는 순간을<br />제때 알려주는 앱 스튜디오</p>
-        </div>
-
-        <nav className="app-menu" aria-label="로봄 앱 바로가기">
-          <p>ROBOM APPS</p>
-          {signals.map((signal) => (
-            <a
-              className={`app-menu-link ${signal.tone}`}
-              href={signal.href}
-              key={signal.appName}
-            >
-              <span className="app-menu-mark" aria-hidden="true" />
-              <span>
-                <strong>{signal.appName}</strong>
-                <small>{signal.label}</small>
-              </span>
-              <b aria-hidden="true">→</b>
-            </a>
-          ))}
-        </nav>
-
-        <div className="side-principle">
-          <small>OUR PRINCIPLE</small>
-          <strong>먼저 보고,<br />제때 말합니다.</strong>
-        </div>
-
-        <div className="side-bottom">
-          <a href="#signals">세 앱 둘러보기</a>
-          <span>© 2026 ROBOM</span>
-        </div>
-      </aside>
-
-      <main className="content-area">
-        <section className="app-home" aria-label="로봄 모바일 홈">
-          <header className="app-home-head">
-            <a href="#top" aria-label="로봄 처음으로">
-              <BrandLockup compact />
-            </a>
-            <span className="app-live"><span className="pulse-dot" aria-hidden="true" />오늘을 살펴보는 중</span>
-          </header>
-
-          <div className="app-greeting">
-            <span className="app-sun" aria-hidden="true" />
-            <h2>오늘도 좋은 순간이 와요.<br /><em>먼저 보고 있을게요.</em></h2>
-            <p>바람 좋은 저녁도, 다시 없을 기회도.<br />때가 되면 잊지 않고 말씀드릴게요.</p>
+    <div className="site-shell">
+      <SiteHeader />
+      <main>
+        <section className="family-hero" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <p className="eyebrow"><span aria-hidden="true" /> ROBOM FAMILY</p>
+            <h1 id="hero-title">놓치고 싶지 않은 순간을<br /><em>먼저 봅니다.</em></h1>
+            <p className="hero-lead">날씨가 좋아질 때, 기회가 열릴 때, 대회 접수가 시작될 때. 로봄은 더 많은 정보보다 지금 할 수 있는 다음 행동을 선명하게 알려드립니다.</p>
+            <div className="hero-actions">
+              <a className="button primary" href="#apps">세 앱 만나기 <span aria-hidden="true">↓</span></a>
+              <Link className="button secondary" href="/support">도움받기</Link>
+            </div>
+            <ul className="trust-list" aria-label="로봄의 제품 원칙">
+              <li>먼저 살펴보고</li><li>필요한 것만 골라</li><li>움직일 때 알려요</li>
+            </ul>
           </div>
 
-          <p className="app-tiles-label">오늘은 어떤 순간을 기다리세요?</p>
-          <nav className="app-tiles" aria-label="로봄 앱 열기">
-            {signals.map((signal) => (
-              <a className={`app-tile ${signal.tone}`} href={signal.href} key={signal.appName}>
-                <span className="app-tile-mark" aria-hidden="true" />
-                <span className="app-tile-copy">
-                  <small>{signal.label}</small>
-                  <strong>{signal.appName}</strong>
-                  <span>{signal.title}</span>
-                </span>
-                <b className="app-tile-go" aria-hidden="true">→</b>
-              </a>
-            ))}
-          </nav>
-        </section>
-
-        <section className="hero">
-          <nav className="top-nav" aria-label="주요 메뉴">
-            <a className="mobile-brand" href="#top" aria-label="로봄 처음으로">
-              <BrandLockup compact />
-            </a>
-            <p className="top-status"><span className="pulse-dot" aria-hidden="true" />오늘의 중요한 순간을 살펴보는 중</p>
-            <div className="mobile-nav-links">
-              {signals.map((signal) => (
-                <a href={signal.href} key={signal.appName}>{signal.appName}</a>
-              ))}
+          <div className="family-preview" aria-label="로봄 패밀리 앱 미리보기">
+            <div className="preview-head"><Wordmark /><span className="live-badge"><i aria-hidden="true" /> 세 앱 운영 중</span></div>
+            <div className="preview-chips" aria-hidden="true"><span>날씨</span><span>청약</span><span>러닝</span></div>
+            <div className="preview-hero">
+              <span className="preview-rule" />
+              <p>오늘의 중요한 신호</p>
+              <h2>좋은 순간이 오기 전에<br />준비할 수 있도록.</h2>
+              <div className="preview-metrics"><span><b>3개</b>생활 앱</span><span><b>한곳</b>공식 허브</span><span><b>제때</b>행동 알림</span></div>
+              <a href="#apps">앱 고르기</a>
             </div>
-          </nav>
-
-          <div className="hero-grid">
-            <div className="hero-copy">
-              <p className="eyebrow"><span aria-hidden="true" /> TIME, NOT NOISE</p>
-              <h1>중요한 순간을<br /><em>먼저 봅니다.</em></h1>
-              <p className="hero-description">
-                로봄은 더 많은 정보를 보내는 회사가 아닙니다. 바깥으로 나갈 때,
-                기회가 열릴 때, 출발선에 설 때. 행동할 수 있는 순간을 골라
-                늦지 않게 알려주는 생활 알림 앱 스튜디오입니다.
-              </p>
-              <div className="hero-actions">
-                <a className="primary-link" href="#signals">세 앱 자세히 보기 <span aria-hidden="true">↘</span></a>
-                <a className="text-link" href="#philosophy">로봄이 알리는 방식</a>
-              </div>
-            </div>
-
-            <div className="timing-board" aria-label="로봄이 살펴보는 세 가지 알림 순간">
-              <div className="board-head">
-                <span>오늘의 타이밍</span>
-                <b>LIVE</b>
-              </div>
-              <div className="board-time"><strong>08:42</strong><span>JUL 11 · SEOUL</span></div>
-              <div className="board-orbit" aria-hidden="true"><i /><i /><i /></div>
-              <div className="board-signals">
-                <div className="board-signal outdoor"><span /> <p><small>야외봄</small><b>저녁 바람이 좋아요</b></p><em>18:20</em></div>
-                <div className="board-signal chance"><span /> <p><small>청약봄</small><b>접수가 곧 열려요</b></p><em>D-1</em></div>
-                <div className="board-signal start"><span /> <p><small>러닝봄</small><b>출발선이 가까워요</b></p><em>12분</em></div>
-              </div>
-            </div>
-          </div>
-
-          <div className="hero-footnote">
-            <span>좋은 타이밍을 고르는 기술</span>
-            <span>OUTSIDE · CHANCE · START</span>
+            <div className="preview-list">{familyApps.map((app) => <span key={app.id}><i className={app.tone} aria-hidden="true" />{app.name}<b>{app.statusLabel}</b></span>)}</div>
           </div>
         </section>
 
-        <div className="moment-ribbon" aria-label="로봄이 살펴보는 순간">
-          <span>좋은 바깥 날씨</span><i>●</i><span>청약 접수</span><i>●</i><span>대회 오픈</span><i>●</i><span>다음 중요한 순간</span>
-        </div>
-
-        <section className="philosophy-section" id="philosophy" aria-labelledby="philosophy-title">
-          <div>
-            <p className="section-kicker">ONE USEFUL SIGNAL</p>
-            <h2 id="philosophy-title">알림은 많아도,<br /><em>쓸모 있는 순간은 드무니까.</em></h2>
-          </div>
-          <div className="philosophy-copy">
-            <p>세상은 먼저 움직입니다. 날씨는 바뀌고, 접수는 열리고, 기회는 마감됩니다. 로봄은 그 흐름을 미리 살펴 당신이 움직일 수 있을 때 말합니다.</p>
-            <div className="promise-row" aria-label="로봄의 세 가지 약속">
-              <span><b>01</b>먼저 살펴보고</span>
-              <span><b>02</b>필요한 것만 골라</span>
-              <span><b>03</b>행동할 때 알려요</span>
-            </div>
-          </div>
-        </section>
-
-        <section className="signals-section" id="signals" aria-labelledby="signals-title">
+        <section className="apps-section" id="apps" aria-labelledby="apps-title">
           <div className="section-heading">
-            <div><p className="eyebrow"><span aria-hidden="true" /> THREE MOMENTS</p><h2 id="signals-title">당신은 어떤 순간을<br />놓치고 싶지 않나요?</h2></div>
-            <p>각 앱은 하나의 중요한 순간에 집중합니다.<br />카드를 누르면 바로 시작할 수 있어요.</p>
+            <div><p className="eyebrow"><span aria-hidden="true" /> THREE APPS, ONE FAMILY</p><h2 id="apps-title">큰 느낌은 하나로,<br />필요한 순간은 각자 정확하게.</h2></div>
+            <p>세 앱은 같은 사용법과 신뢰 기준을 공유하고, 날씨·청약·러닝이라는 각자의 데이터에 집중합니다.</p>
           </div>
-
-          <div className="signal-grid">
-            {signals.map((signal) => (
-              <a className={`signal-card ${signal.tone}`} href={signal.href} key={signal.number} aria-label={`${signal.appName} 열기`}>
-                <div className="card-topline"><span>{signal.number} · {signal.englishName}</span><span>앱 열기 →</span></div>
-                <SignalArtwork tone={signal.tone} />
-                <p className="signal-label">{signal.label}</p>
-                <h3>{signal.appName}<br /><span>{signal.title}</span></h3>
-                <p className="signal-body">{signal.body}</p>
-                <div className="signal-preview"><strong>{signal.cue}</strong><small>{signal.note}</small></div>
-              </a>
+          <div className="app-card-grid">
+            {familyApps.map((app) => (
+              <article className={`family-card ${app.tone}`} key={app.id}>
+                <div className="appbar"><AppGlyph app={app} /><div><Wordmark app={app} /><p>robom · {app.tagline}</p></div><span className="status-pill">{app.statusLabel}</span></div>
+                <div className="filter-row" aria-label={`${app.name} 주요 기능`}>{app.highlights.map((item, index) => <span className={index === 0 ? "active" : ""} key={item}>{item}</span>)}</div>
+                <div className="app-hero-card"><span className="card-rule" /><p className="card-eyebrow">{app.eyebrow}</p><h3>{app.heroTitle}</h3><p>{app.heroBody}</p><div className="metric-row">{app.metrics.map((metric) => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}</div><Link className="card-cta" href={app.hubPath}>자세히 보기 <span aria-hidden="true">→</span></Link></div>
+                <div className="short-list"><strong>이 앱이 챙기는 것</strong>{app.highlights.slice(0, 2).map((item, index) => <span key={item}>{item}<b>{index === 0 ? "핵심" : "보기"}</b></span>)}</div>
+                <div className="ad-placeholder" aria-label="광고 영역 비활성"><span>광고</span><p>추천 정보 영역 · 현재 비활성</p><b>OFF</b></div>
+                <a className="web-access" href={app.webUrl}>{app.accessLabel} <span aria-hidden="true">↗</span></a>
+              </article>
             ))}
           </div>
         </section>
 
-        <section className="principles-section" aria-labelledby="principles-title">
-          <div className="principles-copy">
-            <p className="section-kicker">THE ROBOM STANDARD</p>
-            <h2 id="principles-title">조용하지만<br />분명한 신호.</h2>
-            <p>정보를 더 쌓기보다 행동할 이유를 더 선명하게 만듭니다.</p>
-          </div>
-          <ol className="principles-list">
-            <li><span>먼저</span><div><h3>변화를 지켜봅니다.</h3><p>날씨·접수·마감처럼 계속 달라지는 흐름을 살펴봅니다.</p></div></li>
-            <li><span>꼭</span><div><h3>내게 필요한 것만 고릅니다.</h3><p>누구에게나 같은 소식이 아닌, 각자의 조건에 맞는 순간을 남깁니다.</p></div></li>
-            <li><span>제때</span><div><h3>아직 움직일 수 있을 때 말합니다.</h3><p>이미 늦은 정보가 아니라 지금 할 수 있는 다음 행동을 알려줍니다.</p></div></li>
-          </ol>
+        <section className="standard-section" aria-labelledby="standard-title">
+          <div><p className="eyebrow"><span aria-hidden="true" /> THE ROBOM STANDARD</p><h2 id="standard-title">익숙한 골격,<br />각 앱다운 디테일.</h2><p>큰 앱바, 쉬운 필터, 핵심 카드, 한 손에 닿는 버튼과 하단 내비를 공통으로 사용합니다. 색과 데이터 표현은 서비스 목적에 맞게 달라집니다.</p></div>
+          <ol><li><span>01</span><div><b>한눈에 이해합니다.</b><p>첫 화면에서 오늘 가장 중요한 신호와 다음 행동을 확인합니다.</p></div></li><li><span>02</span><div><b>한 손으로 움직입니다.</b><p>모바일 버튼과 탭은 충분히 크고 기기 안전 영역을 침범하지 않습니다.</p></div></li><li><span>03</span><div><b>앱 사이를 잃지 않습니다.</b><p>안정적인 로봄 허브에서 다른 패밀리 앱과 지원 정보로 이동합니다.</p></div></li></ol>
         </section>
 
-        <section className="closing-section">
-          <div className="closing-copy">
-            <p className="eyebrow"><span aria-hidden="true" /> A BETTER-TIMED DAY</p>
-            <h2>당신의 하루가<br /><em>조금 덜 늦어지도록.</em></h2>
-            <a className="closing-link" href="#signals">로봄의 앱 만나기 <span aria-hidden="true">↗</span></a>
-          </div>
-          <div className="closing-graphic" aria-hidden="true">
-            <span className="closing-ring ring-one" />
-            <span className="closing-ring ring-two" />
-            <span className="closing-ring ring-three" />
-            <span className="closing-now">지금</span>
-          </div>
-        </section>
-
-        <footer>
-          <a href="#top"><BrandLockup compact /></a>
-          <p>좋은 타이밍을 먼저 보는 알림 앱 스튜디오.</p>
-          <a className="footer-domain" href="https://robom.kr">robom.kr</a>
-          <span>© 2026 ROBOM</span>
-        </footer>
-
-        <nav className="app-tabbar" aria-label="로봄 하단 탭">
-          <a href="#top" aria-current="page">
-            <span className="tab-mark home" aria-hidden="true" />
-            <span>홈</span>
-          </a>
-          {signals.map((signal) => (
-            <a href={signal.href} key={signal.appName}>
-              <span className={`tab-mark ${signal.tone}`} aria-hidden="true" />
-              <span>{signal.appName}</span>
-            </a>
-          ))}
-        </nav>
+        <section className="support-band" aria-labelledby="support-title"><div><p>지원과 제휴</p><h2 id="support-title">궁금한 점은 로봄에 바로 알려주세요.</h2><span>일반 문의와 광고·제휴 문의를 구분해 더 빠르게 확인합니다.</span></div><Link className="button light" href="/support">지원 페이지 열기 <span aria-hidden="true">→</span></Link></section>
       </main>
+      <FamilyFooter />
+      <MobileNav />
     </div>
   );
 }

@@ -2,9 +2,12 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-// 모바일에서 브라우저 UI까지 크림색으로 물들이고, 하단 탭바가 기기 안전 영역을 존중하게 한다.
+// 모바일에서 브라우저 UI까지 패밀리 배경색으로 맞추고 하단 탭바가 기기 안전 영역을 존중하게 한다.
 export const viewport: Viewport = {
-  themeColor: "#fffaf1",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f7f5" },
+    { media: "(prefers-color-scheme: dark)", color: "#111714" },
+  ],
   viewportFit: "cover",
 };
 
@@ -15,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s | 로봄",
   },
   description:
-    "놓치면 끝나는 중요한 순간을, 생활에 맞는 신호로 먼저 알려주는 알림 앱 스튜디오 로봄입니다.",
+    "야외 날씨, 청약 접수, 러닝 대회처럼 놓치고 싶지 않은 순간을 먼저 보는 로봄 패밀리 공식 허브입니다.",
   alternates: {
     canonical: "/",
   },
@@ -25,7 +28,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "로봄 | 중요한 순간을 먼저 보는 알림 스튜디오",
-    description: "놓치면 끝나는 중요한 순간을, 생활에 맞는 신호로 먼저 알려줍니다.",
+    description: "야외봄·청약봄·러닝봄을 한곳에서 만나고 공식 웹 서비스로 이동하세요.",
     locale: "ko_KR",
     type: "website",
     images: [
