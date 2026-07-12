@@ -63,15 +63,15 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Verify deployed page renders the app home
+      - name: Verify deployed page renders the family hub
         run: |
           URL="${{ needs.deploy.outputs.page_url }}"
           if [ -z "$URL" ]; then URL="https://robom-labs.github.io/robom/"; fi
           echo "checking $URL"
           for i in 1 2 3 4 5; do
             BODY=$(curl -fsSL "$URL" || true)
-            if echo "$BODY" | grep -q "app-home" && echo "$BODY" | grep -q "야외봄"; then
-              echo "OK: app home markers found"; exit 0
+            if echo "$BODY" | grep -q "ROBOM FAMILY" && echo "$BODY" | grep -q "야외봄"; then
+              echo "OK: family hub markers found"; exit 0
             fi
             echo "retry $i..."; sleep 10
           done
