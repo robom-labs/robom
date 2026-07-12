@@ -55,6 +55,7 @@ for (const path of routes) {
   const html = (await response.text())
     .replaceAll('"/assets/', `"${prefix}assets/`)
     .replaceAll('"/favicon.svg', `"${prefix}favicon.svg`)
+    .replaceAll('"/icons/', `"${prefix}icons/`)
     .replaceAll('"/brand/', `"${prefix}brand/`);
 
   if (html.includes('"/assets/')) {

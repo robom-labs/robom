@@ -15,7 +15,6 @@ export type FamilyApp = {
   webUrl: string;
   hubPath: `/apps/${AppId}`;
   tone: "out" | "home" | "run";
-  symbol: string;
   eyebrow: string;
   heroTitle: string;
   heroBody: string;
@@ -23,7 +22,7 @@ export type FamilyApp = {
   highlights: readonly string[];
 };
 
-export const SITE_VERSION = "1.4.0";
+export const SITE_VERSION = "1.5.0";
 
 // 값의 정본은 ../../ops/registry/apps.yml이며 렌더링 테스트에서 URL과 버전의 일치를 검증한다.
 export const familyApps: readonly FamilyApp[] = [
@@ -41,7 +40,6 @@ export const familyApps: readonly FamilyApp[] = [
     webUrl: "https://runningcall.vercel.app",
     hubPath: "/apps/outbom",
     tone: "out",
-    symbol: "☼",
     eyebrow: "오늘, 나가도 좋을 하늘",
     heroTitle: "나가기 좋은 시간을 먼저 봅니다.",
     heroBody: "기온과 비, 바람과 공기를 대신 살펴, 걷기에도 러닝에도 자전거에도 꼭 알맞은 그 한 시간을 찾아 건넵니다.",
@@ -66,7 +64,6 @@ export const familyApps: readonly FamilyApp[] = [
     webUrl: "https://robom-labs.github.io/homebom/",
     hubPath: "/apps/homebom",
     tone: "home",
-    symbol: "▥",
     eyebrow: "곧, 문이 열립니다",
     heroTitle: "접수 시작과 마감을 놓치지 않게.",
     heroBody: "흩어진 공고를 한자리에 모아 두고, 마음에 둔 그 하나의 시작과 마감을 당신의 알림으로 대신 지킵니다.",
@@ -91,7 +88,6 @@ export const familyApps: readonly FamilyApp[] = [
     webUrl: "https://robom-labs.github.io/runningbom/",
     hubPath: "/apps/runningbom",
     tone: "run",
-    symbol: "⚑",
     eyebrow: "저 앞, 다가오는 출발선",
     heroTitle: "대회 접수가 열리기 전에 준비합니다.",
     heroBody: "전국의 대회를 펼쳐 두고 거리와 지역을 나란히 견주어, 당신이 달릴 그날의 접수가 열리는 순간을 미리 일러둡니다.",

@@ -23,8 +23,12 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: [
+      { url: "/icons/robom.svg", type: "image/svg+xml" },
+      { url: "/icons/robom-32.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/icons/robom.svg",
+    apple: [{ url: "/icons/robom-180.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
     title: "로봄 | 중요한 순간을 먼저 보는 알림 스튜디오",
