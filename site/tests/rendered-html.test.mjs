@@ -84,6 +84,10 @@ test("keeps branding, accessibility and hosting assets in place", async () => {
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     access(new URL("../public/og.png", import.meta.url)),
     access(new URL("../public/favicon.svg", import.meta.url)),
+    access(new URL("../public/icons/robom.svg", import.meta.url)),
+    access(new URL("../public/icons/outbom.svg", import.meta.url)),
+    access(new URL("../public/icons/homebom.svg", import.meta.url)),
+    access(new URL("../public/icons/runningbom.svg", import.meta.url)),
     access(new URL("../public/brand/bom-robom.svg", import.meta.url)),
     access(new URL("../.openai/hosting.json", import.meta.url)),
   ]);

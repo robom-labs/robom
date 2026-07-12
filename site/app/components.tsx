@@ -2,7 +2,7 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { contactHref, familyApps, type FamilyApp } from "./app-data";
+import { contactHref, familyApps, SITE_VERSION, type FamilyApp } from "./app-data";
 
 export function Wordmark({ app }: { app?: FamilyApp }) {
   const prefix = app?.prefix ?? "로";
@@ -19,15 +19,20 @@ export function Wordmark({ app }: { app?: FamilyApp }) {
 export function AppGlyph({ app, large = false }: { app: FamilyApp; large?: boolean }) {
   return (
     <span className={`app-glyph ${app.tone}${large ? " large" : ""}`} aria-hidden="true">
-      {app.symbol}
+      <Image src={`/icons/${app.id}.svg`} alt="" width={64} height={64} unoptimized />
     </span>
   );
+}
+
+export function RobomIcon() {
+  return <Image className="robom-icon" src="/icons/robom.svg" alt="" aria-hidden="true" width={64} height={64} unoptimized />;
 }
 
 export function SiteHeader({ current }: { current?: string }) {
   return (
     <header className="site-header">
       <Link className="site-brand" href="/" aria-label="로봄 홈">
+        <RobomIcon />
         <Wordmark />
         <span>중요한 순간을 먼저 보는 앱 스튜디오</span>
       </Link>
@@ -63,7 +68,7 @@ export function FamilyFooter() {
         <div><strong>지원</strong><a href={contactHref("general")}>문의 · 광고 · 제휴</a><Link href="/support">고객 지원</Link></div>
         <div><strong>정보</strong><Link href="/privacy">개인정보처리방침</Link><Link href="/terms">이용약관</Link><Link href="/licenses">오픈소스 라이선스</Link><a href="https://robom.kr">robom.kr</a></div>
       </div>
-      <div className="footer-meta"><span>개발자 로봄</span><span>hello.robom@gmail.com</span><span>웹 v1.4.0</span><span>© 2026 ROBOM</span></div>
+      <div className="footer-meta"><span>개발자 로봄</span><span>hello.robom@gmail.com</span><span>웹 v{SITE_VERSION}</span><span>© 2026 ROBOM</span></div>
     </footer>
   );
 }

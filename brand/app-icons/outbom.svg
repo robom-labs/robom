@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">야외봄</title>
+  <rect x="3" y="3" width="58" height="58" rx="16" fill="#e7f5fb" stroke="#b8dff0" stroke-width="2"/>
+  <path d="M20 37.5a12 12 0 0 1 24 0" fill="#fff8ef" stroke="#1d3047" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M32 16v5M17 37.5h30M19.5 46h25" fill="none" stroke="#2f95a0" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="m22 23-3.5-3.5M42 23l3.5-3.5" fill="none" stroke="#1d3047" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="50" cy="14" r="3" fill="#2f95a0"/>
+</svg>
