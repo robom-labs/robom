@@ -51,10 +51,10 @@ export default function Home() {
               <article className={`family-card ${app.tone}`} key={app.id}>
                 <div className="appbar"><AppGlyph app={app} /><div><Wordmark app={app} /><p>robom · {app.tagline}</p></div><span className="status-pill">{app.statusLabel}</span></div>
                 <div className="filter-row" aria-label={`${app.name} 주요 기능`}>{app.highlights.map((item, index) => <span className={index === 0 ? "active" : ""} key={item}>{item}</span>)}</div>
-                <div className="app-hero-card"><span className="card-rule" /><p className="card-eyebrow">{app.eyebrow}</p><h3>{app.heroTitle}</h3><p>{app.heroBody}</p><div className="metric-row">{app.metrics.map((metric) => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}</div><Link className="card-cta" href={app.hubPath}>자세히 보기 <span aria-hidden="true">→</span></Link></div>
+                <div className="app-hero-card"><span className="card-rule" /><p className="card-eyebrow">{app.eyebrow}</p><h3>{app.heroTitle}</h3><p>{app.heroBody}</p><div className="metric-row">{app.metrics.map((metric) => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}</div><a className="card-cta" href={app.webUrl} target="_blank" rel="noopener noreferrer">{app.name} 웹으로 열기 <span aria-hidden="true">↗</span></a></div>
                 <div className="short-list"><strong>이 앱이 챙기는 것</strong>{app.highlights.slice(0, 2).map((item, index) => <span key={item}>{item}<b>{index === 0 ? "핵심" : "보기"}</b></span>)}</div>
                 <div className="ad-placeholder" aria-label="광고 영역 비활성"><span>광고</span><p>추천 정보 영역 · 현재 비활성</p><b>OFF</b></div>
-                <a className="web-access" href={app.webUrl} target="_blank" rel="noopener noreferrer">{app.accessLabel} <span aria-hidden="true">↗</span></a>
+                <Link className="web-access" href={app.hubPath}>{app.name} 소개 자세히 <span aria-hidden="true">→</span></Link>
               </article>
             ))}
           </div>
