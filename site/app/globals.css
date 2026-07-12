@@ -61,6 +61,16 @@ em { font-style: normal; }
 .trust-list { display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 34px 0 0; padding: 0; color: var(--muted); font-size: 13px; font-weight: 750; list-style: none; }
 .trust-list li::before { margin-right: 8px; color: var(--robom); content: "✓"; }
 
+/* 모바일 첫 화면 앱 바로 열기(데스크톱은 기본 display:none으로 완전 비노출) */
+.mobile-app-jump { display: none; }
+.app-jump { --tone: var(--out); display: grid; grid-template-columns: 46px 1fr auto; align-items: center; gap: 13px; min-height: 66px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); padding: 9px 15px; box-shadow: 0 8px 22px rgba(31, 51, 43, .05); }
+.app-jump.home { --tone: var(--home); } .app-jump.run { --tone: var(--run); }
+.app-jump .app-glyph { width: 46px; height: 46px; border-radius: 15px; }
+.app-jump-text { display: grid; gap: 2px; min-width: 0; }
+.app-jump-text b { font-size: 16px; font-weight: 900; letter-spacing: -.03em; }
+.app-jump-text small { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.app-jump-go { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--tone) 14%, transparent); color: var(--tone); font-size: 15px; font-weight: 900; }
+
 .family-preview { border: 1px solid var(--line); border-radius: var(--radius-xl); background: rgba(255, 255, 255, .88); padding: 28px; box-shadow: var(--shadow); }
 .preview-head, .appbar, .product-appbar { display: flex; align-items: center; gap: 14px; }
 .preview-head { justify-content: space-between; }
@@ -163,8 +173,11 @@ em { font-style: normal; }
   .hero-copy h1 { font-size: clamp(45px, 13.5vw, 62px); }
   .hero-lead { font-size: 17px; }
   .hero-actions .button { flex: 1; }
+  .mobile-app-jump { display: grid; gap: 8px; margin-top: 22px; }
   .trust-list { display: grid; }
-  .family-preview { margin-top: 58px; border-radius: 30px; padding: 18px; }
+  /* 장식 프리뷰와 카드 군더더기는 모바일에서 숨겨 앱 진입까지 스크롤을 줄인다(마크업은 유지) */
+  .family-preview { display: none; }
+  .family-card .ad-placeholder, .family-card .short-list, .family-card .web-access { display: none; }
   .preview-head .wordmark { font-size: 25px; }.preview-head .wordmark img { width: 45px; }
   .live-badge { min-height: 38px; padding: 0 11px; font-size: 10px; }
   .preview-hero { padding: 25px; }.preview-hero h2 { font-size: 29px; }.preview-metrics b { font-size: 15px; }
