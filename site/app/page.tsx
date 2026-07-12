@@ -17,13 +17,22 @@ export default function Home() {
           <div className="hero-copy">
             <p className="eyebrow"><span aria-hidden="true" /> ROBOM FAMILY</p>
             <h1 id="hero-title">놓치고 싶지 않은 순간을<br /><em>먼저 봅니다.</em></h1>
-            <p className="hero-lead">날씨가 좋아질 때, 기회가 열릴 때, 대회 접수가 시작될 때. 로봄은 더 많은 정보보다 지금 할 수 있는 다음 행동을 선명하게 알려드립니다.</p>
+            <p className="hero-lead">날이 개는 아침, 문이 열리는 순간, 출발선이 그려지는 날. 로봄은 쏟아지는 정보 대신, 지금 당신이 내디딜 한 걸음만 조용히 건네드립니다.</p>
             <div className="hero-actions">
               <a className="button primary" href="#apps">세 앱 만나기 <span aria-hidden="true">↓</span></a>
               <Link className="button secondary" href="/support">도움받기</Link>
             </div>
+            <nav className="mobile-app-jump" aria-label="앱 바로 열기">
+              {familyApps.map((app) => (
+                <Link className={`app-jump ${app.tone}`} href={app.hubPath} key={app.id}>
+                  <AppGlyph app={app} />
+                  <span className="app-jump-text"><b>{app.name}</b><small>{app.tagline}</small></span>
+                  <span className="app-jump-go" aria-hidden="true">→</span>
+                </Link>
+              ))}
+            </nav>
             <ul className="trust-list" aria-label="로봄의 제품 원칙">
-              <li>먼저 살펴보고</li><li>필요한 것만 골라</li><li>움직일 때 알려요</li>
+              <li>먼저 살펴두고</li><li>당신 몫만 남겨</li><li>때가 오면 알려요</li>
             </ul>
           </div>
 
@@ -32,8 +41,8 @@ export default function Home() {
             <div className="preview-chips" aria-hidden="true"><span>날씨</span><span>청약</span><span>러닝</span></div>
             <div className="preview-hero">
               <span className="preview-rule" />
-              <p>오늘의 중요한 신호</p>
-              <h2>좋은 순간이 오기 전에<br />준비할 수 있도록.</h2>
+              <p>오늘, 놓치면 아쉬운 신호</p>
+              <h2>그 순간이 닿기 전에,<br />미리 준비해 둘 수 있도록.</h2>
               <div className="preview-metrics"><span><b>3개</b>생활 앱</span><span><b>한곳</b>공식 허브</span><span><b>제때</b>행동 알림</span></div>
               <a href="#apps">앱 고르기</a>
             </div>
@@ -43,8 +52,8 @@ export default function Home() {
 
         <section className="apps-section" id="apps" aria-labelledby="apps-title">
           <div className="section-heading">
-            <div><p className="eyebrow"><span aria-hidden="true" /> THREE APPS, ONE FAMILY</p><h2 id="apps-title">큰 느낌은 하나로,<br />필요한 순간은 각자 정확하게.</h2></div>
-            <p>세 앱은 같은 사용법과 신뢰 기준을 공유하고, 날씨·청약·러닝이라는 각자의 데이터에 집중합니다.</p>
+            <div><p className="eyebrow"><span aria-hidden="true" /> THREE APPS, ONE FAMILY</p><h2 id="apps-title">마음은 하나로,<br />지키는 순간은 저마다 또렷하게.</h2></div>
+            <p>세 앱은 같은 마음과 같은 약속으로 만들어졌습니다. 다만 바라보는 곳이 다를 뿐 — 하나는 하늘을, 하나는 기회를, 하나는 출발선을 지킵니다.</p>
           </div>
           <div className="app-card-grid">
             {familyApps.map((app) => (
