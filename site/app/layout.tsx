@@ -22,9 +22,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "/favicon.svg",
     shortcut: "/favicon.svg",
+    apple: "/icon-180.png",
   },
   openGraph: {
     title: "로봄 | 중요한 순간을 먼저 보는 알림 스튜디오",
@@ -34,8 +36,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/og.png",
-        width: 1536,
-        height: 1024,
+        width: 1200,
+        height: 630,
         alt: "따뜻한 색의 타이밍 신호로 표현한 로봄 알림 앱 스튜디오",
       },
     ],
@@ -59,11 +61,49 @@ export default function RootLayout({
         {/* 폰트를 HTML 파싱 단계에서 바로 발견·병렬 로드해 첫 화면이 늦게 뜨는 문제를 없앤다. */}
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
         <link
+          rel="preload"
+          as="style"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+        />
+        <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
+        {/* 검색·소셜이 로봄과 세 앱을 하나의 스튜디오로 이해하도록 구조화 데이터 제공 */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://robom.kr/#org",
+                  name: "로봄",
+                  alternateName: "ROBOM",
+                  url: "https://robom.kr",
+                  email: "hello.robom@gmail.com",
+                  description:
+                    "놓치고 싶지 않은 순간을 먼저 보는 생활 알림 앱 스튜디오. 야외봄·청약봄·러닝봄을 운영합니다.",
+                  logo: "https://robom.kr/icon-512.png",
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://robom.kr/#site",
+                  url: "https://robom.kr",
+                  name: "로봄",
+                  inLanguage: "ko-KR",
+                  publisher: { "@id": "https://robom.kr/#org" },
+                },
+              ],
+            }),
+          }}
+        />
       </head>
-      <body>{children}</body>
+      <body>
+        <a className="skip-link" href="#main">본문 바로가기</a>
+        {children}
+      </body>
     </html>
   );
 }

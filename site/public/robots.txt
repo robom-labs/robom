@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://robom.kr/sitemap.xml
+Host: https://robom.kr

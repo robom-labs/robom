@@ -69,5 +69,5 @@ export function FamilyFooter() {
 }
 
 export function PageShell({ children, current }: { children: ReactNode; current?: string }) {
-  return <><SiteHeader current={current} /><main>{children}</main><FamilyFooter /><MobileNav current={current} /></>;
+  return <><SiteHeader current={current} /><main id="main">{children}</main><FamilyFooter /><MobileNav current={current} /></>;
 }

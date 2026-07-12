@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <div className="site-shell">
       <SiteHeader />
-      <main>
+      <main id="main">
         <section className="family-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <p className="eyebrow"><span aria-hidden="true" /> ROBOM FAMILY</p>
