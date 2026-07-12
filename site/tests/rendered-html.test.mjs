@@ -31,7 +31,9 @@ test("server-renders the Robom family hub", async () => {
   assert.match(html, /\/apps\/homebom/);
   assert.match(html, /\/apps\/runningbom/);
   assert.match(html, /hello\.robom@gmail\.com/);
-  assert.doesNotMatch(html, /target="_blank"/);
+  assert.match(html, /href="https:\/\/runningcall\.vercel\.app"[^>]*target="_blank"/);
+  assert.match(html, /href="https:\/\/robom-labs\.github\.io\/homebom\/"[^>]*target="_blank"/);
+  assert.match(html, /href="https:\/\/robom-labs\.github\.io\/runningbom\/"[^>]*target="_blank"/);
   assert.doesNotMatch(html, /runnerpyrri-lgtm\.github\.io\/(zoopzoopcall|pushrun)/);
   assert.doesNotMatch(html, /러닝콜|줍줍콜|PushRun/);
 });
