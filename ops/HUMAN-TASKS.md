@@ -13,7 +13,7 @@
 - [ ] 야외봄 Vercel 환경변수 `KAKAO_REST_API_KEY`가 유지되는지 확인한다.
 - [x] 청약봄 Pages가 `/homebom/`에서 배포되는지 확인했다.
 - [x] 러닝봄 Pages가 `/runningbom/`에서 배포되는지 확인했다.
-- [x] Supabase notices 함수 v3 배포와 청약봄 공개 URL의 HTTP 200 응답을 확인했다.
+- [x] Supabase notices 함수 v4 배포와 청약봄 공개 URL의 HTTP 200·확인 시각 헤더를 확인했다.
 
 ## 운영 보안
 

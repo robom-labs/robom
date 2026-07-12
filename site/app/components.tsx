@@ -1,6 +1,6 @@
 // 로봄 패밀리 전 페이지에서 공유하는 브랜드와 내비게이션 UI를 제공한다.
+/* eslint-disable @next/next/no-img-element -- 로컬 SVG는 변환 없이 직접 제공해 이미지 런타임을 싣지 않는다. */
 import type { ReactNode } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { contactHref, familyApps, SITE_VERSION, type FamilyApp } from "./app-data";
 
@@ -11,7 +11,7 @@ export function Wordmark({ app }: { app?: FamilyApp }) {
   return (
     <span className={`wordmark ${app?.tone ?? "robom"}`} aria-label={app?.name ?? "로봄"}>
       <span aria-hidden="true">{prefix}</span>
-      <Image src={asset} alt="" aria-hidden="true" width={200} height={120} unoptimized />
+      <img src={asset} alt="" aria-hidden="true" width={200} height={120} />
     </span>
   );
 }
@@ -19,13 +19,13 @@ export function Wordmark({ app }: { app?: FamilyApp }) {
 export function AppGlyph({ app, large = false }: { app: FamilyApp; large?: boolean }) {
   return (
     <span className={`app-glyph ${app.tone}${large ? " large" : ""}`} aria-hidden="true">
-      <Image src={`/icons/${app.id}.svg`} alt="" width={64} height={64} unoptimized />
+      <img src={`/icons/${app.id}.svg`} alt="" width={64} height={64} />
     </span>
   );
 }
 
 export function RobomIcon() {
-  return <Image className="robom-icon" src="/icons/robom.svg" alt="" aria-hidden="true" width={64} height={64} unoptimized />;
+  return <img className="robom-icon" src="/icons/robom.svg" alt="" aria-hidden="true" width={64} height={64} />;
 }
 
 export function SiteHeader({ current }: { current?: string }) {
@@ -74,5 +74,5 @@ export function FamilyFooter() {
 }
 
 export function PageShell({ children, current }: { children: ReactNode; current?: string }) {
-  return <><SiteHeader current={current} /><main>{children}</main><FamilyFooter /><MobileNav current={current} /></>;
+  return <><SiteHeader current={current} /><main id="main">{children}</main><FamilyFooter /><MobileNav current={current} /></>;
 }

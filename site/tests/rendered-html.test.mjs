@@ -31,6 +31,9 @@ test("server-renders the Robom family hub", async () => {
   assert.match(html, /\/apps\/homebom/);
   assert.match(html, /\/apps\/runningbom/);
   assert.match(html, /hello\.robom@gmail\.com/);
+  assert.match(html, /본문 바로가기/);
+  assert.match(html, /application\/ld\+json/);
+  assert.match(html, /manifest\.webmanifest/);
   assert.match(html, /href="https:\/\/runningcall\.vercel\.app"[^>]*target="_blank"/);
   assert.match(html, /href="https:\/\/robom-labs\.github\.io\/homebom\/"[^>]*target="_blank"/);
   assert.match(html, /href="https:\/\/robom-labs\.github\.io\/runningbom\/"[^>]*target="_blank"/);
@@ -67,9 +70,9 @@ test("keeps registry URLs and versions aligned with rendered data", async () => 
   ]);
 
   for (const value of [
-    "0.15.1",
-    "0.3.2",
-    "0.9.5",
+    "0.15.2",
+    "0.3.3",
+    "0.9.6",
     "https://runningcall.vercel.app",
     "https://robom-labs.github.io/homebom/",
     "https://robom-labs.github.io/runningbom/",
@@ -88,6 +91,11 @@ test("keeps branding, accessibility and hosting assets in place", async () => {
     access(new URL("../public/og.png", import.meta.url)),
     access(new URL("../public/favicon.svg", import.meta.url)),
     access(new URL("../public/icons/robom.svg", import.meta.url)),
+    access(new URL("../public/icons/robom-192.png", import.meta.url)),
+    access(new URL("../public/icons/robom-512.png", import.meta.url)),
+    access(new URL("../public/manifest.webmanifest", import.meta.url)),
+    access(new URL("../public/robots.txt", import.meta.url)),
+    access(new URL("../public/sitemap.xml", import.meta.url)),
     access(new URL("../public/icons/outbom.svg", import.meta.url)),
     access(new URL("../public/icons/homebom.svg", import.meta.url)),
     access(new URL("../public/icons/runningbom.svg", import.meta.url)),
@@ -98,10 +106,13 @@ test("keeps branding, accessibility and hosting assets in place", async () => {
   assert.match(page, /function Home/);
   assert.match(layout, /metadataBase:\s*new URL\("https:\/\/robom\.kr"\)/);
   assert.match(layout, /viewportFit:\s*"cover"/);
+  assert.match(layout, /width:\s*1200/);
+  assert.match(layout, /height:\s*630/);
   assert.match(css, /a:focus-visible/);
   assert.match(css, /min-height:\s*48px/);
   assert.match(css, /safe-area-inset-bottom/);
   assert.match(css, /prefers-color-scheme:\s*dark/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
+  assert.doesNotMatch(await readFile(new URL("../app/components.tsx", import.meta.url), "utf8"), /next\/image/);
 });
