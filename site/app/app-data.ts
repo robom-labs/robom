@@ -22,7 +22,7 @@ export type FamilyApp = {
   highlights: readonly string[];
 };
 
-export const SITE_VERSION = "1.7.0";
+export const SITE_VERSION = "1.7.1";
 
 // 값의 정본은 ../../ops/registry/apps.yml이며 렌더링 테스트에서 URL과 버전의 일치를 검증한다.
 export const familyApps: readonly FamilyApp[] = [
@@ -36,8 +36,8 @@ export const familyApps: readonly FamilyApp[] = [
     status: "live",
     statusLabel: "운영 중",
     accessLabel: "웹으로 이용",
-    version: "0.17.0",
-    webUrl: "https://runningcall.vercel.app",
+    version: "0.17.1",
+    webUrl: "https://outbom.robom.kr",
     hubPath: "/apps/outbom",
     tone: "out",
     eyebrow: "오늘, 나가도 좋을 하늘",

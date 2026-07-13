@@ -34,7 +34,7 @@ test("server-renders the Robom family hub", async () => {
   assert.match(html, /본문 바로가기/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /manifest\.webmanifest/);
-  assert.match(html, /href="https:\/\/runningcall\.vercel\.app"[^>]*target="_blank"/);
+  assert.match(html, /href="https:\/\/outbom\.robom\.kr"[^>]*target="_blank"/);
   assert.match(html, /href="https:\/\/robom-labs\.github\.io\/homebom\/"[^>]*target="_blank"/);
   assert.match(html, /href="https:\/\/robom-labs\.github\.io\/runningbom\/"[^>]*target="_blank"/);
   assert.doesNotMatch(html, /runnerpyrri-lgtm\.github\.io\/(zoopzoopcall|pushrun)/);
@@ -70,10 +70,10 @@ test("keeps registry URLs and versions aligned with rendered data", async () => 
   ]);
 
   for (const value of [
-    "0.17.0",
+    "0.17.1",
     "0.5.0",
     "0.11.1",
-    "https://runningcall.vercel.app",
+    "https://outbom.robom.kr",
     "https://robom-labs.github.io/homebom/",
     "https://robom-labs.github.io/runningbom/",
   ]) {
