@@ -31,7 +31,7 @@ apps:
     english_name: HomeBom
     legacy_id: zoopzoopcall
     status: live
-    version: 0.7.0
+    version: 0.7.1
     version_source: https://raw.githubusercontent.com/robom-labs/homebom/main/apps/web/package.json
     healthcheck_url: https://robom-labs.github.io/homebom/
     privacy_url: https://robom.kr/privacy/homebom
