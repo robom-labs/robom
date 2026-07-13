@@ -48,6 +48,9 @@ export const metadata: Metadata = {
     description: "놓치면 끝나는 중요한 순간을, 생활에 맞는 신호로 먼저 알려줍니다.",
     images: ["/og.png"],
   },
+  verification: {
+    google: "N88thcmnNgfv533Tn4iVjeT97jxipc1JgENkHKZNCxY",
+  },
 };
 
 export default function RootLayout({
