@@ -65,14 +65,14 @@ em { font-style: normal; }
 .trust-list li::before { margin-right: 8px; color: var(--robom); content: "✓"; }
 
 /* 모바일 첫 화면 앱 바로 열기(데스크톱은 기본 display:none으로 완전 비노출) */
-.mobile-app-jump { display: none; }
+.mobile-app-jump, .mobile-jump-label { display: none; }
 .app-jump { --tone: var(--out); display: grid; grid-template-columns: 46px 1fr auto; align-items: center; gap: 13px; min-height: 66px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); padding: 9px 15px; box-shadow: 0 8px 22px rgba(31, 51, 43, .05); }
 .app-jump.home { --tone: var(--home); } .app-jump.run { --tone: var(--run); }
 .app-jump .app-glyph { width: 46px; height: 46px; border-radius: 15px; }
 .app-jump-text { display: grid; gap: 2px; min-width: 0; }
 .app-jump-text b { font-size: 16px; font-weight: 900; letter-spacing: -.03em; }
 .app-jump-text small { overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
-.app-jump-go { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--tone) 14%, transparent); color: var(--tone); font-size: 15px; font-weight: 900; }
+.app-jump-go { display: grid; min-width: 82px; min-height: 38px; place-items: center; border-radius: 999px; background: color-mix(in srgb, var(--tone) 14%, transparent); color: var(--tone); font-size: 11px; font-weight: 900; }
 
 .family-preview { border: 1px solid var(--line); border-radius: var(--radius-xl); background: rgba(255, 255, 255, .88); padding: 28px; box-shadow: var(--shadow); }
 .preview-head, .appbar, .product-appbar { display: flex; align-items: center; gap: 14px; }
@@ -171,12 +171,15 @@ em { font-style: normal; }
   .site-header { position: relative; min-height: 74px; padding: 12px 20px; }
   .site-brand > span:last-child, .desktop-nav { display: none; }
   .wordmark { font-size: 27px; }.wordmark img { width: 49px; height: 33px; }
-  .family-hero { display: block; min-height: auto; padding: 48px 20px 74px; }
-  .hero-copy h1 { font-size: clamp(45px, 13.5vw, 62px); }
-  .hero-lead { font-size: 17px; }
-  .hero-actions .button { flex: 1; }
-  .mobile-app-jump { display: grid; gap: 8px; margin-top: 22px; }
-  .trust-list { display: grid; }
+  .family-hero { display: block; min-height: auto; padding: 34px 20px 74px; }
+  .hero-copy { display: flex; flex-direction: column; }
+  .hero-copy h1 { order: 1; margin-bottom: 14px; font-size: clamp(40px, 12vw, 54px); }
+  .hero-copy .eyebrow { order: 0; }
+  .mobile-jump-label { order: 2; display: block; margin: 0 0 10px; color: var(--muted); font-size: 14px; font-weight: 800; }
+  .mobile-app-jump { order: 3; display: grid; gap: 8px; margin: 0 0 26px; }
+  .hero-lead { order: 4; font-size: 17px; }
+  .hero-actions { order: 5; }.hero-actions .button { flex: 1; }
+  .trust-list { order: 6; display: grid; }
   /* 장식 프리뷰와 카드 군더더기는 모바일에서 숨겨 앱 진입까지 스크롤을 줄인다(마크업은 유지) */
   .family-preview { display: none; }
   .family-card .ad-placeholder, .family-card .short-list, .family-card .web-access { display: none; }
@@ -202,6 +205,8 @@ em { font-style: normal; }
 
 @media (max-width: 390px) {
   .site-header { padding-inline: 16px; }.family-hero { padding-inline: 16px; }.hero-actions { display: grid; }.preview-head { align-items: flex-start; }.preview-head .live-badge { max-width: 86px; text-align: center; }
+  .app-jump { grid-template-columns: 46px minmax(0, 1fr) auto; padding-inline: 11px; }
+  .app-jump-go { min-width: 72px; font-size: 10px; }
   .appbar .status-pill, .product-appbar .status-pill { align-self: flex-start; }.appbar p { max-width: 150px; }.product-appbar p { max-width: 175px; }
   .app-hero-card { padding: 22px 19px; }.ad-placeholder p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.product-copy h1 { font-size: 39px; }
 }

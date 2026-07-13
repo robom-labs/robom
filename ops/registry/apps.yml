@@ -7,7 +7,7 @@ apps:
     english_name: OutBom
     legacy_id: runningcall
     status: live
-    version: 0.15.2
+    version: 0.16.0
     version_source: https://raw.githubusercontent.com/robom-labs/outbom/main/package.json
     healthcheck_url: https://runningcall.vercel.app
     privacy_url: https://robom.kr/privacy/outbom
@@ -27,7 +27,7 @@ apps:
     english_name: HomeBom
     legacy_id: zoopzoopcall
     status: live
-    version: 0.3.3
+    version: 0.4.0
     version_source: https://raw.githubusercontent.com/robom-labs/homebom/main/apps/web/package.json
     healthcheck_url: https://robom-labs.github.io/homebom/
     privacy_url: https://robom.kr/privacy/homebom
@@ -42,14 +42,14 @@ apps:
     base_path: /homebom/
     current_url: https://robom-labs.github.io/homebom/
     legacy_url: https://runnerpyrri-lgtm.github.io/zoopzoopcall/
-    marketing_tone: "청약 공고와 접수 시작·마감을 놓치지 않게 챙기는 앱"
+    marketing_tone: "일반공급과 무순위 청약의 접수·발표·계약 일정을 한눈에 챙기는 앱"
 
   - id: runningbom
     name: 러닝봄
     english_name: RunningBom
     legacy_id: pushrun
     status: live
-    version: 0.9.6
+    version: 0.10.0
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
     healthcheck_url: https://robom-labs.github.io/runningbom/
     privacy_url: https://robom.kr/privacy/runningbom

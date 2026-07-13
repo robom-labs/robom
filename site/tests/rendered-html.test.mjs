@@ -70,9 +70,9 @@ test("keeps registry URLs and versions aligned with rendered data", async () => 
   ]);
 
   for (const value of [
-    "0.15.2",
-    "0.3.3",
-    "0.9.6",
+    "0.16.0",
+    "0.4.0",
+    "0.10.0",
     "https://runningcall.vercel.app",
     "https://robom-labs.github.io/homebom/",
     "https://robom-labs.github.io/runningbom/",

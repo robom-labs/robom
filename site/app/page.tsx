@@ -22,13 +22,14 @@ export default function Home() {
               <a className="button primary" href="#apps">세 앱 만나기 <span aria-hidden="true">↓</span></a>
               <Link className="button secondary" href="/support">도움받기</Link>
             </div>
+            <p className="mobile-jump-label">지금 필요한 앱을 바로 여세요.</p>
             <nav className="mobile-app-jump" aria-label="앱 바로 열기">
               {familyApps.map((app) => (
-                <Link className={`app-jump ${app.tone}`} href={app.hubPath} key={app.id}>
+                <a className={`app-jump ${app.tone}`} href={app.webUrl} target="_blank" rel="noopener noreferrer" key={app.id} aria-label={`${app.name} 웹 앱 새 창으로 열기`}>
                   <AppGlyph app={app} />
                   <span className="app-jump-text"><b>{app.name}</b><small>{app.tagline}</small></span>
-                  <span className="app-jump-go" aria-hidden="true">→</span>
-                </Link>
+                  <span className="app-jump-go" aria-hidden="true">바로 열기 ↗</span>
+                </a>
               ))}
             </nav>
             <ul className="trust-list" aria-label="로봄의 제품 원칙">

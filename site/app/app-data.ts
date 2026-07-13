@@ -22,7 +22,7 @@ export type FamilyApp = {
   highlights: readonly string[];
 };
 
-export const SITE_VERSION = "1.5.0";
+export const SITE_VERSION = "1.6.0";
 
 // 값의 정본은 ../../ops/registry/apps.yml이며 렌더링 테스트에서 URL과 버전의 일치를 검증한다.
 export const familyApps: readonly FamilyApp[] = [
@@ -36,7 +36,7 @@ export const familyApps: readonly FamilyApp[] = [
     status: "live",
     statusLabel: "운영 중",
     accessLabel: "웹으로 이용",
-    version: "0.15.2",
+    version: "0.16.0",
     webUrl: "https://runningcall.vercel.app",
     hubPath: "/apps/outbom",
     tone: "out",
@@ -48,7 +48,7 @@ export const familyApps: readonly FamilyApp[] = [
       { value: "시간별", label: "추천 흐름" },
       { value: "오늘·내일", label: "미리 보기" },
     ],
-    highlights: ["활동별 날씨 점수", "좋은 시간대 비교", "준비물과 알림"],
+    highlights: ["활동별 안전 점수", "2시간 추천 흐름", "실제 예보 준비물"],
   },
   {
     id: "homebom",
@@ -56,11 +56,11 @@ export const familyApps: readonly FamilyApp[] = [
     englishName: "HomeBom",
     prefix: "청약",
     tagline: "다시 오지 않을 그 하루",
-    description: "청약 공고와 접수 시작·마감을 놓치지 않게 챙기는 앱",
+    description: "일반공급과 무순위 청약의 접수·발표·계약 일정을 한눈에 챙기는 앱",
     status: "live",
     statusLabel: "운영 중",
     accessLabel: "웹으로 이용",
-    version: "0.3.3",
+    version: "0.4.0",
     webUrl: "https://robom-labs.github.io/homebom/",
     hubPath: "/apps/homebom",
     tone: "home",
@@ -68,11 +68,11 @@ export const familyApps: readonly FamilyApp[] = [
     heroTitle: "접수 시작과 마감을 놓치지 않게.",
     heroBody: "흩어진 공고를 한자리에 모아 두고, 마음에 둔 그 하나의 시작과 마감을 당신의 알림으로 대신 지킵니다.",
     metrics: [
-      { value: "실제", label: "공고 정보" },
-      { value: "시작·마감", label: "두 번 확인" },
-      { value: "내 알림", label: "관심 공고" },
+      { value: "일반·무순위", label: "공식 공고" },
+      { value: "월간", label: "전체 일정" },
+      { value: "발표·계약", label: "후속 일정" },
     ],
-    highlights: ["접수 일정 한눈에", "정정·취소 주의 표시", "관심 공고 알림"],
+    highlights: ["일반·무순위 일정", "발표·계약 캘린더", "관심 공고 알림"],
   },
   {
     id: "runningbom",
@@ -84,7 +84,7 @@ export const familyApps: readonly FamilyApp[] = [
     status: "live",
     statusLabel: "운영 중",
     accessLabel: "웹으로 이용",
-    version: "0.9.6",
+    version: "0.10.0",
     webUrl: "https://robom-labs.github.io/runningbom/",
     hubPath: "/apps/runningbom",
     tone: "run",
@@ -93,10 +93,10 @@ export const familyApps: readonly FamilyApp[] = [
     heroBody: "전국의 대회를 펼쳐 두고 거리와 지역을 나란히 견주어, 당신이 달릴 그날의 접수가 열리는 순간을 미리 일러둡니다.",
     metrics: [
       { value: "전국", label: "대회 탐색" },
-      { value: "거리·지역", label: "조건 비교" },
+      { value: "검색·필터", label: "조건 비교" },
       { value: "접수 전", label: "미리 알림" },
     ],
-    highlights: ["월간 접수 일정", "거리·지역 필터", "접수 시작 알림"],
+    highlights: ["월간 접수 캘린더", "거리·지역·검색", "접수 시작 알림"],
   },
 ] as const;
 
