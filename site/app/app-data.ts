@@ -36,7 +36,7 @@ export const familyApps: readonly FamilyApp[] = [
     status: "live",
     statusLabel: "운영 중",
     accessLabel: "웹으로 이용",
-    version: "0.19.0",
+    version: "0.20.0",
     webUrl: "https://robom-labs.github.io/outbom/",
     hubPath: "/apps/outbom",
     tone: "out",
