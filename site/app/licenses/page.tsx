@@ -10,7 +10,7 @@ const REPOSITORIES = {
 
 export default function LicensesPage() {
   return (
-    <PageShell>
+    <PageShell current="licenses">
       <article className="legal-page">
         <p className="eyebrow"><span aria-hidden="true" /> OPEN SOURCE</p>
         <h1>오픈소스 라이선스</h1>
