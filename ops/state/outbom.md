@@ -6,7 +6,8 @@
 - 기존 이름: 러닝콜.
 - 역할: 걷기·산책·러닝·등산·자전거의 야외활동 컨디션과 추천 시간 제공.
 - 목표 저장소: `robom-labs/outbom`.
-- 공식 배포: https://outbom.robom.kr.
+- 공식 배포: https://robom-labs.github.io/outbom/.
+- API·기존 PWA 호환 배포: https://outbom.robom.kr.
 - 호환 배포: https://runningcall.vercel.app.
 
 ## Next
@@ -17,5 +18,5 @@
 - [x] Vercel의 main 연동과 운영 배포 성공을 확인했다.
 - [x] 위험 예보를 추천에서 제외하고 활동별 필수 준비물·강수 시간대·공유 체크 상태를 운영 반영했다.
 - [x] 6시간 동일 좌표 예보 백업, 키보드·포커스 접근성, 모바일 준비물 창과 서비스워커 갱신 흐름을 운영 반영했다.
-- [x] `outbom.robom.kr` DNS·Vercel·HTTPS를 연결하고 기존 Vercel 주소를 호환용으로 유지한다.
+- [x] GitHub Pages `/outbom/`을 공식 운영 화면으로 배포하고 `outbom.robom.kr`은 API·기존 PWA 호환 주소로 유지한다.
 - [x] TimeReel·가챠·큰 회전 로딩과 준비물 모달을 제거하고 필수·날씨·안전·선택 준비물을 준비 탭에 바로 표시한다.

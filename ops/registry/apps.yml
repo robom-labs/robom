@@ -7,9 +7,9 @@ apps:
     english_name: OutBom
     legacy_id: runningcall
     status: live
-    version: 0.18.0
+    version: 0.18.1
     version_source: https://raw.githubusercontent.com/robom-labs/outbom/main/package.json
-    healthcheck_url: https://outbom.robom.kr
+    healthcheck_url: https://robom-labs.github.io/outbom/
     privacy_url: https://robom.kr/privacy/outbom
     support_url: https://robom.kr/support
     mobile_status: planned
@@ -18,8 +18,11 @@ apps:
     stack: Next.js 16 + React 19 (pnpm)
     test: "pnpm typecheck && pnpm test"
     build: "pnpm build"
-    deploy: vercel
-    url: https://outbom.robom.kr
+    deploy: github-pages
+    base_path: /outbom/
+    current_url: https://robom-labs.github.io/outbom/
+    url: https://robom-labs.github.io/outbom/
+    api_url: https://outbom.robom.kr
     legacy_url: https://runningcall.vercel.app
     marketing_tone: "날씨와 대기질로 야외활동하기 좋은 시간을 알려주는 앱"
 
@@ -28,7 +31,7 @@ apps:
     english_name: HomeBom
     legacy_id: zoopzoopcall
     status: live
-    version: 0.6.0
+    version: 0.6.1
     version_source: https://raw.githubusercontent.com/robom-labs/homebom/main/apps/web/package.json
     healthcheck_url: https://robom-labs.github.io/homebom/
     privacy_url: https://robom.kr/privacy/homebom
@@ -50,7 +53,7 @@ apps:
     english_name: RunningBom
     legacy_id: pushrun
     status: live
-    version: 0.11.2
+    version: 0.11.3
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
     healthcheck_url: https://robom-labs.github.io/runningbom/
     privacy_url: https://robom.kr/privacy/runningbom

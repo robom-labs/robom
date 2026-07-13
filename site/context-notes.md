@@ -27,7 +27,7 @@
 
 ## 현재 직접 연결 URL
 
-- 야외봄: https://outbom.robom.kr
+- 야외봄: https://robom-labs.github.io/outbom/
 - 청약봄: https://robom-labs.github.io/homebom/
 - 러닝봄: https://robom-labs.github.io/runningbom/
 

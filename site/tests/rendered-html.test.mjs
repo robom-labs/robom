@@ -34,7 +34,7 @@ test("server-renders the Robom family hub", async () => {
   assert.match(html, /본문 바로가기/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /manifest\.webmanifest/);
-  assert.match(html, /href="https:\/\/outbom\.robom\.kr"[^>]*target="_blank"/);
+  assert.match(html, /href="https:\/\/robom-labs\.github\.io\/outbom\/"[^>]*target="_blank"/);
   assert.match(html, /href="https:\/\/robom-labs\.github\.io\/homebom\/"[^>]*target="_blank"/);
   assert.match(html, /href="https:\/\/robom-labs\.github\.io\/runningbom\/"[^>]*target="_blank"/);
   assert.doesNotMatch(html, /runnerpyrri-lgtm\.github\.io\/(zoopzoopcall|pushrun)/);
@@ -70,10 +70,10 @@ test("keeps registry URLs and versions aligned with rendered data", async () => 
   ]);
 
   for (const value of [
-    "0.18.0",
-    "0.6.0",
-    "0.11.2",
-    "https://outbom.robom.kr",
+    "0.18.1",
+    "0.6.1",
+    "0.11.3",
+    "https://robom-labs.github.io/outbom/",
     "https://robom-labs.github.io/homebom/",
     "https://robom-labs.github.io/runningbom/",
   ]) {
@@ -113,6 +113,9 @@ test("keeps branding, accessibility and hosting assets in place", async () => {
   assert.match(css, /safe-area-inset-bottom/);
   assert.match(css, /max-height:\s*640px/);
   assert.match(css, /prefers-color-scheme:\s*dark/);
+  assert.match(css, /font-weight:\s*900/);
+  assert.match(css, /letter-spacing:\s*-0\.04em/);
+  assert.match(css, /height:\s*1\.18em/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
   assert.doesNotMatch(await readFile(new URL("../app/components.tsx", import.meta.url), "utf8"), /next\/image/);

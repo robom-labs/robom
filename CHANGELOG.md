@@ -5,6 +5,14 @@
 
 ## [Unreleased]
 
+## [1.7.3] - 2026-07-13
+
+### Changed
+
+- 야외봄 공식 운영 화면을 `https://robom-labs.github.io/outbom/`으로 통일하고 기존 `outbom.robom.kr`은 API·기존 PWA 호환 주소로 유지했다.
+- 로봄·야외봄·청약봄·러닝봄의 접두 글자를 Pretendard Variable 900, 자간 -0.04em으로 통일하고 커스텀 `봄` 마크를 1.18em baseline 규격으로 맞췄다.
+- 중앙 레지스트리와 앱 버전을 야외봄 0.18.1, 청약봄 0.6.1, 러닝봄 0.11.3으로 동기화했다.
+
 ## [1.7.2] - 2026-07-13
 
 ### Changed
