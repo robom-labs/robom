@@ -7,7 +7,7 @@ apps:
     english_name: OutBom
     legacy_id: runningcall
     status: live
-    version: 0.22.1
+    version: 0.24.0
     version_source: https://raw.githubusercontent.com/robom-labs/outbom/main/package.json
     healthcheck_url: https://robom-labs.github.io/outbom/
     privacy_url: https://robom.kr/privacy/outbom
@@ -53,7 +53,7 @@ apps:
     english_name: RunningBom
     legacy_id: pushrun
     status: live
-    version: 0.15.1
+    version: 0.16.0
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
     healthcheck_url: https://robom-labs.github.io/runningbom/
     privacy_url: https://robom.kr/privacy/runningbom
