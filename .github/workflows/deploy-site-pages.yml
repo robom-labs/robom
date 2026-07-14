@@ -75,8 +75,11 @@ jobs:
           echo "checking $URL"
           for i in 1 2 3 4 5; do
             BODY=$(curl -fsSL "$URL" || true)
-            if echo "$BODY" | grep -q "ROBOM FAMILY" && echo "$BODY" | grep -q "야외봄"; then
-              echo "OK: family hub markers found"; exit 0
+            APP=$(curl -fsSL "${URL}calendarbom/" || true)
+            SW=$(curl -fsSL "${URL}calendarbom/sw.js" || true)
+            if echo "$BODY" | grep -q "ROBOM FAMILY" && echo "$BODY" | grep -q "야외봄" && echo "$BODY" | grep -q "캘린더봄" \
+              && echo "$APP" | grep -q "캘린더봄" && echo "$SW" | grep -q 'CACHE_NAME = "calendarbom-v'; then
+              echo "OK: family hub + calendarbom markers found"; exit 0
             fi
             echo "retry $i..."; sleep 10
           done
