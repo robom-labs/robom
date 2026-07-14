@@ -40,12 +40,12 @@ test("server-renders the Robom family hub", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>로봄 \| 날씨·청약·러닝, 놓치기 전에<\/title>/);
-  assert.equal(metaContent(html, "name", "description"), "오늘 나가기 좋은 시간, 청약 접수 일정, 러닝 대회 오픈을 한곳에서 확인하세요. 야외봄·청약봄·러닝봄으로 바로 연결됩니다.");
+  assert.match(html, /<title>로봄 \| 날씨·청약·러닝·달력, 놓치기 전에<\/title>/);
+  assert.equal(metaContent(html, "name", "description"), "오늘 나가기 좋은 시간, 청약 접수 일정, 러닝 대회 오픈, 가족 일정 알람을 한곳에서 확인하세요. 야외봄·청약봄·러닝봄·캘린더봄으로 바로 연결됩니다.");
   assert.match(html, /<link rel="canonical" href="https:\/\/robom\.kr\/"\/>/);
   assert.equal(metaContent(html, "property", "og:site_name"), "로봄");
-  assert.equal(metaContent(html, "property", "og:title"), "로봄 | 날씨·청약·러닝, 놓치기 전에");
-  assert.equal(metaContent(html, "name", "twitter:title"), "로봄 | 날씨·청약·러닝, 놓치기 전에");
+  assert.equal(metaContent(html, "property", "og:title"), "로봄 | 날씨·청약·러닝·달력, 놓치기 전에");
+  assert.equal(metaContent(html, "name", "twitter:title"), "로봄 | 날씨·청약·러닝·달력, 놓치기 전에");
   const faviconLinks = [...html.matchAll(/<link\b[^>]*>/g)]
     .map((match) => match[0])
     .filter((link) => /rel="icon"|rel="apple-touch-icon"/.test(link))
@@ -53,20 +53,23 @@ test("server-renders the Robom family hub", async () => {
   assert.deepEqual(faviconLinks.map((link) => link.match(/href="([^"]+)"/)?.[1]?.replace("https://robom.kr/", "")), [
     "favicon.ico", "favicon-48.png", "favicon-96.png", "icons/robom.svg", "icons/robom-180.png",
   ]);
-  assert.match(html, /날씨·청약·러닝,<br\/><em>중요한 순간을 놓치기 전에\.<\/em>/);
-  assert.match(html, /야외봄은 나가기 좋은 시간을, 청약봄은 접수 일정을, 러닝봄은 대회 오픈을 챙깁니다\./);
+  assert.match(html, /날씨·청약·러닝·달력,<br\/><em>중요한 순간을 놓치기 전에\.<\/em>/);
+  assert.match(html, /야외봄은 나가기 좋은 시간을, 청약봄은 접수 일정을, 러닝봄은 대회 오픈을, 캘린더봄은 가족 일정을 챙깁니다\./);
   assert.match(html, /오늘 필요한 앱을 골라 바로 확인하세요\./);
   assert.match(html, /오늘 나가기 좋은 시간/);
   assert.match(html, /이번 달 접수 일정/);
   assert.match(html, /곧 열리는 대회 접수/);
+  assert.match(html, /우리 가족 일정 알람/);
   assert.match(html, /야외봄/);
   assert.match(html, /청약봄/);
   assert.match(html, /러닝봄/);
-  assert.match(html, /세 앱 운영 중/);
+  assert.match(html, /캘린더봄/);
+  assert.match(html, /네 앱 운영 중/);
   assert.match(html, /현재 비활성/);
   assert.match(html, /\/apps\/outbom/);
   assert.match(html, /\/apps\/homebom/);
   assert.match(html, /\/apps\/runningbom/);
+  assert.match(html, /\/apps\/calendarbom/);
   assert.match(html, /hello\.robom@gmail\.com/);
   assert.match(html, /본문 바로가기/);
   assert.match(html, /application\/ld\+json/);
@@ -74,6 +77,7 @@ test("server-renders the Robom family hub", async () => {
   assert.match(html, /href="https:\/\/robom-labs\.github\.io\/outbom\/"[^>]*target="_blank"/);
   assert.match(html, /href="https:\/\/robom-labs\.github\.io\/homebom\/"[^>]*target="_blank"/);
   assert.match(html, /href="https:\/\/robom-labs\.github\.io\/runningbom\/"[^>]*target="_blank"/);
+  assert.match(html, /href="https:\/\/robom-labs\.github\.io\/robom\/calendarbom\/"[^>]*target="_blank"/);
   assert.doesNotMatch(html, /runnerpyrri-lgtm\.github\.io\/(zoopzoopcall|pushrun)/);
   assert.doesNotMatch(html, /러닝콜|줍줍콜|PushRun/);
 
@@ -99,11 +103,13 @@ test("serves stable app, support, policy and license routes", async () => {
     ["/apps/outbom", "야외봄 | 오늘 나가기 좋은 시간과 날씨", "걷기·러닝·등산·자전거에 좋은 시간과 비·바람·대기질, 준비물을 오늘과 내일 예보로 확인하세요."],
     ["/apps/homebom", "청약봄 | 특별공급·1순위·무순위 청약 일정", "특별공급·1순위·2순위·무순위·재공급의 접수와 발표·계약 일정을 달력과 알림으로 확인하세요."],
     ["/apps/runningbom", "러닝봄 | 마라톤 대회 접수 일정과 알림", "전국 마라톤·러닝 대회를 지역과 거리로 찾고, 공식 접수 일정과 시작 알림을 확인하세요."],
+    ["/apps/calendarbom", "캘린더봄 | 큰 달력과 쉬운 알람", "큰 월간 달력에서 날짜를 누르고, 키보드 없이 버튼만으로 병원·약·가족 일정을 알람으로 챙기세요."],
     ["/support", "고객 지원"],
     ["/privacy", "개인정보처리방침"],
     ["/privacy/outbom", "야외봄 개인정보처리방침"],
     ["/privacy/homebom", "청약봄 개인정보처리방침"],
     ["/privacy/runningbom", "러닝봄 개인정보처리방침"],
+    ["/privacy/calendarbom", "캘린더봄 개인정보처리방침"],
     ["/terms", "이용약관"],
     ["/licenses", "오픈소스 라이선스"],
     ["/open-source", "오픈소스 라이선스"],
@@ -132,9 +138,11 @@ test("keeps registry URLs and versions aligned with rendered data", async () => 
     "0.24.0",
     "0.12.0",
     "0.16.0",
+    "0.1.0",
     "https://robom-labs.github.io/outbom/",
     "https://robom-labs.github.io/homebom/",
     "https://robom-labs.github.io/runningbom/",
+    "https://robom-labs.github.io/robom/calendarbom/",
   ]) {
     assert.match(registry, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     assert.match(appData, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
@@ -157,7 +165,8 @@ test("keeps branding, accessibility, favicon and hosting assets in place", async
     "../public/og.png", "../public/favicon.svg", "../public/favicon.ico", "../public/favicon-48.png", "../public/favicon-96.png",
     "../public/icons/robom.svg", "../public/icons/robom-192.png", "../public/icons/robom-512.png", "../public/manifest.webmanifest",
     "../public/robots.txt", "../public/sitemap.xml", "../public/icons/outbom.svg", "../public/icons/homebom.svg",
-    "../public/icons/runningbom.svg", "../public/brand/bom-robom.svg", "../.openai/hosting.json",
+    "../public/icons/runningbom.svg", "../public/icons/calendarbom.svg", "../public/brand/bom-robom.svg",
+    "../public/brand/bom-calendarbom.svg", "../../apps/calendarbom/app/index.html", "../.openai/hosting.json",
   ].map((path) => access(new URL(path, import.meta.url))));
 
   assert.match(page, /function Home/);
@@ -176,7 +185,7 @@ test("keeps branding, accessibility, favicon and hosting assets in place", async
   assert.match(css, /height:\s*1\.18em/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
-  assert.match(packageJson, /"version": "1\.8\.0"/);
+  assert.match(packageJson, /"version": "1\.9\.0"/);
   assert.deepEqual(pngDimensions(favicon48), { width: 48, height: 48 });
   assert.deepEqual(pngDimensions(favicon96), { width: 96, height: 96 });
   assert.equal(faviconIco.readUInt16LE(2), 1);

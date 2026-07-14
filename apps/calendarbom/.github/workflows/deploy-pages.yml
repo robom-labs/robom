@@ -1,0 +1,66 @@
+name: Deploy calendarbom Pages
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: JavaScript 문법 검사
+        run: node --check app/app.js && node --check app/sw.js && node --check app/calendar-core.js && node --check app/alarm-core.js && node --check app/ics-core.js
+      - name: 테스트·정적 자산 검사
+        run: npm test
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 운영 빌드 식별자 기록
+        shell: bash
+        run: |
+          mkdir -p .pages-release
+          cp -a app/. .pages-release/
+          sed -i "s/__BUILD_SHA__/${GITHUB_SHA::7}/g" .pages-release/app.js
+          touch .pages-release/.nojekyll
+
+      - name: Pages 설정 (자동 활성화)
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: 정적 사이트 업로드
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .pages-release
+
+      - name: Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v4

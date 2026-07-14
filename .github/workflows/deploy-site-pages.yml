@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - "site/**"
+      - "apps/calendarbom/**"
       - "ops/registry/apps.yml"
       - "ops/scripts/check-app-registry.mjs"
       - ".github/workflows/deploy-site-pages.yml"

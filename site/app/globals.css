@@ -19,6 +19,8 @@
   --home-soft: #eaf6ed;
   --run: #ed7b3f;
   --run-soft: #fff0e7;
+  --cal: #7454c8;
+  --cal-soft: #f1ebfb;
   --radius-xl: 34px;
   --radius-lg: 26px;
   --radius-md: 18px;
@@ -66,7 +68,7 @@ em { font-style: normal; }
 /* 모바일 첫 화면 앱 바로 열기(데스크톱은 기본 display:none으로 완전 비노출) */
 .mobile-app-jump, .mobile-jump-label { display: none; }
 .app-jump { --tone: var(--out); display: grid; grid-template-columns: 46px 1fr auto; align-items: center; gap: 13px; min-height: 66px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); padding: 9px 15px; box-shadow: 0 8px 22px rgba(31, 51, 43, .05); }
-.app-jump.home { --tone: var(--home); } .app-jump.run { --tone: var(--run); }
+.app-jump.home { --tone: var(--home); } .app-jump.run { --tone: var(--run); } .app-jump.cal { --tone: var(--cal); }
 .app-jump .app-glyph { width: 46px; height: 46px; border-radius: 15px; }
 .app-jump-text { display: grid; gap: 2px; min-width: 0; }
 .app-jump-text b { font-size: 16px; font-weight: 900; letter-spacing: -.03em; }
@@ -93,7 +95,7 @@ em { font-style: normal; }
 .preview-list span { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 10px; min-height: 48px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 850; }
 .preview-list span:last-child { border: 0; }
 .preview-list i { width: 9px; height: 9px; border-radius: 50%; background: var(--out); }
-.preview-list i.home { background: var(--home); }.preview-list i.run { background: var(--run); }
+.preview-list i.home { background: var(--home); }.preview-list i.run { background: var(--run); }.preview-list i.cal { background: var(--cal); }
 .preview-list b { color: var(--muted); font-size: 11px; }
 
 .apps-section { padding: 120px clamp(24px, 5vw, 80px) 132px; background: var(--surface); }
@@ -104,6 +106,7 @@ em { font-style: normal; }
 .family-card { --tone: var(--out); --tint: var(--out-soft); display: flex; min-width: 0; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius-xl); background: var(--paper); padding: 22px; box-shadow: 0 12px 35px rgba(31, 51, 43, .05); }
 .family-card.home, .product-page.home { --tone: var(--home); --tint: var(--home-soft); }
 .family-card.run, .product-page.run { --tone: var(--run); --tint: var(--run-soft); }
+.family-card.cal, .product-page.cal { --tone: var(--cal); --tint: var(--cal-soft); }
 .app-glyph { display: grid; width: 50px; height: 50px; flex: 0 0 auto; place-items: center; border-radius: 17px; }
 .app-glyph img { display: block; width: 100%; height: 100%; border-radius: inherit; }
 .app-glyph.large { width: 76px; height: 76px; border-radius: 24px; }
@@ -229,7 +232,7 @@ em { font-style: normal; }
 }
 
 @media (prefers-color-scheme: dark) {
-  :root { color-scheme: light; --ink: #17211d; --muted: #5f6e67; --paper: #fff8ef; --surface: #ffffff; --soft: #f6f0e7; --line: #eadfd2; --robom-soft: #e5f3f2; --out-soft: #e9f5fc; --home-soft: #eaf6ed; --run-soft: #fff0e7; --shadow: 0 18px 50px rgba(91,67,44,.09); }
+  :root { color-scheme: light; --ink: #17211d; --muted: #5f6e67; --paper: #fff8ef; --surface: #ffffff; --soft: #f6f0e7; --line: #eadfd2; --robom-soft: #e5f3f2; --out-soft: #e9f5fc; --home-soft: #eaf6ed; --run-soft: #fff0e7; --cal-soft: #f1ebfb; --shadow: 0 18px 50px rgba(91,67,44,.09); }
   .site-header { background: rgba(255, 248, 239, .92); }.family-preview { background: rgba(255, 255, 255, .94); }.button.primary { background: var(--ink); color: #fff; }.button.secondary, .desktop-nav a:hover { background: var(--surface); }.preview-hero > a { background: var(--ink); color: #fff; }.mobile-tabbar { background: rgba(255, 255, 255, .96); }
 }
 

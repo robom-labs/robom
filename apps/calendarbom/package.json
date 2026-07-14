@@ -1,0 +1,12 @@
+{
+  "name": "calendarbom",
+  "version": "0.1.0",
+  "private": true,
+  "description": "캘린더봄 — 큰 달력에서 날짜를 누르고 버튼만으로 일정과 알람을 저장하는 우리 가족 달력 PWA",
+  "scripts": {
+    "test": "node --test scripts/*.test.mjs && node scripts/validate-static.mjs",
+    "serve": "node scripts/serve.mjs",
+    "icons": "node scripts/generate-icons.mjs"
+  },
+  "license": "MIT"
+}

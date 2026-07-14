@@ -1,5 +1,18 @@
 # 사람 확인이 필요한 작업
 
+## 캘린더봄 정식 저장소 이전 (2026-07-15 등록)
+
+캘린더봄 v0.1.0은 AI 실행 환경에 조직 저장소 생성 권한이 없어(GitHub App 403)
+임시로 본사 저장소 `apps/calendarbom`에 소스를 보관하고, 본사 Pages 아티팩트에
+`/calendarbom/`로 함께 배포 중이다. 임시 주소: https://robom-labs.github.io/robom/calendarbom/
+
+- [ ] GitHub에서 공개 저장소 `robom-labs/calendarbom`을 생성한다 (Settings 불필요, 빈 저장소면 됨).
+- [ ] 생성 후 AI에게 "캘린더봄 저장소 이전 진행해"라고 요청한다. AI가 수행할 일:
+  `apps/calendarbom` 소스 push → 동봉된 `.github/workflows/deploy-pages.yml`로 Pages 자동 활성화·배포 →
+  레지스트리·본사 허브 URL을 `https://robom-labs.github.io/calendarbom/`으로 교체 →
+  본사 임시 호스팅 제거(`apps/calendarbom`, prerender 복사 단계).
+- [ ] 이전 완료 후 기존 임시 주소 접속자를 위해 본사에 리다이렉트 안내를 1개 버전 동안 유지한다.
+
 ## GitHub 조직 이전
 
 - [x] GitHub 조직 `robom-labs`를 생성했다.

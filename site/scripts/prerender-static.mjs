@@ -1,7 +1,7 @@
 // 빌드된 워커에서 홈페이지 HTML을 렌더해 GitHub Pages용 정적 사이트를 dist/static 에 만든다.
 // - 자산 경로를 상대경로(./)로 바꿔 프로젝트 페이지(/robom/)와 커스텀 도메인(robom.kr) 양쪽에서 동작하게 한다.
 // - 이 스크립트는 `npm run build` 이후에 실행해야 한다. (tests/rendered-html.test.mjs 와 같은 렌더 방식)
-import { cp, mkdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const root = new URL("..", import.meta.url);
@@ -12,11 +12,13 @@ const routes = [
   "/apps/outbom",
   "/apps/homebom",
   "/apps/runningbom",
+  "/apps/calendarbom",
   "/support",
   "/privacy",
   "/privacy/outbom",
   "/privacy/homebom",
   "/privacy/runningbom",
+  "/privacy/calendarbom",
   "/terms",
   "/licenses",
   "/open-source",
@@ -80,6 +82,14 @@ for (const path of routes) {
   await mkdir(outputDir, { recursive: true });
   await writeFile(resolve(outputDir, "index.html"), html);
 }
+// 캘린더봄 임시 호스팅: robom-labs/calendarbom 저장소 생성 전까지 본사 Pages 아래 /calendarbom/ 로 함께 배포한다.
+// 원본 소스는 apps/calendarbom 이며, 저장소가 생기면 그쪽 파이프라인으로 이전한다(ops/HUMAN_ACTIONS.md).
+const calendarbomTarget = resolve(staticDir, "calendarbom");
+await cp(resolve(root.pathname, "..", "apps", "calendarbom", "app"), calendarbomTarget, { recursive: true });
+const calendarbomAppJs = resolve(calendarbomTarget, "app.js");
+const buildSha = (process.env.GITHUB_SHA || "").slice(0, 7) || "local";
+await writeFile(calendarbomAppJs, (await readFile(calendarbomAppJs, "utf8")).replace("__BUILD_SHA__", buildSha));
+
 await writeFile(resolve(staticDir, ".nojekyll"), "");
 
 console.log(`prerendered ${routes.length} static routes → ${staticDir}`);

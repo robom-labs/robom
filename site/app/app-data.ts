@@ -1,5 +1,5 @@
 // 운영 레지스트리와 동기화된 로봄 패밀리 앱 표시 정보를 제공한다.
-export type AppId = "outbom" | "homebom" | "runningbom";
+export type AppId = "outbom" | "homebom" | "runningbom" | "calendarbom";
 
 export type FamilyApp = {
   id: AppId;
@@ -18,7 +18,7 @@ export type FamilyApp = {
   version: string;
   webUrl: string;
   hubPath: `/apps/${AppId}`;
-  tone: "out" | "home" | "run";
+  tone: "out" | "home" | "run" | "cal";
   eyebrow: string;
   heroTitle: string;
   heroBody: string;
@@ -26,7 +26,7 @@ export type FamilyApp = {
   highlights: readonly string[];
 };
 
-export const SITE_VERSION = "1.8.0";
+export const SITE_VERSION = "1.9.0";
 
 // 값의 정본은 ../../ops/registry/apps.yml이며 렌더링 테스트에서 URL과 버전의 일치를 검증한다.
 export const familyApps: readonly FamilyApp[] = [
@@ -113,6 +113,35 @@ export const familyApps: readonly FamilyApp[] = [
       { value: "접수 전", label: "미리 알림" },
     ],
     highlights: ["월간 접수 캘린더", "거리·지역·검색", "접수 시작 알림"],
+  },
+  {
+    id: "calendarbom",
+    name: "캘린더봄",
+    englishName: "CalendarBom",
+    prefix: "캘린더",
+    tagline: "날짜를 누르고, 잊지 않게",
+    description: "큰 달력에서 날짜를 누르고 버튼만으로 일정과 알람을 저장하는 우리 가족 달력 앱",
+    metadataTitle: "캘린더봄 | 큰 달력과 쉬운 알람",
+    metadataDescription: "큰 월간 달력에서 날짜를 누르고, 키보드 없이 버튼만으로 병원·약·가족 일정을 알람으로 챙기세요.",
+    mobileValue: "우리 가족 일정 알람",
+    mobileAction: "달력 열기",
+    status: "live",
+    statusLabel: "운영 중",
+    accessLabel: "웹으로 이용",
+    version: "0.1.0",
+    // robom-labs/calendarbom 저장소 생성 전까지 본사 Pages 아래 임시 경로로 운영한다.
+    webUrl: "https://robom-labs.github.io/robom/calendarbom/",
+    hubPath: "/apps/calendarbom",
+    tone: "cal",
+    eyebrow: "잊기 전에, 우리 집 달력",
+    heroTitle: "날짜를 누르면, 알람까지 끝.",
+    heroBody: "글씨가 큰 달력을 펼쳐 두고, 병원과 약속과 가족의 날을 버튼 몇 번으로 담아 그 시간이 오기 전에 대신 일러드립니다.",
+    metrics: [
+      { value: "4번", label: "터치로 저장" },
+      { value: "3단계", label: "큰 글자" },
+      { value: "기기 안", label: "개인 보관" },
+    ],
+    highlights: ["큰 월간 달력", "키보드 없는 저장", "일정 알람"],
   },
 ] as const;
 

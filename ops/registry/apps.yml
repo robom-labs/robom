@@ -68,3 +68,27 @@ apps:
     current_url: https://robom-labs.github.io/runningbom/
     legacy_url: https://runnerpyrri-lgtm.github.io/pushrun/
     marketing_tone: "러닝 대회 탐색과 접수 시작 시간을 알려주는 앱"
+
+  - id: calendarbom
+    name: 캘린더봄
+    english_name: CalendarBom
+    status: live
+    version: 0.1.0
+    version_source: https://raw.githubusercontent.com/robom-labs/robom/main/apps/calendarbom/package.json
+    healthcheck_url: https://robom-labs.github.io/robom/calendarbom/
+    privacy_url: https://robom.kr/privacy/calendarbom
+    support_url: https://robom.kr/support
+    mobile_status: planned
+    # 임시: robom-labs/calendarbom 저장소 생성 권한이 없어 본사 저장소에 소스를 보관하고
+    # 본사 Pages 아티팩트에 /calendarbom/ 로 함께 배포한다. 이전 절차는 ops/HUMAN_ACTIONS.md 참고.
+    repo: robom-labs/robom (apps/calendarbom, 임시)
+    target_repo: robom-labs/calendarbom
+    stack: static PWA (HTML/CSS/JS)
+    test: "npm test"
+    build: "none"
+    deploy: github-pages (본사 사이트 아티팩트에 포함, 임시)
+    base_path: /robom/calendarbom/
+    current_url: https://robom-labs.github.io/robom/calendarbom/
+    url: https://robom-labs.github.io/robom/calendarbom/
+    target_url: https://robom-labs.github.io/calendarbom/
+    marketing_tone: "큰 달력에서 날짜를 누르고 버튼만으로 일정과 알람을 저장하는 우리 가족 달력 앱"
