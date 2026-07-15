@@ -39,7 +39,7 @@ jobs:
             너는 로봄의 본부장(오케스트레이터)이다.
             .claude/agents/ceo-orchestrator.md 규칙과 CLAUDE.md 금지작업을 그대로 따른다.
             이번 회차 데일리 런(오전 06시 / 오후 18시 KST 중 현재 시각으로 판단):
-            1) 상태 점검: ops/registry/apps.yml의 세 앱 원본 저장소, 열린 PR, 최신 버전과
+            1) 상태 점검: ops/registry/apps.yml의 각 앱 원본 저장소, 열린 PR, 최신 버전과
                최근 실패한 워크플로를 확인한다. 본사에는 앱 사본이 없다.
             2) 본부장 보고서 작성: ops/reports/TEMPLATE.md 틀에 맞춰
                ops/reports/<YYYY-MM-DD>-<am|pm>.md 를 생성한다.

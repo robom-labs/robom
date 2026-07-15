@@ -1,16 +1,16 @@
-// 로봄의 네 앱을 하나의 제품 문법으로 소개하고 안정 경로로 연결하는 공식 패밀리 허브다.
+// 로봄의 다섯 앱을 하나의 제품 문법으로 소개하고 안정 경로로 연결하는 공식 패밀리 허브다.
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AppGlyph, FamilyFooter, MobileNav, SiteHeader, Wordmark } from "./components";
 import { contactHref, familyApps } from "./app-data";
 
 export const metadata: Metadata = {
-  title: { absolute: "로봄 | 날씨·청약·러닝·달력, 놓치기 전에" },
-  description: "오늘 나가기 좋은 시간, 청약 접수 일정, 러닝 대회 오픈, 가족 일정 알람을 한곳에서 확인하세요. 야외봄·청약봄·러닝봄·캘린더봄으로 바로 연결됩니다.",
+  title: { absolute: "로봄 | 날씨·청약·러닝·달력·자격증, 놓치기 전에" },
+  description: "날씨, 청약, 러닝 대회, 가족 일정, 자격증 시험 준비를 한곳에서 확인하세요. 야외봄·청약봄·러닝봄·캘린더봄·자격증봄으로 바로 연결됩니다.",
   alternates: { canonical: "/" },
   openGraph: {
-    title: "로봄 | 날씨·청약·러닝·달력, 놓치기 전에",
-    description: "오늘 나가기 좋은 시간, 청약 접수 일정, 러닝 대회 오픈, 가족 일정 알람을 한곳에서 확인하세요. 야외봄·청약봄·러닝봄·캘린더봄으로 바로 연결됩니다.",
+    title: "로봄 | 날씨·청약·러닝·달력·자격증, 놓치기 전에",
+    description: "날씨, 청약, 러닝 대회, 가족 일정, 자격증 시험 준비를 한곳에서 확인하세요. 야외봄·청약봄·러닝봄·캘린더봄·자격증봄으로 바로 연결됩니다.",
     url: "/",
     siteName: "로봄",
     locale: "ko_KR",
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "로봄 | 날씨·청약·러닝·달력, 놓치기 전에",
-    description: "오늘 나가기 좋은 시간, 청약 접수 일정, 러닝 대회 오픈, 가족 일정 알람을 한곳에서 확인하세요.",
+    title: "로봄 | 날씨·청약·러닝·달력·자격증, 놓치기 전에",
+    description: "날씨, 청약, 러닝 대회, 가족 일정, 자격증 시험 준비를 한곳에서 확인하세요.",
     images: ["/og.png"],
   },
 };
@@ -33,10 +33,10 @@ export default function Home() {
         <section className="family-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
             <p className="eyebrow"><span aria-hidden="true" /> ROBOM FAMILY</p>
-            <h1 id="hero-title">날씨·청약·러닝·달력,<br /><em>중요한 순간을 놓치기 전에.</em></h1>
-            <p className="hero-lead">야외봄은 나가기 좋은 시간을, 청약봄은 접수 일정을, 러닝봄은 대회 오픈을, 캘린더봄은 가족 일정을 챙깁니다.</p>
+            <h1 id="hero-title">날씨·청약·러닝·달력·자격증,<br /><em>중요한 순간을 놓치기 전에.</em></h1>
+            <p className="hero-lead">야외봄은 나가기 좋은 시간을, 청약봄은 접수 일정을, 러닝봄은 대회 오픈을, 캘린더봄은 가족 일정을, 자격증봄은 시험 준비를 챙깁니다.</p>
             <div className="hero-actions">
-              <a className="button primary" href="#apps">네 앱 만나기 <span aria-hidden="true">↓</span></a>
+              <a className="button primary" href="#apps">다섯 앱 만나기 <span aria-hidden="true">↓</span></a>
               <Link className="button secondary" href="/support">도움받기</Link>
             </div>
             <p className="mobile-jump-label">오늘 필요한 앱을 골라 바로 확인하세요.</p>
@@ -49,17 +49,17 @@ export default function Home() {
                 </a>
               ))}
             </nav>
-            <p className="trust-copy">로봄이 직접 운영하는 야외봄·청약봄·러닝봄·캘린더봄의 공식 웹 허브입니다. 각 앱의 원문·데이터 출처는 서비스 안에서 확인할 수 있습니다.</p>
+            <p className="trust-copy">로봄이 직접 운영하는 야외봄·청약봄·러닝봄·캘린더봄·자격증봄의 공식 웹 허브입니다. 각 앱의 원문·데이터 출처는 서비스 안에서 확인할 수 있습니다.</p>
           </div>
 
           <div className="family-preview" aria-label="로봄 패밀리 앱 미리보기">
-            <div className="preview-head"><Wordmark /><span className="live-badge"><i aria-hidden="true" /> 네 앱 운영 중</span></div>
-            <div className="preview-chips" aria-hidden="true"><span>날씨</span><span>청약</span><span>러닝</span><span>달력</span></div>
+            <div className="preview-head"><Wordmark /><span className="live-badge"><i aria-hidden="true" /> 다섯 앱 운영 중</span></div>
+            <div className="preview-chips" aria-hidden="true"><span>날씨</span><span>청약</span><span>러닝</span><span>달력</span><span>자격증</span></div>
             <div className="preview-hero">
               <span className="preview-rule" />
               <p>오늘, 놓치면 아쉬운 신호</p>
               <h2>그 순간이 닿기 전에,<br />미리 준비해 둘 수 있도록.</h2>
-              <div className="preview-metrics"><span><b>4개</b>생활 앱</span><span><b>한곳</b>공식 허브</span><span><b>제때</b>행동 알림</span></div>
+              <div className="preview-metrics"><span><b>5개</b>생활 앱</span><span><b>한곳</b>공식 허브</span><span><b>제때</b>행동 안내</span></div>
               <a href="#apps">앱 고르기</a>
             </div>
             <div className="preview-list">{familyApps.map((app) => <span key={app.id}><i className={app.tone} aria-hidden="true" />{app.name}<b>{app.statusLabel}</b></span>)}</div>
@@ -68,8 +68,8 @@ export default function Home() {
 
         <section className="apps-section" id="apps" aria-labelledby="apps-title">
           <div className="section-heading">
-            <div><p className="eyebrow"><span aria-hidden="true" /> FOUR APPS, ONE FAMILY</p><h2 id="apps-title">마음은 하나로,<br />지키는 순간은 저마다 또렷하게.</h2></div>
-            <p>네 앱은 같은 마음과 같은 약속으로 만들어졌습니다. 다만 바라보는 곳이 다를 뿐 — 하늘을, 기회를, 출발선을, 그리고 우리 집 달력을 지킵니다.</p>
+            <div><p className="eyebrow"><span aria-hidden="true" /> FIVE APPS, ONE FAMILY</p><h2 id="apps-title">마음은 하나로,<br />지키는 순간은 저마다 또렷하게.</h2></div>
+            <p>다섯 앱은 같은 마음과 같은 약속으로 만들어졌습니다. 하늘과 기회, 출발선과 가족 일정, 그리고 시험 준비를 각자의 방식으로 지킵니다.</p>
           </div>
           <div className="app-card-grid">
             {familyApps.map((app) => (

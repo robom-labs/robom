@@ -1,0 +1,7 @@
+<!-- 자격증봄의 코발트 책갈피와 형광펜 체크를 표현한 앱 아이콘이다. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="자격증봄">
+  <rect width="512" height="512" rx="128" fill="#2457ef"/>
+  <path d="M126 125c0-25 20-45 45-45h170c25 0 45 20 45 45v262c0 15-17 24-30 16l-100-65-100 65c-13 8-30-1-30-16V125Z" fill="#fffaf0"/>
+  <path d="m184 223 48 48 102-111" fill="none" stroke="#ffe64d" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M189 318h134" stroke="#2457ef" stroke-width="24" stroke-linecap="round" opacity=".25"/>
+</svg>

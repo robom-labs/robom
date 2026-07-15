@@ -21,6 +21,8 @@
   --run-soft: #fff0e7;
   --cal: #7454c8;
   --cal-soft: #f1ebfb;
+  --cert: #2457d6;
+  --cert-soft: #eef2ff;
   --radius-xl: 34px;
   --radius-lg: 26px;
   --radius-md: 18px;
@@ -68,7 +70,7 @@ em { font-style: normal; }
 /* 모바일 첫 화면 앱 바로 열기(데스크톱은 기본 display:none으로 완전 비노출) */
 .mobile-app-jump, .mobile-jump-label { display: none; }
 .app-jump { --tone: var(--out); display: grid; grid-template-columns: 46px 1fr auto; align-items: center; gap: 13px; min-height: 66px; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); padding: 9px 15px; box-shadow: 0 8px 22px rgba(31, 51, 43, .05); }
-.app-jump.home { --tone: var(--home); } .app-jump.run { --tone: var(--run); } .app-jump.cal { --tone: var(--cal); }
+.app-jump.home { --tone: var(--home); } .app-jump.run { --tone: var(--run); } .app-jump.cal { --tone: var(--cal); } .app-jump.cert { --tone: var(--cert); }
 .app-jump .app-glyph { width: 46px; height: 46px; border-radius: 15px; }
 .app-jump-text { display: grid; gap: 2px; min-width: 0; }
 .app-jump-text b { font-size: 16px; font-weight: 900; letter-spacing: -.03em; }
@@ -95,18 +97,21 @@ em { font-style: normal; }
 .preview-list span { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 10px; min-height: 48px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 850; }
 .preview-list span:last-child { border: 0; }
 .preview-list i { width: 9px; height: 9px; border-radius: 50%; background: var(--out); }
-.preview-list i.home { background: var(--home); }.preview-list i.run { background: var(--run); }.preview-list i.cal { background: var(--cal); }
+.preview-list i.home { background: var(--home); }.preview-list i.run { background: var(--run); }.preview-list i.cal { background: var(--cal); }.preview-list i.cert { background: var(--cert); }
 .preview-list b { color: var(--muted); font-size: 11px; }
 
 .apps-section { padding: 120px clamp(24px, 5vw, 80px) 132px; background: var(--surface); }
 .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 36px; max-width: 1450px; margin: 0 auto 50px; }
 .section-heading h2, .standard-section h2, .feature-section h2, .family-menu h2 { margin: 0; font-size: clamp(38px, 4.2vw, 64px); font-weight: 950; line-height: 1.13; }
 .section-heading > p { max-width: 390px; margin: 0 0 4px; color: var(--muted); font-size: 16px; line-height: 1.75; }
-.app-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; max-width: 1450px; margin: auto; }
-.family-card { --tone: var(--out); --tint: var(--out-soft); display: flex; min-width: 0; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius-xl); background: var(--paper); padding: 22px; box-shadow: 0 12px 35px rgba(31, 51, 43, .05); }
+.app-card-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 20px; max-width: 1450px; margin: auto; }
+.family-card { --tone: var(--out); --tint: var(--out-soft); display: flex; min-width: 0; grid-column: span 2; flex-direction: column; border: 1px solid var(--line); border-radius: var(--radius-xl); background: var(--paper); padding: 22px; box-shadow: 0 12px 35px rgba(31, 51, 43, .05); }
+.family-card:nth-child(4) { grid-column: 2 / span 2; }
+.family-card:nth-child(5) { grid-column: 4 / span 2; }
 .family-card.home, .product-page.home { --tone: var(--home); --tint: var(--home-soft); }
 .family-card.run, .product-page.run { --tone: var(--run); --tint: var(--run-soft); }
 .family-card.cal, .product-page.cal { --tone: var(--cal); --tint: var(--cal-soft); }
+.family-card.cert, .product-page.cert { --tone: var(--cert); --tint: var(--cert-soft); }
 .app-glyph { display: grid; width: 50px; height: 50px; flex: 0 0 auto; place-items: center; border-radius: 17px; }
 .app-glyph img { display: block; width: 100%; height: 100%; border-radius: inherit; }
 .app-glyph.large { width: 76px; height: 76px; border-radius: 24px; }
@@ -169,6 +174,7 @@ em { font-style: normal; }
 @media (max-width: 1100px) {
   .family-hero { grid-template-columns: 1fr 420px; gap: 45px; }
   .app-card-grid { grid-template-columns: 1fr; max-width: 720px; }
+  .family-card, .family-card:nth-child(4), .family-card:nth-child(5) { grid-column: auto; }
   .app-hero-card > p:not(.card-eyebrow) { min-height: auto; }
 }
 
@@ -217,7 +223,7 @@ em { font-style: normal; }
   .app-hero-card { padding: 22px 19px; }.ad-placeholder p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.product-copy h1 { font-size: 39px; }
 }
 
-/* 높이가 짧은 휴대폰에서도 세 번째 앱 타일이 고정 하단 메뉴 위에 완전히 보이게 한다. */
+/* 높이가 짧은 휴대폰에서도 다섯 앱을 첫 화면 가까이에서 고를 수 있게 2열로 압축한다. */
 @media (max-width: 760px) and (max-height: 640px) {
   .site-header { min-height: 58px; padding-block: 6px; }
   .robom-icon { width: 32px; height: 32px; }
@@ -225,14 +231,15 @@ em { font-style: normal; }
   .hero-copy .eyebrow { margin-bottom: 7px; }
   .hero-copy h1 { margin-bottom: 9px; font-size: clamp(32px, 10vw, 38px); line-height: 1.03; }
   .mobile-jump-label { margin-bottom: 7px; font-size: 12px; }
-  .mobile-app-jump { gap: 5px; margin-bottom: 18px; }
-  .app-jump { min-height: 54px; padding-block: 4px; }
+  .mobile-app-jump { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; margin-bottom: 18px; }
+  .app-jump { min-height: 54px; grid-template-columns: 42px minmax(0, 1fr); gap: 8px; padding: 4px 8px; }
   .app-jump .app-glyph { width: 42px; height: 42px; }
   .app-jump-text small { font-size: 11px; }
+  .app-jump-go { display: none; }
 }
 
 @media (prefers-color-scheme: dark) {
-  :root { color-scheme: light; --ink: #17211d; --muted: #5f6e67; --paper: #fff8ef; --surface: #ffffff; --soft: #f6f0e7; --line: #eadfd2; --robom-soft: #e5f3f2; --out-soft: #e9f5fc; --home-soft: #eaf6ed; --run-soft: #fff0e7; --cal-soft: #f1ebfb; --shadow: 0 18px 50px rgba(91,67,44,.09); }
+  :root { color-scheme: light; --ink: #17211d; --muted: #5f6e67; --paper: #fff8ef; --surface: #ffffff; --soft: #f6f0e7; --line: #eadfd2; --robom-soft: #e5f3f2; --out-soft: #e9f5fc; --home-soft: #eaf6ed; --run-soft: #fff0e7; --cal-soft: #f1ebfb; --cert-soft: #eef2ff; --shadow: 0 18px 50px rgba(91,67,44,.09); }
   .site-header { background: rgba(255, 248, 239, .92); }.family-preview { background: rgba(255, 255, 255, .94); }.button.primary { background: var(--ink); color: #fff; }.button.secondary, .desktop-nav a:hover { background: var(--surface); }.preview-hero > a { background: var(--ink); color: #fff; }.mobile-tabbar { background: rgba(255, 255, 255, .96); }
 }
 

@@ -1,5 +1,5 @@
 // 운영 레지스트리와 동기화된 로봄 패밀리 앱 표시 정보를 제공한다.
-export type AppId = "outbom" | "homebom" | "runningbom" | "calendarbom";
+export type AppId = "outbom" | "homebom" | "runningbom" | "calendarbom" | "certbom";
 
 export type FamilyApp = {
   id: AppId;
@@ -18,7 +18,7 @@ export type FamilyApp = {
   version: string;
   webUrl: string;
   hubPath: `/apps/${AppId}`;
-  tone: "out" | "home" | "run" | "cal";
+  tone: "out" | "home" | "run" | "cal" | "cert";
   eyebrow: string;
   heroTitle: string;
   heroBody: string;
@@ -26,7 +26,7 @@ export type FamilyApp = {
   highlights: readonly string[];
 };
 
-export const SITE_VERSION = "1.9.0";
+export const SITE_VERSION = "2.0.0";
 
 // 값의 정본은 ../../ops/registry/apps.yml이며 렌더링 테스트에서 URL과 버전의 일치를 검증한다.
 export const familyApps: readonly FamilyApp[] = [
@@ -142,6 +142,34 @@ export const familyApps: readonly FamilyApp[] = [
       { value: "기기 안", label: "개인 보관" },
     ],
     highlights: ["큰 월간 달력", "키보드 없는 저장", "일정 알람"],
+  },
+  {
+    id: "certbom",
+    name: "자격증봄",
+    englishName: "CertBom",
+    prefix: "자격증",
+    tagline: "시험 준비가 제때 닿도록",
+    description: "공식 시험 일정과 준비물을 찾고 내게 맞는 자격증을 추천받는 앱",
+    metadataTitle: "자격증봄 | 자격증 시험 일정·준비물·추천",
+    metadataDescription: "공식 출처로 자격증 시험 일정과 준비물을 확인하고, 질문 5개로 내게 맞는 시험 3개와 추천 이유를 받아보세요.",
+    mobileValue: "공식 시험 일정과 준비물",
+    mobileAction: "시험 찾기",
+    status: "live",
+    statusLabel: "운영 중",
+    accessLabel: "웹으로 이용",
+    version: "0.4.1",
+    webUrl: "https://certbom.vercel.app/",
+    hubPath: "/apps/certbom",
+    tone: "cert",
+    eyebrow: "접수부터 시험일까지, 놓치지 않게",
+    heroTitle: "무엇을 준비할지 먼저 보여드립니다.",
+    heroBody: "공식 시험 일정과 준비물을 한곳에 모아, 오늘 해야 할 일과 내게 맞는 자격증을 분명하게 안내합니다.",
+    metrics: [
+      { value: "10개", label: "대표 시험" },
+      { value: "질문 5개", label: "맞춤 추천" },
+      { value: "공식 출처", label: "일정 기준" },
+    ],
+    highlights: ["공식 시험 일정", "내게 맞는 3개 추천", "시험일 준비물"],
   },
 ] as const;
 

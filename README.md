@@ -9,8 +9,10 @@
 | 야외봄 | OutBom | 야외활동 컨디션과 추천 시간 | `robom-labs/outbom` |
 | 청약봄 | HomeBom | 청약 공고와 접수 알림 | `robom-labs/homebom` |
 | 러닝봄 | RunningBom | 러닝 대회 탐색과 접수 알림 | `robom-labs/runningbom` |
+| 캘린더봄 | CalendarBom | 큰 달력과 가족 일정 알람 | `robom-labs/robom`의 `apps/calendarbom` (임시) |
+| 자격증봄 | CertBom | 자격증 시험 탐색과 일정·준비물 안내 | `robom-labs/certbom` |
 
-각 앱은 독립 저장소에서 개발·검증·배포합니다. 이 저장소에는 앱 소스 사본을 두지 않습니다.
+앱은 원칙적으로 독립 저장소에서 개발·검증·배포합니다. 캘린더봄만 정식 저장소 이전 전까지 본사 저장소에 임시로 둡니다.
 
 ## 이 저장소가 담당하는 것
 

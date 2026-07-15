@@ -106,9 +106,9 @@ jobs:
             BODY=$(curl -fsSL "$URL" || true)
             APP=$(curl -fsSL "${URL}calendarbom/" || true)
             SW=$(curl -fsSL "${URL}calendarbom/sw.js" || true)
-            if echo "$BODY" | grep -q "ROBOM FAMILY" && echo "$BODY" | grep -q "야외봄" && echo "$BODY" | grep -q "캘린더봄" \
+            if echo "$BODY" | grep -q "ROBOM FAMILY" && echo "$BODY" | grep -q "야외봄" && echo "$BODY" | grep -q "캘린더봄" && echo "$BODY" | grep -q "자격증봄" \
               && echo "$APP" | grep -q "캘린더봄" && echo "$SW" | grep -q 'CACHE_NAME = "calendarbom-v'; then
-              echo "OK: family hub + calendarbom markers found"; exit 0
+              echo "OK: five-app family hub + calendarbom markers found"; exit 0
             fi
             echo "retry $i..."; sleep 10
           done

@@ -16,6 +16,7 @@
 - 야외봄 변경은 `robom-labs/outbom`에서 작업한다.
 - 청약봄 변경은 `robom-labs/homebom`에서 작업한다.
 - 러닝봄 변경은 `robom-labs/runningbom`에서 작업한다.
+- 자격증봄 변경은 `robom-labs/certbom`에서 작업한다.
 - `robom`에 앱 코드를 복사하거나 미러링하지 않는다.
 - 코드·설정·회의 기록은 GitHub를 정본으로 사용하고 영구 로컬 코드 폴더를 기준으로 삼지 않는다.
 
