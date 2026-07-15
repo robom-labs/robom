@@ -33,7 +33,6 @@ if (
   !assetVersion ||
   !html.includes(`styles.css?v=${assetVersion}`) ||
   !html.includes(`calendar-core.js?v=${assetVersion}`) ||
-  !html.includes(`alarm-core.js?v=${assetVersion}`) ||
   !html.includes(`ics-core.js?v=${assetVersion}`) ||
   !html.includes(`bom-calendarbom.svg?v=${assetVersion}`)
 ) {
@@ -48,7 +47,7 @@ const swBustVersions = [...sw.matchAll(/\?v=([\w.-]+)/g)].map((match) => match[1
 if (swBustVersions.length === 0 || swBustVersions.some((version) => version !== assetVersion)) {
   errors.push(`sw.js APP_SHELL 캐시버스트 불일치: html=${assetVersion}, sw.js=[${[...new Set(swBustVersions)].join(", ")}]`);
 }
-for (const core of ["calendar-core.js", "alarm-core.js", "ics-core.js", "schedule-core.js", "app.js", "styles.css"]) {
+for (const core of ["calendar-core.js", "ics-core.js", "schedule-core.js", "app.js", "styles.css"]) {
   if (!sw.includes(`./${core}?v=${assetVersion}`)) errors.push(`sw.js APP_SHELL 에 ${core} 가 없습니다 (오프라인에서 앱이 깨집니다).`);
 }
 if (!app.includes("calendarbom-v${APP_VERSION}")) {
@@ -102,6 +101,9 @@ if (!app.includes('"calendarbom:events:v1"')) { // v1 키는 마이그레이션 
 if (!app.includes("저장했어요") || !app.includes("koreanDateTime")) errors.push("저장 후 자연어 확인 문장이 사용되지 않습니다.");
 if (!app.includes("CalendarBomScheduleCore")) errors.push("v2 일정 모델(schedule-core)이 앱에 연결되지 않았습니다.");
 if (!app.includes('"calendarbom:data:v2"') || !app.includes("migrateV1")) errors.push("v2 저장 키와 v1 마이그레이션이 없습니다.");
+if (!app.includes("calendarbom:recovery")) errors.push("손상 데이터 복구 키가 없습니다 (A-03).");
+if (!app.includes("function commit(")) errors.push("트랜잭션 저장(commit)이 없습니다 (A-02).");
+if (app.includes("alarm-core")) errors.push("제거된 alarm-core 참조가 남아 있습니다.");
 if (!app.includes("되돌리기")) errors.push("저장·삭제 후 되돌리기가 없습니다.");
 if (!html.includes("aria-live") || !html.includes("aria-modal")) errors.push("스크린리더 실시간 안내(aria-live)·모달 표시가 없습니다.");
 if (!html.includes("알람 동작 안내") || !html.includes("홈 화면에 추가")) {

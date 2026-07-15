@@ -163,7 +163,7 @@ button:disabled { cursor: not-allowed; opacity: 0.58; }
 .month-title { display: flex; align-items: baseline; justify-content: center; gap: 10px; }
 .month-title h1 { margin: 0; font-size: 1.6rem; font-weight: 900; letter-spacing: -0.02em; text-align: center; }
 .today-btn {
-  min-height: 40px;
+  min-height: 48px;
   padding: 0 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -416,12 +416,6 @@ button:disabled { cursor: not-allowed; opacity: 0.58; }
   font-weight: 700;
 }
 
-.time-picker { display: grid; gap: 10px; margin-top: 10px; }
-.time-picker.off { display: none; }
-.ampm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.hour-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
-.hour-grid .chip, .minute-grid .chip { padding: 0 4px; min-height: 50px; text-align: center; }
-.minute-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
 
 .sheet-preview {
   margin: 4px 0 12px;
@@ -600,7 +594,7 @@ button:disabled { cursor: not-allowed; opacity: 0.58; }
 .done-row .done-check { color: var(--plum-deep); font-weight: 900; }
 .done-row .done-copy { font-weight: 800; }
 .done-row .done-copy small { display: block; color: var(--muted); font-weight: 600; }
-.done-row .link-btn { min-height: 44px; padding: 0 12px; border: 0; background: transparent; color: var(--plum-deep); font-weight: 800; }
+.done-row .link-btn { min-height: 48px; padding: 0 12px; border: 0; background: transparent; color: var(--plum-deep); font-weight: 800; }
 
 .step-panel { margin: 14px 0 6px; }
 .step-title { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; font-size: 1.08rem; font-weight: 900; }
@@ -611,7 +605,7 @@ button:disabled { cursor: not-allowed; opacity: 0.58; }
 .default-row + .default-row { border-top: 1px solid var(--line); }
 .default-row .default-label { color: var(--muted); font-size: 0.9rem; font-weight: 700; }
 .default-row .default-value { font-weight: 800; }
-.default-row .link-btn { margin-left: auto; min-height: 44px; padding: 0 10px; border: 0; background: transparent; color: var(--plum-deep); font-weight: 800; }
+.default-row .link-btn { margin-left: auto; min-height: 48px; padding: 0 10px; border: 0; background: transparent; color: var(--plum-deep); font-weight: 800; }
 .default-expand { width: 100%; padding: 4px 0 10px; }
 
 /* 시간 선택: 큰 현재 값 + 빠른 칩 + 바꾸기 패널 */
@@ -743,9 +737,9 @@ button:disabled { cursor: not-allowed; opacity: 0.58; }
 /* 되돌리기 toast 버튼 */
 .toast { pointer-events: none; }
 .toast .undo-btn {
-  pointer-events: auto;
+  pointer-events: none;
   margin-left: 10px;
-  min-height: 44px;
+  min-height: 48px;
   padding: 4px 14px;
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 12px;
@@ -753,4 +747,24 @@ button:disabled { cursor: not-allowed; opacity: 0.58; }
   color: #fff;
   font-weight: 900;
 }
-.toast.show { pointer-events: auto; }
+.toast.show .undo-btn { pointer-events: auto; } /* 표시 중일 때만 버튼 클릭 허용 */
+
+
+/* ── V7: 오류·복구·터치 타겟 ── */
+.field-error { margin: 6px 0 0; color: var(--sun); font-size: 0.9rem; font-weight: 800; }
+.recovery-banner {
+  margin: 0 0 14px;
+  padding: 16px;
+  border: 1.5px solid var(--amber);
+  border-radius: var(--r);
+  background: #fdf6e7;
+}
+.recovery-banner strong { display: block; margin-bottom: 4px; }
+.recovery-banner p { margin: 0 0 10px; color: var(--muted); font-size: 0.92rem; }
+
+/* 320~360px: 달력을 화면 가장자리까지 펼쳐 날짜 셀 실측 44px+ 확보 (C-01) */
+@media (max-width: 360px) {
+  /* 날짜 셀 실측 44px+ 확보: 좌우 여백을 걷고 간격 1px (C-01) */
+  .weekday-row, .calendar-grid { margin-left: -12px; margin-right: -12px; gap: 1px; }
+  .day-cell { border-radius: 10px; }
+}

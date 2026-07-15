@@ -1,0 +1,39 @@
+# 캘린더봄 PR 검증: 단위 + 정적 + E2E(Chromium·WebKit)
+name: calendarbom CI
+
+on:
+  pull_request:
+    paths:
+      - "apps/calendarbom/**"
+      - ".github/workflows/calendarbom-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/calendarbom
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: 단위 테스트 + 정적 검증
+        run: npm test
+      - name: Playwright 브라우저 설치
+        run: npx playwright install --with-deps chromium webkit
+      - name: E2E (Chromium)
+        run: npm run test:e2e
+      - name: E2E (WebKit)
+        run: BROWSER=webkit node scripts/e2e.mjs
+      - name: 실패 스크린샷 업로드
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calendarbom-e2e-screenshots
+          path: apps/calendarbom/screenshots/
+          if-no-files-found: ignore

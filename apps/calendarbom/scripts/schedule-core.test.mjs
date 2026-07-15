@@ -194,3 +194,126 @@ test("날짜 산술 보조: addDays·diffDays", () => {
   assert.equal(core.addDays("2026-03-01", -1), "2026-02-28");
   assert.equal(core.diffDays("2026-07-15", "2026-07-18"), 3);
 });
+
+// ── V7 GATE A 회귀 ──
+
+test("A-01: 같은 내용이라도 새 ID는 서로 다르다(난수 UUID)", () => {
+  const a = core.normalizeSeries({ title: "병원", date: "2026-07-20", kind: "hospital", slots: [{ time: "15:00", reminders: [0] }] });
+  const b = core.normalizeSeries({ title: "병원", date: "2026-07-20", kind: "hospital", slots: [{ time: "15:00", reminders: [0] }] });
+  assert.notEqual(a.id, b.id);
+  const p1 = core.normalizePerson({ name: "민수" });
+  const p2 = core.normalizePerson({ name: "민수" });
+  assert.notEqual(p1.id, p2.id); // 이름 같은 사람 두 명 허용
+  // 기존 ID는 그대로 유지되고 normalize를 반복해도 불변
+  const kept = core.normalizeSeries({ id: "sr-keep", title: "x", date: "2026-07-20" });
+  assert.equal(core.normalizeSeries(kept).id, "sr-keep");
+});
+
+test("A-01: v2 문서의 중복 series ID는 첫 항목만 유지하고 재부여한다", () => {
+  const data = core.normalizeData({
+    version: 2,
+    series: [
+      { id: "dup", title: "엄마 병원", date: "2026-07-20", slots: [{ time: "10:00", reminders: [0] }] },
+      { id: "dup", title: "아빠 병원", date: "2026-07-20", slots: [{ time: "10:00", reminders: [0] }] },
+    ],
+    statuses: { "dup@2026-07-20#0": { state: "done", at: 1 } },
+  });
+  assert.equal(data.series.length, 2);
+  assert.equal(data.series[0].id, "dup");
+  assert.notEqual(data.series[1].id, "dup");
+  assert.equal(data.idReassigned, 1);
+  assert.equal(data.statuses["dup@2026-07-20#0"].state, "done"); // 상태는 첫 항목 소유로 보존
+});
+
+test("A-05: 7일 전·30일 전 알림이 월·연 경계를 넘어 발화한다", () => {
+  const seven = core.normalizeSeries({
+    id: "sr-7", kind: "anniversary", title: "생일", date: "2026-07-22",
+    slots: [{ time: null, reminders: [] }], allDayReminders: [{ daysBefore: 7, time: "09:00" }], repeat: { freq: "yearly" },
+  });
+  const data = { ...core.emptyData(), series: [seven] };
+  const fires = core.upcomingFires(data, NOW, 1); // 오늘 15일 → 발생일 22일은 지평선 밖이지만 7일 전 발화는 오늘
+  assert.equal(fires.length, 1);
+  assert.deepEqual([new Date(fires[0].at).getDate(), new Date(fires[0].at).getHours()], [15, 9]);
+
+  const yearEnd = core.normalizeSeries({
+    id: "sr-ny", kind: "anniversary", title: "새해", date: "2027-01-10",
+    slots: [{ time: null, reminders: [] }], allDayReminders: [{ daysBefore: 30, time: "09:00" }], repeat: { freq: "once" },
+  });
+  const dec = new Date(2026, 11, 11, 6, 0).getTime(); // 12/11 → 30일 전 발화는 12/11
+  const nyFires = core.upcomingFires({ ...core.emptyData(), series: [yearEnd] }, dec, 1);
+  assert.equal(nyFires.length, 1);
+  assert.equal(new Date(nyFires[0].at).getMonth(), 11); // 12월(연 경계 통과)
+});
+
+test("A-06: 하루 종일 복수 알림 — 중복 제거·최대 3개·전부 발화", () => {
+  const series = core.normalizeSeries({
+    id: "sr-multi", kind: "anniversary", title: "기념일", date: "2026-07-25",
+    slots: [{ time: null, reminders: [] }],
+    allDayReminders: [
+      { daysBefore: 7, time: "09:00" }, { daysBefore: 1, time: "09:00" }, { daysBefore: 0, time: "09:00" },
+      { daysBefore: 1, time: "09:00" }, { daysBefore: 0, time: "20:00" },
+    ],
+    repeat: { freq: "once" },
+  });
+  assert.equal(series.allDayReminders.length, 3); // 중복 1개 제거 후 최대 3개
+  const data = { ...core.emptyData(), series: [series] };
+  const fires = core.upcomingFires(data, NOW, 10); // 7/18(7일 전)·7/24(하루 전)·7/25(당일)
+  assert.equal(fires.length, 3);
+  const lines = core.seriesSummaryLines(data, series);
+  assert.equal(lines.some((l) => l.includes("7일 전") && l.includes("하루 전") && l.includes("당일")), true);
+});
+
+test("A-07: 슬롯별 시간 override 는 해당 슬롯만 바꾼다", () => {
+  const med = core.normalizeSeries({
+    id: "sr-slot", kind: "medication", title: "약", date: "2026-07-15",
+    slots: [{ label: "아침", time: "08:00", reminders: [0] }, { label: "저녁", time: "19:00", reminders: [0] }],
+    repeat: { freq: "daily" },
+    overrides: { "2026-07-16": { times: { 1: "21:00" } } },
+  });
+  const occs = core.occurrencesInRange([med], "2026-07-16", "2026-07-16");
+  assert.equal(occs[0].time, "08:00"); // 아침 유지
+  assert.equal(occs[1].time, "21:00"); // 저녁만 변경
+  // v2 형식 {time} 은 슬롯 0 으로 흡수
+  const legacy = core.normalizeSeries({ id: "sr-legacy", title: "x", date: "2026-07-15", slots: [{ time: "09:00", reminders: [] }], overrides: { "2026-07-16": { time: "10:00" } } });
+  assert.equal(legacy.overrides["2026-07-16"].times[0], "10:00");
+});
+
+test("A-08: 전체 상태 백업 왕복(statuses·settings·recents 포함)", () => {
+  const data = core.emptyData();
+  data.people.push(core.normalizePerson({ id: "p-1", name: "엄마", relation: "가족", createdAt: 1 }));
+  data.series.push(makeSeries({ id: "sr-full", personId: "p-1" }));
+  data.statuses["sr-full@2026-07-20#0"] = { state: "done", at: 5 };
+  data.recents.push({ label: "병원", snapshot: { template: "hospital" }, savedAt: 1 });
+  data.settings.fontScale = "xl";
+  const back = core.importParsed(JSON.parse(core.exportJSON(data, "t", "0.3.0")), NOW);
+  assert.equal(back.series.length, 1);
+  assert.equal(back.people[0].relation, "가족");
+  assert.equal(back.statuses["sr-full@2026-07-20#0"].state, "done");
+  assert.equal(back.recents.length, 1);
+  assert.equal(back.settings.fontScale, "xl");
+});
+
+test("B-10: 지문(fingerprint)은 대상이 다르면 다르다", () => {
+  const mom = makeSeries({ id: "a", personId: "p-mom", title: "병원" });
+  const dad = makeSeries({ id: "b", personId: "p-dad", title: "병원" });
+  assert.notEqual(core.fingerprint(mom), core.fingerprint(dad));
+  assert.notEqual(core.importKey(mom), core.importKey(dad));
+  const same = makeSeries({ id: "c", personId: "p-mom", title: "병원" });
+  assert.equal(core.importKey(mom), core.importKey(same));
+});
+
+test("B-06: 시간대 라벨 제안", () => {
+  assert.equal(core.slotLabelForTime("08:00"), "아침");
+  assert.equal(core.slotLabelForTime("13:00"), "점심");
+  assert.equal(core.slotLabelForTime("16:00"), "낮");
+  assert.equal(core.slotLabelForTime("19:30"), "저녁");
+  assert.equal(core.slotLabelForTime("22:00"), "자기 전");
+  assert.equal(core.slotLabelForTime("03:00"), "자기 전");
+});
+
+test("A-04: normalize 는 once 반복을 강제로 바꾸지 않는다", () => {
+  const med = core.normalizeSeries({ kind: "medication", title: "감기약", date: "2026-07-15", slots: [{ time: "08:00", reminders: [0] }], repeat: { freq: "once" } });
+  assert.equal(med.repeat.freq, "once");
+  const until = core.normalizeSeries({ kind: "medication", title: "항생제", date: "2026-07-15", slots: [{ time: "08:00", reminders: [0] }], repeat: { freq: "daily", until: "2026-07-21" } });
+  assert.equal(until.repeat.until, "2026-07-21");
+});

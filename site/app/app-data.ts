@@ -128,7 +128,7 @@ export const familyApps: readonly FamilyApp[] = [
     status: "live",
     statusLabel: "운영 중",
     accessLabel: "웹으로 이용",
-    version: "0.2.0",
+    version: "0.3.0",
     // robom-labs/calendarbom 저장소 생성 전까지 본사 Pages 아래 임시 경로로 운영한다.
     webUrl: "https://robom-labs.github.io/robom/calendarbom/",
     hubPath: "/apps/calendarbom",

@@ -1,4 +1,7 @@
-# FINAL-TRACEABILITY-V6 — 요구사항 추적표 (v0.2.0)
+# FINAL-TRACEABILITY-V6 — 요구사항 추적표 (v0.2.0) [대체됨]
+
+> 2차 심층 감사 재분류에 따라 이 표는 **FINAL-TRACEABILITY-V7.md 로 대체**되었다.
+> 감사가 재분류한 항목(SIMPLE-002·008, FLOW-006, PERSON-003, MED-005~008, ANNIV-009·010·012, DATA-004·005, SHARE-003, A11Y-001·006, QA-003)은 V7 표의 대응 ID 에서 수정·재검증되었다.
 
 증거 규칙: 코드 파일 + 테스트 이름(또는 E2E 체크 문구) + 스크린샷이 있어야 PASS.
 테스트: `npm test`(unit 31 + validate) · `node scripts/e2e.mjs screenshots/final`(E2E 60항목, 2026-07-15 실행 로그).

@@ -73,7 +73,7 @@ apps:
     name: 캘린더봄
     english_name: CalendarBom
     status: live
-    version: 0.2.0
+    version: 0.3.0
     version_source: https://raw.githubusercontent.com/robom-labs/robom/main/apps/calendarbom/package.json
     healthcheck_url: https://robom-labs.github.io/robom/calendarbom/
     privacy_url: https://robom.kr/privacy/calendarbom

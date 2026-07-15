@@ -15,10 +15,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 본사에 앱 소스 사본이 없는지 확인
+        # 예외: robom-labs/calendarbom 저장소 생성 권한 부재(GitHub App 403)로
+        # 캘린더봄을 사용자 승인 하에 본사 apps/calendarbom 에 임시 호스팅한다
+        # (ops/HUMAN-TASKS.md). 정식 저장소로 이전이 끝나면 이 예외를 제거하고
+        # 앱 수 검사를 3으로 되돌린다.
         run: |
-          test ! -d apps || { echo "::error::robom에는 앱 소스 사본을 둘 수 없습니다."; exit 1; }
+          if [ -d apps ]; then
+            extra="$(find apps -mindepth 1 -maxdepth 1 -type d ! -name calendarbom)"
+            [ -z "$extra" ] || { echo "::error::robom에는 앱 소스 사본을 둘 수 없습니다(허용 예외: apps/calendarbom). 발견: $extra"; exit 1; }
+          fi
           test -f ops/registry/apps.yml || { echo "::error::앱 registry가 없습니다."; exit 1; }
-          ruby -e 'require "yaml"; data=YAML.load_file("ops/registry/apps.yml"); apps=data.fetch("apps"); abort "앱 3개가 필요합니다" unless apps.size == 3; apps.each { |app| %w[id name repo test build].each { |key| abort "#{app["id"]}: #{key} 누락" unless app.key?(key) }; abort "조직 불일치: #{app["repo"]}" unless app["repo"].start_with?("robom-labs/") }; puts apps.map { |app| "#{app["name"]}=#{app["repo"]}" }.join("\n")'
+          ruby -e 'require "yaml"; data=YAML.load_file("ops/registry/apps.yml"); apps=data.fetch("apps"); abort "앱 4개가 필요합니다(임시 호스팅 calendarbom 포함)" unless apps.size == 4; apps.each { |app| %w[id name repo test build].each { |key| abort "#{app["id"]}: #{key} 누락" unless app.key?(key) }; abort "조직 불일치: #{app["repo"]}" unless app["repo"].start_with?("robom-labs/") }; puts apps.map { |app| "#{app["name"]}=#{app["repo"]}" }.join("\n")'
 
   site:
     runs-on: ubuntu-latest

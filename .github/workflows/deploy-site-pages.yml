@@ -24,7 +24,36 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # 캘린더봄 자체 테스트가 실패하면 Pages 배포를 막는다 (V7 §7)
+  verify-calendarbom:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/calendarbom
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: 단위 테스트 + 정적 검증
+        run: npm test
+      - name: Playwright 브라우저 설치
+        run: npx playwright install --with-deps chromium webkit
+      - name: E2E (Chromium)
+        run: npm run test:e2e
+      - name: E2E (WebKit)
+        run: BROWSER=webkit node scripts/e2e.mjs
+      - name: 실패 스크린샷 업로드
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calendarbom-e2e-screenshots
+          path: apps/calendarbom/screenshots/
+          if-no-files-found: ignore
+
   build:
+    needs: verify-calendarbom
     runs-on: ubuntu-latest
     defaults:
       run:

@@ -6,7 +6,7 @@
 - 현재 운영 주소(임시): https://robom-labs.github.io/robom/calendarbom/
   — `robom-labs/calendarbom` 저장소 생성 전까지 본사 Pages 아래에서 운영합니다(`ops/HUMAN-TASKS.md`).
 - 정식 목표 주소: https://robom-labs.github.io/calendarbom/
-- 현재 버전: **v0.2.0** (`app/sw.js` 의 `calendarbom-v0.2.0` 과 일치)
+- 현재 버전: **v0.3.0** (`app/sw.js` 의 `calendarbom-v0.3.0` 과 일치)
 
 ## 누구를 위한 앱인가
 
