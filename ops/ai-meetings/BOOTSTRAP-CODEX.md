@@ -10,6 +10,22 @@
 
 세 작업에 루트 `AGENTS.md`, `robom-company-hub` 스킬, 휴대 사용자 지침, 운영 프로토콜, 회사 모드, 각 방 프롬프트, 앱 등록부, 비공개 회의록 연결을 적용하고 사이드바에 고정한다.
 
+## 회사 PC 복붙용 실행 프롬프트
+
+회사 PC의 Codex에서 새 채팅 하나를 만들고 아래 내용을 한 번 붙여넣는다.
+
+```text
+회사 PC용 로봄 01·02·03 전체 복원 작업이다.
+
+먼저 `$skill-installer`를 사용해 공개 GitHub `robom-labs/robom`의 `main`에 있는 `.agents/skills/robom-company-hub`를 사용자 스킬로 설치해. 이미 같은 이름의 스킬이 있으면 삭제하거나 덮어쓰지 말고 GitHub `main`의 최신 스킬을 이번 실행에 직접 적용해.
+
+설치 여부와 관계없이 같은 turn에서 GitHub `robom-labs/robom`의 `AGENTS.md`, `ops/ai-meetings/CODEX-HUB.md`, `.agents/skills/robom-company-hub/SKILL.md`, `.agents/skills/robom-company-hub/references/portable-user-guidance.md`, `ops/ai-meetings/BOOTSTRAP-CODEX.md`를 완독하고 부트스트랩 절차를 즉시 실행해.
+
+이 요청은 현재 Codex 호스트에서 기존 로봄 01·02·03 작업 검색, 보관 해제, 없는 작업 생성, 정확한 제목 설정, 각 팀 전체 지침과 비공개 회의록 초기화, 세 작업 고정, 마지막에 02팀 작업 열기를 명시적으로 승인한다.
+
+같은 제목의 작업은 중복 생성하지 마. 과거 로컬 대화가 없어도 질문하지 말고 GitHub 허브를 정본으로 복원해. 비공개 회의록 접근이 안 되면 공개 허브 복원은 계속하고 마지막에 필요한 GitHub 연결 행동만 한 줄로 알려줘. 완료 후 세 작업의 생성 또는 복원 상태, 고정 상태, 허브 스킬 상태, 비공개 회의록 접근 여부만 보고해.
+```
+
 ## 사용자 승인 범위
 
 이 부트스트랩을 실행하라는 사용자 메시지는 다음 작업을 명시적으로 승인한다.
