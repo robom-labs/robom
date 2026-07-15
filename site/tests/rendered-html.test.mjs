@@ -138,7 +138,7 @@ test("keeps registry URLs and versions aligned with rendered data", async () => 
     "0.24.0",
     "0.12.0",
     "0.16.0",
-    "0.1.0",
+    "0.2.0",
     "https://robom-labs.github.io/outbom/",
     "https://robom-labs.github.io/homebom/",
     "https://robom-labs.github.io/runningbom/",

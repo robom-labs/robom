@@ -128,7 +128,7 @@ export const familyApps: readonly FamilyApp[] = [
     status: "live",
     statusLabel: "운영 중",
     accessLabel: "웹으로 이용",
-    version: "0.1.0",
+    version: "0.2.0",
     // robom-labs/calendarbom 저장소 생성 전까지 본사 Pages 아래 임시 경로로 운영한다.
     webUrl: "https://robom-labs.github.io/robom/calendarbom/",
     hubPath: "/apps/calendarbom",
@@ -137,7 +137,7 @@ export const familyApps: readonly FamilyApp[] = [
     heroTitle: "날짜를 누르면, 알람까지 끝.",
     heroBody: "글씨가 큰 달력을 펼쳐 두고, 병원과 약속과 가족의 날을 버튼 몇 번으로 담아 그 시간이 오기 전에 대신 일러드립니다.",
     metrics: [
-      { value: "4번", label: "터치로 저장" },
+      { value: "결정 2개", label: "일반 일정 저장" },
       { value: "3단계", label: "큰 글자" },
       { value: "기기 안", label: "개인 보관" },
     ],

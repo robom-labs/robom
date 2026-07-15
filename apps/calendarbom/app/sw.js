@@ -1,14 +1,15 @@
 // 캘린더봄 앱 셸 캐시와 알림 클릭 처리를 담당하는 서비스워커.
-const CACHE_NAME = "calendarbom-v0.1.0";
+const CACHE_NAME = "calendarbom-v0.2.0";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./styles.css?v=20260715-01",
-  "./calendar-core.js?v=20260715-01",
-  "./alarm-core.js?v=20260715-01",
-  "./ics-core.js?v=20260715-01",
-  "./app.js?v=20260715-01",
-  "./bom-calendarbom.svg?v=20260715-01",
+  "./styles.css?v=20260715-02",
+  "./calendar-core.js?v=20260715-02",
+  "./alarm-core.js?v=20260715-02",
+  "./ics-core.js?v=20260715-02",
+  "./schedule-core.js?v=20260715-02",
+  "./app.js?v=20260715-02",
+  "./bom-calendarbom.svg?v=20260715-02",
   "./manifest.webmanifest",
   "./icon-v2.svg",
   "./apple-touch-icon-v2.png",

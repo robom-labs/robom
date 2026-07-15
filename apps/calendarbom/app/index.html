@@ -19,7 +19,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-    <link rel="stylesheet" href="./styles.css?v=20260715-01" />
+    <link rel="stylesheet" href="./styles.css?v=20260715-02" />
   </head>
   <body>
     <div class="app-shell">
@@ -30,7 +30,7 @@
             <span class="brand-title">
               <span class="brand-wordmark" aria-hidden="true">
                 <strong class="brand-prefix">캘린더</strong>
-                <img class="brand-bom" src="./bom-calendarbom.svg?v=20260715-01" alt="" />
+                <img class="brand-bom" src="./bom-calendarbom.svg?v=20260715-02" alt="" />
               </span>
             </span>
             <small>robom · 날짜를 누르고, 잊지 않게</small>
@@ -175,60 +175,25 @@
       </nav>
     </div>
 
-    <!-- 날짜 시트: 그날의 일정 확인 + 키보드 없는 빠른 추가(내용 → 시간 → 알람 → 저장) -->
+    <!-- 날짜 시트: 완료한 선택은 한 줄 요약으로 접히고, 지금 필요한 질문 하나만 펼쳐진다. -->
     <div class="sheet-backdrop" id="daySheet" hidden>
       <section class="day-sheet" role="dialog" aria-modal="true" aria-labelledby="sheetDateTitle">
         <button class="modal-close" type="button" id="sheetCloseButton" aria-label="닫기">×</button>
-        <span class="section-kicker">일정</span>
+        <span class="section-kicker" id="sheetKicker">일정</span>
         <h2 id="sheetDateTitle">날짜</h2>
-
-        <div class="sheet-existing" id="sheetExisting" hidden>
-          <strong class="sheet-step-title">이 날의 일정</strong>
-          <div class="sheet-event-list" id="sheetEventList"></div>
+        <div id="sheetBody" aria-live="polite"></div>
+        <div class="sheet-sticky" id="sheetSticky" hidden>
+          <p class="sheet-preview" id="sheetPreview"></p>
+          <button class="primary-btn" type="button" id="sheetSaveButton">저장하기</button>
         </div>
-
-        <form id="quickAddForm">
-          <fieldset class="sheet-step">
-            <legend class="sheet-step-title"><span class="step-no" aria-hidden="true">1</span>무엇을 하나요?</legend>
-            <div class="chip-grid" id="titleChipGrid"></div>
-            <div class="custom-title-row" id="customTitleRow" hidden>
-              <label class="visually-hidden" for="customTitleInput">일정 이름 직접 입력</label>
-              <input id="customTitleInput" type="text" maxlength="40" placeholder="예: 손주 입학식" autocomplete="off" />
-            </div>
-          </fieldset>
-
-          <fieldset class="sheet-step">
-            <legend class="sheet-step-title"><span class="step-no" aria-hidden="true">2</span>몇 시에 하나요?</legend>
-            <div class="chip-grid time-mode-grid" id="allDayGrid">
-              <button class="chip" type="button" id="allDayChip" aria-pressed="false">시간 없이 (하루 종일)</button>
-            </div>
-            <div class="time-picker" id="timePicker">
-              <div class="ampm-grid" id="ampmGrid" role="group" aria-label="오전 오후 선택">
-                <button class="chip" type="button" data-ampm="am" aria-pressed="false">오전</button>
-                <button class="chip" type="button" data-ampm="pm" aria-pressed="true">오후</button>
-              </div>
-              <div class="hour-grid" id="hourGrid" role="group" aria-label="시 선택"></div>
-              <div class="minute-grid" id="minuteGrid" role="group" aria-label="분 선택"></div>
-            </div>
-          </fieldset>
-
-          <fieldset class="sheet-step" id="reminderStep">
-            <legend class="sheet-step-title"><span class="step-no" aria-hidden="true">3</span>언제 알려드릴까요?</legend>
-            <div class="chip-grid" id="reminderGrid" role="group" aria-label="알람 시점 선택 (여러 개 선택 가능)"></div>
-          </fieldset>
-
-          <p class="sheet-preview" id="sheetPreview" aria-live="polite"></p>
-          <div class="modal-actions">
-            <button class="primary-btn" type="submit" id="sheetSaveButton">저장하기</button>
-          </div>
-        </form>
       </section>
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="./calendar-core.js?v=20260715-01"></script>
-    <script src="./alarm-core.js?v=20260715-01"></script>
-    <script src="./ics-core.js?v=20260715-01"></script>
-    <script src="./app.js?v=20260715-01"></script>
+    <script src="./calendar-core.js?v=20260715-02"></script>
+    <script src="./alarm-core.js?v=20260715-02"></script>
+    <script src="./schedule-core.js?v=20260715-02"></script>
+    <script src="./ics-core.js?v=20260715-02"></script>
+    <script src="./app.js?v=20260715-02"></script>
   </body>
 </html>
