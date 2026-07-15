@@ -60,7 +60,7 @@ test("server-renders the Robom family hub", async () => {
   assert.match(html, /이번 달 접수 일정/);
   assert.match(html, /곧 열리는 대회 접수/);
   assert.match(html, /우리 가족 일정 알람/);
-  assert.match(html, /공식 시험 일정과 준비물/);
+  assert.match(html, /현재 접수와 97개 시험/);
   assert.match(html, /야외봄/);
   assert.match(html, /청약봄/);
   assert.match(html, /러닝봄/);
@@ -108,7 +108,7 @@ test("serves stable app, support, policy and license routes", async () => {
     ["/apps/homebom", "청약봄 | 특별공급·1순위·무순위 청약 일정", "특별공급·1순위·2순위·무순위·재공급의 접수와 발표·계약 일정을 달력과 알림으로 확인하세요."],
     ["/apps/runningbom", "러닝봄 | 마라톤 대회 접수 일정과 알림", "전국 마라톤·러닝 대회를 지역과 거리로 찾고, 공식 접수 일정과 시작 알림을 확인하세요."],
     ["/apps/calendarbom", "캘린더봄 | 큰 달력과 쉬운 알람", "큰 월간 달력에서 날짜를 누르고, 키보드 없이 버튼만으로 병원·약·가족 일정을 알람으로 챙기세요."],
-    ["/apps/certbom", "자격증봄 | 자격증 시험 일정·준비물·추천", "공식 출처로 자격증 시험 일정과 준비물을 확인하고, 질문 5개로 내게 맞는 시험 3개와 추천 이유를 받아보세요."],
+    ["/apps/certbom", "자격증봄 | 자격증 시험 일정·준비물·추천", "공식 출처 8곳의 자격증 시험 97개와 2026 일정을 확인하고, 현재 접수 중인 시험과 내게 맞는 추천을 받아보세요."],
     ["/support", "고객 지원"],
     ["/privacy", "개인정보처리방침"],
     ["/privacy/outbom", "야외봄 개인정보처리방침"],
@@ -145,7 +145,7 @@ test("keeps registry URLs and versions aligned with rendered data", async () => 
     "0.13.0",
     "0.16.0",
     "0.3.0",
-    "0.4.1",
+    "0.5.0",
     "https://robom-labs.github.io/outbom/",
     "https://robom-labs.github.io/homebom/",
     "https://robom-labs.github.io/runningbom/",

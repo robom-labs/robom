@@ -97,7 +97,7 @@ apps:
     name: 자격증봄
     english_name: CertBom
     status: live
-    version: 0.4.1
+    version: 0.5.0
     version_source: https://raw.githubusercontent.com/robom-labs/certbom/main/package.json
     healthcheck_url: https://certbom.vercel.app/
     privacy_url: https://robom.kr/privacy/certbom
@@ -111,4 +111,4 @@ apps:
     base_path: /
     current_url: https://certbom.vercel.app/
     url: https://certbom.vercel.app/
-    marketing_tone: "공식 시험 일정과 준비물을 확인하고 내게 맞는 자격증을 추천받는 앱"
+    marketing_tone: "97개 시험에서 현재 접수와 2026 공식 일정을 먼저 찾고 내게 맞는 자격증을 추천받는 앱"
