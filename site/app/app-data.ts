@@ -72,7 +72,7 @@ export const familyApps: readonly FamilyApp[] = [
     status: "live",
     statusLabel: "운영 중",
     accessLabel: "웹으로 이용",
-    version: "0.12.0",
+    version: "0.13.0",
     webUrl: "https://robom-labs.github.io/homebom/",
     hubPath: "/apps/homebom",
     tone: "home",

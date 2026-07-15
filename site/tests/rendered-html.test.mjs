@@ -142,7 +142,7 @@ test("keeps registry URLs and versions aligned with rendered data", async () => 
 
   for (const value of [
     "0.24.0",
-    "0.12.0",
+    "0.13.0",
     "0.16.0",
     "0.3.0",
     "0.4.1",
