@@ -214,6 +214,8 @@ test("prerenders subpath-safe links and PWA assets for the Pages preview", async
   assert.match(script, /replaceAll\('src="\//);
   assert.match(script, /modulepreload/);
   assert.match(script, /application\\\/ld\\\+json/);
+  assert.match(script, /"\/apps\/certbom"/);
+  assert.match(script, /"\/privacy\/certbom"/);
   assert.equal(JSON.parse(manifest).start_url, "./");
   assert.equal(JSON.parse(manifest).scope, "./");
 });
