@@ -2,7 +2,7 @@
 
 이 표가 V6 추적표를 대체한다(감사 재분류 반영). 증거 없는 PASS 금지.
 증거 표기: 코드(파일) / U(단위 테스트 이름) / E(E2E 체크 문구) / S(스크린샷) / M(수동 확인).
-실행 명령: `npm run test:all` (단위 33 + 정적 검증 + E2E Chromium ~75항목, 2026-07-15). WebKit은 CI에서 실행.
+실행 명령: `npm run test:all` (단위 33 + 정적 검증 + E2E Chromium ~81항목, 2026-07-15). WebKit은 CI에서 실행.
 
 ## GATE A
 
@@ -15,7 +15,7 @@
 | A-05 | 사전 알림 horizon(7/14/30일·월·연 경계) | schedule-core maxReminderLeadDays/upcomingFires · U "A-05" (7일·30일·연 경계) | PASS |
 | A-06 | allDayReminders[] 최대 3·중복 제거·요약 표시·이전 흡수 | normalizeSeries · U "A-06" · 확인 패널 복수 토글(코드) | PASS |
 | A-07 | 약 슬롯별 수정(라벨·시간·범위)·orphan 정리·reload 보존 | overrides.times · U "A-07" · E "A-07 저녁만 바뀌고 아침 유지" | PASS (슬롯 개수 변경은 전체 [수정]에서 — 오늘만 범위는 시간 변경에 한정, 코드 주석·아래 한계 참조) |
-| A-08 | 전체 백업(statuses·settings·recents)·합치기/교체·fingerprint | exportJSON/importParsed/openImportChoice · U "A-08 왕복"·"B-10 지문" · UI(코드) | PASS (교체/합치기 UI는 코드+수동 확인 M — E2E 파일 업로드 시나리오는 DEFERRED) |
+| A-08 | 전체 백업(statuses·settings·recents)·합치기/교체·fingerprint | exportJSON/importParsed/openImportChoice · U "A-08 왕복"·"B-10 지문" · E "A-08 업로드→합치기→중복 방지" 3건(setInputFiles) | PASS (교체 경로는 코드+수동 확인 M — 교체 전 자동 백업 내려받기 포함) |
 | A-09 | 권한별 저장 문구·첫 알람 안내·일정 보존 | saveDraft · E "A-09" 3건(granted 스텁+denied 실측) | PASS (granted 는 헤드리스 한계로 permission 값 스텁 — 실기기 확인은 사람 작업) |
 | A-10 | 전달 후 notified·스누즈 정리·delivery/completion 구분 | fireAlarm(async) · 코드 + U 스누즈 발화 | PASS (브라우저 알림 표시 실측은 헤드리스 불가 — M/BLOCKED 각주) |
 
@@ -32,7 +32,7 @@
 | B-07 | 미래 예정·기록 버튼 없음·건너뜀 문구·멱등 | medDayRow/alertCard · E "B-07" 2건 | PASS (행 단위 접기 대신 미래 숨김+행별 버튼 유지 — 한 줄 이내라 과밀 없음, S 05) |
 | B-08 | 다음 일정 중복 제거·약 날짜 묶음 | renderAlerts · E "B-08" | PASS |
 | B-09 | 전체 편집(날짜·제목·시간·장소·메모·대상) + 반복 범위 | edit-full+확인 패널 편집 행 · E "B-09 제목 변경" | PARTIAL — 반복 전체 교체만 지원(2회 저장 확인), '오늘만/앞으로' 전체-필드 편집은 시간 변경 경로로 한정. 기념일은 삭제 후 재생성 안내 |
-| B-10 | copy/recent/next 의미 분리·fingerprint dedupe | snapshotOfSeries(mode)·pushRecent · U "B-10" | PASS ("이 날짜만 복사"는 DEFERRED) |
+| B-10 | copy/recent/next 의미 분리·fingerprint dedupe·이 날짜만 복사 | snapshotOfSeries(mode)·pushRecent·copy-once · U "B-10" · E "B-10 이 날만 복사" 3건(once 저장·원본 반복 유지) | PASS |
 | B-11 | 0단계 초안·schema·이어서/새로 시작·24h 폐기 | closeDaySheet/openDaySheet · E "B-11" 2건 | PASS |
 | B-12 | 공유: 약 전체 시간·반복 요약·슬롯별 ICS UID | shareText/share-ics · E 공유 + 코드 | PASS |
 | B-13 | 생활 일정은 기존 단계 안에서(공과금 매월 제안) | TODO_PRESETS+monthly · 코드 | PASS (여행·기간 일정 DEFERRED 유지) |
@@ -72,4 +72,5 @@
 
 ## 요약
 
-PASS 33 · PARTIAL 1 (B-09 반복 범위 전체 한정) · DEFERRED 3 (이 날짜만 복사, 가져오기 파일 업로드 E2E, 기간 일정) · BLOCKED 2 (65+ 실사용, 로그인·네이티브).
+PASS 33 · PARTIAL 1 (B-09 반복 범위 전체 한정) · DEFERRED 1 (기간 일정) · BLOCKED 2 (65+ 실사용, 로그인·네이티브).
+후속 해소(2026-07-15): "이 날짜만 복사"와 "가져오기 파일 업로드 E2E"는 구현·검증 완료로 DEFERRED 에서 제외.

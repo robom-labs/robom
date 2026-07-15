@@ -335,6 +335,23 @@ await page.locator('#sheetBody [data-act="delete"]').click();
 await page.locator("#undoButton").click();
 check("삭제 되돌리기", (await page.locator(`#calendarGrid [data-date="${dayD}"] .day-dots i`).count()) >= 1);
 
+// ── B-10: 이 날짜만 복사 (반복 원본 유지, once 사본) ──
+const dayG = dateKeyOffset(9);
+await page.locator(`#calendarGrid [data-date="${dayB}"]`).first().click();
+await page.locator("#sheetBody button.event-row", { hasText: "엄마 약" }).first().click();
+check("B-10: 반복 상세에 '이 날만 복사' 제공", (await page.locator('#sheetBody [data-act="copy-once"]').count()) === 1);
+await page.locator('#sheetBody [data-act="copy-once"]').click();
+check("B-10: 복사할 날짜 안내", (await page.locator("#toast").innerText()).includes("복사해 넣을 날짜"));
+await page.locator(`#calendarGrid [data-date="${dayG}"]`).first().click();
+await page.waitForSelector("#daySheet:not([hidden])");
+await page.locator("#sheetSaveButton").click();
+check("B-10: 이 날만 복사는 once 저장·원본 매일 유지", await page.evaluate(([d]) => {
+  const data = JSON.parse(localStorage.getItem("calendarbom:data:v2"));
+  const copies = data.series.filter((s) => s.title === "엄마 약" && s.date === d);
+  const original = data.series.find((s) => s.title === "엄마 약" && s.repeat.freq === "daily");
+  return copies.length === 1 && copies[0].repeat.freq === "once" && copies[0].slots.length === 2 && Boolean(original);
+}, [dayG]));
+
 const dayF = dateKeyOffset(7);
 await page.locator(`#calendarGrid [data-date="${dayF}"]`).first().click();
 if ((await page.locator('#sheetBody [data-template="meeting"]').count()) === 0) await page.locator("#sheetBody [data-more-templates]").click();
@@ -391,6 +408,33 @@ check("아주 크게 무가로스크롤", (await page.evaluate(() => document.sc
 await page.locator('.mobile-tab[data-view="settings"]').click();
 await page.locator('.font-scale-btn[data-font="normal"]').click();
 await page.locator('.mobile-tab[data-view="calendar"]').click();
+
+// ── A-08: 백업 파일 업로드 → 합치기 + importKey 중복 방지 ──
+const importDay = dateKeyOffset(12);
+const importFile = {
+  name: "calendarbom-backup.json",
+  mimeType: "application/json",
+  buffer: Buffer.from(JSON.stringify({
+    version: 3,
+    series: [{ title: "치과 검진", kind: "hospital", date: importDay, slots: [{ time: "10:00", reminders: [0] }], repeat: { freq: "once" }, createdAt: 1 }],
+    people: [{ id: "p-e2e-import", name: "이모", relation: "가족" }],
+  }), "utf8"),
+};
+await page.locator("#importFileInput").setInputFiles(importFile);
+await page.waitForSelector('#sheetBody [data-act="import-merge"]');
+check("A-08: 업로드 후 합치기/교체 선택 표시", await page.locator("#sheetBody").innerText().then((t) => t.includes("합치기") && t.includes("교체")));
+await page.locator('#sheetBody [data-act="import-merge"]').click();
+check("A-08: 합치기로 일정·사람 반영", await page.evaluate(([d]) => {
+  const data = JSON.parse(localStorage.getItem("calendarbom:data:v2"));
+  return data.series.some((s) => s.title === "치과 검진" && s.date === d) && data.people.some((p) => p.id === "p-e2e-import" && p.name === "이모");
+}, [importDay]));
+await page.locator("#importFileInput").setInputFiles(importFile);
+await page.waitForSelector('#sheetBody [data-act="import-merge"]');
+await page.locator('#sheetBody [data-act="import-merge"]').click();
+check("A-08: 같은 파일 다시 합쳐도 중복 없음", await page.evaluate(() => {
+  const data = JSON.parse(localStorage.getItem("calendarbom:data:v2"));
+  return data.series.filter((s) => s.title === "치과 검진").length === 1 && data.people.filter((p) => p.id === "p-e2e-import").length === 1;
+}));
 
 // ── A-09: 권한 없는 컨텍스트의 저장 문구 ──
 const deniedContext = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: "ko-KR" });

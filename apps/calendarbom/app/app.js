@@ -1427,6 +1427,7 @@
     html += `<button class="action-btn" type="button" data-act="edit-full">수정</button>` +
       `<button class="action-btn" type="button" data-act="edit-time">시간 바꾸기</button>` +
       `<button class="action-btn" type="button" data-act="copy">복사</button>` +
+      (isRepeat ? `<button class="action-btn" type="button" data-act="copy-once">이 날만 복사</button>` : "") +
       (series.kind === "hospital" ? `<button class="action-btn primary" type="button" data-act="next">다음 일정 만들기</button>` : "") +
       `<button class="action-btn" type="button" data-act="share">공유</button>` +
       `<button class="action-btn danger wide" type="button" data-act="delete">삭제</button>` +
@@ -1534,6 +1535,16 @@
       sheet.mode = "add";
       sheet.draft = draftFromSnapshot(snapshotOfSeries(series, "copy"));
       renderSheet();
+      return;
+    }
+    if (action === "copy-once") {
+      // 반복 전체가 아니라 이 날짜의 한 건만 once 로 복사한다 (B-10 "이 날짜만 복사")
+      const snapshot = snapshotOfSeries(series, "next");
+      const overridden = sched.overrideTime(series, sheet.detail.occDate, 0);
+      if (overridden) snapshot.time = overridden;
+      state.pendingCopy = snapshot;
+      closeDaySheet(true);
+      showToast("달력에서 복사해 넣을 날짜를 눌러주세요.", 6000);
       return;
     }
     if (action === "next") {
