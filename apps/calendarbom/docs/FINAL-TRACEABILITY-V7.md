@@ -60,7 +60,7 @@
 | 알림 딥링크 | ?open= 처리 · E | PASS |
 | Playwright 고정·lockfile·전역 fallback 제거 | package.json/lock·e2e require | PASS |
 | E2E 서버 수명주기·시계 고정 | e2e.mjs spawn+clock.setFixedTime | PASS |
-| Chromium+WebKit | 로컬 Chromium 통과 · WebKit은 CI job(calendarbom-ci·deploy gate) | PARTIAL — WebKit 로컬 다운로드 차단, CI 실행으로 검증(첫 CI run 로그가 증거) |
+| Chromium+WebKit | 로컬 Chromium 통과 · WebKit은 PR #52 CI 통과(run 29407643444 job 87326883276) | PASS |
 | app 테스트 = Pages 배포 게이트 | deploy-site-pages.yml verify-calendarbom → build needs | PASS |
 | 실패 artifact 업로드 | workflow upload-artifact | PASS |
 
@@ -72,4 +72,4 @@
 
 ## 요약
 
-PASS 32 · PARTIAL 2 (B-09 반복 범위 전체 한정, WebKit=CI 검증) · DEFERRED 3 (이 날짜만 복사, 가져오기 파일 업로드 E2E, 기간 일정) · BLOCKED 2 (65+ 실사용, 로그인·네이티브).
+PASS 33 · PARTIAL 1 (B-09 반복 범위 전체 한정) · DEFERRED 3 (이 날짜만 복사, 가져오기 파일 업로드 E2E, 기간 일정) · BLOCKED 2 (65+ 실사용, 로그인·네이티브).
