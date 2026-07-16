@@ -1,0 +1,15 @@
+# 앱별 핵심 행동과 활성화 이벤트를 개인정보 없이 정의한다.
+version: 1.0.0
+common_fields: [event_name, app_id, app_version, platform, surface, session_kind, anonymous_id, timestamp, campaign, family_spec_version]
+robom: [family_home_viewed, app_card_viewed, app_install_landing_viewed, qr_rendered, qr_destination_opened, store_badge_clicked, pwa_install_cta_clicked, web_trial_clicked]
+outbom: [activity_selected, location_method_selected, recommendation_viewed, metric_opened, prep_item_checked, alarm_enabled]
+homebom: [notice_filter_applied, notice_opened, official_apply_clicked, alert_enabled, stale_recovered]
+runningbom: [race_search_used, race_filter_applied, race_opened, official_registration_clicked, alert_enabled]
+calendarbom: [date_selected, event_created, reminder_enabled, font_scale_changed, backup_exported, restore_completed]
+certbom: [recommendation_started, recommendation_completed, exam_opened, exam_saved, calendar_added, official_exam_clicked]
+activation:
+  outbom: recommendation_viewed
+  homebom: notice_opened-or-alert_enabled
+  runningbom: official_registration_clicked-or-alert_enabled
+  calendarbom: event_created-and-reminder_enabled
+  certbom: recommendation_completed-or-exam_saved

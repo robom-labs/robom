@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "viewBox": "0 0 200 120",
+  "requiredAccessibleName": true,
+  "decorativeSvgAriaHidden": true,
+  "textFallbackRequired": true,
+  "prefixes": ["야외", "청약", "러닝", "캘린더", "자격증"]
+}

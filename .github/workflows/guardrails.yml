@@ -15,19 +15,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 본사에 앱 소스 사본이 없는지 확인
-        # 예외: robom-labs/calendarbom 저장소 생성 권한 부재(GitHub App 403)로
-        # 캘린더봄을 사용자 승인 하에 본사 apps/calendarbom 에 임시 호스팅한다
-        # (ops/HUMAN-TASKS.md). 정식 저장소로 이전이 끝나면 이 예외를 제거하고
-        # 앱 수 검사에서는 본사 임시 앱과 독립 저장소 앱을 모두 센다.
         run: |
           if [ -d apps ]; then
-            extra="$(find apps -mindepth 1 -maxdepth 1 -type d ! -name calendarbom)"
-            [ -z "$extra" ] || { echo "::error::robom에는 앱 소스 사본을 둘 수 없습니다(허용 예외: apps/calendarbom). 발견: $extra"; exit 1; }
+            extra="$(find apps -mindepth 1 -maxdepth 1 -type d)"
+            [ -z "$extra" ] || { echo "::error::robom에는 앱 소스 사본을 둘 수 없습니다. 발견: $extra"; exit 1; }
           fi
           test -f ops/registry/apps.yml || { echo "::error::앱 registry가 없습니다."; exit 1; }
-          ruby -e 'require "yaml"; data=YAML.load_file("ops/registry/apps.yml"); apps=data.fetch("apps"); abort "앱 5개가 필요합니다(임시 호스팅 calendarbom 포함)" unless apps.size == 5; apps.each { |app| %w[id name repo test build].each { |key| abort "#{app["id"]}: #{key} 누락" unless app.key?(key) }; abort "조직 불일치: #{app["repo"]}" unless app["repo"].start_with?("robom-labs/") }; puts apps.map { |app| "#{app["name"]}=#{app["repo"]}" }.join("\n")'
+          ruby -e 'require "yaml"; data=YAML.load_file("ops/registry/apps.yml"); apps=data.fetch("apps"); abort "독립 앱 5개가 필요합니다" unless apps.size == 5; apps.each { |app| %w[id name repo version web_url stable_install_url test build].each { |key| abort "#{app["id"]}: #{key} 누락" unless app.key?(key) }; abort "조직 불일치: #{app["repo"]}" unless app["repo"].start_with?("robom-labs/") }; puts apps.map { |app| "#{app["name"]}=#{app["repo"]}" }.join("\n")'
 
   site:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -40,8 +37,12 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
+      - run: npm run family:verify
       - run: npm run lint
       - run: npm test
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:e2e
+      - run: BROWSER=webkit npm run test:e2e
 
   version-single-source:
     runs-on: ubuntu-latest

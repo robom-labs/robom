@@ -1,16 +1,20 @@
 {
   "name": "robom-site",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
   },
   "scripts": {
     "dev": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext dev",
+    "family:generate": "node ../ops/scripts/family/generate.mjs && node ../ops/scripts/family/generate-install-assets.mjs",
+    "family:verify": "node ../ops/scripts/family/verify-drift.mjs && node ../ops/scripts/family/generate-install-assets.mjs --check && node ../ops/scripts/family/verify-compatibility.mjs",
+    "prebuild": "npm run family:verify",
     "build": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build",
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "generate:favicon": "node scripts/generate-brand-favicons.mjs",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
+    "test:e2e": "node scripts/e2e.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {
@@ -28,6 +32,10 @@
     "@vitejs/plugin-rsc": "0.5.26",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.6",
+    "jsqr": "1.4.0",
+    "playwright": "1.61.1",
+    "pngjs": "7.0.0",
+    "qrcode": "1.5.4",
     "react-server-dom-webpack": "19.2.6",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",

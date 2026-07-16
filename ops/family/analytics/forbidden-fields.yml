@@ -1,0 +1,5 @@
+# 분석·피드백·오류 이벤트에 절대 포함하지 않을 개인정보 필드를 정의한다.
+version: 1.0.0
+exact: [latitude, longitude, address, email, phone, oauth_token, push_endpoint, medication, medicine, hospital, calendar_title, family_event_title, raw_query, raw_answer, api_key, access_token, refresh_token]
+patterns: [location-coordinate, housing-condition, medicine-name, hospital-name, free-form-note, search-text, oauth-secret]
+allowed_coarse_examples: [activity, region_group, exam_category, font_scale, platform, viewport_group]

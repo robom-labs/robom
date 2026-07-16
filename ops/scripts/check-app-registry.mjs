@@ -1,26 +1,10 @@
-import { readFile } from "node:fs/promises";
+// 앱 registry의 필수 계약과 원본 저장소 버전 일치를 검사한다.
+import { readRegistry, validateRegistryShape } from "./lib/registry.mjs";
 
-const registry = await readFile(new URL("../registry/apps.yml", import.meta.url), "utf8");
-const records = [];
-let current;
-for (const line of registry.split(/\r?\n/)) {
-  const id = line.match(/^\s*- id:\s*(\S+)/)?.[1];
-  if (id) {
-    current = { id };
-    records.push(current);
-    continue;
-  }
-  if (!current) continue;
-  const value = line.match(/^\s+([a-z_]+):\s*(.+?)\s*$/);
-  if (value) current[value[1]] = value[2].replace(/^['"]|['"]$/g, "");
-}
+const apps = await readRegistry();
+const errors = validateRegistryShape(apps);
 
-const errors = [];
-for (const app of records) {
-  if (!app.version || !app.version_source) {
-    errors.push(`${app.id}: version 또는 version_source가 없습니다.`);
-    continue;
-  }
+await Promise.all(apps.map(async (app) => {
   try {
     const response = await fetch(app.version_source, { headers: { accept: "application/json" } });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -29,10 +13,10 @@ for (const app of records) {
   } catch (error) {
     errors.push(`${app.id}: 버전 정본 확인 실패 (${error instanceof Error ? error.message : String(error)})`);
   }
-}
+}));
 
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
 }
-console.log(records.map((app) => `${app.id}=${app.version}`).join("\n"));
+console.log(apps.map((app) => `${app.id}=${app.version} · ${app.stable_install_url}`).join("\n"));

@@ -1,0 +1,31 @@
+# AI가 전체 저장소 대신 직접 관련 파일부터 읽도록 하는 진입점 지도다.
+robom:
+  registry: [ops/registry/apps.yml]
+  family: [ops/family/family-version.json, ops/family/contracts, ops/family/design]
+  site: [site/app/page.tsx, site/app/app-data.ts, site/app/globals.css, site/app/get]
+  tests: [site/tests, ops/scripts/family]
+outbom:
+  shell: [app/page.tsx, app/globals.css]
+  domain: [lib/weather.ts, lib/scoring.ts]
+  pwa: [public/sw.js, public/manifest.webmanifest]
+  tests: [lib/*.test.ts]
+homebom:
+  shell: [apps/web/src/App.tsx, apps/web/src/styles.css]
+  domain: [packages/core]
+  pwa: [apps/web/public/sw.js, apps/web/public/manifest.webmanifest]
+  tests: [apps/web/e2e, packages/core/src/*.test.ts]
+runningbom:
+  shell: [index.html, styles.css, app.js]
+  domain: [src, data]
+  pwa: [sw.js, manifest.webmanifest]
+  tests: [tests]
+calendarbom:
+  shell: [app/index.html, app/styles.css, app/app.js]
+  domain: [app/calendar-core.js, app/schedule-core.js]
+  pwa: [app/sw.js, app/manifest.webmanifest]
+  tests: [scripts/*.test.mjs, scripts/e2e.mjs]
+certbom:
+  shell: [src/App.tsx, src/index.css]
+  domain: [src/lib, src/data]
+  pwa: [public/sw.js, public/manifest.webmanifest]
+  tests: [src/**/*.test.ts, e2e]

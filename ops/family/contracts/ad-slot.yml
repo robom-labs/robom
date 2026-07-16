@@ -1,0 +1,10 @@
+# 실제 광고가 꺼진 상태와 향후 안전 슬롯 계약을 정의한다.
+version: 1.0.0
+default:
+  enabled: false
+  provider: none
+  personalization: false
+  render_when_empty: false
+placements: [bottom-safe, inline-safe]
+requirements: [no-content-cover, reserved-height-when-enabled, safe-area, ad-label, lazy-sdk, frequency-cap]
+forbidden_contexts: [outbom-risk-warning, homebom-official-apply, runningbom-registration-open, calendarbom-medication, certbom-official-registration]

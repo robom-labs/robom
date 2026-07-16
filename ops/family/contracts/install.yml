@@ -1,0 +1,9 @@
+# 안정 설치 경로와 플랫폼별 사용자 선택 규칙을 정의한다.
+version: 1.0.0
+stable_route: https://robom.kr/get/{app-id}
+qr_encodes_stable_route_only: true
+desktop_order: [qr, live-store-badges, pwa, web-trial]
+android_order: [google-play-if-live, pwa, web-trial, app-store-secondary]
+iphone_order: [app-store-if-live, safari-add-to-home-screen, web-trial, google-play-secondary]
+forced_redirect: false
+fake_store_url: false

@@ -1,11 +1,6 @@
 name: Registry drift
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "ops/registry/apps.yml"
-      - "ops/scripts/check-app-registry.mjs"
   schedule:
     - cron: "17 21 * * *"
   workflow_dispatch:
@@ -21,4 +16,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+        working-directory: site
       - run: node ops/scripts/check-app-registry.mjs
+      - run: npm run family:verify
+        working-directory: site

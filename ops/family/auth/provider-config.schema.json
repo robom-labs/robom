@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Robom provider-neutral auth configuration",
+  "type": "object",
+  "required": ["enabled", "issuer", "clientId", "redirectUri", "scopes"],
+  "properties": {
+    "enabled": { "type": "boolean", "default": false },
+    "issuer": { "type": "string", "format": "uri" },
+    "clientId": { "type": "string" },
+    "redirectUri": { "type": "string", "format": "uri" },
+    "scopes": { "type": "array", "items": { "type": "string" } },
+    "pkce": { "const": true },
+    "accountDeletionUrl": { "type": "string", "format": "uri" }
+  },
+  "additionalProperties": false
+}

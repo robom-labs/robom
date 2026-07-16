@@ -1,0 +1,11 @@
+# 공통 계정 장애가 핵심 기능을 막지 않는 guest-first 인증 계약이다.
+version: 1.0.0
+default_mode: guest
+providers: [kakao, google, apple]
+protocol: oauth2-pkce
+required_flows: [guest-use, progressive-login, provider-link, provider-unlink, session-refresh, export, delete-account, offline-fallback]
+failure_isolation: per-app-namespace
+sensitive_sync:
+  calendarbom: explicit-opt-in-only
+  default: app-owned-preferences-only
+forbidden: [login-wall-for-core-browse, token-in-local-analytics, silent-sensitive-sync]

@@ -1,0 +1,46 @@
+# 다른 앱 저장소가 immutable robom commit으로 호출하는 패밀리 생성물·개인정보·PWA 공통 검사다.
+name: Robom family contract
+
+on:
+  workflow_call:
+    inputs:
+      generated-dir:
+        required: true
+        type: string
+      lock-file:
+        required: true
+        type: string
+      manifest-file:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      FAMILY_GENERATED_DIR: ${{ inputs.generated-dir }}
+      FAMILY_LOCK_FILE: ${{ inputs.lock-file }}
+      FAMILY_MANIFEST_FILE: ${{ inputs.manifest-file }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 생성물 hash·패밀리 버전
+        run: node scripts/verify-family.mjs "$FAMILY_GENERATED_DIR" "$FAMILY_LOCK_FILE"
+      - name: PWA manifest 필수 값
+        shell: bash
+        run: |
+          node -e 'const fs=require("fs");const p=process.env.FAMILY_MANIFEST_FILE;const m=JSON.parse(fs.readFileSync(p,"utf8"));for(const k of ["name","short_name","start_url","scope","display","icons"]){if(!m[k])throw new Error(`${p}: ${k} 누락`)};if(!m.icons.some(i=>String(i.purpose||"").includes("maskable")))throw new Error(`${p}: maskable icon 누락`);'
+      - name: 분석 금지 필드 정적 검사
+        shell: bash
+        run: |
+          if rg -n --glob '!**/generated/**' --glob '!**/node_modules/**' '(analytics|track|capture)[^\n]{0,160}(latitude|longitude|address|medication|hospital|raw_query|oauth_token|push_endpoint)' .; then
+            echo "::error::분석 payload에 금지 필드 후보가 있습니다."
+            exit 1
+          fi

@@ -1,114 +1,137 @@
-# 로봄 앱 포트폴리오 단일 소스.
-# 앱 코드는 각 원본 저장소에서만 관리하며 robom에는 복사하지 않는다.
+# 로봄 다섯 앱의 버전·운영 URL·설치 목적지·스토어 상태를 관리하는 단일 정본이다.
 
 apps:
   - id: outbom
     name: 야외봄
     english_name: OutBom
-    legacy_id: runningcall
-    status: live
+    repo: robom-labs/outbom
     version: 0.24.0
     version_source: https://raw.githubusercontent.com/robom-labs/outbom/main/package.json
+    web_url: https://robom-labs.github.io/outbom/
     healthcheck_url: https://robom-labs.github.io/outbom/
+    deploy_provider: github-pages
+    base_path: /outbom/
     privacy_url: https://robom.kr/privacy/outbom
     support_url: https://robom.kr/support
-    mobile_status: planned
-    repo: robom-labs/outbom
-    legacy_repo: runnerpyrri-lgtm/runningcall
-    stack: Next.js 16 + React 19 (pnpm)
-    test: "pnpm typecheck && pnpm test"
-    build: "pnpm build"
-    deploy: github-pages
-    base_path: /outbom/
-    current_url: https://robom-labs.github.io/outbom/
-    url: https://robom-labs.github.io/outbom/
-    api_url: https://outbom.robom.kr
-    legacy_url: https://runningcall.vercel.app
-    marketing_tone: "날씨와 대기질로 야외활동하기 좋은 시간을 알려주는 앱"
+    android_app_id: kr.robom.outbom
+    ios_bundle_id: kr.robom.outbom
+    google_play_url: ""
+    google_play_status: planned
+    app_store_url: ""
+    app_store_status: planned
+    pwa_install_url: https://robom-labs.github.io/outbom/
+    stable_install_url: https://robom.kr/get/outbom
+    mobile_status: pwa
+    family_spec_version: 1.0.0
+    last_verified_at: 2026-07-16T09:20:24+09:00
+    stack: Next.js 16 + React 19
+    test: pnpm typecheck && pnpm test
+    build: pnpm build
 
   - id: homebom
     name: 청약봄
     english_name: HomeBom
-    legacy_id: zoopzoopcall
-    status: live
+    repo: robom-labs/homebom
     version: 0.13.0
     version_source: https://raw.githubusercontent.com/robom-labs/homebom/main/apps/web/package.json
+    web_url: https://robom-labs.github.io/homebom/
     healthcheck_url: https://robom-labs.github.io/homebom/
+    deploy_provider: github-pages
+    base_path: /homebom/
     privacy_url: https://robom.kr/privacy/homebom
     support_url: https://robom.kr/support
-    mobile_status: planned
-    repo: robom-labs/homebom
-    legacy_repo: runnerpyrri-lgtm/zoopzoopcall
-    stack: pnpm + Vite + React PWA
-    test: "pnpm typecheck && pnpm test"
-    build: "pnpm build"
-    deploy: github-pages
-    base_path: /homebom/
-    current_url: https://robom-labs.github.io/homebom/
-    legacy_url: https://runnerpyrri-lgtm.github.io/zoopzoopcall/
-    marketing_tone: "일반공급과 무순위 청약의 접수·발표·계약 일정을 한눈에 챙기는 앱"
+    android_app_id: kr.robom.homebom
+    ios_bundle_id: kr.robom.homebom
+    google_play_url: ""
+    google_play_status: planned
+    app_store_url: ""
+    app_store_status: planned
+    pwa_install_url: https://robom-labs.github.io/homebom/
+    stable_install_url: https://robom.kr/get/homebom
+    mobile_status: pwa
+    family_spec_version: 1.0.0
+    last_verified_at: 2026-07-16T09:20:24+09:00
+    stack: Vite + React
+    test: pnpm typecheck && pnpm test
+    build: pnpm build
 
   - id: runningbom
     name: 러닝봄
     english_name: RunningBom
-    legacy_id: pushrun
-    status: live
+    repo: robom-labs/runningbom
     version: 0.16.0
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
+    web_url: https://robom-labs.github.io/runningbom/
     healthcheck_url: https://robom-labs.github.io/runningbom/
+    deploy_provider: github-pages+vercel
+    base_path: /runningbom/
     privacy_url: https://robom.kr/privacy/runningbom
     support_url: https://robom.kr/support
-    mobile_status: planned
-    repo: robom-labs/runningbom
-    legacy_repo: runnerpyrri-lgtm/pushrun
-    stack: static PWA (HTML/CSS/JS)
-    test: "npm test"
-    build: "none"
-    deploy: github-pages + vercel
-    current_url: https://robom-labs.github.io/runningbom/
-    legacy_url: https://runnerpyrri-lgtm.github.io/pushrun/
-    marketing_tone: "러닝 대회 탐색과 접수 시작 시간을 알려주는 앱"
+    android_app_id: kr.robom.runningbom
+    ios_bundle_id: kr.robom.runningbom
+    google_play_url: ""
+    google_play_status: planned
+    app_store_url: ""
+    app_store_status: planned
+    pwa_install_url: https://robom-labs.github.io/runningbom/
+    stable_install_url: https://robom.kr/get/runningbom
+    mobile_status: pwa
+    family_spec_version: 1.0.0
+    last_verified_at: 2026-07-16T09:20:24+09:00
+    stack: static HTML + CSS + JavaScript
+    test: npm test
+    build: none
 
   - id: calendarbom
     name: 캘린더봄
     english_name: CalendarBom
-    status: live
-    version: 0.3.0
-    version_source: https://raw.githubusercontent.com/robom-labs/robom/main/apps/calendarbom/package.json
-    healthcheck_url: https://robom-labs.github.io/robom/calendarbom/
+    repo: robom-labs/calendarbom
+    version: 0.5.0
+    version_source: https://raw.githubusercontent.com/robom-labs/calendarbom/main/package.json
+    web_url: https://robom-labs.github.io/calendarbom/
+    healthcheck_url: https://robom-labs.github.io/calendarbom/
+    deploy_provider: github-pages
+    base_path: /calendarbom/
     privacy_url: https://robom.kr/privacy/calendarbom
     support_url: https://robom.kr/support
-    mobile_status: planned
-    # 임시: robom-labs/calendarbom 저장소 생성 권한이 없어 본사 저장소에 소스를 보관하고
-    # 본사 Pages 아티팩트에 /calendarbom/ 로 함께 배포한다. 이전 절차는 ops/HUMAN_ACTIONS.md 참고.
-    repo: robom-labs/robom (apps/calendarbom, 임시)
-    target_repo: robom-labs/calendarbom
-    stack: static PWA (HTML/CSS/JS)
-    test: "npm test"
-    build: "none"
-    deploy: github-pages (본사 사이트 아티팩트에 포함, 임시)
-    base_path: /robom/calendarbom/
-    current_url: https://robom-labs.github.io/robom/calendarbom/
-    url: https://robom-labs.github.io/robom/calendarbom/
-    target_url: https://robom-labs.github.io/calendarbom/
-    marketing_tone: "큰 달력에서 날짜를 누르고 버튼만으로 일정과 알람을 저장하는 우리 가족 달력 앱"
+    android_app_id: kr.robom.calendarbom
+    ios_bundle_id: kr.robom.calendarbom
+    google_play_url: ""
+    google_play_status: planned
+    app_store_url: ""
+    app_store_status: planned
+    pwa_install_url: https://robom-labs.github.io/calendarbom/
+    stable_install_url: https://robom.kr/get/calendarbom
+    mobile_status: pwa
+    family_spec_version: 1.0.0
+    last_verified_at: 2026-07-16T09:20:24+09:00
+    stack: static HTML + CSS + JavaScript
+    test: npm test && npm run test:e2e
+    build: none
 
   - id: certbom
     name: 자격증봄
     english_name: CertBom
-    status: live
+    repo: robom-labs/certbom
     version: 0.5.0
     version_source: https://raw.githubusercontent.com/robom-labs/certbom/main/package.json
+    web_url: https://certbom.vercel.app/
     healthcheck_url: https://certbom.vercel.app/
+    deploy_provider: vercel
+    base_path: /
     privacy_url: https://robom.kr/privacy/certbom
     support_url: https://robom.kr/support
+    android_app_id: kr.robom.certbom
+    ios_bundle_id: kr.robom.certbom
+    google_play_url: ""
+    google_play_status: planned
+    app_store_url: ""
+    app_store_status: planned
+    pwa_install_url: https://certbom.vercel.app/
+    stable_install_url: https://robom.kr/get/certbom
     mobile_status: pwa
-    repo: robom-labs/certbom
-    stack: pnpm + Vite + React PWA
-    test: "pnpm typecheck && pnpm test && pnpm test:e2e"
-    build: "pnpm build"
-    deploy: vercel
-    base_path: /
-    current_url: https://certbom.vercel.app/
-    url: https://certbom.vercel.app/
-    marketing_tone: "97개 시험에서 현재 접수와 2026 공식 일정을 먼저 찾고 내게 맞는 자격증을 추천받는 앱"
+    family_spec_version: 1.0.0
+    last_verified_at: 2026-07-16T09:20:24+09:00
+    stack: Vite + React
+    test: pnpm typecheck && pnpm test && pnpm test:e2e
+    build: pnpm build

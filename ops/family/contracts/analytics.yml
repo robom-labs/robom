@@ -1,0 +1,6 @@
+# 공급자와 무관한 개인정보 최소 분석 계약을 정의한다.
+version: 1.0.0
+default_consent: false
+provider_optional: true
+required_fields: [event_name, app_id, app_version, platform, surface, session_kind, anonymous_id, timestamp, campaign, family_spec_version]
+transport_rules: [consent-aware, non-blocking, no-provider-failure-impact, scrub-before-send]

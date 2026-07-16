@@ -1,0 +1,8 @@
+# 앱별 목적지는 registry에서 생성하며 이 파일은 공통 라우팅 정책만 보관한다.
+version: 1.0.0
+stable_origin: https://robom.kr
+route_pattern: /get/{app-id}
+store_url_source: ops/registry/apps.yml
+missing_store_behavior: pwa-then-web
+campaign_query_allowlist: [utm_source, utm_medium, utm_campaign, utm_content]
+automatic_redirect: false

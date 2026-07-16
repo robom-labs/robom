@@ -1,0 +1,6 @@
+# 설치·활성화·재방문과 패밀리 이동 퍼널을 정의한다.
+version: 1.0.0
+install: [family_home_viewed, app_card_viewed, app_install_landing_viewed, qr_destination_opened-or-store_badge_clicked-or-pwa_install_cta_clicked, first_open, activation, d7_return]
+family_referral: [family_link_viewed, family_link_clicked, destination_opened, destination_activation]
+retention_windows_days: [1, 7, 30]
+minimum_report_cohort: 30

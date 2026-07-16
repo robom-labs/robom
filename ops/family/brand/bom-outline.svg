@@ -1,0 +1,2 @@
+<!-- 외곽선 인쇄 환경에서 사용하는 로봄 패밀리 공통 봄 워드마크다. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M28 8V46M72 8V46M28 28H72M28 46H72M10 64H142M50 64V47M28 76H72V110H28Z"/><path d="M148 42c10 0 18 8 18 18s-8 18-18 18-18-8-18-18 8-18 18-18Z"/><path d="m94 51 6 10m15-15 8 11m35-18 9 11m1 5 8 9"/></svg>

@@ -1,0 +1,22 @@
+# 설정 화면의 공통 큰 순서를 정의한다.
+version: 1.0.0
+sections:
+  - app-about
+  - account-and-sync-if-supported
+  - notifications-and-permissions
+  - accessibility-and-font-size
+  - install-and-update
+  - data-source-and-last-verified
+  - family-apps
+  - support-and-feedback
+  - privacy-terms-and-official-notice
+  - app-meta
+app_meta:
+  - app-name
+  - version
+  - build-sha
+  - family-spec-version
+  - service-worker-cache
+  - data-version
+  - last-verified
+  - deployment-provider

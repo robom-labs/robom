@@ -1,0 +1,9 @@
+# 패밀리 앱바의 공통 의미 구조를 정의한다.
+version: 1.0.0
+order: [app-icon, accessible-wordmark, role-copy, optional-status, optional-action]
+requirements:
+  min_height: 64px
+  safe_area_top: true
+  supports_320px: true
+  supports_200_percent_zoom: true
+  duplicate_location_action: false

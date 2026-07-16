@@ -1,0 +1,25 @@
+{
+  "generatedFrom": "ops/registry/apps.yml",
+  "apps": [
+    {
+      "id": "outbom",
+      "destination": "https://robom.kr/get/outbom"
+    },
+    {
+      "id": "homebom",
+      "destination": "https://robom.kr/get/homebom"
+    },
+    {
+      "id": "runningbom",
+      "destination": "https://robom.kr/get/runningbom"
+    },
+    {
+      "id": "calendarbom",
+      "destination": "https://robom.kr/get/calendarbom"
+    },
+    {
+      "id": "certbom",
+      "destination": "https://robom.kr/get/certbom"
+    }
+  ]
+}

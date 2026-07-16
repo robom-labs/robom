@@ -1,0 +1,12 @@
+{
+  "fontFamily": "-apple-system, BlinkMacSystemFont, Apple SD Gothic Neo, Noto Sans KR, Malgun Gothic, system-ui, sans-serif",
+  "space": { "1": "4px", "2": "8px", "3": "12px", "4": "16px", "5": "24px", "6": "32px" },
+  "radius": { "sm": "12px", "md": "18px", "lg": "28px" },
+  "shadow": { "card": "0 12px 30px rgba(29, 48, 71, 0.08)" },
+  "border": "#dfe6e2",
+  "focus": "0 0 0 3px rgba(36, 87, 214, 0.32)",
+  "touchMin": "48px",
+  "navHeight": "72px",
+  "motionFast": "160ms",
+  "zIndex": { "appbar": 30, "nav": 50, "sheet": 80, "toast": 100 }
+}

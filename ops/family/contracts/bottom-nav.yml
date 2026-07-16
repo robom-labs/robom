@@ -1,0 +1,8 @@
+# 하단 메뉴의 크기·접근성·안전 영역 규칙을 정의한다.
+version: 1.0.0
+min_touch_target: 48px
+height: 72px
+max_tabs: 5
+safe_area_bottom: true
+content_padding_required: true
+text_symbol_icons_forbidden: true

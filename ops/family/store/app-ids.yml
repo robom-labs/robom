@@ -1,0 +1,18 @@
+# DO NOT EDIT. ops/registry/apps.yml에서 생성되는 스토어 앱 식별자 목록이다.
+family_spec_version: 1.0.0
+apps:
+  outbom:
+    android: kr.robom.outbom
+    ios: kr.robom.outbom
+  homebom:
+    android: kr.robom.homebom
+    ios: kr.robom.homebom
+  runningbom:
+    android: kr.robom.runningbom
+    ios: kr.robom.runningbom
+  calendarbom:
+    android: kr.robom.calendarbom
+    ios: kr.robom.calendarbom
+  certbom:
+    android: kr.robom.certbom
+    ios: kr.robom.certbom

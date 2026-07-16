@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "period": { "kind": "weekly", "start": "2026-07-06", "end": "2026-07-12" },
+  "portfolio": { "activeUsers": 420, "activationRate": 0.46, "d7Retention": 0.28, "installLandingViews": 310, "installActions": 138, "errors": 9, "staleRecoveries": 18, "crossAppClicks": 31 },
+  "apps": {
+    "outbom": { "activeUsers": 120, "activationRate": 0.55, "d7Retention": 0.34, "features": [{ "name": "recommendation_viewed", "count": 96 }, { "name": "activity_selected", "count": 82 }, { "name": "prep_item_checked", "count": 44 }] },
+    "homebom": { "activeUsers": 88, "activationRate": 0.41, "d7Retention": 0.25, "features": [{ "name": "notice_opened", "count": 67 }, { "name": "notice_filter_applied", "count": 49 }, { "name": "alert_enabled", "count": 21 }] },
+    "runningbom": { "activeUsers": 76, "activationRate": 0.39, "d7Retention": 0.22, "features": [{ "name": "race_filter_applied", "count": 61 }, { "name": "race_opened", "count": 47 }, { "name": "official_registration_clicked", "count": 18 }] },
+    "calendarbom": { "activeUsers": 62, "activationRate": 0.48, "d7Retention": 0.31, "features": [{ "name": "date_selected", "count": 89 }, { "name": "event_created", "count": 46 }, { "name": "reminder_enabled", "count": 30 }] },
+    "certbom": { "activeUsers": 74, "activationRate": 0.43, "d7Retention": 0.24, "features": [{ "name": "exam_opened", "count": 70 }, { "name": "recommendation_completed", "count": 36 }, { "name": "exam_saved", "count": 16 }] }
+  }
+}

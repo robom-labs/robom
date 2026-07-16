@@ -1,0 +1,6 @@
+# 의견·오류 신고에 자동 첨부할 안전한 메타와 금지 데이터를 정의한다.
+version: 1.0.0
+types: [feedback, bug, information-correction, accessibility]
+automatic_fields: [app_id, version, build_sha, platform, surface, error_code]
+forbidden_fields: [location, event-content, housing-condition, medication, hospital, raw-search, token]
+transport: mailto-or-private-endpoint
