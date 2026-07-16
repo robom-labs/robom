@@ -59,7 +59,7 @@ apps:
     name: 러닝봄
     english_name: RunningBom
     repo: robom-labs/runningbom
-    version: 0.17.0
+    version: 0.17.1
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
     web_url: https://robom-labs.github.io/runningbom/
     healthcheck_url: https://robom-labs.github.io/runningbom/

@@ -18,8 +18,8 @@ export default function AuthCallbackPage() {
         <h1>계정 없이도<br />계속 사용할 수 있어요.</h1>
         <p className="info-lead">공통 계정 공급자가 아직 연결되지 않았거나 연결 요청이 끝나지 않았습니다. 이 화면은 인증 코드·토큰·이메일을 표시하거나 저장하지 않습니다.</p>
         <div className="policy-actions">
-          <Link className="button primary" href="/">로봄 앱 선택으로 돌아가기</Link>
-          <Link className="button secondary" href="/support">계정 연결 도움 받기</Link>
+          <Link className="button primary" href="/" prefetch={false}>로봄 앱 선택으로 돌아가기</Link>
+          <Link className="button secondary" href="/support" prefetch={false}>계정 연결 도움 받기</Link>
         </div>
       </section>
     </PageShell>

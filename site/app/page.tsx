@@ -41,7 +41,7 @@ export default function Home() {
               <article className={`quick-install-card ${app.tone}`} key={app.id}>
                 <div className="quick-app-name"><AppGlyph app={app} /><Wordmark app={app} /></div>
                 <p>{app.mobileValue}</p>
-                <div><Link href={app.installPath}>설치·휴대폰 사용 <span aria-hidden="true">→</span></Link><a href={app.webUrl} target="_blank" rel="noopener noreferrer">웹 체험</a></div>
+                <div><Link href={app.installPath} prefetch={false}>설치·휴대폰 사용 <span aria-hidden="true">→</span></Link><a href={app.webUrl} target="_blank" rel="noopener noreferrer">웹 체험</a></div>
               </article>
             ))}
           </div>
@@ -58,9 +58,9 @@ export default function Home() {
               <article className={`family-card ${app.tone}`} key={app.id}>
                 <div className="appbar"><AppGlyph app={app} /><div><Wordmark app={app} /><p>robom · {app.tagline}</p></div><span className="status-pill">{app.statusLabel}</span></div>
                 <div className="filter-row" aria-label={`${app.name} 주요 기능`}>{app.highlights.map((item, index) => <span className={index === 0 ? "active" : ""} key={item}>{item}</span>)}</div>
-                <div className="app-hero-card"><span className="card-rule" /><p className="card-eyebrow">{app.eyebrow}</p><h3>{app.heroTitle}</h3><p>{app.heroBody}</p><div className="metric-row">{app.metrics.map((metric) => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}</div><Link className="card-cta" href={app.installPath}>{app.name} 설치·휴대폰 사용 <span aria-hidden="true">→</span></Link></div>
+                <div className="app-hero-card"><span className="card-rule" /><p className="card-eyebrow">{app.eyebrow}</p><h3>{app.heroTitle}</h3><p>{app.heroBody}</p><div className="metric-row">{app.metrics.map((metric) => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}</div><Link className="card-cta" href={app.installPath} prefetch={false}>{app.name} 설치·휴대폰 사용 <span aria-hidden="true">→</span></Link></div>
                 <div className="short-list"><strong>이 앱이 챙기는 것</strong>{app.highlights.slice(0, 2).map((item, index) => <span key={item}>{item}<b>{index === 0 ? "핵심" : "보기"}</b></span>)}</div>
-                <Link className="web-access" href={app.hubPath}>{app.name} 소개 자세히 <span aria-hidden="true">→</span></Link>
+                <Link className="web-access" href={app.hubPath} prefetch={false}>{app.name} 소개 자세히 <span aria-hidden="true">→</span></Link>
               </article>
             ))}
           </div>
