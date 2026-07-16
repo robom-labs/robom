@@ -56,8 +56,8 @@ apps:
     stable_install_url: https://robom.kr/get/homebom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-16T13:42:23+09:00"
-    last_deployed_sha: 40151b53b77e40c03ad61815c65cc1f7a2b23278
+    last_verified_at: "2026-07-17T05:30:00+09:00"
+    last_deployed_sha: fec0fb28dd30210c0c5457d7884db6a14b4d3ae0
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
@@ -88,8 +88,8 @@ apps:
     stable_install_url: https://robom.kr/get/runningbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-16T13:42:23+09:00"
-    last_deployed_sha: 94667c20dcf0cfde1ef27437fcb23b329316067d
+    last_verified_at: "2026-07-17T05:30:00+09:00"
+    last_deployed_sha: ec414c8ef4f07df4f649e0c41bb57dac4b0cbe0c
     last_data_sync_at: "2026-07-12T00:00:00+09:00"
     freshness_status: fresh
     freshness_slo_hours: 168
@@ -120,8 +120,8 @@ apps:
     stable_install_url: https://robom.kr/get/calendarbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-17T03:40:00+09:00"
-    last_deployed_sha: bc0b9ba5f303620d8afc772effd298adcea728e1
+    last_verified_at: "2026-07-17T05:30:00+09:00"
+    last_deployed_sha: 74c6a8079862c6b136fe9aa4a41111dba2356c42
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720
