@@ -18,10 +18,10 @@
 | 제품 | Chromium LCP 최대 | Chromium lab INP | Chromium CLS 최대 | WebKit LCP 최대 | WebKit CLS 최대 | 상태 |
 |---|---:|---:|---:|---:|---:|---|
 | robom.kr | 544ms | 16ms | 0 | 319ms | 0 | PASS |
-| 야외봄 | 932ms | 40ms | 0.0107 | 521ms | 0 | PASS |
-| 청약봄 | 364ms | <16ms | 0 | 856ms | 0 | PASS |
-| 러닝봄 | 544ms | 40ms | 0.0097 | 124ms | 0 | PASS |
-| 캘린더봄 | 468ms | 40ms | 0.0702 | 90ms | 0 | PASS |
+| 야외봄 | 932ms | 40ms | 0.0216 | 598ms | 0 | PASS |
+| 청약봄 | 400ms | <16ms | 0 | 856ms | 0 | PASS |
+| 러닝봄 | 544ms | 40ms | 0.0149 | 510ms | 0 | PASS |
+| 캘린더봄 | 496ms | 40ms | 0.0702 | 477ms | 0 | PASS |
 | 자격증봄 | 132ms | 48ms | 0 | 193ms | 0 | PASS |
 
 실사용 field Core Web Vitals 표본은 아직 수집하지 않으므로 lab 수치를 실제 사용자 분포로 확대 해석하지 않는다.
