@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-16T13:42:23+09:00",
-  "sourceCommit": "2370ba62ab4c742eb0adf68927bd59a88edf8549",
+  "generatedAt": "2026-07-16T14:12:35+09:00",
+  "sourceCommit": "6925c4e0c25ce225e833a112491d8bd7a7465e73",
   "files": {
     "ops/registry/apps.yml": "sha256:9c1bdbde5c39d89e46a63819cb091e5d571221611cb6b4a256f791a070253d2f",
     "ops/family/family-version.json": "sha256:fb14fa9ab0217c345f35c99635514ce33f2ef028307889617a569095341d969a",
@@ -24,7 +24,7 @@
     "6 production dependency audits high/critical 0"
   ],
   "productionSmoke": [
-    "https://robom.kr 2.1.1 cache robom-site-v2.1.1; live build marker verified at handoff",
+    "https://robom.kr 2.1.2 cache robom-site-v2.1.2; live build marker verified at handoff",
     "https://robom-labs.github.io/outbom/ 0.25.1 build 0addaa7",
     "https://robom-labs.github.io/homebom/ 0.14.1 build 40151b5",
     "https://robom-labs.github.io/runningbom/ 0.17.2 build 94667c2",
@@ -32,5 +32,5 @@
     "https://robom-labs.github.io/calendarbom/ 0.5.1 build 997f13e",
     "https://certbom.vercel.app/ 0.6.0 build 69478f8"
   ],
-  "nextDiffBase": "2370ba62ab4c742eb0adf68927bd59a88edf8549"
+  "nextDiffBase": "6925c4e0c25ce225e833a112491d8bd7a7465e73"
 }

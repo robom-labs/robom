@@ -4,7 +4,7 @@
 
 | 제품 | 운영 URL | 버전·cache | 운영 식별 | release evidence | 상태 |
 |---|---|---|---|---|---|
-| robom.kr | https://robom.kr | 2.1.1 · `robom-site-v2.1.1` | 운영 build marker를 audited main과 대조 | Sites production·GitHub Pages | PASS |
+| robom.kr | https://robom.kr | 2.1.2 · `robom-site-v2.1.2` | 운영 build marker를 audited main과 대조 | Sites production·GitHub Pages | PASS |
 | 야외봄 | https://robom-labs.github.io/outbom/ | 0.25.1 · `outbom-v0.25.1` | `0addaa7` | CI `29470524005`, Pages `29470523936` | PASS |
 | 청약봄 | https://robom-labs.github.io/homebom/ | 0.14.1 · `zzc-v0.14.1` | `40151b5` | CI `29470478807`, Pages `29470478355` | PASS |
 | 러닝봄 | https://robom-labs.github.io/runningbom/ · https://runningbom.vercel.app | 0.17.2 · `pushrun-v0.17.2` | 양쪽 `94667c2` | Family `29471774936`, Pages `29471774773`, Vercel `dpl_ARJt647BMB4swPzkZTY1byZ6yHwh` | PASS |

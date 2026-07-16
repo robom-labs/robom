@@ -41,7 +41,7 @@ export type FamilyApp = {
   highlights: readonly string[];
 };
 
-export const SITE_VERSION = "2.1.1";
+export const SITE_VERSION = "2.1.2";
 export const SITE_BUILD_SHA = process.env.NEXT_PUBLIC_BUILD_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.CF_PAGES_COMMIT_SHA ?? process.env.GITHUB_SHA ?? "local";
 
 export const familyApps: readonly FamilyApp[] = appCopy.map((copy) => {

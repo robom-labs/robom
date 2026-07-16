@@ -5,6 +5,13 @@
 
 ## [Unreleased]
 
+## [2.1.2] - 2026-07-16
+
+### Security
+
+- Vite, Cloudflare Vite plugin과 Wrangler를 안전한 호환 버전으로 올려 개발·빌드 의존성의 high advisory 6건을 제거했다.
+- 자동 수정 가능한 전이 의존성을 갱신하고, Next 내부 PostCSS의 upstream moderate advisory만 운영 위험과 분리해 추적한다.
+
 ## [2.1.1] - 2026-07-16
 
 ### Fixed

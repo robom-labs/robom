@@ -49,7 +49,7 @@ export const familyAnalytics = {
     const payload = {
       event_name: event.event_name,
       app_id: event.app_id ?? "robom",
-      app_version: "2.1.1",
+      app_version: "2.1.2",
       platform: platform(),
       surface: event.surface,
       session_kind: sessionStorage.getItem("robom:seen:v1") ? "returning-session" : "fresh-session",

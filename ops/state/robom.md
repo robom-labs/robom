@@ -2,8 +2,8 @@
 
 ## 현재 상태
 
-- 2026-07-16: 로봄 웹 2.1.1에서 다섯 앱 설치 허브, 안정 QR, 단일 registry 생성물, 패밀리 1.0.0 계약, PWA 업데이트와 모바일 WCAG A/AA 검사를 운영 release gate에 반영했다.
-- 2026-07-16: Sites와 GitHub Pages에 2.1.1을 배포하고 운영 build marker를 main과 대조했으며, 6개 운영 표면·108 viewport·12개 200% 확대·5개 QR decode·6개 old-cache profile을 최종 검증했다.
+- 2026-07-16: 로봄 웹 2.1.2에서 다섯 앱 설치 허브, 안정 QR, 단일 registry 생성물, 패밀리 1.0.0 계약, PWA 업데이트와 모바일 WCAG A/AA 검사를 운영 release gate에 반영했다.
+- 2026-07-16: Sites와 GitHub Pages에 2.1.2를 배포하고 운영 build marker를 main과 대조했으며, 6개 운영 표면·108 viewport·12개 200% 확대·5개 QR decode·6개 old-cache profile을 최종 검증했다.
 - 2026-07-16: 자격증봄 0.4.1을 다섯 번째 운영 앱으로 등록하고, 로봄 웹 2.0.0의 앱 카드·상세·개인정보·검색 경로와 모바일 바로가기를 배포 대상으로 반영했다.
 - 2026-07-14: 로봄 웹 1.8.0에서 Google 검색용 루트 favicon, 사이트명·조직 structured data, 날씨·청약·러닝 중심 검색 카피와 앱별 고유 metadata를 반영했다.
 - 2026-07-13: 로봄 웹 1.7.3에서 야외봄 0.18.1, 청약봄 0.6.1, 러닝봄 0.11.3의 공통 Pretendard 워드마크와 GitHub Pages 운영 주소를 중앙 레지스트리와 홈페이지에 동기화했다.
