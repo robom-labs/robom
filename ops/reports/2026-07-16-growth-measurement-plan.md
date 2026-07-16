@@ -40,5 +40,5 @@
 ## 검증
 
 - `ops/family/analytics/sample-aggregate.json`은 `synthetic: true`인 합성 데이터다.
-- `generate-growth-report.mjs`가 금지 필드가 포함된 입력을 거부하고 deterministic 보고서를 생성하는지 검사한다.
+- 비공개 `robom-labs/robom-growth` 생성기가 금지 필드와 최소 cohort 30명 정책을 강제하고 deterministic 주간·월간 보고서를 생성하는지 검사한다.
 - private endpoint credential 연결 후에는 비공개 `robom-labs/robom-growth`의 30일 제한 Actions artifact에만 결과를 보관한다.

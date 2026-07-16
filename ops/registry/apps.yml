@@ -5,7 +5,7 @@ apps:
     name: 야외봄
     english_name: OutBom
     repo: robom-labs/outbom
-    version: 0.25.0
+    version: 0.25.1
     version_source: https://raw.githubusercontent.com/robom-labs/outbom/main/package.json
     web_url: https://robom-labs.github.io/outbom/
     healthcheck_url: https://robom-labs.github.io/outbom/
@@ -32,7 +32,7 @@ apps:
     name: 청약봄
     english_name: HomeBom
     repo: robom-labs/homebom
-    version: 0.14.0
+    version: 0.14.1
     version_source: https://raw.githubusercontent.com/robom-labs/homebom/main/apps/web/package.json
     web_url: https://robom-labs.github.io/homebom/
     healthcheck_url: https://robom-labs.github.io/homebom/
@@ -59,7 +59,7 @@ apps:
     name: 러닝봄
     english_name: RunningBom
     repo: robom-labs/runningbom
-    version: 0.17.1
+    version: 0.17.2
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
     web_url: https://robom-labs.github.io/runningbom/
     healthcheck_url: https://robom-labs.github.io/runningbom/
@@ -86,7 +86,7 @@ apps:
     name: 캘린더봄
     english_name: CalendarBom
     repo: robom-labs/calendarbom
-    version: 0.5.0
+    version: 0.5.1
     version_source: https://raw.githubusercontent.com/robom-labs/calendarbom/main/package.json
     web_url: https://robom-labs.github.io/calendarbom/
     healthcheck_url: https://robom-labs.github.io/calendarbom/

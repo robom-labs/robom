@@ -1,7 +1,7 @@
 // 로봄 설치 허브의 지정 viewport·터치 영역·오버플로·QR·콘솔·웹 성능을 브라우저에서 검증한다.
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
@@ -11,6 +11,7 @@ const browserType = browserName === "webkit" ? webkit : chromium;
 const outputDir = fileURLToPath(new URL(`../screenshots/family-final/${browserName}/`, import.meta.url));
 const externalBase = process.env.BASE_URL;
 const baseUrl = externalBase || "http://127.0.0.1:4193";
+const axeSource = await readFile(new URL("../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
 const viewports = [
   [320, 568], [360, 800], [375, 667], [390, 844], [412, 915], [430, 932], [768, 1024], [1024, 768], [1440, 1000],
 ];
@@ -69,6 +70,11 @@ try {
     }
     await page.locator('a[href*="get/outbom"]').first().focus();
     assert.notEqual(await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle), "none", `${width}: 키보드 focus`);
+    if (width === 390) {
+      await page.addScriptTag({ content: axeSource });
+      const violations = await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa"] } })).violations.map(({ id, impact, nodes }) => ({ id, impact, targets: nodes.map((node) => node.target) })));
+      assert.deepEqual(violations, [], `홈 접근성 위반: ${JSON.stringify(violations)}`);
+    }
     await page.screenshot({ path: resolve(outputDir, `home-${width}x${height}.png`), fullPage: true });
     await page.goto(`${baseUrl}/get/outbom`, { waitUntil: "domcontentloaded" });
     assert.equal(await page.locator(".qr-card img").isVisible(), true, `${width}: QR 표시`);
@@ -76,6 +82,11 @@ try {
     assert.ok(primary && primary.height >= 48, `${width}: 설치 주 CTA 48px`);
     assert.match(await page.locator(".qr-card a").textContent(), /https:\/\/robom\.kr\/get\/outbom/);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true, `${width}: 설치 페이지 가로 스크롤`);
+    if (width === 390) {
+      await page.addScriptTag({ content: axeSource });
+      const violations = await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa"] } })).violations.map(({ id, impact, nodes }) => ({ id, impact, targets: nodes.map((node) => node.target) })));
+      assert.deepEqual(violations, [], `설치 접근성 위반: ${JSON.stringify(violations)}`);
+    }
     await page.screenshot({ path: resolve(outputDir, `install-outbom-${width}x${height}.png`), fullPage: true });
     assert.deepEqual(errors, [], `${width}: console errors`);
     const vitals = await page.evaluate(() => window.__robomVitals);

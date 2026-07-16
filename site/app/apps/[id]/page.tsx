@@ -42,7 +42,7 @@ export default async function AppLanding({ params }: { params: Promise<{ id: str
           <Link href="/" prefetch={false}>로봄</Link><span aria-hidden="true">›</span><span aria-current="page">{app.name}</span>
         </nav>
         <div className="product-appbar"><AppGlyph app={app} large /><div><Wordmark app={app} /><p>robom · {app.tagline}</p></div><span className="status-pill">{app.statusLabel}</span></div>
-        <div className="product-chips">{app.highlights.map((item, index) => <span className={index === 0 ? "active" : ""} key={item}>{item}</span>)}</div>
+        <div className="product-chips" aria-label={`${app.name} 주요 기능`} role="group" tabIndex={0}>{app.highlights.map((item, index) => <span className={index === 0 ? "active" : ""} key={item}>{item}</span>)}</div>
         <div className="product-hero"><div className="product-copy"><p className="card-eyebrow">{app.eyebrow}</p><h1>{app.heroTitle}</h1><p>{app.heroBody}</p><div className="product-actions"><Link className="button primary" href={app.installPath} prefetch={false}>{app.accessLabel} <span aria-hidden="true">→</span></Link><a className="button secondary" href={app.webUrl} target="_blank" rel="noopener noreferrer">웹으로 먼저 체험 <span aria-hidden="true">↗</span></a></div><a className="product-contact" href={contactHref(app.name)}>문의·의견 보내기</a></div><div className="product-score" aria-label={`${app.name} 버전`}><small>현재 버전</small><strong>v{app.version}</strong><span>{app.mobileStatus.toUpperCase()}</span></div></div>
         <div className="product-metrics">{app.metrics.map((metric) => <span key={metric.label}><b>{metric.value}</b><small>{metric.label}</small></span>)}</div>
 

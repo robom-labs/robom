@@ -1,5 +1,6 @@
 // 로봄 브랜드 사이트의 전역 메타데이터와 문서 구조를 설정한다.
 import type { Metadata, Viewport } from "next";
+import { PwaRegistration } from "./PwaRegistration";
 import "./globals.css";
 
 // 모바일에서 브라우저 UI까지 패밀리 배경색으로 맞추고 하단 탭바가 기기 안전 영역을 존중하게 한다.
@@ -89,6 +90,7 @@ export default function RootLayout({
       <body>
         <a className="skip-link" href="#main">본문 바로가기</a>
         {children}
+        <PwaRegistration />
       </body>
     </html>
   );

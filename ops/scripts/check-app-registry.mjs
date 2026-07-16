@@ -6,7 +6,12 @@ const errors = validateRegistryShape(apps);
 
 await Promise.all(apps.map(async (app) => {
   try {
-    const response = await fetch(app.version_source, { headers: { accept: "application/json" } });
+    const sourceUrl = new URL(app.version_source);
+    sourceUrl.searchParams.set("registry-check", Date.now().toString());
+    const response = await fetch(sourceUrl, {
+      cache: "no-store",
+      headers: { accept: "application/json", "cache-control": "no-cache" },
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const actual = (await response.json()).version;
     if (actual !== app.version) errors.push(`${app.id}: registry=${app.version}, source=${actual}`);
