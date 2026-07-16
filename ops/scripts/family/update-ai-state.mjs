@@ -24,12 +24,17 @@ function pairs(value) {
   );
 }
 
-async function firstCacheVersion(repo, candidates) {
+async function firstCacheVersion(repo, candidates, version) {
   for (const candidate of candidates) {
     try {
       const source = await readFile(resolve(repo, candidate), "utf8");
-      const match = source.match(/(?:CACHE_NAME|CACHE_VERSION|CACHE)\s*=\s*[`"']([^`"']+)/);
-      if (match) return match[1].replace(/\$\{[^}]+\}/g, "<version>");
+      const direct = source.match(/(?:CACHE_NAME|CACHE_VERSION|CACHE)\s*=\s*["']([^"']+)["']/);
+      if (direct) return direct[1];
+      const prefix = source.match(/CACHE_PREFIX\s*=\s*["']([^"']+)["']/)?.[1];
+      const prefixed = source.match(/CACHE_NAME\s*=\s*`\$\{CACHE_PREFIX\}([^`]+)`/)?.[1];
+      if (prefix && prefixed) return `${prefix}${prefixed}`;
+      const packageVersion = source.match(/serviceWorkerCache\s*=\s*`([^`]*)\$\{packageMetadata\.version\}([^`]*)`/);
+      if (packageVersion) return `${packageVersion[1]}${version}${packageVersion[2]}`;
     } catch { /* 다음 후보 */ }
   }
   return "not-declared";
@@ -69,7 +74,7 @@ for (const app of apps) {
     version: app.version,
     productionUrl: app.web_url,
     deployProvider: app.deploy_provider,
-    serviceWorkerCache: await firstCacheVersion(repo, cacheCandidates[app.id] || []),
+    serviceWorkerCache: await firstCacheVersion(repo, cacheCandidates[app.id] || [], app.version),
     familySpecVersion: app.family_spec_version,
     lastSuccessfulCI: ciRuns[app.id] || "unavailable",
     lastDeployment: deployments[app.id] || "unavailable",
@@ -91,6 +96,9 @@ const current = {
     version: (await readFile(resolve(root, "VERSION"), "utf8")).trim(),
     productionUrl: "https://robom.kr",
     deployProvider: "sites+github-pages",
+    serviceWorkerCache: await firstCacheVersion(root, ["site/public/sw.js"], (await readFile(resolve(root, "VERSION"), "utf8")).trim()),
+    lastSuccessfulCI: ciRuns.robom || "unavailable",
+    lastDeployment: deployments.robom || "unavailable",
   },
   apps: appState,
   openHighRiskWork: ["store-contract-and-signing", "oauth-provider-credentials", "private-analytics-endpoint", "calendar-sensitive-sync-legal-review"],

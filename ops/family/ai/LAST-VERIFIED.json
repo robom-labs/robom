@@ -1,36 +1,27 @@
 {
-  "generatedAt": "2026-07-16T14:12:35+09:00",
-  "sourceCommit": "6925c4e0c25ce225e833a112491d8bd7a7465e73",
+  "generatedAt": "2026-07-16T09:39:39.206Z",
+  "sourceCommit": "46ac6c563837bb807a17305b00a0bd9ed106256a",
   "files": {
-    "ops/registry/apps.yml": "sha256:9c1bdbde5c39d89e46a63819cb091e5d571221611cb6b4a256f791a070253d2f",
+    "ops/registry/apps.yml": "sha256:f7874f0feccae7e4e8f76c632a3f5ca9e239679973693492bfb8a9b6ec174c60",
     "ops/family/family-version.json": "sha256:fb14fa9ab0217c345f35c99635514ce33f2ef028307889617a569095341d969a",
-    "ops/family/brand/bom.svg": "sha256:8ff1c9f79520440a566eeeccd660760679b7d1faf16f3b26b46b59da8a866beb",
-    "ops/family/compatibility.yml": "sha256:f9da50708391bc9b3b3dc50a1a8821b10d0a87dae32e71a546b0fbae00653b98",
-    "site/package.json": "sha256:52321d448d6dd58d756ca7419c1c56bbd7dcd851adff52f78645dfb6199d83dc",
-    "site/public/sw.js": "sha256:a1496dd7f0ec6cf83fdc0b388dc680e7fa12a983ff66e8c623375faaa433bcd5",
-    "site/public/install/qr/manifest.json": "sha256:ddd31517153d2927f451722f344b85316dcbcd7f7e550eae51f4e2f0387fa515"
+    "ops/family/contracts/analytics.yml": "sha256:7bbac0683e187ae6fbff287c56ad4021ea96d4014dd988fb301d5d3fbce80678",
+    "ops/family/contracts/install.yml": "sha256:76b64da7c383c9b60fd54b874f37671fb7bf0d1e6bdf5d5de0acaedde7a39836",
+    "ops/family/compatibility.yml": "sha256:01345e38b984b200e3d0754b71fbfb9e02f15289e8ccde848b9fd7631d94fbf0"
   },
   "tests": [
-    "robom lint+build+rendered HTML+Chromium/WebKit E2E",
-    "6 surfaces x 9 viewports x 2 browsers plus 200 percent zoom",
-    "6 surfaces x 2 browsers axe WCAG A/AA",
-    "5 live QR PNG decode",
-    "6 old-cache migration profiles",
-    "OutBom 120 unit+typecheck+build",
-    "HomeBom 122 unit+typecheck+build+CI E2E",
-    "RunningBom 37 unit+static+Vercel stamp",
-    "CalendarBom 33 unit+Chromium/WebKit full E2E",
-    "CertBom 30 unit+36 E2E+typecheck+lint+build",
-    "6 production dependency audits high/critical 0"
+    "robom registry+watchdog+lint+build+Chromium/WebKit E2E+family surfaces+production axe+QR",
+    "OutBom typecheck+120 unit+build+mobile export",
+    "HomeBom typecheck+122 unit+build+11 E2E",
+    "RunningBom 37 tests+data validation+mobile export",
+    "CalendarBom 33 unit+Chromium/WebKit E2E+mobile check",
+    "CertBom typecheck+lint+unit+68 E2E+source 400-day simulation"
   ],
   "productionSmoke": [
-    "https://robom.kr 2.1.2 cache robom-site-v2.1.2; live build marker verified at handoff",
-    "https://robom-labs.github.io/outbom/ 0.25.1 build 0addaa7",
-    "https://robom-labs.github.io/homebom/ 0.14.1 build 40151b5",
-    "https://robom-labs.github.io/runningbom/ 0.17.2 build 94667c2",
-    "https://runningbom.vercel.app/ 0.17.2 build 94667c2",
-    "https://robom-labs.github.io/calendarbom/ 0.5.1 build 997f13e",
-    "https://certbom.vercel.app/ 0.6.0 build 69478f8"
+    "OutBom 0.25.1 build 0addaa7",
+    "HomeBom 0.14.1 build 40151b5",
+    "RunningBom 0.17.2 build 94667c2",
+    "CalendarBom 0.5.1 build 997f13e",
+    "CertBom 0.6.2 build ceff179 summary+group+preparation Chromium/WebKit"
   ],
-  "nextDiffBase": "6925c4e0c25ce225e833a112491d8bd7a7465e73"
+  "nextDiffBase": "46ac6c563837bb807a17305b00a0bd9ed106256a"
 }
