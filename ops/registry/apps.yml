@@ -5,7 +5,7 @@ apps:
     name: 야외봄
     english_name: OutBom
     repo: robom-labs/outbom
-    version: 0.25.1
+    version: 0.25.2
     data_version: runtime-weather-v1
     version_source: https://raw.githubusercontent.com/robom-labs/outbom/main/package.json
     web_url: https://robom-labs.github.io/outbom/
