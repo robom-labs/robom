@@ -89,7 +89,7 @@ export const generatedAppMeta = [
     "name": "캘린더봄",
     "englishName": "CalendarBom",
     "repo": "robom-labs/calendarbom",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "dataVersion": "local-schema-v3",
     "webUrl": "https://robom-labs.github.io/calendarbom/",
     "healthcheckUrl": "https://robom-labs.github.io/calendarbom/",
