@@ -217,7 +217,15 @@ em { font-style: normal; }
   .site-brand > span:last-child, .desktop-nav { display: none; }
   .wordmark { font-size: 28px; }
   .family-hero { display: block; min-height: auto; padding: 34px 20px 74px; }
-  .family-hero--install { padding-top: 30px; }.hero-intro { display: block; margin-bottom: 24px; }.hero-intro .eyebrow { margin-bottom: 12px; }.hero-intro h1 { margin-bottom: 15px; font-size: clamp(39px, 12vw, 54px); }.hero-intro .hero-lead { font-size: 16px; line-height: 1.65; }.quick-install-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }.quick-install-card, .quick-install-card:nth-child(4), .quick-install-card:nth-child(5) { min-height: 196px; border-radius: 20px; padding: 12px; }.quick-app-name { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 6px; }.quick-app-name .app-glyph { width: 38px; height: 38px; border-radius: 12px; }.quick-app-name .wordmark { font-size: clamp(18px, 5vw, 22px); }.quick-install-card > p { margin: 12px 0; font-size: 12px; }.quick-install-card > div:last-child a { min-height: 48px; padding: 0 10px; font-size: 11px; }.family-hero--install > .trust-copy { margin-top: 16px; }
+  .family-hero--install { padding-top: 24px; }.hero-intro { display: block; margin-bottom: 18px; }.hero-intro .eyebrow { margin-bottom: 10px; }.hero-intro h1 { margin-bottom: 12px; font-size: clamp(33px, 10vw, 44px); }.hero-intro .hero-lead { font-size: 15px; line-height: 1.6; }
+  /* 다섯 앱이 390×844 첫 화면 안에 전부 들어오도록 카드 2열 대신 압축 행 5개로 세운다 */
+  .quick-install-grid { grid-template-columns: 1fr; gap: 8px; }
+  .quick-install-card, .quick-install-card:nth-child(4), .quick-install-card:nth-child(5) { min-height: 0; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; align-items: center; column-gap: 10px; border-radius: 18px; padding: 10px 12px; }
+  .quick-app-name { display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 6px; }.quick-app-name .app-glyph { width: 34px; height: 34px; border-radius: 11px; }.quick-app-name .wordmark { font-size: 19px; }
+  .quick-install-card > p { grid-column: 1; margin: 4px 0 0; font-size: 12px; line-height: 1.4; }
+  .quick-install-card > div:last-child { grid-column: 2; grid-row: 1 / span 2; grid-template-columns: auto auto; align-items: center; gap: 6px; }
+  .quick-install-card > div:last-child a { min-height: 48px; padding: 0 10px; font-size: 11px; }
+  .family-hero--install > .trust-copy { margin-top: 14px; }
   .hero-copy { display: flex; flex-direction: column; }
   .hero-copy h1 { order: 1; margin-bottom: 14px; font-size: clamp(40px, 12vw, 54px); }
   .hero-copy .eyebrow { order: 0; }
@@ -252,6 +260,12 @@ em { font-style: normal; }
 
 @media (max-width: 390px) {
   .site-header { padding-inline: 16px; }.family-hero { padding-inline: 16px; }.hero-actions { display: grid; }.preview-head { align-items: flex-start; }.preview-head .live-badge { max-width: 86px; text-align: center; }
+  /* 좁고 짧은 화면에서도 다섯 행이 fold 안팎에 걸치도록 한 단계 더 압축한다 */
+  .hero-intro h1 { font-size: clamp(30px, 9.5vw, 38px); }.hero-intro .hero-lead { font-size: 14px; line-height: 1.55; }
+  .quick-install-card, .quick-install-card:nth-child(4), .quick-install-card:nth-child(5) { padding: 8px 10px; }
+  .quick-install-card > p { grid-column: 1 / -1; margin: 2px 0 0; }
+  .quick-app-name { grid-template-columns: 30px minmax(0, 1fr); }.quick-app-name .app-glyph { width: 30px; height: 30px; border-radius: 10px; }.quick-app-name .wordmark { font-size: 17px; }
+  .quick-install-card > div:last-child a { padding: 0 8px; font-size: 10px; }
   .app-jump { grid-template-columns: 46px minmax(0, 1fr) auto; padding-inline: 11px; }
   .app-jump-go { min-width: 72px; font-size: 10px; }
   .appbar .status-pill, .product-appbar .status-pill { align-self: flex-start; }.appbar p { max-width: 150px; }.product-appbar p { max-width: 175px; }

@@ -36,7 +36,8 @@ if (!externalBase) {
 }
 
 await mkdir(outputDir, { recursive: true });
-const browser = await browserType.launch();
+// 브라우저 리비전이 고정 설치본과 다른 샌드박스에서는 PW_EXECUTABLE_PATH로 실행 파일을 지정한다(CI는 미설정).
+const browser = await browserType.launch(process.env.PW_EXECUTABLE_PATH ? { executablePath: process.env.PW_EXECUTABLE_PATH } : {});
 const results = [];
 
 try {
@@ -44,9 +45,11 @@ try {
     const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 1, reducedMotion: "reduce" });
     const page = await context.newPage();
     const errors = [];
-    page.on("console", (message) => { if (message.type() === "error") errors.push(`${message.text()} @ ${message.location().url || "inline"}`); });
+    // 외부망이 차단된 샌드박스에서는 로컬 origin 밖 자산 실패만 무시한다(E2E_OFFLINE=1, CI는 미설정이라 엄격 유지).
+    const isExternal = (url) => process.env.E2E_OFFLINE === "1" && typeof url === "string" && /^https?:\/\//.test(url) && !url.startsWith(baseUrl);
+    page.on("console", (message) => { if (message.type() === "error" && !isExternal(message.location().url) && !isExternal((message.text().match(/https?:\/\/\S+/) || [])[0])) errors.push(`${message.text()} @ ${message.location().url || "inline"}`); });
     page.on("pageerror", (error) => errors.push(error.message));
-    page.on("requestfailed", (request) => errors.push(`request failed: ${request.url()} · ${request.failure()?.errorText ?? "unknown"}`));
+    page.on("requestfailed", (request) => { if (!isExternal(request.url())) errors.push(`request failed: ${request.url()} · ${request.failure()?.errorText ?? "unknown"}`); });
     await page.addInitScript(() => {
       window.__robomVitals = { lcp: 0, cls: 0, inp: 0 };
       try { new PerformanceObserver((list) => { const entries = list.getEntries(); window.__robomVitals.lcp = entries.at(-1)?.startTime ?? 0; }).observe({ type: "largest-contentful-paint", buffered: true }); } catch { /* 미지원 */ }
@@ -67,6 +70,12 @@ try {
     if (width >= 1024) {
       const lastCta = await installLinks.last().boundingBox();
       assert.ok(lastCta && lastCta.y + lastCta.height <= height + 20, `${width}: 데스크톱 첫 viewport에 다섯 앱 행동 노출`);
+    }
+    const lastCard = await page.locator(".quick-install-card").last().boundingBox();
+    if (width >= 390 && width <= 430) {
+      assert.ok(lastCard && lastCard.y + lastCard.height <= height, `${width}: 모바일 첫 viewport에 다섯 앱 카드 전부 노출`);
+    } else if (width === 360) {
+      assert.ok(lastCard && lastCard.y <= height - 40, `${width}: 다섯째 앱 카드가 첫 화면에 걸쳐 보여야 함`);
     }
     const navLinks = page.locator(".mobile-tabbar a:visible");
     for (let index = 0; index < await navLinks.count(); index += 1) {

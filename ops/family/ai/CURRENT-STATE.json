@@ -4,10 +4,10 @@
   "sourceCommit": "46ac6c563837bb807a17305b00a0bd9ed106256a",
   "robom": {
     "mainSha": "46ac6c563837bb807a17305b00a0bd9ed106256a",
-    "version": "2.1.3",
+    "version": "2.1.4",
     "productionUrl": "https://robom.kr",
     "deployProvider": "sites+github-pages",
-    "serviceWorkerCache": "robom-site-v2.1.3",
+    "serviceWorkerCache": "robom-site-v2.1.4",
     "lastSuccessfulCI": "https://github.com/robom-labs/robom/actions/runs/29487808410",
     "lastDeployment": "Sites production; verify live marker with operations watchdog"
   },
