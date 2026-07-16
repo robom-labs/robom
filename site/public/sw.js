@@ -1,6 +1,6 @@
 // 로봄 설치 허브의 앱 셸을 보존하고 문서는 항상 최신 네트워크를 우선하는 서비스워커다.
 const CACHE_PREFIX = "robom-site-v";
-const CACHE_NAME = `${CACHE_PREFIX}2.1.5`;
+const CACHE_NAME = `${CACHE_PREFIX}2.1.6`;
 const SHELL = ["./", "./manifest.webmanifest", "./icons/robom-192.png", "./icons/robom-512.png"];
 
 self.addEventListener("install", (event) => {

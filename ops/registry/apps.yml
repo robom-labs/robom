@@ -24,8 +24,8 @@ apps:
     stable_install_url: https://robom.kr/get/outbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-17T02:40:00+09:00"
-    last_deployed_sha: 7e0b15fe73ecbc913cd9446931a02cdaa6661e57
+    last_verified_at: "2026-07-17T07:00:00+09:00"
+    last_deployed_sha: 15f318a6d9622aca2da81206dc0917a4856bcdde
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
@@ -56,8 +56,8 @@ apps:
     stable_install_url: https://robom.kr/get/homebom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-17T05:30:00+09:00"
-    last_deployed_sha: fec0fb28dd30210c0c5457d7884db6a14b4d3ae0
+    last_verified_at: "2026-07-17T07:00:00+09:00"
+    last_deployed_sha: 7b91314ff4dd21af6c9da408289a3c31a632965d
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
@@ -88,8 +88,8 @@ apps:
     stable_install_url: https://robom.kr/get/runningbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-17T05:30:00+09:00"
-    last_deployed_sha: ec414c8ef4f07df4f649e0c41bb57dac4b0cbe0c
+    last_verified_at: "2026-07-17T07:00:00+09:00"
+    last_deployed_sha: a43b6d0d64597c40bfa4e05169a1b965c50dfb4e
     last_data_sync_at: "2026-07-12T00:00:00+09:00"
     freshness_status: fresh
     freshness_slo_hours: 168
@@ -101,7 +101,7 @@ apps:
     name: 캘린더봄
     english_name: CalendarBom
     repo: robom-labs/calendarbom
-    version: 0.5.3
+    version: 0.6.0
     data_version: local-schema-v3
     version_source: https://raw.githubusercontent.com/robom-labs/calendarbom/main/package.json
     web_url: https://robom-labs.github.io/calendarbom/
@@ -120,8 +120,8 @@ apps:
     stable_install_url: https://robom.kr/get/calendarbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-17T05:30:00+09:00"
-    last_deployed_sha: 74c6a8079862c6b136fe9aa4a41111dba2356c42
+    last_verified_at: "2026-07-17T06:49:00+09:00"
+    last_deployed_sha: caed861833cc136af595adbfa95652da8b1e605d
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720
@@ -133,7 +133,7 @@ apps:
     name: 자격증봄
     english_name: CertBom
     repo: robom-labs/certbom
-    version: 0.6.3
+    version: 0.7.0
     data_version: 2026.07.16-v3
     version_source: https://raw.githubusercontent.com/robom-labs/certbom/main/package.json
     web_url: https://certbom.vercel.app/
@@ -152,8 +152,8 @@ apps:
     stable_install_url: https://robom.kr/get/certbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-17T03:40:00+09:00"
-    last_deployed_sha: d2b6363bde9fdb5d33945fbed818cf97030b9dd6
+    last_verified_at: "2026-07-17T07:00:00+09:00"
+    last_deployed_sha: 26f68957fe61710e4beeee56ba3cd3eb535b65e0
     last_data_sync_at: "2026-07-16T15:00:00+09:00"
     freshness_status: last-known-good
     freshness_slo_hours: 48

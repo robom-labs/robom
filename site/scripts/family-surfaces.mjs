@@ -11,7 +11,7 @@ const defaults = [
   { id: "homebom", url: "https://robom-labs.github.io/homebom/", expected: "청약봄", nav: ".nav__tab:visible", settings: ".nav__tab:nth-of-type(3):visible", family: "section:has(#family-apps) a.settings-row" },
   { id: "runningbom", url: "https://robom-labs.github.io/runningbom/", expected: "러닝봄", nav: ".mobile-tab:visible, .nav-pill:visible", settings: "[data-view='settings']:visible", family: "[data-family-app]" },
   { id: "calendarbom", url: "https://robom-labs.github.io/calendarbom/", expected: "캘린더봄", nav: ".mobile-tab:visible", settings: ".mobile-tab:nth-of-type(3):visible", family: "#familyAppsList > a" },
-  { id: "certbom", url: "https://certbom.vercel.app", expected: "자격증봄", nav: ".bottom-nav button:visible", settings: ".bottom-nav button:nth-of-type(4):visible", family: ".family-app-list a" }
+  { id: "certbom", url: "https://certbom.vercel.app", expected: "자격증봄", nav: ".bottom-nav button:visible", settings: ".bottom-nav button:nth-of-type(5):visible", family: ".family-app-list a" }
 ];
 const surfaces = process.env.FAMILY_SURFACES_JSON ? JSON.parse(process.env.FAMILY_SURFACES_JSON) : defaults;
 const browserName = process.env.BROWSER === "webkit" ? "webkit" : "chromium";
