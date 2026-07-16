@@ -1,5 +1,6 @@
 // 로봄 여섯 운영 표면과 자격증봄 데이터 workflow의 배포·PWA·heartbeat를 감시한다.
 import { readFile, writeFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import { readRegistry } from "../lib/registry.mjs";
 
@@ -156,8 +157,29 @@ async function inspectCertbomSourceWorkflow(now) {
 
 async function main() {
   const now = option("now") ? new Date(option("now")) : new Date();
+  const root = resolve(import.meta.dirname, "../../..");
   const apps = await readRegistry();
-  const results = [];
+  const siteMetadata = JSON.parse(await readFile(resolve(root, "site/package.json"), "utf8"));
+  let currentSha = process.env.GITHUB_SHA ?? "";
+  if (!currentSha) {
+    try {
+      currentSha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+    } catch {
+      currentSha = "";
+    }
+  }
+  const results = [await inspectApp({
+    id: "robom",
+    version: siteMetadata.version,
+    version_source: "https://raw.githubusercontent.com/robom-labs/robom/main/site/package.json",
+    web_url: "https://robom.kr/",
+    healthcheck_url: "https://robom.kr/",
+    last_deployed_sha: currentSha,
+    last_verified_at: now.toISOString(),
+    last_data_sync_at: now.toISOString(),
+    freshness_status: "runtime",
+    freshness_slo_hours: 48,
+  }, now)];
   for (const app of apps) results.push(await inspectApp(app, now));
   const sourceWorkflow = await inspectCertbomSourceWorkflow(now);
   const failures = results.filter((result) => result.status === "FAIL");
