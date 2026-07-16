@@ -9,7 +9,8 @@ export function Wordmark({ app }: { app?: FamilyApp }) {
   const asset = app ? `/brand/bom-${app.id}.svg` : "/brand/bom-robom.svg";
 
   return (
-    <span className={`wordmark ${app?.tone ?? "robom"}`} aria-label={app?.name ?? "로봄"}>
+    <span className={`wordmark ${app?.tone ?? "robom"}`}>
+      <span className="sr-only">{app?.name ?? "로봄"}</span>
       <span aria-hidden="true">{prefix}</span>
       <img src={asset} alt="" aria-hidden="true" width={200} height={120} />
     </span>

@@ -7,6 +7,7 @@
 - raw event는 public GitHub에 저장하지 않는다.
 - 초기 provider는 비공개 HTTPS 집계 endpoint를 기본으로 하고, Umami·PostHog는 실제 운영 credential·보관 정책·bundle 비용을 비교한 뒤 교체 가능하게 둔다.
 - 합성 집계로 report generator를 검증하되 실제 사용자 통계로 표현하지 않는다.
+- 집계 입력 계약과 주간·월간 보고 실행은 비공개 `robom-labs/robom-growth`가 소유하며 public 저장소에는 원시·집계 사용자 데이터를 커밋하지 않는다.
 
 ## 금지 데이터
 
@@ -40,4 +41,4 @@
 
 - `ops/family/analytics/sample-aggregate.json`은 `synthetic: true`인 합성 데이터다.
 - `generate-growth-report.mjs`가 금지 필드가 포함된 입력을 거부하고 deterministic 보고서를 생성하는지 검사한다.
-- private endpoint credential 연결 후에는 별도 접근 제한 저장소나 artifact에만 결과를 보관한다.
+- private endpoint credential 연결 후에는 비공개 `robom-labs/robom-growth`의 30일 제한 Actions artifact에만 결과를 보관한다.

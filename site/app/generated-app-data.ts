@@ -22,7 +22,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/outbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-16T10:43:35+09:00"
+    "lastVerifiedAt": "2026-07-16T12:09:35+09:00"
   },
   {
     "id": "homebom",
@@ -46,7 +46,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/homebom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-16T10:43:35+09:00"
+    "lastVerifiedAt": "2026-07-16T12:09:35+09:00"
   },
   {
     "id": "runningbom",
@@ -70,7 +70,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/runningbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-16T10:43:35+09:00"
+    "lastVerifiedAt": "2026-07-16T12:09:35+09:00"
   },
   {
     "id": "calendarbom",
@@ -94,7 +94,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/calendarbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-16T10:43:35+09:00"
+    "lastVerifiedAt": "2026-07-16T12:09:35+09:00"
   },
   {
     "id": "certbom",
@@ -118,6 +118,6 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/certbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-16T10:43:35+09:00"
+    "lastVerifiedAt": "2026-07-16T12:09:35+09:00"
   }
 ] as const;

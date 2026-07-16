@@ -15,6 +15,15 @@ function git(repo, ...args) {
   try { return execFileSync("git", ["-C", repo, ...args], { encoding: "utf8" }).trim(); } catch { return "unavailable"; }
 }
 
+function pairs(value) {
+  return Object.fromEntries(
+    value.split(",").map((item) => item.trim()).filter(Boolean).map((item) => {
+      const separator = item.indexOf("=");
+      return separator === -1 ? [item, "unavailable"] : [item.slice(0, separator), item.slice(separator + 1)];
+    }),
+  );
+}
+
 async function firstCacheVersion(repo, candidates) {
   for (const candidate of candidates) {
     try {
@@ -30,22 +39,24 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const workspace = resolve(arg("workspace") || dirname(root));
 const tests = (arg("tests") || "").split(",").map((item) => item.trim()).filter(Boolean);
 const smoke = (arg("smoke") || "").split(",").map((item) => item.trim()).filter(Boolean);
+const ciRuns = pairs(arg("ci") || "");
+const deployments = pairs(arg("deployments") || "");
 const apps = await readRegistry(new URL("../../../ops/registry/apps.yml", import.meta.url));
 const family = JSON.parse(await readFile(resolve(root, "ops/family/family-version.json"), "utf8"));
 const sourceCommit = git(root, "rev-parse", "HEAD");
 const cacheCandidates = {
   outbom: ["public/sw.js"],
   homebom: ["apps/web/public/sw.js"],
-  runningbom: ["sw.js", "public/sw.js"],
+  runningbom: ["outputs/pushrun-site/sw.js"],
   calendarbom: ["app/sw.js"],
-  certbom: ["public/sw.js"],
+  certbom: ["apps/web/public/sw.js", "apps/web/vite.config.ts"],
 };
 const entrypoints = {
   outbom: ["app/page.tsx", "app/globals.css", "lib/weather.ts", "lib/scoring.ts"],
   homebom: ["apps/web/src/App.tsx", "apps/web/src/styles.css", "packages/core"],
-  runningbom: ["index.html", "styles.css", "app.js", "data"],
+  runningbom: ["outputs/pushrun-site/index.html", "outputs/pushrun-site/styles.css", "outputs/pushrun-site/app.js", "outputs/pushrun-site/races.json"],
   calendarbom: ["app/index.html", "app/styles.css", "app/app.js", "app/schedule-core.js"],
-  certbom: ["src/App.tsx", "src/index.css", "src/lib", "src/data"],
+  certbom: ["apps/web/src/App.tsx", "apps/web/src/styles.css", "packages/core/src", "packages/source-adapters/src"],
 };
 
 const appState = [];
@@ -60,8 +71,9 @@ for (const app of apps) {
     deployProvider: app.deploy_provider,
     serviceWorkerCache: await firstCacheVersion(repo, cacheCandidates[app.id] || []),
     familySpecVersion: app.family_spec_version,
-    lastSuccessfulCI: app.last_verified_at,
-    lastDeployment: app.last_verified_at,
+    lastSuccessfulCI: ciRuns[app.id] || "unavailable",
+    lastDeployment: deployments[app.id] || "unavailable",
+    lastVerifiedAt: app.last_verified_at,
     keyEntrypoints: entrypoints[app.id],
     testCommand: app.test,
     buildCommand: app.build,

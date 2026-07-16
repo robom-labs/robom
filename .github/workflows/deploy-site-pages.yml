@@ -37,6 +37,8 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
+      - name: Production dependency audit
+        run: npm run audit:prod
       - name: Registry·family drift·QR decode
         run: node ../ops/scripts/check-app-registry.mjs && npm run family:verify
       - name: Build·rendered HTML 검사

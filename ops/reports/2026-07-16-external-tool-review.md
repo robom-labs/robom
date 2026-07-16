@@ -24,3 +24,14 @@
 - Expo SDK 57 native project는 custom scheme·app ID·Universal/App Links 기반을 두고, push는 개발 build가 필요한 제약을 문서화한다. [Expo 프로젝트 생성](https://docs.expo.dev/more/create-expo/), [Expo linking](https://docs.expo.dev/linking/overview/), [Expo notifications](https://docs.expo.dev/versions/v57.0.0/sdk/notifications/)
 
 스토어 계약·서명 credential이 없으므로 실제 signed binary와 제출은 `BLOCKED_EXTERNAL`이며, 이를 통과한 것처럼 기록하지 않는다.
+
+## 공개 앱 패턴과 채택·제외 판단
+
+| 공개 근거 | 관찰 | 로봄 판단 |
+|---|---|---|
+| [TimeTree App Store](https://apps.apple.com/us/app/timetree-shared-calendar/id952578473) | 공유 일정·알림·기기 달력·위젯의 가치를 첫 설명에서 명확히 제시하지만 앱 크기와 기능 범위가 크다. | 캘린더봄은 알림·기기 달력 가치는 채택하고, 70대 사용자의 적은 질문과 local-first를 지키기 위해 채팅·앨범·다중 생산성 기능은 제외했다. |
+| [FamilyWall App Store](https://apps.apple.com/us/app/familywall-family-organizer/id496889629) | 가족 캘린더·목록·문서·위치를 한 앱에 모으지만 공개 리뷰에는 참여자 기본값 혼란과 위치 정확도 요구가 보이고, 스토어 개인정보 표시는 식별자 추적을 포함한다. | 패밀리 앱을 슈퍼앱으로 합치지 않고, 캘린더 민감정보의 기본 로컬 저장과 명시적 동의 원칙을 유지했다. |
+| [Drops Rain Alarm](https://play.google.com/store/apps/details?id=org.yoki.android.drops) | 비가 시작·종료되는 시점을 두 시간 안에서 한눈에 답하는 단일 과제가 선명하다. | 야외봄 첫 판단에서 비를 별도 핵심 신호로 유지하고, 수치 나열보다 지금 출발·좋은 시간·준비물 행동으로 번역한다. |
+| [Nike Run Club App Store](https://apps.apple.com/us/app/nike-run-club-running-coach/id387771637) | 달리기 시작과 기록, Watch·Health 연동 같은 네이티브 가치가 분명하지만 대형 종합 러닝 제품이다. | 러닝봄은 대회 검색·접수 시작이라는 고유 과제를 유지하고 로컬 알림·공식 deep link만 네이티브 첫 가치로 둔다. |
+
+공개 앱의 화면·문구·자산은 복제하지 않았다. 공통으로 채택한 것은 첫 화면의 단일 행동, 권한 요청 전 가치 설명, 네이티브 기능의 명확한 이유뿐이다.

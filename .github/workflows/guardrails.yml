@@ -37,6 +37,7 @@ jobs:
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
+      - run: npm run audit:prod
       - run: npm run family:verify
       - run: npm run lint
       - run: npm test

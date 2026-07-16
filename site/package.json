@@ -15,7 +15,9 @@
     "generate:favicon": "node scripts/generate-brand-favicons.mjs",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "test:e2e": "node scripts/e2e.mjs",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
+    "test:surfaces": "node scripts/family-surfaces.mjs",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "audit:prod": "node ../ops/scripts/family/audit-production.mjs"
   },
   "dependencies": {
     "next": "16.2.6",
