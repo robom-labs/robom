@@ -57,3 +57,13 @@ node scripts/control-center/emit-event.mjs --run "$CODEX_RUN" --agent room-02 --
 - 이벤트에 프롬프트 원문·비밀값·개인정보·전체 로그를 넣지 않는다(요약·증거만).
 - `events/*.jsonl`·`snapshots/latest.json`은 `.gitignore`(내부 데이터, 커밋 금지).
 - 직원 id는 `agents.yml`·`office.js` 로스터와 일치해야 캐릭터에 매핑된다(없으면 `OFFICE-UPDATE.md`대로 로스터에 추가).
+
+## 5) 오피스 게임 실제 검증 절차
+
+아래 상태를 로컬에서 `emit-event.mjs`로 주입한 뒤 `build-snapshot.mjs`와 `office.html`을 대조한다. 이 이벤트 파일과 `snapshots/latest.json`은 모두 `.gitignore` 대상이며 검증 후 제거한다.
+
+- `implementing`은 해당 직원의 자리 작업과 직원 상세 패널에 표시된다.
+- 같은 앱에서 서로 다른 직원 2명 이상이 활성화되면 대회의실로 이동한다.
+- `blocked`, `approval_pending`, `deploying` 전이에서 토스트가 한 번만 표시된다.
+- 마지막 heartbeat가 30분을 넘으면 `needs_check`로 변환돼 상태 확인이 필요함을 표시한다.
+- 이벤트가 없을 때 업무·회의·배포 숫자는 0이며 캐릭터는 대기·휴식·식사·순찰만 한다.
