@@ -38,6 +38,10 @@ let game = readFileSync(join(APP, "office.html"), "utf8")
   .replace(/<link rel="icon"[^>]*>\s*/i, "")
   .replace(/<script src="\.\/office\.js"><\/script>/i,
     `<script>window.__PREVIEW__=true;window.__SNAP__=${JSON.stringify(snap)};</script>\n<script>\n${officeJs}\n</script>`);
+// LPC 스프라이트를 data URI로 인라인(더블클릭 file://에서도 캐릭터 아트가 뜨게)
+for (const k of ["body", "shirt", "pants", "hair"]) {
+  try { const p = join(APP, "assets", `lpc-${k}.png`); if (existsSync(p)) { const b = readFileSync(p).toString("base64"); game = game.replace(`"./assets/lpc-${k}.png"`, `"data:image/png;base64,${b}"`); } } catch {}
+}
 const gout = join(outDir, "로봄본부-오피스.html");
 writeFileSync(gout, game);
 console.log(`[robom-hq] 단일 HTML(오피스 게임): ${gout} (${Math.round(game.length / 1024)}KB, snapshot=${snapFile})`);
