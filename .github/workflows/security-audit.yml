@@ -1,0 +1,56 @@
+# 로봄 패밀리 6개 저장소의 production 의존성 취약점(high 이상)을 매주 감사한다.
+# 저장소에 커밋이 없어도 새로 공개된 CVE를 놓치지 않기 위한 중앙 정기 검사다.
+name: Family security audit
+
+on:
+  schedule:
+    - cron: "17 2 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: family-security-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - run: corepack enable
+      - name: 여섯 저장소 production 의존성 감사
+        id: audit
+        continue-on-error: true
+        run: node ops/scripts/family/security-audit.mjs --output security-audit.json
+      - name: 실패는 중복 없는 보안 이슈 하나로 승격
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          STATUS="$(jq -r '.status // "FAIL"' security-audit.json 2>/dev/null || echo FAIL)"
+          TITLE="[ops] 로봄 패밀리 보안 감사 확인 필요"
+          EXISTING="$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number // empty')"
+          if [ "$STATUS" = "PASS" ]; then
+            if [ -n "$EXISTING" ]; then
+              gh issue close "$EXISTING" --comment "모든 저장소의 high 이상 취약점이 해소되어 자동으로 닫습니다. 실행: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            fi
+            exit 0
+          fi
+          SUMMARY="$(jq -r '[.results[] | select(.error or ((.high // 0) > 0) or ((.critical // 0) > 0)) | "\(.label): high \(.high // 0)·critical \(.critical // 0)\(if .error then " · " + .error else "" end)"] | join("\n")' security-audit.json 2>/dev/null || echo "감사 결과 파일 확인 필요")"
+          BODY="$(printf 'production 의존성 보안 감사 실패입니다.\n\n%s\n\n실행: %s/%s/actions/runs/%s' "$SUMMARY" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID")"
+          if [ -n "$EXISTING" ]; then
+            gh issue edit "$EXISTING" --body "$BODY"
+          else
+            gh issue create --title "$TITLE" --body "$BODY" --label "operations" 2>/dev/null || gh issue create --title "$TITLE" --body "$BODY"
+          fi
+      - name: 감사 실패는 workflow도 실패 처리
+        if: steps.audit.outcome == 'failure'
+        run: exit 1

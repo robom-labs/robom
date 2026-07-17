@@ -61,6 +61,9 @@ apps:
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
+    # 시간별 실공고 갱신 파이프라인의 missed-run heartbeat — watchdog이 x-verified-at 나이를 검사한다.
+    data_probe_url: https://neqjmxaneibobpedgsnl.functions.supabase.co/notices
+    data_probe_max_age_hours: 6
     stack: Vite + React
     test: pnpm typecheck && pnpm test
     build: pnpm build

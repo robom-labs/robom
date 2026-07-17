@@ -2,6 +2,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
+import tls from "node:tls";
 import { readRegistry } from "../lib/registry.mjs";
 
 function option(name, fallback = "") {
@@ -14,6 +15,46 @@ export function freshnessState(value, now = new Date(), staleAfterHours = 48) {
   if (!Number.isFinite(timestamp)) return { status: "missing", ageHours: null };
   const ageHours = (now.getTime() - timestamp) / 3_600_000;
   return { status: ageHours >= staleAfterHours ? "stale" : "fresh", ageHours };
+}
+
+// 런타임 데이터 API의 검증 시각 헤더로 갱신 파이프라인 생존을 판정한다 (missed-run heartbeat).
+export function dataProbeState(verifiedAtHeader, now = new Date(), maxAgeHours = 6) {
+  return freshnessState(verifiedAtHeader ?? "", now, maxAgeHours);
+}
+
+// TLS 인증서 잔여일 — 만료 전에 미리 경고한다 (자동 갱신 실패 조기 감지).
+export function certExpiryDays(validTo, now = new Date()) {
+  const expires = Date.parse(validTo);
+  if (!Number.isFinite(expires)) return null;
+  return (expires - now.getTime()) / 86_400_000;
+}
+
+async function fetchCertValidTo(host, timeout = 15_000) {
+  return new Promise((resolvePromise, rejectPromise) => {
+    const socket = tls.connect({ host, port: 443, servername: host, timeout }, () => {
+      const cert = socket.getPeerCertificate();
+      socket.end();
+      cert?.valid_to ? resolvePromise(cert.valid_to) : rejectPromise(new Error("인증서 정보를 읽지 못했습니다."));
+    });
+    socket.on("timeout", () => { socket.destroy(); rejectPromise(new Error("TLS 연결 시간 초과")); });
+    socket.on("error", rejectPromise);
+  });
+}
+
+async function inspectTlsCertificates(hosts, now) {
+  const results = [];
+  for (const host of hosts) {
+    try {
+      const validTo = await fetchCertValidTo(host);
+      const days = certExpiryDays(validTo, now);
+      const status = days === null ? "FAIL" : days < 10 ? "FAIL" : days < 21 ? "STALE" : "PASS";
+      results.push({ host, status, daysLeft: days === null ? null : Math.floor(days), validTo });
+    } catch (error) {
+      // 조회 실패는 만료 임박과 구분해 경고로만 남긴다(네트워크 요인 오탐 방지).
+      results.push({ host, status: "STALE", daysLeft: null, detail: String(error instanceof Error ? error.message : error) });
+    }
+  }
+  return results;
 }
 
 export function extractAssetUrls(html, baseUrl) {
@@ -120,6 +161,26 @@ async function inspectApp(app, now) {
     }
   }
 
+  // 런타임 데이터 갱신 파이프라인 heartbeat: registry에 probe URL이 선언된 앱만 검사한다.
+  if (app.data_probe_url) {
+    const maxAge = Number(app.data_probe_max_age_hours ?? 6);
+    const headerName = app.data_probe_verified_header ?? "x-verified-at";
+    try {
+      const response = await fetch(app.data_probe_url, {
+        cache: "no-store",
+        headers: { accept: "application/json" },
+        signal: AbortSignal.timeout(20_000),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const probe = dataProbeState(response.headers.get(headerName), now, maxAge);
+      if (probe.status !== "fresh") {
+        errors.push(`데이터 probe(${headerName})가 신선하지 않습니다: ${probe.status === "missing" ? "헤더 없음" : `${Math.round(probe.ageHours ?? 0)}시간 경과 (기준 ${maxAge}시간)`}`);
+      }
+    } catch (error) {
+      errors.push(`데이터 probe 확인 실패: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
   return {
     id: app.id,
     status: errors.length ? "FAIL" : warnings.length ? "STALE" : "PASS",
@@ -182,12 +243,15 @@ async function main() {
   }, now)];
   for (const app of apps) results.push(await inspectApp(app, now));
   const sourceWorkflow = await inspectCertbomSourceWorkflow(now);
+  const tlsCertificates = await inspectTlsCertificates(["robom.kr", "certbom.vercel.app", "robom-labs.github.io"], now);
   const failures = results.filter((result) => result.status === "FAIL");
+  const tlsFailures = tlsCertificates.filter((cert) => cert.status === "FAIL");
   const report = {
     checkedAt: now.toISOString(),
-    status: failures.length || sourceWorkflow.status === "FAIL" ? "FAIL" : "PASS",
+    status: failures.length || sourceWorkflow.status === "FAIL" || tlsFailures.length ? "FAIL" : "PASS",
     apps: results,
     certbomSourceWorkflow: sourceWorkflow,
+    tlsCertificates,
   };
   const output = option("output");
   if (output) await writeFile(resolve(process.cwd(), output), `${JSON.stringify(report, null, 2)}\n`);
@@ -201,6 +265,8 @@ async function main() {
       ...table,
       "",
       `자격증봄 source workflow: ${sourceWorkflow.status} · ${sourceWorkflow.detail}`,
+      "",
+      ...tlsCertificates.map((cert) => `TLS ${cert.host}: ${cert.status}${cert.daysLeft === null ? "" : ` · 잔여 ${cert.daysLeft}일`}${cert.detail ? ` · ${cert.detail}` : ""}`),
       "",
     ].join("\n"), { flag: "a" });
   }

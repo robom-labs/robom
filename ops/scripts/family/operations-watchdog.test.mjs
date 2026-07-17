@@ -1,7 +1,7 @@
 // 로봄 운영 watchdog의 자산 탐색과 신선도 경계를 고정한다.
 import assert from "node:assert/strict";
 import test from "node:test";
-import { extractAssetUrls, freshnessState } from "./operations-watchdog.mjs";
+import { certExpiryDays, dataProbeState, extractAssetUrls, freshnessState } from "./operations-watchdog.mjs";
 
 test("상대·절대 운영 자산만 같은 origin에서 수집한다", () => {
   const urls = extractAssetUrls(
@@ -19,4 +19,17 @@ test("48시간 전후의 중앙 확인 상태를 구분한다", () => {
   assert.equal(freshnessState("2026-07-15T12:00:00Z", now).status, "fresh");
   assert.equal(freshnessState("2026-07-14T11:59:59Z", now).status, "stale");
   assert.equal(freshnessState("invalid", now).status, "missing");
+});
+
+test("데이터 probe는 기준 시간·헤더 부재를 구분한다", () => {
+  const now = new Date("2026-07-16T12:00:00Z");
+  assert.equal(dataProbeState("2026-07-16T08:00:00Z", now, 6).status, "fresh");
+  assert.equal(dataProbeState("2026-07-16T05:00:00Z", now, 6).status, "stale");
+  assert.equal(dataProbeState(null, now, 6).status, "missing");
+});
+
+test("TLS 인증서 잔여일을 계산한다", () => {
+  const now = new Date("2026-07-16T12:00:00Z");
+  assert.equal(Math.floor(certExpiryDays("Aug  5 12:00:00 2026 GMT", now)), 20);
+  assert.equal(certExpiryDays("invalid", now), null);
 });
