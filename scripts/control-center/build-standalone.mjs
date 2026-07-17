@@ -34,10 +34,12 @@ console.log(`[robom-hq] 단일 HTML(대시보드): ${out} (${Math.round(html.len
 
 // 오피스 게임 단일 HTML (더블클릭 실행)
 const officeJs = readFileSync(join(APP, "office.js"), "utf8");
+const officeMap = existsSync(join(APP, "office-map.json"))
+  ? JSON.parse(readFileSync(join(APP, "office-map.json"), "utf8")) : null;
 let game = readFileSync(join(APP, "office.html"), "utf8")
   .replace(/<link rel="icon"[^>]*>\s*/i, "")
   .replace(/<script src="\.\/office\.js"><\/script>/i,
-    `<script>window.__PREVIEW__=true;window.__SNAP__=${JSON.stringify(snap)};</script>\n<script>\n${officeJs}\n</script>`);
+    `<script>window.__PREVIEW__=true;window.__SNAP__=${JSON.stringify(snap)};${officeMap ? `window.__MAP__=${JSON.stringify(officeMap)};` : ""}</script>\n<script>\n${officeJs}\n</script>`);
 // LPC 스프라이트를 data URI로 인라인(더블클릭 file://에서도 캐릭터 아트가 뜨게)
 for (const k of ["body", "shirt", "pants", "hair"]) {
   try { const p = join(APP, "assets", `lpc-${k}.png`); if (existsSync(p)) { const b = readFileSync(p).toString("base64"); game = game.replace(`"./assets/lpc-${k}.png"`, `"data:image/png;base64,${b}"`); } } catch {}

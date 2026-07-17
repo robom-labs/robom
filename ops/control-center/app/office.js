@@ -1,64 +1,90 @@
 // 로봄 본부 — 살아있는 아이소메트릭 오피스 게임 (canvas, 무의존).
 // 실제 LPC 픽셀 스프라이트(걷기 사이클, 팀색 틴트) + 깔끔한 격자·넓은 복도. 스프라이트 없으면 프로시저럴 폴백.
 // 캐릭터가 A*로 걷고·자리에서 일하고·휴게실 휴식·식당 식사·회의실 스탠드업. 연출 금지(실제 이벤트 있을 때만 '일하는 중').
+// 레이아웃은 office-map.json(정본)에서 로드한다. fetch 실패 시 아래 FALLBACK_MAP으로 동일 동작(단일 HTML·file://).
 "use strict";
 (() => {
-const TW=64, TH=32, GW=40, GH=28;
 const cv=document.getElementById("game"), ctx=cv.getContext("2d");
 ctx.imageSmoothingEnabled=false;
 let DPR=Math.min(2,window.devicePixelRatio||1);
 let cam={s:1,x:0,y:0,drag:null,fit:true};
 
-// ── 팀 색 ──
-const T={cmd:"#4f8fe0",strat:"#9a6cf0",dev:"#2fd08a",qa:"#39b98a",ops:"#f59a3c",sec:"#e8b93c",gold:"#e8b93c",
-  out:"#48a7d4",home:"#4da35e",run:"#e0574a",cert:"#5b6ee0",cal:"#2fd0bd"};
-const NAMES={"ceo-orchestrator":"비서실장","room-01":"room-01","room-02":"room-02","room-03":"room-03",
-  strategist:"전략팀",recorder:"기록팀",builder:"개발팀",planner:"기획팀",inspector:"검사팀",architect:"설계팀",upgrader:"R&D팀",
-  "growth-marketer":"홍보팀","release-manager":"릴리즈팀",supervisor:"감독팀",
-  out:"야외봄",home:"청약봄",run:"러닝봄",cert:"자격증봄",cal:"캘린더봄"};
-const PRODUCT=new Set(["out","home","run","cert","cal"]);
+// ── 레이아웃 폴백(= office-map.json과 동일). 맵 로드 성공 시 덮어써짐 ──
+const FALLBACK_MAP={
+  grid:{w:40,h:28,tileW:64,tileH:32},
+  teams:{cmd:"#4f8fe0",strat:"#9a6cf0",dev:"#2fd08a",qa:"#39b98a",ops:"#f59a3c",sec:"#e8b93c",gold:"#e8b93c",
+    out:"#48a7d4",home:"#4da35e",run:"#e0574a",cert:"#5b6ee0",cal:"#2fd0bd"},
+  products:["out","home","run","cert","cal"],
+  names:{"ceo-orchestrator":"비서실장","room-01":"room-01","room-02":"room-02","room-03":"room-03",
+    strategist:"전략팀",recorder:"기록팀",builder:"개발팀",planner:"기획팀",inspector:"검사팀",architect:"설계팀",upgrader:"R&D팀",
+    "growth-marketer":"홍보팀","release-manager":"릴리즈팀",supervisor:"감독팀",
+    out:"야외봄",home:"청약봄",run:"러닝봄",cert:"자격증봄",cal:"캘린더봄"},
+  zones:[
+    {x:2,y:2,w:10,h:7,color:"#4f8fe0",label:"🧭 본부·전략실",code:"COMMAND",walls:true,door:[6,8]},
+    {x:15,y:2,w:9,h:7,color:"#9a6cf0",label:"💬 회의실",code:"MEETING",walls:true,door:[19,8]},
+    {x:28,y:2,w:10,h:7,color:"#e8b93c",label:"👑 회장실",code:"CHAIRMAN",walls:true,door:[32,8]},
+    {x:2,y:11,w:9,h:7,color:"#2fd08a",label:"🛠️ 개발·QA실",code:"FLOOR ENG",walls:true,door:[6,11]},
+    {x:13,y:11,w:10,h:7,color:"#f59a3c",label:"📣 홍보·보안·릴리스",code:"FLOOR OPS",walls:true,door:[17,11]},
+    {x:25,y:11,w:13,h:7,color:"#9a6cf0",label:"📦 프로젝트 룸 · 5 APPS",code:"PROJECTS",walls:true,door:[31,11]},
+    {x:2,y:20,w:11,h:6,color:"#2fd0bd",label:"☕ 휴게실",code:"LOUNGE",walls:true,door:[7,20]},
+    {x:15,y:20,w:11,h:6,color:"#e8b93c",label:"🍚 구내식당",code:"CAFETERIA",walls:true,door:[20,20]},
+    {x:28,y:20,w:10,h:6,color:"#4f8fe0",label:"🖥️ 서버·리셉션",code:"SERVER",walls:true,door:[32,20]},
+  ],
+  desks:[
+    {id:"ceo-orchestrator",x:3,y:4,team:"cmd"},{id:"room-01",x:5,y:4,team:"cmd"},{id:"room-02",x:7,y:4,team:"cmd"},{id:"room-03",x:9,y:4,team:"cmd"},
+    {id:"strategist",x:4,y:7,team:"strat"},{id:"recorder",x:7,y:7,team:"strat"},
+    {id:"builder",x:3,y:13,team:"dev"},{id:"planner",x:5,y:13,team:"dev"},{id:"inspector",x:7,y:13,team:"qa"},{id:"architect",x:4,y:16,team:"dev"},{id:"upgrader",x:7,y:16,team:"qa"},
+    {id:"growth-marketer",x:14,y:13,team:"ops"},{id:"release-manager",x:17,y:13,team:"ops"},{id:"supervisor",x:20,y:13,team:"strat"},
+    {id:"out",x:27,y:13,team:"out"},{id:"home",x:30,y:13,team:"home"},{id:"run",x:33,y:13,team:"run"},{id:"cert",x:28,y:16,team:"cert"},{id:"cal",x:31,y:16,team:"cal"},
+  ],
+  chair:{id:"chairman",name:"황준필 · 회장",x:32,y:4},
+  secretaries:[{id:"sec-arin",name:"비서 아린",x:35,y:4},{id:"sec-sein",name:"비서 세인",x:35,y:6}],
+  seats:{
+    meeting:[[19,4.4],[16.6,6],[21.4,6],[19,7.8],[17,7],[21,7]],meetingTable:[19,6],
+    lounge:[[4,22.4],[5.2,22.4],[6.4,22.4],[9,21.4]],
+    cafe:[[17,22.6],[18.4,22.6],[21,22.6],[22.4,22.6],[17,24.4],[21,24.4]],cafeTables:[[17.7,23],[21.7,23]],
+  },
+};
 
-// ── 레이아웃(정렬된 격자, 넓은 복도) ──
-// 방: {x,y,w,h,c(러그),s(테두리),label,code}
-const ZONES=[
-  {x:2,y:2,w:10,h:7,s:"#4f8fe0",label:"🧭 본부·전략실",code:"COMMAND"},
-  {x:15,y:2,w:9,h:7,s:"#9a6cf0",label:"💬 회의실",code:"MEETING"},
-  {x:28,y:2,w:10,h:7,s:"#e8b93c",label:"👑 회장실",code:"CHAIRMAN"},
-  {x:2,y:11,w:9,h:7,s:"#2fd08a",label:"🛠️ 개발·QA실",code:"FLOOR ENG"},
-  {x:13,y:11,w:10,h:7,s:"#f59a3c",label:"📣 홍보·보안·릴리스",code:"FLOOR OPS"},
-  {x:25,y:11,w:13,h:7,s:"#9a6cf0",label:"📦 프로젝트 룸 · 5 APPS",code:"PROJECTS"},
-  {x:2,y:20,w:11,h:6,s:"#2fd0bd",label:"☕ 휴게실",code:"LOUNGE"},
-  {x:15,y:20,w:11,h:6,s:"#e8b93c",label:"🍚 구내식당",code:"CAFETERIA"},
-  {x:28,y:20,w:10,h:6,s:"#4f8fe0",label:"🖥️ 서버·리셉션",code:"SERVER"},
-];
-// 책상 [id, x, y] — 직원은 y+1 착석
-const DESKS=[
-  ["ceo-orchestrator",3,4],["room-01",5,4],["room-02",7,4],["room-03",9,4],["strategist",4,7],["recorder",7,7],
-  ["builder",3,13],["planner",5,13],["inspector",7,13],["architect",4,16],["upgrader",7,16],
-  ["growth-marketer",14,13],["release-manager",17,13],["supervisor",20,13],
-  ["out",27,13],["home",30,13],["run",33,13],["cert",28,16],["cal",31,16],
-];
-const CHAIR={id:"chairman",name:"황준필 · 회장",x:32,y:4};
-const SECS=[["sec-arin","비서 아린",35,4],["sec-sein","비서 세인",35,6]];
-const BODY={};DESKS.forEach(([id])=>{ const t= id in NAMES ? (
-  ["ceo-orchestrator","room-01","room-02","room-03"].includes(id)?T.cmd:
-  ["strategist","recorder","supervisor"].includes(id)?T.strat:
-  ["builder","planner","architect"].includes(id)?T.dev:
-  ["inspector","upgrader"].includes(id)?T.qa:
-  ["growth-marketer","release-manager"].includes(id)?T.ops: T[id]||T.cmd):T.cmd; BODY[id]=t; });
-const MEET=[[19,4.4],[16.6,6],[21.4,6],[19,7.8],[17,7],[21,7]]; const MEET_T=[19,6];
-const LOUNGE=[[4,22.4],[5.2,22.4],[6.4,22.4],[9,21.4]];
-const CAFE=[[17,22.6],[18.4,22.6],[21,22.6],[22.4,22.6],[17,24.4],[21,24.4]]; const CAFE_T=[[17.7,23],[21.7,23]];
+// ── 맵에서 채워지는 레이아웃 상태(applyMap에서 할당) ──
+let TW=64,TH=32,GW=40,GH=28;
+let T={},NAMES={},PRODUCT=new Set(),ZONES=[],DESKS=[],CHAIR={},SECS=[];
+let MEET=[],MEET_T=[],LOUNGE=[],CAFE=[],CAFE_T=[];
+let BODY={},BLOCK=new Set();
+let chars=[],byId={};
 
-// ── 막힌 타일(가구) ──
-const BLOCK=new Set(); const K=(c,r)=>c+","+r;
-DESKS.forEach(([,x,y])=>BLOCK.add(K(x,y)));
-BLOCK.add(K(CHAIR.x,CHAIR.y));BLOCK.add(K(CHAIR.x+1,CHAIR.y));
-[[19,6]].forEach(([x,y])=>{for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)BLOCK.add(K(x+a,y+b));});
-for(let i=4;i<=7;i++)BLOCK.add(K(i,22)); // 소파
-CAFE_T.forEach(([x,y])=>BLOCK.add(K(Math.round(x),Math.round(y))));
-[[30,22],[30,24],[34,22]].forEach(([x,y])=>BLOCK.add(K(x,y))); // 서버·리셉션
+const K=(c,r)=>c+","+r;
 const walk=(c,r)=>c>=0&&r>=0&&c<GW&&r<GH&&!BLOCK.has(K(c,r));
+
+// 맵 데이터 → 레이아웃/파생 구조/캐릭터 구축
+function applyMap(m){
+  TW=m.grid.tileW;TH=m.grid.tileH;GW=m.grid.w;GH=m.grid.h;
+  T=Object.assign({},m.teams);
+  NAMES=Object.assign({},m.names);
+  PRODUCT=new Set(m.products||[]);
+  ZONES=m.zones.map(z=>({x:z.x,y:z.y,w:z.w,h:z.h,s:z.color,label:z.label,code:z.code,walls:z.walls,door:z.door}));
+  DESKS=m.desks.map(d=>[d.id,d.x,d.y]);
+  CHAIR={id:m.chair.id,name:m.chair.name,x:m.chair.x,y:m.chair.y};
+  SECS=m.secretaries.map(s=>[s.id,s.name,s.x,s.y]);
+  MEET=m.seats.meeting;MEET_T=m.seats.meetingTable;LOUNGE=m.seats.lounge;CAFE=m.seats.cafe;CAFE_T=m.seats.cafeTables;
+  // 팀색(BODY)
+  BODY={};m.desks.forEach(d=>{BODY[d.id]=T[d.team]||T.cmd;});
+  // 막힌 타일(가구)
+  BLOCK=new Set();
+  DESKS.forEach(([,x,y])=>BLOCK.add(K(x,y)));
+  BLOCK.add(K(CHAIR.x,CHAIR.y));BLOCK.add(K(CHAIR.x+1,CHAIR.y));
+  {const[mx,my]=MEET_T;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)BLOCK.add(K(mx+a,my+b));}
+  for(let i=4;i<=7;i++)BLOCK.add(K(i,22)); // 소파
+  CAFE_T.forEach(([x,y])=>BLOCK.add(K(Math.round(x),Math.round(y))));
+  [[30,22],[30,24],[34,22]].forEach(([x,y])=>BLOCK.add(K(x,y))); // 서버·리셉션
+  buildChars();
+}
+function buildChars(){
+  chars=[];byId={};
+  DESKS.forEach(([id,x,y])=>{const ch=new Char(id,NAMES[id]||id,BODY[id]||T.cmd,{c:x,r:y+1});chars.push(ch);byId[id]=ch;});
+  const cm=new Char(CHAIR.id,CHAIR.name,T.gold,{c:CHAIR.x,r:CHAIR.y+1},{crown:true,locked:true});cm.act="chair";chars.push(cm);byId[cm.id]=cm;
+  SECS.forEach(([id,nm,x,y])=>{const ch=new Char(id,nm,T.sec,{c:x,r:y});chars.push(ch);byId[id]=ch;});
+}
 
 // ── 투영 ──
 const W2=(c,r)=>({x:(c-r)*TW/2,y:(c+r)*TH/2});
@@ -111,10 +137,6 @@ class Char{
     if(this.dest&&(Math.abs(this.dest.c-this.cx)>.03||Math.abs(this.dest.r-this.cy)>.03)){const dx=this.dest.c-this.cx,dy=this.dest.r-this.cy,d=Math.hypot(dx,dy),sp=2.6*dt;if(d<=sp){this.cx=this.dest.c;this.cy=this.dest.r;}else{this.cx+=dx/d*sp;this.cy+=dy/d*sp;this.face(dx,dy);}this.phase+=dt*9;this.walking=true;return;}
     this.walking=false;this.facing=(this.act==="meet")?"down":"down";this.phase+=dt*(this.act==="work"||this.act==="verify"?7:2);}
 }
-const chars=[],byId={};
-DESKS.forEach(([id,x,y])=>{const ch=new Char(id,NAMES[id]||id,BODY[id]||T.cmd,{c:x,r:y+1});chars.push(ch);byId[id]=ch;});
-const cm=new Char(CHAIR.id,CHAIR.name,T.gold,{c:CHAIR.x,r:CHAIR.y+1},{crown:true,locked:true});cm.act="chair";chars.push(cm);byId[cm.id]=cm;
-SECS.forEach(([id,nm,x,y])=>{const ch=new Char(id,nm,T.sec,{c:x,r:y});chars.push(ch);byId[id]=ch;});
 
 // ── 오토파일럿 ──
 const rnd=(a,b)=>a+Math.random()*(b-a);
@@ -226,5 +248,13 @@ function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
   drawFloor();
   const it=furniture();chars.forEach(c=>it.push({d:c.cx+c.cy+0.6,f:()=>drawChar(c)}));it.sort((a,b)=>a.d-b.d);it.forEach(o=>o.f());
   drawLabels();updateHUD();requestAnimationFrame(loop);}
-loadSprites();resize();poll();setInterval(poll,6000);setInterval(tickClock,1000);tickClock();requestAnimationFrame(loop);
+
+// ── 부팅: 맵 로드(있으면) → 초기화 → 시작. 실패 시 FALLBACK_MAP으로 동일 동작 ──
+applyMap(FALLBACK_MAP); // 즉시 준비(리사이즈/포인터 핸들러가 빈 상태 안 보게)
+(async function boot(){
+  let map=null;
+  try{ map = window.__MAP__ ? window.__MAP__ : await (await fetch("./office-map.json",{cache:"no-store"})).json(); }catch(e){ map=null; }
+  if(map){ try{ applyMap(map); }catch(e){ applyMap(FALLBACK_MAP); } }
+  loadSprites();resize();poll();setInterval(poll,6000);setInterval(tickClock,1000);tickClock();requestAnimationFrame(loop);
+})();
 })();
