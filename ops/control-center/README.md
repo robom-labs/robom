@@ -16,6 +16,8 @@ node scripts/control-center/serve.mjs
 
 기본 주소는 `http://127.0.0.1:4321/`이다. 실시간 본부는 로컬 기록 API, 스냅샷 새로고침, 백업과 내보내기를 제공한다. 서버 없이 `dist/로봄본부.html`을 열면 마지막 스냅샷을 보는 휴대용 모드로 동작한다.
 
+GitHub CLI에 로그인된 컴퓨터에서는 기존 `gh` 인증을 읽기 전용으로 재사용해 PR·CI 상태를 수집한다. 로그인되지 않았으면 공개 REST를 시도하고, 둘 다 실패하면 로컬 Git 근거만 표시한다. 자격 증명 원문은 snapshot과 브라우저에 저장하지 않는다.
+
 ```bash
 node scripts/control-center/build-snapshot.mjs
 node scripts/control-center/build-standalone.mjs

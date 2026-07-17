@@ -1,7 +1,7 @@
 // 로봄 본부 스냅샷 생성기 — 실제 데이터만 모아 snapshots/latest.json 을 만든다.
-// 외부 유료 API·상시 서버 없음. GitHub는 무료 REST(GITHUB_TOKEN 있으면 사용, 없으면 미연결).
+// 외부 유료 API·상시 서버 없음. GitHub 공개 저장소는 무료 REST로 읽고 토큰이 있으면 호출 한도만 높인다.
 import { writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { REPO_ROOT, readApps, readState, gitInfo, ghOpenPRs, ghRecentRuns, readDepartments, readAgents, parseYamlList, readText } from "./lib/sources.mjs";
 import { controlCenterFields } from "./lib/sources.mjs";
 import { readEvents, deriveRuns } from "./lib/events.mjs";
@@ -13,7 +13,11 @@ const NOW = process.env.ROBOM_HQ_NOW || new Date().toISOString();
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || null;
 
 // 로컬 클론 위치 후보 (있으면 git 정보 수집)
-const localDir = (id) => id === "robom" ? REPO_ROOT : `/workspace/${id}`;
+const localDir = (id) => {
+  if (id === "robom") return REPO_ROOT;
+  const sibling = join(dirname(REPO_ROOT), id);
+  return existsSync(join(sibling, ".git")) ? sibling : `/workspace/${id}`;
+};
 
 function todayKst(iso) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date(iso));
@@ -131,8 +135,11 @@ async function main() {
     todayFailures: appData.reduce((n, a) => n + a.todayFails, 0),
   };
 
+  const githubReadable = appData.some((app) => app.github === "connected");
   const connections = {
-    github: TOKEN ? "connected" : "not_connected(토큰 없음 · 로컬 git만)",
+    github: githubReadable
+      ? (TOKEN ? "connected(authenticated REST)" : "connected(public REST · 추가 비용 없음)")
+      : "not_connected(GitHub REST 읽기 실패 · 로컬 git만)",
     localGit: apps.map((app) => app.id).filter((id) => existsSync(join(localDir(id), ".git"))),
     events: events.length > 0 ? "connected" : "no_events(아직 작업 이벤트 없음)",
     claudeCode: "adapter_pending(훅으로 emit-event 연결 시 활성)",

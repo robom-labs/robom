@@ -95,8 +95,21 @@ export function gitInfo(dir) {
   return { available: true, sha, branch, lastMsg, lastDate, branches, workBranches };
 }
 
-// ── GitHub 무료 REST (토큰 있으면 rate limit 완화, 없으면 미연결 처리) ──
+// ── GitHub 무료 REST (기존 gh 로그인 우선, 토큰이 있으면 직접 인증) ──
 export async function ghFetch(path, token) {
+  if (!token) {
+    try {
+      const output = execFileSync("gh", ["api", path, "--method", "GET"], {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+        timeout: 20_000,
+        maxBuffer: 8 * 1024 * 1024,
+      });
+      return JSON.parse(output);
+    } catch {
+      // gh가 없거나 로그인되지 않은 컴퓨터에서는 아래 공개 REST로 폴백한다.
+    }
+  }
   const base = { "Accept": "application/vnd.github+json", "User-Agent": "robom-hq" };
   const doFetch = (headers) => fetch(`https://api.github.com${path}`, { headers });
   let res = await doFetch(token ? { ...base, Authorization: `Bearer ${token}` } : base);
