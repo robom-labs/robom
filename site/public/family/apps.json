@@ -164,9 +164,9 @@
       "stableInstallUrl": "https://robom.kr/get/notebom",
       "mobileStatus": "pwa",
       "familySpecVersion": "1.0.0",
-      "lastVerifiedAt": "2026-07-17T21:30:36+09:00",
-      "lastDeployedSha": "2cc06caf10fcb85721955369c579ae6572f95b9a",
-      "lastDataSyncAt": "2026-07-17T21:30:36+09:00",
+      "lastVerifiedAt": "2026-07-17T23:29:09+09:00",
+      "lastDeployedSha": "bbbb306e3545e15d8560ec1c43469cf96a246fda",
+      "lastDataSyncAt": "2026-07-17T23:29:09+09:00",
       "freshnessStatus": "local-only"
     }
   ]
