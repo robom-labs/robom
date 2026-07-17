@@ -1,0 +1,51 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b16">
+<title>로봄 본부 · 오피스</title>
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<style>
+:root{--mono:ui-monospace,"SF Mono","Roboto Mono",Menlo,monospace}
+*{margin:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:#070b16;font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;color:#e9eef7}
+#game{display:block;cursor:grab}#game:active{cursor:grabbing}
+.hud{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;pointer-events:none;z-index:5}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1c4f74,#0b2438);display:grid;place-items:center;box-shadow:0 0 18px rgba(53,227,155,.35)}
+.logo b{color:#35e39b;font-family:var(--mono);font-size:15px}
+.brand .t b{font-family:var(--mono);letter-spacing:.14em;font-size:14px}.brand .t small{display:block;color:#7f93b4;font-size:9.5px}
+.mode{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.1em;padding:3px 7px;border-radius:6px;border:1px solid rgba(255,255,255,.16);color:#35e39b}
+.mode.warn{color:#ffcf4d}
+.kpis{display:flex;gap:8px}
+.kpi{min-width:74px;padding:6px 11px;border-radius:11px;background:linear-gradient(180deg,rgba(18,28,48,.85),rgba(9,14,26,.85));border:1px solid rgba(255,255,255,.09);position:relative;backdrop-filter:blur(6px)}
+.kpi::before{content:"";position:absolute;left:9px;top:10px;width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 9px var(--c)}
+.kpi .l{padding-left:12px;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:#7f93b4}.kpi .v{font-family:var(--mono);font-size:18px;font-weight:800;color:var(--c)}
+.top-right{display:flex;align-items:center;gap:8px;pointer-events:auto}
+.clock{font-family:var(--mono);font-size:12px;color:#a7bad6}
+.fit{width:34px;height:34px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(18,28,48,.85);color:#a7bad6;font-size:15px;cursor:pointer}
+.meetban{position:fixed;left:50%;top:60px;transform:translateX(-50%);display:none;align-items:center;gap:8px;padding:7px 15px;border-radius:999px;background:rgba(168,121,255,.16);border:1px solid rgba(168,121,255,.4);font-family:var(--mono);font-size:12px;color:#d0bcff;z-index:5;box-shadow:0 8px 24px -8px rgba(168,121,255,.5)}
+.meetban i{width:8px;height:8px;border-radius:50%;background:#a879ff;box-shadow:0 0 10px #a879ff;animation:pl 1.4s infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.3}}
+.legend{position:fixed;left:18px;bottom:16px;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:#8ea3c4;z-index:5;pointer-events:none}
+.legend span{display:inline-flex;align-items:center;gap:5px}.legend i{width:9px;height:9px;border-radius:50%}
+.hint{position:fixed;right:18px;bottom:16px;font-family:var(--mono);font-size:10px;color:#5f7391;z-index:5}
+</style></head><body>
+<canvas id="game"></canvas>
+<div class="hud">
+  <div class="brand"><span class="logo"><b>R</b></span><span class="t"><b>ROBOM HQ</b><small>로봄 본부 · 실시간 오피스</small></span></div>
+  <div class="kpis">
+    <div class="kpi" style="--c:#35e39b"><div class="l">일하는중</div><div class="v" id="k-work">0</div></div>
+    <div class="kpi" style="--c:#a879ff"><div class="l">회의중</div><div class="v" id="k-meet">0</div></div>
+    <div class="kpi" style="--c:#ffcf4d"><div class="l">휴식·식사</div><div class="v" id="k-rest">0</div></div>
+    <div class="kpi" style="--c:#ff5d6c"><div class="l">막힘</div><div class="v" id="k-block">0</div></div>
+  </div>
+  <div class="top-right"><span class="clock" id="clock">--:--:--</span><span class="mode" id="mode">AUTO</span><button class="fit" id="fitBtn" title="전체 보기">⤢</button></div>
+</div>
+<div class="meetban" id="meetban"><i></i><span id="meettopic">회의 중</span></div>
+<div class="legend">
+  <span><i style="background:#35e39b"></i>일하는 중</span><span><i style="background:#a879ff"></i>회의</span>
+  <span><i style="background:#ffcf4d"></i>휴식·식사</span><span><i style="background:#ff5d6c"></i>막힘</span>
+  <span style="color:#5f7391">· 드래그=이동 · 휠=확대</span>
+</div>
+<div class="hint">실제 로봄 작업 이벤트 연결 시 LIVE로 그 상태대로 움직임</div>
+<script src="./office.js"></script>
+</body></html>

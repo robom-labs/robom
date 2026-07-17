@@ -30,4 +30,14 @@ const outDir = join(REPO_ROOT, "ops/control-center/dist");
 if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
 const out = join(outDir, "로봄본부.html");
 writeFileSync(out, html);
-console.log(`[robom-hq] 단일 HTML 생성: ${out} (${Math.round(html.length / 1024)}KB, snapshot=${snapFile})`);
+console.log(`[robom-hq] 단일 HTML(대시보드): ${out} (${Math.round(html.length / 1024)}KB)`);
+
+// 오피스 게임 단일 HTML (더블클릭 실행)
+const officeJs = readFileSync(join(APP, "office.js"), "utf8");
+let game = readFileSync(join(APP, "office.html"), "utf8")
+  .replace(/<link rel="icon"[^>]*>\s*/i, "")
+  .replace(/<script src="\.\/office\.js"><\/script>/i,
+    `<script>window.__PREVIEW__=true;window.__SNAP__=${JSON.stringify(snap)};</script>\n<script>\n${officeJs}\n</script>`);
+const gout = join(outDir, "로봄본부-오피스.html");
+writeFileSync(gout, game);
+console.log(`[robom-hq] 단일 HTML(오피스 게임): ${gout} (${Math.round(game.length / 1024)}KB, snapshot=${snapFile})`);

@@ -40,7 +40,7 @@ const server = createServer((req, res) => {
 console.log("[robom-hq] 스냅샷 생성 중...");
 buildSnapshot();
 server.listen(PORT, () => {
-  const link = `http://localhost:${PORT}/`;
+  const link = `http://localhost:${PORT}/office.html`;
   console.log(`\n  로봄 본부 ROBOM Control Center 실행됨\n  → ${link}\n  (종료: Ctrl+C)\n`);
   // 브라우저 자동 열기(가능한 OS에서)
   const opener = process.platform === "darwin" ? "open" : process.platform === "win32" ? "cmd" : "xdg-open";
