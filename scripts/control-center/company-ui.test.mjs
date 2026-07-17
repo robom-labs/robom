@@ -49,6 +49,6 @@ test("서명·내부 기록·오프라인 셸을 명확히 분리한다", () => 
   assert.match(html, /id="recordDialog"/);
   assert.match(html, /id="signaturePad"/);
   assert.match(html, /이 서명은 로봄 본부 내부 결재 기록/);
-  assert.match(sw, /robom-company-os-v2\.0\.0/);
+  assert.match(sw, /robom-company-os-v2\.1\.0/);
   assert.match(sw, /url\.pathname\.startsWith\("\/api\/"\)/);
 });
