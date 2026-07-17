@@ -1,260 +1,175 @@
-// 로봄 본부 — 살아있는 아이소메트릭 오피스 게임 (canvas, 무의존).
-// 실제 LPC 픽셀 스프라이트(걷기 사이클, 팀색 틴트) + 깔끔한 격자·넓은 복도. 스프라이트 없으면 프로시저럴 폴백.
-// 캐릭터가 A*로 걷고·자리에서 일하고·휴게실 휴식·식당 식사·회의실 스탠드업. 연출 금지(실제 이벤트 있을 때만 '일하는 중').
-// 레이아웃은 office-map.json(정본)에서 로드한다. fetch 실패 시 아래 FALLBACK_MAP으로 동일 동작(단일 HTML·file://).
+// 로봄 본부 — 실제 작업 이벤트와 연동되는 아이소메트릭 대기업 오피스 게임.
+// 레이아웃·직원 외형·비품은 office-map.json 정본에서 읽고, 실시간 근거가 없으면 업무 연출 없이 오토파일럿만 실행한다.
 "use strict";
 (() => {
-const cv=document.getElementById("game"), ctx=cv.getContext("2d");
-ctx.imageSmoothingEnabled=false;
-let DPR=Math.min(2,window.devicePixelRatio||1);
-let cam={s:1,x:0,y:0,drag:null,fit:true};
+const cv=document.getElementById("game"),mainCtx=cv.getContext("2d");
+let ctx=mainCtx,DPR=Math.min(2,window.devicePixelRatio||1),cam={s:1,x:0,y:0,fit:true};
+const reducedMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const floorLayer=document.createElement("canvas"),floorCtx=floorLayer.getContext("2d");
+let floorDirty=true;
 
-// ── 레이아웃 폴백(= office-map.json과 동일). 맵 로드 성공 시 덮어써짐 ──
+// file://에서 원본 office.html을 직접 열었을 때의 최소 폴백. 정식 단일 HTML은 build-standalone이 최신 맵을 인라인한다.
 const FALLBACK_MAP={
-  grid:{w:40,h:28,tileW:64,tileH:32},
-  teams:{cmd:"#4f8fe0",strat:"#9a6cf0",dev:"#2fd08a",qa:"#39b98a",ops:"#f59a3c",sec:"#e8b93c",gold:"#e8b93c",
-    out:"#48a7d4",home:"#4da35e",run:"#e0574a",cert:"#5b6ee0",cal:"#2fd0bd"},
-  products:["out","home","run","cert","cal"],
-  names:{"ceo-orchestrator":"비서실장","room-01":"room-01","room-02":"room-02","room-03":"room-03",
-    strategist:"전략팀",recorder:"기록팀",builder:"개발팀",planner:"기획팀",inspector:"검사팀",architect:"설계팀",upgrader:"R&D팀",
-    "growth-marketer":"홍보팀","release-manager":"릴리즈팀",supervisor:"감독팀",
-    out:"야외봄",home:"청약봄",run:"러닝봄",cert:"자격증봄",cal:"캘린더봄"},
-  zones:[
-    {x:2,y:2,w:10,h:7,color:"#4f8fe0",label:"🧭 본부·전략실",code:"COMMAND",walls:true,door:[6,8]},
-    {x:15,y:2,w:9,h:7,color:"#9a6cf0",label:"💬 회의실",code:"MEETING",walls:true,door:[19,8]},
-    {x:28,y:2,w:10,h:7,color:"#e8b93c",label:"👑 회장실",code:"CHAIRMAN",walls:true,door:[32,8]},
-    {x:2,y:11,w:9,h:7,color:"#2fd08a",label:"🛠️ 개발·QA실",code:"FLOOR ENG",walls:true,door:[6,11]},
-    {x:13,y:11,w:10,h:7,color:"#f59a3c",label:"📣 홍보·보안·릴리스",code:"FLOOR OPS",walls:true,door:[17,11]},
-    {x:25,y:11,w:13,h:7,color:"#9a6cf0",label:"📦 프로젝트 룸 · 5 APPS",code:"PROJECTS",walls:true,door:[31,11]},
-    {x:2,y:20,w:11,h:6,color:"#2fd0bd",label:"☕ 휴게실",code:"LOUNGE",walls:true,door:[7,20]},
-    {x:15,y:20,w:11,h:6,color:"#e8b93c",label:"🍚 구내식당",code:"CAFETERIA",walls:true,door:[20,20]},
-    {x:28,y:20,w:10,h:6,color:"#4f8fe0",label:"🖥️ 서버·리셉션",code:"SERVER",walls:true,door:[32,20]},
-  ],
-  desks:[
-    {id:"ceo-orchestrator",x:3,y:4,team:"cmd"},{id:"room-01",x:5,y:4,team:"cmd"},{id:"room-02",x:7,y:4,team:"cmd"},{id:"room-03",x:9,y:4,team:"cmd"},
-    {id:"strategist",x:4,y:7,team:"strat"},{id:"recorder",x:7,y:7,team:"strat"},
-    {id:"builder",x:3,y:13,team:"dev"},{id:"planner",x:5,y:13,team:"dev"},{id:"inspector",x:7,y:13,team:"qa"},{id:"architect",x:4,y:16,team:"dev"},{id:"upgrader",x:7,y:16,team:"qa"},
-    {id:"growth-marketer",x:14,y:13,team:"ops"},{id:"release-manager",x:17,y:13,team:"ops"},{id:"supervisor",x:20,y:13,team:"strat"},
-    {id:"out",x:27,y:13,team:"out"},{id:"home",x:30,y:13,team:"home"},{id:"run",x:33,y:13,team:"run"},{id:"cert",x:28,y:16,team:"cert"},{id:"cal",x:31,y:16,team:"cal"},
-  ],
-  chair:{id:"chairman",name:"황준필 · 회장",x:32,y:4},
-  secretaries:[{id:"sec-arin",name:"비서 아린",x:35,y:4},{id:"sec-sein",name:"비서 세인",x:35,y:6}],
-  seats:{
-    meeting:[[19,4.4],[16.6,6],[21.4,6],[19,7.8],[17,7],[21,7]],meetingTable:[19,6],
-    lounge:[[4,22.4],[5.2,22.4],[6.4,22.4],[9,21.4]],
-    cafe:[[17,22.6],[18.4,22.6],[21,22.6],[22.4,22.6],[17,24.4],[21,24.4]],cafeTables:[[17.7,23],[21.7,23]],
-  },
+  grid:{w:40,h:28,tileW:64,tileH:32},teams:{cmd:"#4f8fe0",strat:"#9a6cf0",dev:"#2fd08a",qa:"#39b98a",ops:"#f59a3c",sec:"#e8b93c",gold:"#e8b93c",out:"#48a7d4",home:"#4da35e",run:"#e0574a",cert:"#5b6ee0",cal:"#2fd0bd"},
+  products:["out","home","run","cert","cal"],names:{"ceo-orchestrator":"비서실장","room-01":"총괄1팀","room-02":"총괄2팀","room-03":"총괄3팀",strategist:"전략팀",recorder:"기록팀",builder:"개발팀",planner:"기획팀",inspector:"QA팀",architect:"설계팀",upgrader:"R&D팀","growth-marketer":"홍보팀","release-manager":"릴리즈팀",supervisor:"감독팀",out:"야외봄",home:"청약봄",run:"러닝봄",cert:"자격증봄",cal:"캘린더봄"},
+  zones:[{x:2,y:2,w:10,h:7,color:"#4f8fe0",label:"🧭 본부·전략실",code:"COMMAND",walls:false,door:[6,8],props:[]},{x:15,y:2,w:9,h:7,color:"#9a6cf0",label:"🎥 대회의실",code:"MEETING",walls:false,door:[19,8],props:[]},{x:28,y:2,w:10,h:7,color:"#e8b93c",label:"👑 회장실",code:"EXECUTIVE",walls:false,door:[32,8],props:[]},{x:2,y:11,w:9,h:7,color:"#2fd08a",label:"🛠️ 개발·QA실",code:"ENGINEERING",walls:false,door:[6,11],props:[]},{x:13,y:11,w:10,h:7,color:"#f59a3c",label:"📣 운영센터",code:"OPERATIONS",walls:false,door:[17,11],props:[]},{x:25,y:11,w:13,h:7,color:"#9a6cf0",label:"📦 프로젝트룸",code:"PRODUCTS",walls:false,door:[31,11],props:[]},{x:2,y:20,w:11,h:6,color:"#2fd0bd",label:"☕ 라운지",code:"LOUNGE",walls:false,door:[7,20],props:[]},{x:15,y:20,w:11,h:6,color:"#e8b93c",label:"🍚 식당",code:"CAFETERIA",walls:false,door:[20,20],props:[]},{x:28,y:20,w:10,h:6,color:"#4f8fe0",label:"🖥️ 서버실",code:"NOC",walls:false,door:[32,20],props:[]}],
+  desks:[{id:"ceo-orchestrator",x:3,y:4,team:"cmd"},{id:"room-01",x:5,y:4,team:"cmd"},{id:"room-02",x:7,y:4,team:"cmd"},{id:"room-03",x:9,y:4,team:"cmd"},{id:"strategist",x:4,y:7,team:"strat"},{id:"recorder",x:7,y:7,team:"strat"},{id:"builder",x:3,y:13,team:"dev"},{id:"planner",x:5,y:13,team:"dev"},{id:"inspector",x:7,y:13,team:"qa"},{id:"architect",x:4,y:16,team:"dev"},{id:"upgrader",x:7,y:16,team:"qa"},{id:"growth-marketer",x:14,y:13,team:"ops"},{id:"release-manager",x:17,y:13,team:"ops"},{id:"supervisor",x:20,y:13,team:"strat"},{id:"out",x:27,y:13,team:"out"},{id:"home",x:30,y:13,team:"home"},{id:"run",x:33,y:13,team:"run"},{id:"cert",x:28,y:16,team:"cert"},{id:"cal",x:31,y:16,team:"cal"}],
+  chair:{id:"chairman",name:"황준필 · 회장",x:32,y:4,appearance:{gender:"male",hair:"sidepart"}},secretaries:[{id:"sec-arin",name:"비서 · 아린",x:35,y:4,appearance:{gender:"female",hair:"long"}},{id:"sec-sein",name:"비서 · 세인",x:35,y:6,appearance:{gender:"female",hair:"ponytail"}}],
+  seats:{meeting:[[19,4.4],[16.6,6],[21.4,6],[19,7.8],[17,7],[21,7]],meetingTable:[19,6],lounge:[[4,22.4],[5.2,22.4],[6.4,22.4],[9,21.4]],cafe:[[17,22.6],[18.4,22.6],[21,22.6],[22.4,22.6],[17,24.4],[21,24.4]],cafeTables:[[17.7,23],[21.7,23]]}
 };
 
-// ── 맵에서 채워지는 레이아웃 상태(applyMap에서 할당) ──
-let TW=64,TH=32,GW=40,GH=28;
-let T={},NAMES={},PRODUCT=new Set(),ZONES=[],DESKS=[],CHAIR={},SECS=[];
-let MEET=[],MEET_T=[],LOUNGE=[],CAFE=[],CAFE_T=[];
-let BODY={},BLOCK=new Set();
-let chars=[],byId={};
-
-const K=(c,r)=>c+","+r;
+let TW=64,TH=32,GW=40,GH=28,T={},NAMES={},PRODUCT=new Set(),ZONES=[],DESKS=[],CHAIR={},SECS=[];
+let MEET=[],MEET_T=[],LOUNGE=[],CAFE=[],CAFE_T=[],BLOCK=new Set(),chars=[],byId={},SNAP=null;
+const K=(c,r)=>`${Math.round(c)},${Math.round(r)}`;
+const shade=(hex,pct)=>{const n=parseInt(String(hex).replace("#",""),16),f=1+pct/100;return `rgb(${Math.max(0,Math.min(255,Math.round((n>>16)*f)))},${Math.max(0,Math.min(255,Math.round(((n>>8)&255)*f)))},${Math.max(0,Math.min(255,Math.round((n&255)*f)))})`;};
+const rnd=(a,b)=>a+Math.random()*(b-a),hash=s=>[...s].reduce((n,c)=>(n*31+c.charCodeAt(0))>>>0,7);
 const walk=(c,r)=>c>=0&&r>=0&&c<GW&&r<GH&&!BLOCK.has(K(c,r));
 
-// 맵 데이터 → 레이아웃/파생 구조/캐릭터 구축
 function applyMap(m){
-  TW=m.grid.tileW;TH=m.grid.tileH;GW=m.grid.w;GH=m.grid.h;
-  T=Object.assign({},m.teams);
-  NAMES=Object.assign({},m.names);
-  PRODUCT=new Set(m.products||[]);
-  ZONES=m.zones.map(z=>({x:z.x,y:z.y,w:z.w,h:z.h,s:z.color,label:z.label,code:z.code,walls:z.walls,door:z.door}));
-  DESKS=m.desks.map(d=>[d.id,d.x,d.y]);
-  CHAIR={id:m.chair.id,name:m.chair.name,x:m.chair.x,y:m.chair.y};
-  SECS=m.secretaries.map(s=>[s.id,s.name,s.x,s.y]);
-  MEET=m.seats.meeting;MEET_T=m.seats.meetingTable;LOUNGE=m.seats.lounge;CAFE=m.seats.cafe;CAFE_T=m.seats.cafeTables;
-  // 팀색(BODY)
-  BODY={};m.desks.forEach(d=>{BODY[d.id]=T[d.team]||T.cmd;});
-  // 막힌 타일(가구)
+  TW=m.grid.tileW;TH=m.grid.tileH;GW=m.grid.w;GH=m.grid.h;T={...m.teams};NAMES={...m.names};PRODUCT=new Set(m.products||[]);
+  ZONES=(m.zones||[]).map(z=>({...z,s:z.color,props:z.props||[]}));DESKS=(m.desks||[]).map(d=>({...d}));CHAIR={...m.chair};SECS=(m.secretaries||[]).map(s=>({...s}));
+  MEET=m.seats.meeting||[];MEET_T=m.seats.meetingTable||[20,6];LOUNGE=m.seats.lounge||[];CAFE=m.seats.cafe||[];CAFE_T=m.seats.cafeTables||[];
   BLOCK=new Set();
-  DESKS.forEach(([,x,y])=>BLOCK.add(K(x,y)));
+  DESKS.forEach(d=>BLOCK.add(K(d.x,d.y)));
   BLOCK.add(K(CHAIR.x,CHAIR.y));BLOCK.add(K(CHAIR.x+1,CHAIR.y));
-  {const[mx,my]=MEET_T;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)BLOCK.add(K(mx+a,my+b));}
-  for(let i=4;i<=7;i++)BLOCK.add(K(i,22)); // 소파
-  CAFE_T.forEach(([x,y])=>BLOCK.add(K(Math.round(x),Math.round(y))));
-  [[30,22],[30,24],[34,22]].forEach(([x,y])=>BLOCK.add(K(x,y))); // 서버·리셉션
-  buildChars();
+  const [mx,my]=MEET_T;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)BLOCK.add(K(mx+a,my+b));
+  CAFE_T.forEach(([x,y])=>BLOCK.add(K(x,y)));
+  ZONES.forEach(z=>{
+    const door=K(z.door?.[0],z.door?.[1]);
+    if(z.walls){for(let c=z.x;c<z.x+z.w;c++){if(K(c,z.y)!==door)BLOCK.add(K(c,z.y));if(K(c,z.y+z.h-1)!==door)BLOCK.add(K(c,z.y+z.h-1));}for(let r=z.y;r<z.y+z.h;r++){if(K(z.x,r)!==door)BLOCK.add(K(z.x,r));if(K(z.x+z.w-1,r)!==door)BLOCK.add(K(z.x+z.w-1,r));}}
+    z.props.filter(p=>p.solid).forEach(p=>BLOCK.add(K(p.x,p.y)));
+  });
+  buildChars();buildCharacterSheets();floorDirty=true;
 }
+function appearanceFor(d,extra={}){return {...{gender:"female",hair:"bob",hairColor:"#49342d",skin:"#edc19d",outfit:"cardigan",accent:T[d.team]||T.cmd},...(d.appearance||{}),...extra};}
 function buildChars(){
   chars=[];byId={};
-  DESKS.forEach(([id,x,y])=>{const ch=new Char(id,NAMES[id]||id,BODY[id]||T.cmd,{c:x,r:y+1});chars.push(ch);byId[id]=ch;});
-  const cm=new Char(CHAIR.id,CHAIR.name,T.gold,{c:CHAIR.x,r:CHAIR.y+1},{crown:true,locked:true});cm.act="chair";chars.push(cm);byId[cm.id]=cm;
-  SECS.forEach(([id,nm,x,y])=>{const ch=new Char(id,nm,T.sec,{c:x,r:y});chars.push(ch);byId[id]=ch;});
+  DESKS.forEach(d=>{const ch=new Char(d.id,NAMES[d.id]||d.id,T[d.team]||T.cmd,{c:d.x,r:d.y+1},{appearance:appearanceFor(d)});chars.push(ch);byId[ch.id]=ch;});
+  const cm=new Char(CHAIR.id,CHAIR.name,T.gold,{c:CHAIR.x,r:CHAIR.y+1},{crown:true,locked:true,appearance:appearanceFor({team:"gold",appearance:CHAIR.appearance})});cm.act="chair";chars.push(cm);byId[cm.id]=cm;
+  SECS.forEach(s=>{const ch=new Char(s.id,s.name,T.sec,{c:s.x,r:s.y},{appearance:appearanceFor({team:"sec",appearance:s.appearance})});chars.push(ch);byId[ch.id]=ch;});
 }
 
-// ── 투영 ──
 const W2=(c,r)=>({x:(c-r)*TW/2,y:(c+r)*TH/2});
 const SC=(c,r,z=0)=>{const p=W2(c,r);return{x:p.x*cam.s+cam.x,y:(p.y-z)*cam.s+cam.y};};
+function screenToTile(px,py){const wx=(px-cam.x)/cam.s,wy=(py-cam.y)/cam.s;return{c:(wx/(TW/2)+wy/(TH/2))/2,r:(wy/(TH/2)-wx/(TW/2))/2};}
+function astar(a,b){a={c:Math.round(a.c),r:Math.round(a.r)};b={c:Math.round(b.c),r:Math.round(b.r)};if(!walk(b.c,b.r)){let best=null,dist=1e9;for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){const c=b.c+dc,r=b.r+dr,d=dc*dc+dr*dr;if(walk(c,r)&&d<dist){best={c,r};dist=d;}}if(!best)return[];b=best;}const h=n=>Math.abs(n.c-b.c)+Math.abs(n.r-b.r),open=[{...a,g:0,f:h(a),p:null}],seen=new Map([[K(a.c,a.r),0]]),N=[[1,0],[-1,0],[0,1],[0,-1]];let guard=0;while(open.length&&guard++<7000){open.sort((x,y)=>x.f-y.f);const cur=open.shift();if(cur.c===b.c&&cur.r===b.r){const path=[];for(let n=cur;n;n=n.p)path.unshift({c:n.c,r:n.r});return path;}for(const[dc,dr]of N){const c=cur.c+dc,r=cur.r+dr;if(!walk(c,r))continue;const g=cur.g+1,k=K(c,r);if(seen.has(k)&&seen.get(k)<=g)continue;seen.set(k,g);open.push({c,r,g,f:g+h({c,r}),p:cur});}}return[];}
 
-// ── A* ──
-function astar(a,b){a={c:Math.round(a.c),r:Math.round(a.r)};b={c:Math.round(b.c),r:Math.round(b.r)};
-  if(!walk(b.c,b.r)){let bd=1e9,bb=null;for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){const c=b.c+dc,r=b.r+dr;if(walk(c,r)){const d=dc*dc+dr*dr;if(d<bd){bd=d;bb={c,r};}}}if(bb)b=bb;else return[];}
-  const h=n=>Math.abs(n.c-b.c)+Math.abs(n.r-b.r);const open=[{...a,g:0,f:h(a),p:null}],seen=new Map([[K(a.c,a.r),0]]);const N=[[1,0],[-1,0],[0,1],[0,-1]];let gd=0;
-  while(open.length&&gd++<6000){open.sort((x,y)=>x.f-y.f);const cur=open.shift();if(cur.c===b.c&&cur.r===b.r){const p=[];let n=cur;while(n){p.unshift({c:n.c,r:n.r});n=n.p;}return p;}
-    for(const[dc,dr]of N){const c=cur.c+dc,r=cur.r+dr;if(!walk(c,r))continue;const g=cur.g+1,k=K(c,r);if(seen.has(k)&&seen.get(k)<=g)continue;seen.set(k,g);open.push({c,r,g,f:g+h({c,r}),p:cur});}}
-  return[];}
-
-// ── LPC 스프라이트 (걷기 4방향×9프레임, 팀색 틴트) ──
-const IMG={}; let SPRITES=false; const teamSheet={};
-function tintLayer(img, teamColor){ // img 소스에서 walk rows(8-11, y512)만 추출·틴트 → 576x256 캔버스
-  const o=document.createElement("canvas");o.width=576;o.height=256;const c=o.getContext("2d");
-  c.drawImage(img,0,512,576,256,0,0,576,256);
-  if(teamColor){ c.globalCompositeOperation="multiply";c.fillStyle=teamColor;c.fillRect(0,0,576,256);
-    c.globalCompositeOperation="destination-in";c.drawImage(img,0,512,576,256,0,0,576,256);c.globalCompositeOperation="source-over"; }
-  return o;
-}
-function buildSheet(teamColor){
-  const o=document.createElement("canvas");o.width=576;o.height=256;const c=o.getContext("2d");
-  c.imageSmoothingEnabled=false;
-  c.drawImage(tintLayer(IMG.body,null),0,0);          // 피부
-  c.drawImage(tintLayer(IMG.pants,"#2a3a58"),0,0);    // 바지(네이비)
-  c.drawImage(tintLayer(IMG.shirt,teamColor),0,0);    // 셔츠(팀색)
-  c.drawImage(tintLayer(IMG.hair,"#5a4636"),0,0);     // 머리(브라운)
-  return o;
-}
-function loadSprites(){
-  const files={body:"./assets/lpc-body.png",shirt:"./assets/lpc-shirt.png",pants:"./assets/lpc-pants.png",hair:"./assets/lpc-hair.png"};
-  let n=0,fail=false; const done=()=>{ if(fail){SPRITES=false;return;} const cols=new Set(Object.values(BODY).concat([T.gold],[...PRODUCT].map(p=>T[p]))); cols.forEach(col=>teamSheet[col]=buildSheet(col)); SPRITES=true; };
-  for(const k in files){ const im=new Image(); im.onload=()=>{IMG[k]=im; if(++n===4)done();}; im.onerror=()=>{fail=true; if(++n===4)done();}; im.src=files[k]; }
-}
+const IMG={},characterSheet={};let SPRITES=false;
+function tintLayer(img,color,alpha=.72){const o=document.createElement("canvas");o.width=576;o.height=256;const c=o.getContext("2d");c.drawImage(img,0,512,576,256,0,0,576,256);if(color){c.globalCompositeOperation="source-atop";c.globalAlpha=alpha;c.fillStyle=color;c.fillRect(0,0,576,256);c.globalAlpha=1;c.globalCompositeOperation="source-over";}return o;}
+function makeSheet(ch){const a=ch.appearance,o=document.createElement("canvas");o.width=576;o.height=256;const c=o.getContext("2d");c.imageSmoothingEnabled=false;c.drawImage(tintLayer(IMG.body,a.skin,.48),0,0);c.drawImage(tintLayer(IMG.pants,a.outfit==="dress"?shade(ch.body,-15):"#24324b",.82),0,0);c.drawImage(tintLayer(IMG.shirt,ch.body,.76),0,0);c.drawImage(tintLayer(IMG.hair,a.hairColor||"#44322d",.9),0,0);return o;}
+function buildCharacterSheets(){if(!SPRITES)return;chars.forEach(ch=>characterSheet[ch.id]=makeSheet(ch));}
+function loadSprites(){const files={body:"./assets/lpc-body.png",shirt:"./assets/lpc-shirt.png",pants:"./assets/lpc-pants.png",hair:"./assets/lpc-hair.png"};let loaded=0,failed=false;for(const [key,src] of Object.entries(files)){const im=new Image();im.onload=()=>{IMG[key]=im;if(++loaded===4){SPRITES=!failed;buildCharacterSheets();}};im.onerror=()=>{failed=true;if(++loaded===4)SPRITES=false;};im.src=src;}}
 const DIR={up:0,left:1,down:2,right:3};
 
-// ── 캐릭터 ──
 class Char{
-  constructor(id,name,body,home,opt={}){this.id=id;this.name=name;this.body=body;this.home=home;
-    this.cx=home.c;this.cy=home.r;this.path=[];this.dest=null;this.act="idle";this.phase=Math.random()*6;
-    this.think=Math.random()*4;this.crown=opt.crown;this.locked=opt.locked;this.facing="down";this.walking=false;this.driven=false;this.mstate=false;}
+  constructor(id,name,body,home,opt={}){this.id=id;this.name=name;this.body=body;this.home=home;this.appearance=opt.appearance||{};this.cx=home.c;this.cy=home.r;this.path=[];this.dest=null;this.act="idle";this.phase=Math.random()*6;this.think=Math.random()*4;this.crown=!!opt.crown;this.locked=!!opt.locked;this.facing="down";this.walking=false;this.driven=false;this.mstate=false;this.posture="stand";}
   goto(c,r){const p=astar({c:this.cx,r:this.cy},{c,r});this.path=p.slice(1);this.dest={c,r};}
-  setAct(act,tile){this.act=act;if(tile){const t={c:tile[0],r:tile[1]};if(Math.abs(t.c-this.cx)>.4||Math.abs(t.r-this.cy)>.4)this.goto(t.c,t.r);else this.dest={c:t.c,r:t.r};}}
+  setAct(act,tile){this.act=act;if(tile){const t={c:tile[0],r:tile[1]};if(Math.abs(t.c-this.cx)>.4||Math.abs(t.r-this.cy)>.4)this.goto(t.c,t.r);else this.dest=t;}}
   face(dc,dr){if(Math.abs(dc)>=Math.abs(dr))this.facing=dc>0?"right":"left";else this.facing=dr>0?"down":"up";}
   update(dt){
-    if(this.path.length){const n=this.path[0],dx=n.c-this.cx,dy=n.r-this.cy,d=Math.hypot(dx,dy),sp=2.6*dt;
-      if(d<=sp){this.cx=n.c;this.cy=n.r;this.path.shift();}else{this.cx+=dx/d*sp;this.cy+=dy/d*sp;this.face(dx,dy);}this.phase+=dt*9;this.walking=true;return;}
-    if(this.dest&&(Math.abs(this.dest.c-this.cx)>.03||Math.abs(this.dest.r-this.cy)>.03)){const dx=this.dest.c-this.cx,dy=this.dest.r-this.cy,d=Math.hypot(dx,dy),sp=2.6*dt;if(d<=sp){this.cx=this.dest.c;this.cy=this.dest.r;}else{this.cx+=dx/d*sp;this.cy+=dy/d*sp;this.face(dx,dy);}this.phase+=dt*9;this.walking=true;return;}
-    this.walking=false;this.facing=(this.act==="meet")?"down":"down";this.phase+=dt*(this.act==="work"||this.act==="verify"?7:2);}
-}
-
-// ── 오토파일럿 ──
-const rnd=(a,b)=>a+Math.random()*(b-a);
-function autoPlan(ch){if(ch.locked)return;
-  if(PRODUCT.has(ch.id)){ch.setAct(Math.random()<.6?"work":"idle",[ch.home.c,ch.home.r]);ch.think=rnd(6,13);return;}
-  const r=Math.random();
-  if(r<.44)ch.setAct("work",[ch.home.c,ch.home.r]),ch.think=rnd(7,16);
-  else if(r<.64){const s=CAFE[Math.floor(Math.random()*CAFE.length)];ch.setAct("eat",s);ch.think=rnd(8,15);}
-  else if(r<.82){const s=LOUNGE[Math.floor(Math.random()*LOUNGE.length)];ch.setAct("rest",s);ch.think=rnd(8,15);}
-  else{let c,r2,g=0;do{c=Math.floor(rnd(1,GW-1));r2=Math.floor(rnd(2,GH-2));}while(!walk(c,r2)&&g++<25);ch.setAct("walk",[c,r2]);ch.think=rnd(4,8);}}
-
-// ── 회의 ──
-let meeting={active:false,until:0,topic:"",members:[]};let nextMeet=performance.now()+rnd(18000,36000);
-function startMeeting(mem,topic,dur){meeting={active:true,until:performance.now()+dur,topic,members:mem.map(c=>c.id)};mem.forEach((c,i)=>{if(c.locked)return;c.mstate=true;c.setAct("meet",MEET[i%MEET.length]);});}
-function endMeeting(){meeting.members.forEach(id=>{const c=byId[id];if(c){c.mstate=false;c.think=0;}});meeting.active=false;meeting.members=[];}
-
-// ── 실데이터 ──
-let SNAP=null;
-async function poll(){try{const r=window.__SNAP__?window.__SNAP__:await(await fetch("./snapshot.json",{cache:"no-store"})).json();SNAP=r;applySnap();}catch(e){}}
-function applySnap(){if(!SNAP)return;const runs=(SNAP.runs||[]).filter(x=>!["completed","failed"].includes(x.status));const act=new Set();
-  runs.forEach(run=>{const id=byId[run.agentId]?run.agentId:(byId[run.appId]?run.appId:null);const c=id&&byId[id];if(!c)return;act.add(c.id);c.driven=true;
-    if(run.status==="blocked"||run.status==="needs_check")c.setAct("block",[c.home.c,c.home.r]);
-    else if(run.status==="verifying"||run.status==="fixing")c.setAct("verify",[c.home.c,c.home.r]);
-    else if(run.status==="approval_pending")c.setAct("approval",[CHAIR.x-1,CHAIR.y+2]);
-    else if(run.status==="deploying")c.setAct("deploy",[30,23]);
-    else c.setAct("work",[c.home.c,c.home.r]);});
-  chars.forEach(c=>{if(!act.has(c.id))c.driven=false;});
-  const byApp={};runs.forEach(r=>{if(r.appId)(byApp[r.appId]=byApp[r.appId]||[]).push(r.agentId);});
-  for(const a in byApp){if(byApp[a].length>=2&&!meeting.active){const m=byApp[a].map(x=>byId[x]).filter(Boolean);if(m.length>=2)startMeeting(m,`${NAMES[a]||a} 협의`,18000);}}}
-
-// ── 렌더 ──
-const RING={work:"#35e39b",verify:"#a879ff",block:"#ff5d6c",meet:"#c9a3ff",rest:"#ffcf4d",eat:"#2fe0c4",idle:"#6f86a8",walk:"#3ba7ff",approval:"#ffd15c",deploy:"#3ba7ff",chair:"#ffd15c"};
-const EMO={work:"⌨️",verify:"🔍",block:"⚠️",meet:"💬",rest:"☕",eat:"🍚",idle:"💤",approval:"✋",deploy:"🚀",chair:"",walk:""};
-function tileDiamond(c,r,fill,stroke){const p=SC(c,r);const hw=TW/2*cam.s,hh=TH/2*cam.s;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+hw,p.y+hh);ctx.lineTo(p.x,p.y+2*hh);ctx.lineTo(p.x-hw,p.y+hh);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.stroke();}}
-function drawFloor(){
-  for(let r=0;r<GH;r++)for(let c=0;c<GW;c++)tileDiamond(c,r,((c+r)&1)?"#0e1a2f":"#10203a","rgba(255,255,255,.02)");
-  ZONES.forEach(z=>{for(let r=z.y;r<z.y+z.h;r++)for(let c=z.x;c<z.x+z.w;c++)tileDiamond(c,r,z.s+"14",null);
-    // 러그 테두리
-    const a=SC(z.x,z.y),b=SC(z.x+z.w,z.y),cc=SC(z.x+z.w,z.y+z.h),d=SC(z.x,z.y+z.h);const hh=TH/2*cam.s;
-    ctx.beginPath();ctx.moveTo(a.x,a.y+hh);ctx.lineTo(b.x,b.y+hh);ctx.lineTo(cc.x,cc.y+hh);ctx.lineTo(d.x,d.y+hh);ctx.closePath();ctx.strokeStyle=z.s;ctx.globalAlpha=.4;ctx.lineWidth=1.4;ctx.stroke();ctx.globalAlpha=1;});
-}
-function isoBox(c,r,w,d,h,top,lf,rt){const g=(cc,rr,z=0)=>SC(cc,rr,z),hh=TH/2*cam.s;
-  const A=g(c,r,h),B=g(c+w,r,h),Cc=g(c+w,r+d,h),D=g(c,r+d,h),Bg=g(c+w,r),Cg=g(c+w,r+d),Dg=g(c,r+d);
-  const P=(pts,f)=>{ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y+hh);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y+hh);ctx.closePath();ctx.fillStyle=f;ctx.fill();};
-  P([D,Cc,Cg,Dg],lf);P([B,Cc,Cg,Bg],rt);P([A,B,Cc,D],top);}
-function monitor(c,r,on){const b=SC(c,r),s=cam.s,x=b.x,y=b.y+TH/2*s-13*s,col=on?"#35e39b":"#33475f";
-  ctx.fillStyle="#060c16";ctx.fillRect(x-12*s,y-13*s,24*s,16*s);ctx.strokeStyle="#0b1626";ctx.strokeRect(x-12*s,y-13*s,24*s,16*s);
-  ctx.fillStyle=col;if(on){ctx.shadowColor=col;ctx.shadowBlur=7*s;}ctx.fillRect(x-9*s,y-10*s,(on?14:8)*s,2*s);ctx.shadowBlur=0;
-  ctx.fillStyle=on?"#3ba7ff":"#2a3a52";ctx.fillRect(x-9*s,y-6*s,9*s,2*s);}
-function drawChar(ch){
-  const b=SC(ch.cx,ch.cy),s=cam.s,x=b.x,y=b.y+TH/2*s;const st=ch.mstate?"meet":ch.act,ring=RING[st]||RING.idle;const sc=ch.crown?1.3:1;
-  // 그림자·상태링
-  ctx.beginPath();ctx.ellipse(x,y+2*s,15*s*sc,6*s*sc,0,0,7);ctx.fillStyle="rgba(0,0,0,.4)";ctx.fill();
-  ctx.beginPath();ctx.ellipse(x,y+2*s,14*s*sc,5.5*s*sc,0,0,7);ctx.strokeStyle=ring;ctx.lineWidth=2.4*s;ctx.shadowColor=ring;ctx.shadowBlur=(ch.driven||ch.walking||ch.mstate)?9*s:3*s;ctx.stroke();ctx.shadowBlur=0;
-  if(SPRITES){ const sheet=teamSheet[ch.body]||teamSheet[T.cmd]; if(sheet){
-    const dir=DIR[ch.facing]!==undefined?DIR[ch.facing]:2; const fr=ch.walking?(1+Math.floor(ch.phase)%8):0;
-    const dw=64*s*0.92*sc,dh=64*s*0.92*sc; ctx.drawImage(sheet, fr*64, dir*64, 64,64, x-dw/2, y-dh+7*s, dw, dh); }
-  } else { // 프로시저럴 폴백
-    const bob=ch.walking?Math.abs(Math.sin(ch.phase))*3*s:0,by=y-bob;
-    ctx.beginPath();ctx.moveTo(x-10*s*sc,by-1*s);ctx.quadraticCurveTo(x-10*s*sc,by-16*s*sc,x,by-16*s*sc);ctx.quadraticCurveTo(x+10*s*sc,by-16*s*sc,x+10*s*sc,by-1*s);ctx.closePath();ctx.fillStyle=ch.body;ctx.fill();
-    ctx.beginPath();ctx.arc(x,by-19*s*sc,7*s*sc,0,7);ctx.fillStyle="#f0d0a6";ctx.fill();
-    ctx.beginPath();ctx.arc(x,by-21*s*sc,7*s*sc,Math.PI*1.05,Math.PI*1.95);ctx.fillStyle="#5a4636";ctx.fill();
+    if(this.path.length){const n=this.path[0],dx=n.c-this.cx,dy=n.r-this.cy,d=Math.hypot(dx,dy),sp=2.6*dt;if(d<=sp){this.cx=n.c;this.cy=n.r;this.path.shift();}else{this.cx+=dx/d*sp;this.cy+=dy/d*sp;this.face(dx,dy);}this.phase+=dt*9;this.walking=true;this.posture="walk";return;}
+    if(this.dest&&(Math.abs(this.dest.c-this.cx)>.03||Math.abs(this.dest.r-this.cy)>.03)){const dx=this.dest.c-this.cx,dy=this.dest.r-this.cy,d=Math.hypot(dx,dy),sp=2.6*dt;if(d<=sp){this.cx=this.dest.c;this.cy=this.dest.r;}else{this.cx+=dx/d*sp;this.cy+=dy/d*sp;this.face(dx,dy);}this.phase+=dt*9;this.walking=true;this.posture="walk";return;}
+    this.walking=false;this.posture=["work","verify","meet","eat","rest","approval","chair"].includes(this.act)?"sit":"stand";this.phase+=dt*(reducedMotion?0.15:1.8);
   }
-  if(ch.crown){ctx.font=`${13*s}px serif`;ctx.textAlign="center";ctx.fillText("👑",x,y-(SPRITES?58:34)*s);}
-  ctx.font=`700 ${9*s}px ui-monospace,monospace`;ctx.textAlign="center";ctx.fillStyle="#dbe7fb";ctx.shadowColor="#000";ctx.shadowBlur=3*s;ctx.fillText(ch.name,x,y+16*s);ctx.shadowBlur=0;
-  const em=EMO[st]||"";if(em){ctx.font=`${12*s}px serif`;ctx.fillText(em,x+13*s,y-(SPRITES?50:28)*s);}
 }
-function furniture(){const it=[];
-  DESKS.forEach(([id,x,y])=>it.push({d:x+y,f:()=>{isoBox(x-0.45,y-0.45,0.9,0.62,10,"#2b3a55","#1b2740","#22314c");monitor(x,y,byId[id]&&(byId[id].act==="work"||byId[id].act==="verify"));}}));
-  it.push({d:CHAIR.x+CHAIR.y,f:()=>isoBox(CHAIR.x-0.5,CHAIR.y-0.4,2.1,0.8,15,"#4a3c1c","#2a2210","#38300f")});
-  it.push({d:MEET_T[0]+MEET_T[1],f:()=>{const p=SC(MEET_T[0],MEET_T[1]),s=cam.s;ctx.beginPath();ctx.ellipse(p.x,p.y+TH/2*s,54*s,27*s,0,0,7);ctx.fillStyle="#20304e";ctx.fill();ctx.beginPath();ctx.ellipse(p.x,p.y+TH/2*s-3*s,46*s,21*s,0,0,7);ctx.fillStyle="#182741";ctx.fill();}});
-  it.push({d:5+22,f:()=>isoBox(3.6,21.6,4.2,0.8,9,"#2a3a58","#1a2740","#223050")});
-  CAFE_T.forEach(([x,y])=>it.push({d:x+y,f:()=>{isoBox(x-0.45,y-0.45,0.9,0.9,7,"#33425e","#212f47","#2a3850");const p=SC(x,y);ctx.font=`${11*cam.s}px serif`;ctx.textAlign="center";ctx.fillText("🍱",p.x,p.y+TH/2*cam.s-6*cam.s);}}));
-  [[30,22],[30,24]].forEach(([x,y])=>it.push({d:x+y,f:()=>isoBox(x-0.4,y-0.4,0.8,0.8,40,"#182238","#0e1626","#111d30")}));
-  it.push({d:34+22,f:()=>{isoBox(33.5,21.6,1.6,0.8,11,"#26344e","#18223a","#1e2b44");const p=SC(34,22);ctx.font=`${12*cam.s}px serif`;ctx.textAlign="center";ctx.fillText("🖥️",p.x,p.y+TH/2*cam.s-14*cam.s);}});
-  it.push({d:9+21.4,f:()=>{const p=SC(9,21.4);ctx.font=`${13*cam.s}px serif`;ctx.textAlign="center";ctx.fillText("☕",p.x,p.y+TH/2*cam.s);}});
-  [[0,9],[12,2],[24,2],[38,9],[0,26],[38,18],[11,18],[12,26]].forEach(([x,y])=>it.push({d:x+y-0.1,f:()=>{const p=SC(x,y);ctx.font=`${13*cam.s}px serif`;ctx.textAlign="center";ctx.fillText("🪴",p.x,p.y+TH/2*cam.s);}}));
-  return it;}
-function drawLabels(){ctx.textAlign="left";ZONES.forEach(z=>{const p=SC(z.x+0.2,z.y+0.2),s=cam.s;
-  ctx.font=`800 ${12*s}px "Pretendard Variable",sans-serif`;ctx.fillStyle="#e3ecfa";ctx.shadowColor="#000";ctx.shadowBlur=4*s;ctx.fillText(z.label,p.x,p.y+8*s);
-  ctx.font=`${8*s}px ui-monospace,monospace`;ctx.fillStyle="#8ea3c4";ctx.fillText(z.code,p.x,p.y+20*s);ctx.shadowBlur=0;});}
 
-// ── HUD ──
-function updateHUD(){const cnt={work:0,verify:0,block:0,meet:0,rest:0,eat:0};chars.forEach(c=>{if(c.locked)return;const s=c.mstate?"meet":c.act;if(s in cnt)cnt[s]++;});
-  document.getElementById("k-work").textContent=cnt.work+cnt.verify;document.getElementById("k-meet").textContent=cnt.meet;
-  document.getElementById("k-rest").textContent=cnt.rest+cnt.eat;document.getElementById("k-block").textContent=cnt.block;
-  const mb=document.getElementById("meetban");mb.style.display=meeting.active?"flex":"none";if(meeting.active)document.getElementById("meettopic").textContent=meeting.topic+" · "+meeting.members.length+"명";
-  const live=!!(SNAP&&SNAP.connections&&(SNAP.connections.github||"").startsWith("connected"));const bd=document.getElementById("mode");bd.textContent=window.__PREVIEW__?"PREVIEW":(live?"LIVE":"AUTO");bd.className="mode "+(window.__PREVIEW__||!live?"warn":"");}
+function autoPlan(ch){if(ch.locked)return;if(PRODUCT.has(ch.id)){ch.setAct("idle",[ch.home.c,ch.home.r]);ch.think=rnd(8,16);return;}const r=Math.random();if(r<.36){ch.setAct("idle",[ch.home.c,ch.home.r]);ch.think=rnd(8,16);}else if(r<.56&&CAFE.length){const s=CAFE[Math.floor(Math.random()*CAFE.length)];ch.setAct("eat",s);ch.think=rnd(9,16);}else if(r<.76&&LOUNGE.length){const s=LOUNGE[Math.floor(Math.random()*LOUNGE.length)];ch.setAct("rest",s);ch.think=rnd(9,16);}else{let c,r2,g=0;do{c=Math.floor(rnd(1,GW-1));r2=Math.floor(rnd(2,GH-2));}while(!walk(c,r2)&&g++<40);ch.setAct("walk",[c,r2]);ch.think=rnd(5,9);}}
+let meeting={active:false,until:0,topic:"",members:[]};
+function startMeeting(mem,topic,dur){meeting={active:true,until:performance.now()+dur,topic,members:mem.map(c=>c.id)};mem.forEach((c,i)=>{if(!c.locked){c.mstate=true;c.setAct("meet",MEET[i%MEET.length]);}});}
+function endMeeting(){meeting.members.forEach(id=>{const c=byId[id];if(c){c.mstate=false;c.think=0;}});meeting={active:false,until:0,topic:"",members:[]};}
+function leaveMeeting(ch){if(!ch.mstate)return;ch.mstate=false;meeting.members=meeting.members.filter(id=>id!==ch.id);if(meeting.active&&meeting.members.length<2)endMeeting();}
+
+const prevStatus=new Map();let pollCount=0;
+async function poll(){try{const data=window.__SNAP__?window.__SNAP__:await(await fetch("./snapshot.json",{cache:"no-store"})).json();SNAP=data;applySnap();}catch(e){setModeText("AUTO");}}
+function runFor(ch){return(SNAP?.runs||[]).find(r=>r.agentId===ch.id||r.appId===ch.id)||null;}
+function applySnap(){if(!SNAP)return;const runs=(SNAP.runs||[]).filter(x=>!["completed","failed"].includes(x.status)),active=new Set();
+  runs.forEach(run=>{const id=byId[run.agentId]?run.agentId:(byId[run.appId]?run.appId:null),ch=id&&byId[id];if(!ch)return;active.add(ch.id);ch.driven=true;const previous=prevStatus.get(ch.id),critical=["blocked","needs_check","approval_pending","deploying"].includes(run.status);if(pollCount&&previous!==run.status&&critical)showToast(ch,run.status);prevStatus.set(ch.id,run.status);if(critical)leaveMeeting(ch);if(["blocked","needs_check"].includes(run.status))ch.setAct("block",[ch.home.c,ch.home.r]);else if(["verifying","fixing"].includes(run.status))ch.setAct("verify",[ch.home.c,ch.home.r]);else if(run.status==="approval_pending")ch.setAct("approval",[CHAIR.x-1,CHAIR.y+2]);else if(run.status==="deploying")ch.setAct("deploy",[22,33]);else ch.setAct("work",[ch.home.c,ch.home.r]);});
+  chars.forEach(ch=>{if(!active.has(ch.id)){ch.driven=false;prevStatus.delete(ch.id);}});
+  const byApp={};runs.forEach(r=>{if(r.appId&&!["blocked","needs_check","approval_pending","deploying"].includes(r.status))(byApp[r.appId]=byApp[r.appId]||[]).push(r.agentId);});for(const app in byApp){if(byApp[app].length>=2&&!meeting.active){const members=byApp[app].map(id=>byId[id]).filter(Boolean);if(members.length>=2)startMeeting(members,`${NAMES[app]||app} 실무 회의`,18000);}}
+  pollCount++;if(selected)renderPanel(selected);
+}
+
+const RING={work:"#35e39b",verify:"#a879ff",block:"#ff5d6c",meet:"#c9a3ff",rest:"#ffcf4d",eat:"#2fe0c4",idle:"#6f86a8",walk:"#3ba7ff",approval:"#ffd15c",deploy:"#3ba7ff",chair:"#ffd15c"};
+const EMO={work:"⌨️",verify:"🔍",block:"⚠️",meet:"💬",rest:"☕",eat:"🍚",idle:"",approval:"✋",deploy:"🚀",chair:"",walk:""};
+const ACT_LABEL={work:"구현 중",verify:"검증 중",block:"상태 확인 필요",meet:"실무 회의",rest:"휴식",eat:"식사",idle:"대기",walk:"이동",approval:"승인 대기",deploy:"배포 중",chair:"경영 검토"};
+function visualState(ch){return["block","approval","deploy"].includes(ch.act)?ch.act:(ch.mstate?"meet":ch.act);}
+function tileDiamond(c,r,fill,stroke){const p=SC(c,r),hw=TW/2*cam.s,hh=TH/2*cam.s;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+hw,p.y+hh);ctx.lineTo(p.x,p.y+2*hh);ctx.lineTo(p.x-hw,p.y+hh);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.stroke();}}
+function drawFloor(){for(let r=0;r<GH;r++)for(let c=0;c<GW;c++)tileDiamond(c,r,((c+r)&1)?"#0e1a2f":"#10203a","rgba(255,255,255,.018)");ZONES.forEach(z=>{for(let r=z.y;r<z.y+z.h;r++)for(let c=z.x;c<z.x+z.w;c++)tileDiamond(c,r,z.s+(hoverZone===z?"2a":"18"),null);});}
+function drawFloorCached(){const key=`${cv.width}:${cv.height}:${cam.s.toFixed(4)}:${cam.x.toFixed(1)}:${cam.y.toFixed(1)}:${hoverZone?.code||""}`;if(floorDirty||floorLayer.dataset.key!==key){floorLayer.width=cv.width;floorLayer.height=cv.height;floorCtx.setTransform(DPR,0,0,DPR,0,0);floorCtx.clearRect(0,0,innerWidth,innerHeight);const before=ctx;ctx=floorCtx;drawFloor();ctx=before;floorLayer.dataset.key=key;floorDirty=false;}ctx.drawImage(floorLayer,0,0,innerWidth,innerHeight);}
+function isoBox(c,r,w,d,h,top,lf,rt){const g=(cc,rr,z=0)=>SC(cc,rr,z),hh=TH/2*cam.s,A=g(c,r,h),B=g(c+w,r,h),C=g(c+w,r+d,h),D=g(c,r+d,h),Bg=g(c+w,r),Cg=g(c+w,r+d),Dg=g(c,r+d),poly=(pts,fill)=>{ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y+hh);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y+hh);ctx.closePath();ctx.fillStyle=fill;ctx.fill();};poly([D,C,Cg,Dg],lf);poly([B,C,Cg,Bg],rt);poly([A,B,C,D],top);}
+function monitor(c,r,on,dual=false){const p=SC(c,r),s=cam.s,x=p.x,y=p.y+TH/2*s-13*s,col=on?"#35e39b":"#33475f",count=dual?2:1;for(let i=0;i<count;i++){const ox=(i-(count-1)/2)*18*s;ctx.fillStyle="#060c16";ctx.fillRect(x-11*s+ox,y-13*s,22*s,16*s);ctx.strokeStyle="#16243b";ctx.strokeRect(x-11*s+ox,y-13*s,22*s,16*s);ctx.fillStyle=col;if(on){ctx.shadowColor=col;ctx.shadowBlur=(nightFactor()?12:7)*s;}ctx.fillRect(x-8*s+ox,y-10*s,(on?13:7)*s,2*s);ctx.shadowBlur=0;ctx.fillStyle=on?"#3ba7ff":"#2a3a52";ctx.fillRect(x-8*s+ox,y-6*s,8*s,2*s);}}
+function drawChair(c,r,color="#324562",executive=false){isoBox(c-.32,r-.12,.64,.48,executive?18:11,shade(color,-10),shade(color,-45),shade(color,-28));isoBox(c-.34,r-.34,.68,.18,executive?27:20,shade(color,-4),shade(color,-42),shade(color,-24));}
+
+function drawHairBack(ch,x,y,dh,s){const a=ch.appearance,h=a.hair||"short",col=a.hairColor||"#46332c",top=y-dh+23*s;ctx.save();ctx.fillStyle=shade(col,-8);if(["long","waves","bob"].includes(h)){ctx.beginPath();ctx.ellipse(x,top+9*s,(h==="bob"?15:14)*s,(h==="bob"?16:25)*s,0,0,Math.PI*2);ctx.fill();if(h==="waves"){ctx.fillStyle=shade(col,8);for(const dx of[-10,10]){ctx.beginPath();ctx.arc(x+dx*s,top+25*s,6*s,0,Math.PI*2);ctx.fill();}}}if(h==="ponytail"){const side=ch.facing==="left"?-1:1;ctx.beginPath();ctx.arc(x+side*13*s,top+15*s,7*s,0,Math.PI*2);ctx.fill();ctx.fillRect(x+side*16*s-(side<0?5*s:0),top+16*s,5*s,18*s);}if(h==="bun"){ctx.beginPath();ctx.arc(x,top-8*s,7*s,0,Math.PI*2);ctx.fill();}if(h==="braid"){for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(x+11*s,top+(12+i*6)*s,(5-i*.5)*s,0,Math.PI*2);ctx.fill();}}ctx.restore();}
+function drawLookDetails(ch,x,y,dh,s){const a=ch.appearance,top=y-dh+7*s,hx=x,hy=top+19*s,chest=top+39*s;ctx.save();ctx.lineWidth=Math.max(1,s);if(a.glasses){ctx.strokeStyle="#223047";ctx.strokeRect(hx-8*s,hy-2*s,6*s,4*s);ctx.strokeRect(hx+2*s,hy-2*s,6*s,4*s);ctx.beginPath();ctx.moveTo(hx-2*s,hy);ctx.lineTo(hx+2*s,hy);ctx.stroke();}if(a.headset){ctx.strokeStyle=a.accent||"#7dd3fc";ctx.beginPath();ctx.arc(hx,hy-1*s,11*s,Math.PI*1.08,Math.PI*1.92);ctx.stroke();ctx.fillStyle=a.accent||"#7dd3fc";ctx.fillRect(hx+9*s,hy+1*s,3*s,7*s);ctx.fillRect(hx+10*s,hy+7*s,7*s,2*s);}if(a.hairAccessory){ctx.fillStyle=a.accent||"#ff9fba";ctx.beginPath();ctx.arc(hx+9*s,hy-10*s,3.2*s,0,Math.PI*2);ctx.fill();}ctx.strokeStyle=a.accent||"#dbe7fb";ctx.globalAlpha=.9;if(["blazer","suit","executive"].includes(a.outfit)){ctx.beginPath();ctx.moveTo(hx-9*s,chest-4*s);ctx.lineTo(hx-2*s,chest+5*s);ctx.lineTo(hx,chest);ctx.lineTo(hx+2*s,chest+5*s);ctx.lineTo(hx+9*s,chest-4*s);ctx.stroke();if(["suit","executive"].includes(a.outfit)){ctx.fillStyle=a.accent||"#ffd15c";ctx.fillRect(hx-1*s,chest,2*s,8*s);}}else if(a.outfit==="hoodie"){ctx.beginPath();ctx.moveTo(hx-5*s,chest-5*s);ctx.quadraticCurveTo(hx,chest+2*s,hx+5*s,chest-5*s);ctx.stroke();ctx.fillRect(hx-4*s,chest+1*s,1.5*s,7*s);ctx.fillRect(hx+2.5*s,chest+1*s,1.5*s,7*s);}else if(["cardigan","blouse","dress","turtleneck","jacket"].includes(a.outfit)){ctx.beginPath();ctx.moveTo(hx,chest-5*s);ctx.lineTo(hx,chest+9*s);ctx.stroke();}if(a.gender==="brand"){ctx.fillStyle=a.accent||ch.body;ctx.globalAlpha=.95;ctx.fillRect(hx-10*s,chest+2*s,20*s,5*s);}ctx.restore();}
+function drawSpeech(ch,x,y,s){const state=visualState(ch);if(!["meet","block"].includes(state)||reducedMotion)return;const cycle=(ch.phase+hash(ch.id)%9)%12;if(cycle>3.2)return;const pool=state==="meet"?["이슈 공유","리뷰 요청","다음 스텝?","머지 가능?"]:["입력 대기","승인 필요","확인 요망"],text=pool[hash(ch.id+Math.floor(ch.phase/12))%pool.length];ctx.save();ctx.font=`700 ${8*s}px Pretendard,sans-serif`;const w=ctx.measureText(text).width+12*s,bx=x-w/2,by=y-76*s;ctx.fillStyle="rgba(8,14,27,.94)";ctx.strokeStyle=state==="meet"?"#a879ff":"#ff5d6c";ctx.lineWidth=1*s;ctx.fillRect(bx,by,w,18*s);ctx.strokeRect(bx,by,w,18*s);ctx.fillStyle="#eef4ff";ctx.textAlign="center";ctx.fillText(text,x,by+12*s);ctx.restore();}
+function drawChar(ch){const p=SC(ch.cx,ch.cy),s=cam.s,x=p.x,y=p.y+TH/2*s,state=visualState(ch),ring=RING[state]||RING.idle,scale=(ch.crown?1.28:1)*(hoverChar===ch?1.06:1),breathe=reducedMotion||ch.walking?1:1+Math.sin(ch.phase*1.5)*.018,dw=64*s*.94*scale,dh=64*s*.94*scale*breathe,shadowX=x+4*s;
+  ctx.beginPath();ctx.ellipse(shadowX,y+3*s,15*s*scale,6*s*scale,-.15,0,Math.PI*2);ctx.fillStyle="rgba(0,0,0,.42)";ctx.fill();ctx.beginPath();ctx.ellipse(x,y+2*s,14*s*scale,5.5*s*scale,0,0,Math.PI*2);ctx.strokeStyle=ring;ctx.lineWidth=(hoverChar===ch?4:2.4)*s;ctx.shadowColor=ring;ctx.shadowBlur=(ch.driven||ch.walking||ch.mstate||hoverChar===ch)?10*s:3*s;ctx.stroke();ctx.shadowBlur=0;
+  drawHairBack(ch,x,y,dh,s*scale);
+  if(SPRITES&&characterSheet[ch.id]){const dir=DIR[ch.facing]??2,fr=ch.walking?(1+Math.floor(ch.phase)%8):0,sh=ch.posture==="sit"?52:64,dh2=dh*sh/64,lean=ch.walking?Math.sin(ch.phase)*2*s:0;ctx.drawImage(characterSheet[ch.id],fr*64,dir*64,64,sh,x-dw/2+lean,y-dh+7*s,dw,dh2);}else{const by=y-(ch.walking?Math.abs(Math.sin(ch.phase))*3*s:0);ctx.fillStyle=ch.body;ctx.fillRect(x-10*s,by-18*s,20*s,18*s);ctx.beginPath();ctx.arc(x,by-22*s,8*s,0,Math.PI*2);ctx.fillStyle=ch.appearance.skin||"#edc19d";ctx.fill();}
+  drawLookDetails(ch,x,y,dh,s*scale);if(ch.crown){ctx.font=`${14*s}px serif`;ctx.textAlign="center";ctx.fillText("👑",x,y-64*s);}ctx.font=`700 ${9.5*s}px ui-monospace,monospace`;ctx.textAlign="center";ctx.fillStyle="#f1f6ff";ctx.shadowColor="#000";ctx.shadowBlur=4*s;ctx.fillText(ch.name,x,y+17*s);ctx.shadowBlur=0;const em=EMO[state]||"";if(em){ctx.font=`${12*s}px serif`;ctx.fillText(em,x+14*s,y-52*s);}drawSpeech(ch,x,y,s);
+}
+
+function wallItems(z,it){if(!z.walls)return;const col=shade(z.s,-45),top=shade(z.s,-20),door=K(z.door?.[0],z.door?.[1]);for(let c=z.x;c<z.x+z.w;c++){if(K(c,z.y)!==door)it.push({d:c+z.y-.35,f:()=>isoBox(c,z.y,1,.12,24,top,shade(col,-18),col)});if(K(c,z.y+z.h-1)!==door)it.push({d:c+z.y+z.h+.3,f:()=>isoBox(c,z.y+z.h-.12,1,.12,24,top,shade(col,-18),col)});}for(let r=z.y;r<z.y+z.h;r++){if(K(z.x,r)!==door)it.push({d:z.x+r-.3,f:()=>isoBox(z.x,r,.12,1,24,top,shade(col,-18),col)});if(K(z.x+z.w-1,r)!==door)it.push({d:z.x+z.w+r+.25,f:()=>isoBox(z.x+z.w-.12,r,.12,1,24,top,shade(col,-18),col)});}if(z.door){const[x,y]=z.door;it.push({d:x+y+.2,f:()=>{tileDiamond(x,y,z.s+"55",z.s);const p=SC(x,y,23),s=cam.s;ctx.strokeStyle=shade(z.s,30);ctx.lineWidth=3*s;ctx.beginPath();ctx.moveTo(p.x-15*s,p.y+13*s);ctx.lineTo(p.x-15*s,p.y-4*s);ctx.moveTo(p.x+15*s,p.y+13*s);ctx.lineTo(p.x+15*s,p.y-4*s);ctx.stroke();}});}}
+function propItem(p,z){return{d:p.x+p.y+(p.type.includes("Wall")||["whiteboard","art","roadmapBoard","designWall","dataWall","projectorScreen"].includes(p.type)?-.5:.15),f:()=>drawProp(p,z)};}
+function drawProp(p,z){const s=cam.s,col=p.color||z.s,dark=shade(col,-50),mid=shade(col,-25),pt=SC(p.x,p.y),label=(emoji,size=14,dy=0)=>{ctx.font=`${size*s}px serif`;ctx.textAlign="center";ctx.fillText(emoji,pt.x,pt.y+TH/2*s+dy*s);};switch(p.type){
+  case"logoWall":isoBox(p.x-.2,p.y,.5,2.6,34,"#16243a","#0a1220","#101c30");ctx.font=`900 ${12*s}px ui-monospace,monospace`;ctx.fillStyle="#35e39b";ctx.textAlign="center";ctx.fillText(p.label||"ROBOM",pt.x+22*s,pt.y-12*s);break;
+  case"strategyBoard":case"whiteboard":case"roadmapBoard":case"designWall":case"dataWall":{isoBox(p.x,p.y,.15,2.5,32,"#eaf2fa",dark,mid);const q=SC(p.x,p.y,20);ctx.strokeStyle=col;ctx.lineWidth=2*s;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(q.x-2*s,q.y+(i*6-4)*s);ctx.lineTo(q.x+34*s,q.y+(i*6-4)*s);ctx.stroke();}break;}
+  case"projectorScreen":isoBox(p.x,p.y,.12,3.6,40,"#f7fbff","#9eabc0","#c7d1df");{const q=SC(p.x,p.y,24);ctx.fillStyle="#9a6cf0";ctx.fillRect(q.x+2*s,q.y-7*s,42*s,3*s);ctx.fillStyle="#49c6e5";ctx.fillRect(q.x+2*s,q.y,s*28,3*s);}break;
+  case"projector":{const q=SC(p.x,p.y,35);ctx.fillStyle="rgba(168,121,255,.12)";ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(q.x-75*s,q.y+42*s);ctx.lineTo(q.x+75*s,q.y+42*s);ctx.closePath();ctx.fill();isoBox(p.x-.25,p.y-.2,.5,.4,38,"#cdd6e5","#536174","#718096");}break;
+  case"videoWall":case"videoUnit":{isoBox(p.x,p.y,.12,3.2,34,"#09111f",dark,"#17263d");const q=SC(p.x,p.y,22);for(let i=0;i<3;i++){ctx.fillStyle=["#35e39b","#49c6e5","#ffcf4d"][i];ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=nightFactor()*12*s;ctx.fillRect(q.x+4*s,q.y+(i*7-8)*s,(18+i*5)*s,3*s);}ctx.shadowBlur=0;}break;
+  case"art":isoBox(p.x,p.y,.12,2.2,34,"#f5d779",dark,"#8f6d18");label("🖼️",15,-16);break;
+  case"bookshelf":case"deviceShelf":case"trophyShelf":case"colorShelf":case"storageRack":{isoBox(p.x-.4,p.y-.35,.8,.8,36,mid,dark,shade(col,-35));for(let i=0;i<3;i++){const q=SC(p.x,p.y,8+i*9);ctx.fillStyle=i%2?"#d7e7ff":col;ctx.fillRect(q.x-10*s,q.y,20*s,3*s);}if(p.type==="trophyShelf")label("🏆",13,-26);break;}
+  case"printer":case"copyMachine":isoBox(p.x-.35,p.y-.35,.7,.7,20,"#cad3df","#5f6b7b","#8793a3");label("🖨️",13,-12);break;
+  case"documentCabinet":case"lockers":{isoBox(p.x-.4,p.y-.4,.8,.8,32,"#66758c","#2e3a4d","#46546a");const q=SC(p.x,p.y,20);ctx.fillStyle="#dbe7fb";ctx.fillRect(q.x-5*s,q.y-2*s,10*s,2*s);break;}
+  case"dualMonitorBench":isoBox(p.x-.8,p.y-.4,1.6,.8,10,"#2f405d","#18243a","#22314a");monitor(p.x-.25,p.y,true,true);break;
+  case"securityConsole":case"networkConsole":isoBox(p.x-.7,p.y-.4,1.4,.8,12,"#253b55","#111d2c","#1b2c42");monitor(p.x,p.y,true,true);break;
+  case"demoTable":case"materialTable":isoBox(p.x-.8,p.y-.6,1.6,1.2,9,"#3d4d67","#202c40","#2d3b53");label(p.type==="demoTable"?"📱":"🎨",14,-6);break;
+  case"loungeSofa":case"visitorSofa":isoBox(p.x-1.1,p.y-.5,2.2,1,11,mid,dark,shade(col,-35));isoBox(p.x-1.1,p.y-.65,2.2,.24,23,shade(col,-8),dark,shade(col,-30));break;
+  case"coffeeTable":isoBox(p.x-.55,p.y-.55,1.1,1.1,7,"#7a5b43","#3f2e24","#5d4434");label("☕",12,-6);break;
+  case"phoneBooth":isoBox(p.x-.45,p.y-.45,.9,.9,42,"rgba(73,198,229,.32)","rgba(16,54,72,.75)","rgba(24,78,98,.75)");label("📞",14,-28);break;
+  case"vending":case"fridge":case"ups":isoBox(p.x-.4,p.y-.4,.8,.8,34,p.type==="vending"?"#2a7aa0":"#d8e1eb",dark,mid);label(p.type==="vending"?"🥤":p.type==="fridge"?"❄️":"🔋",13,-23);break;
+  case"pantryCounter":case"dishReturn":isoBox(p.x-.6,p.y-.4,1.2,.8,15,"#a7b6c8","#4f5e70","#708096");label(p.type==="dishReturn"?"🍽️":"🥗",13,-10);break;
+  case"coffeeMachine":isoBox(p.x-.25,p.y-.25,.5,.5,17,"#252b36","#0d121a","#171e29");label("☕",11,-13);break;
+  case"receptionDesk":isoBox(p.x-1.2,p.y-.45,2.4,.9,15,"#355078","#17263d","#263c5b");label("🔔",13,-12);break;
+  case"serverRack":{isoBox(p.x-.4,p.y-.4,.8,.8,44,"#162238","#07101c","#0d1828");const q=SC(p.x,p.y,26);for(let i=0;i<5;i++){ctx.fillStyle=i%2?"#35e39b":"#49c6e5";ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=nightFactor()*7*s;ctx.fillRect(q.x-8*s,q.y+(i*5-10)*s,3*s,2*s);}ctx.shadowBlur=0;break;}
+  case"boxes":isoBox(p.x-.6,p.y-.5,1.2,1,18,"#b68555","#66462f","#8a603e");label("📦",14,-12);break;
+  case"plant":label("🪴",17,-8);break;
+  default:isoBox(p.x-.3,p.y-.3,.6,.6,12,mid,dark,shade(col,-35));
+}}
+function furniture(){const items=[];DESKS.forEach(d=>{items.push({d:d.x+d.y-.05,f:()=>{isoBox(d.x-.48,d.y-.45,.96,.68,11,"#2b3a55","#1b2740","#22314c");monitor(d.x,d.y,!!(byId[d.id]?.driven&&["work","verify"].includes(byId[d.id].act)),["builder","designer","data-engineer","architect"].includes(d.id));const p=SC(d.x,d.y);ctx.fillStyle=byId[d.id]?.appearance.accent||T[d.team];ctx.fillRect(p.x-7*cam.s,p.y+TH/2*cam.s-2*cam.s,14*cam.s,2*cam.s);}});items.push({d:d.x+d.y+.72,f:()=>drawChair(d.x,d.y+1,T[d.team])});});
+  items.push({d:CHAIR.x+CHAIR.y,f:()=>{isoBox(CHAIR.x-.7,CHAIR.y-.45,2.2,.9,16,"#4a3c1c","#2a2210","#38300f");const p=SC(CHAIR.x,CHAIR.y);ctx.font=`${11*cam.s}px serif`;ctx.fillText("🏷️",p.x,p.y-12*cam.s);}});items.push({d:CHAIR.x+CHAIR.y+.75,f:()=>drawChair(CHAIR.x,CHAIR.y+1,T.gold,true)});
+  const [mx,my]=MEET_T;items.push({d:mx+my,f:()=>{const p=SC(mx,my),s=cam.s;ctx.beginPath();ctx.ellipse(p.x,p.y+TH/2*s,63*s,30*s,0,0,Math.PI*2);ctx.fillStyle="#263754";ctx.fill();ctx.beginPath();ctx.ellipse(p.x,p.y+TH/2*s-4*s,55*s,25*s,0,0,Math.PI*2);ctx.fillStyle="#1a2943";ctx.fill();ctx.fillStyle="#a879ff";ctx.fillRect(p.x-18*s,p.y+8*s,36*s,2*s);}});MEET.forEach(([x,y])=>items.push({d:x+y-.1,f:()=>drawChair(x,y,"#5c4b7d")}));
+  CAFE_T.forEach(([x,y])=>items.push({d:x+y,f:()=>{isoBox(x-.5,y-.5,1,1,8,"#5a6576","#2c3645","#414c5c");const p=SC(x,y);ctx.font=`${12*cam.s}px serif`;ctx.textAlign="center";ctx.fillText("🍱",p.x,p.y+TH/2*cam.s-7*cam.s);}}));
+  ZONES.forEach(z=>{wallItems(z,items);z.props.forEach(p=>items.push(propItem(p,z)));});return items;
+}
+function drawLabels(){ctx.textAlign="left";ZONES.forEach(z=>{const p=SC(z.x+.35,z.y+.35),s=cam.s;ctx.font=`800 ${12*s}px Pretendard,sans-serif`;const w=Math.max(90,ctx.measureText(z.label).width+18*s);ctx.fillStyle="rgba(7,11,22,.82)";ctx.fillRect(p.x-6*s,p.y-11*s,w,28*s);ctx.fillStyle="#f2f6ff";ctx.shadowColor="#000";ctx.shadowBlur=4*s;ctx.fillText(z.label,p.x,p.y);ctx.font=`700 ${7.5*s}px ui-monospace,monospace`;ctx.fillStyle=z.s;ctx.fillText(z.code,p.x,p.y+12*s);ctx.shadowBlur=0;});}
+function nightFactor(){const h=Number(new Intl.DateTimeFormat("en-US",{timeZone:"Asia/Seoul",hour:"2-digit",hour12:false}).format(new Date()));return h>=19||h<6?1:h>=17?.45:0;}
+function drawAmbient(){const f=nightFactor();if(!f)return;ctx.fillStyle=f===1?"rgba(6,14,35,.28)":"rgba(255,150,60,.08)";ctx.fillRect(0,0,innerWidth,innerHeight);}
+
+let selected=null,hoverChar=null,hoverZone=null;
+function renderPanel(ch){const panel=document.getElementById("detailPanel"),run=runFor(ch),state=visualState(ch);panel.classList.add("open");panel.setAttribute("aria-hidden","false");document.getElementById("detailName").textContent=ch.name;document.getElementById("detailRole").textContent=`${ACT_LABEL[state]||state} · ${ch.driven?"실시간 연결":"오토파일럿"}`;document.getElementById("detailState").textContent=ch.driven?"실제 작업 이벤트 연결됨":"실시간 작업 없음 · 오토파일럿";const rows=[];if(run){[["앱",NAMES[run.appId]||run.appId],["브랜치",run.branch],["PR",run.prNumber?`#${run.prNumber}`:null],["테스트",run.tests],["최근 이벤트",run.lastEvent||run.task],["업데이트",run.updatedAt]].forEach(([k,v])=>{if(v)rows.push(`<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(String(v))}</dd>`);});}document.getElementById("detailMeta").innerHTML=rows.join("")||"<p class=empty>연결된 작업 세부정보가 없습니다.</p>";const events=(SNAP?.events||[]).filter(e=>e.agentId===ch.id||e.appId===ch.id).slice(0,3);document.getElementById("detailEvents").innerHTML=events.map(e=>`<li><b>${escapeHtml(e.status||e.type||"event")}</b><span>${escapeHtml(e.message||"")}</span></li>`).join("")||"<li class=empty>최근 실시간 이벤트가 없습니다.</li>";document.getElementById("ariaLive").textContent=`${ch.name}, ${ACT_LABEL[state]||state}, ${ch.driven?"실시간 작업":"오토파일럿"}`;}
+function escapeHtml(v){return v.replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));}
+function closePanel(){selected=null;const panel=document.getElementById("detailPanel");panel.classList.remove("open");panel.setAttribute("aria-hidden","true");}
+function showToast(ch,status){const box=document.getElementById("toasts"),el=document.createElement("div"),state=({blocked:"block",needs_check:"block",approval_pending:"approval",deploying:"deploy"})[status]||status;el.className="toast";el.textContent=`${status==="deploying"?"🚀":status==="approval_pending"?"✋":"⚠️"} ${ch.name} · ${ACT_LABEL[state]||state}`;box.appendChild(el);document.getElementById("ariaLive").textContent=el.textContent;setTimeout(()=>el.classList.add("show"),20);setTimeout(()=>{el.classList.remove("show");setTimeout(()=>el.remove(),250);},4000);}
+
+function setModeText(fallback){const live=!!(SNAP?.connections&&(SNAP.connections.events==="connected"||String(SNAP.connections.github||"").startsWith("connected"))),mode=document.getElementById("mode");mode.textContent=window.__PREVIEW__?"PREVIEW":(live?"LIVE":fallback||"AUTO");mode.className=`mode ${window.__PREVIEW__||!live?"warn":""}`;}
+let fps=60,frameCount=0,fpsAt=performance.now();
+function updateHUD(){const count={work:0,verify:0,block:0,meet:0,rest:0,eat:0};chars.forEach(ch=>{if(ch.locked)return;const state=visualState(ch);if(state in count)count[state]++;});document.getElementById("k-work").textContent=count.work+count.verify;document.getElementById("k-meet").textContent=count.meet;document.getElementById("k-rest").textContent=count.rest+count.eat;document.getElementById("k-block").textContent=count.block;document.getElementById("k-fps").textContent=Math.round(fps);const banner=document.getElementById("meetban");banner.style.display=meeting.active?"flex":"none";if(meeting.active)document.getElementById("meettopic").textContent=`${meeting.topic} · ${meeting.members.length}명`;setModeText("AUTO");}
 function tickClock(){try{document.getElementById("clock").textContent=new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date());}catch{}}
 
-// ── 카메라 ──
-function fit(){const cs=[W2(0,0),W2(GW,0),W2(0,GH),W2(GW,GH)];let mnx=1e9,mxx=-1e9,mny=1e9,mxy=-1e9;cs.forEach(p=>{mnx=Math.min(mnx,p.x);mxx=Math.max(mxx,p.x);mny=Math.min(mny,p.y);mxy=Math.max(mxy,p.y+TH);});
-  const W=innerWidth,H=innerHeight,pad=70;cam.s=Math.min((W-pad)/(mxx-mnx),(H-pad-80)/(mxy-mny));cam.s=Math.max(.4,Math.min(cam.s,2));cam.x=W/2-(mnx+mxx)/2*cam.s;cam.y=(H+80)/2-(mny+mxy)/2*cam.s;}
-function resize(){DPR=Math.min(2,window.devicePixelRatio||1);cv.width=innerWidth*DPR;cv.height=innerHeight*DPR;cv.style.width=innerWidth+"px";cv.style.height=innerHeight+"px";ctx.setTransform(DPR,0,0,DPR,0,0);ctx.imageSmoothingEnabled=false;if(cam.fit)fit();}
-addEventListener("resize",resize);
-cv.addEventListener("wheel",e=>{e.preventDefault();cam.fit=false;const f=e.deltaY<0?1.1:.9;const W=innerWidth/2,H=innerHeight/2;cam.x=W-(W-cam.x)*f;cam.y=H-(H-cam.y)*f;cam.s=Math.max(.35,Math.min(cam.s*f,3));},{passive:false});
-cv.addEventListener("pointerdown",e=>{cam.drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y};cam.fit=false;});
-addEventListener("pointermove",e=>{if(cam.drag){cam.x=cam.drag.cx+(e.clientX-cam.drag.x);cam.y=cam.drag.cy+(e.clientY-cam.drag.y);}});
-addEventListener("pointerup",()=>cam.drag=null);
-document.getElementById("fitBtn").onclick=()=>{cam.fit=true;fit();};
+function fit(){const corners=[W2(0,0),W2(GW,0),W2(0,GH),W2(GW,GH)];let minX=1e9,maxX=-1e9,minY=1e9,maxY=-1e9;corners.forEach(p=>{minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y+TH);});const pad=innerWidth<700?24:70,top=innerWidth<700?128:82;cam.s=Math.max(.32,Math.min((innerWidth-pad)/(maxX-minX),(innerHeight-pad-top)/(maxY-minY),2));cam.x=innerWidth/2-(minX+maxX)/2*cam.s;cam.y=(innerHeight+top)/2-(minY+maxY)/2*cam.s;floorDirty=true;}
+function focusZone(z){const center=W2(z.x+z.w/2,z.y+z.h/2),target=Math.max(.65,Math.min(1.35,innerWidth/(z.w*TW*1.5)));cam.fit=false;const start={...cam},tx=innerWidth/2-center.x*target,ty=innerHeight/2-center.y*target,started=performance.now(),duration=reducedMotion?1:420;function step(now){const t=Math.min(1,(now-started)/duration),ease=1-(1-t)*(1-t);cam.s=start.s+(target-start.s)*ease;cam.x=start.x+(tx-start.x)*ease;cam.y=start.y+(ty-start.y)*ease;floorDirty=true;if(t<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+function resize(){DPR=Math.min(2,devicePixelRatio||1);cv.width=innerWidth*DPR;cv.height=innerHeight*DPR;cv.style.width=`${innerWidth}px`;cv.style.height=`${innerHeight}px`;mainCtx.setTransform(DPR,0,0,DPR,0,0);mainCtx.imageSmoothingEnabled=false;floorDirty=true;if(cam.fit)fit();}
+addEventListener("resize",resize);cv.addEventListener("wheel",e=>{e.preventDefault();cam.fit=false;const f=e.deltaY<0?1.1:.9,mx=e.clientX,my=e.clientY;cam.x=mx-(mx-cam.x)*f;cam.y=my-(my-cam.y)*f;cam.s=Math.max(.32,Math.min(cam.s*f,3));floorDirty=true;},{passive:false});
+const pointers=new Map();let drag=null,pinch=null;
+cv.addEventListener("pointerdown",e=>{cv.setPointerCapture?.(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1)drag={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,cx:cam.x,cy:cam.y,moved:false};else if(pointers.size===2){const [a,b]=[...pointers.values()];pinch={distance:Math.hypot(a.x-b.x,a.y-b.y),scale:cam.s,midX:(a.x+b.x)/2,midY:(a.y+b.y)/2,cx:cam.x,cy:cam.y};drag=null;}cam.fit=false;});
+addEventListener("pointermove",e=>{if(pointers.has(e.pointerId))pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2&&pinch){const[a,b]=[...pointers.values()],distance=Math.hypot(a.x-b.x,a.y-b.y),f=distance/pinch.distance,scale=Math.max(.32,Math.min(pinch.scale*f,3)),midX=(a.x+b.x)/2,midY=(a.y+b.y)/2;cam.x=midX-(pinch.midX-pinch.cx)*(scale/pinch.scale);cam.y=midY-(pinch.midY-pinch.cy)*(scale/pinch.scale);cam.s=scale;floorDirty=true;return;}if(drag&&drag.id===e.pointerId){drag.lastX=e.clientX;drag.lastY=e.clientY;drag.moved=drag.moved||Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>5;if(drag.moved){cam.x=drag.cx+e.clientX-drag.x;cam.y=drag.cy+e.clientY-drag.y;floorDirty=true;}}else if(!pointers.size){const tile=screenToTile(e.clientX,e.clientY);hoverChar=chars.reduce((best,ch)=>{const p=SC(ch.cx,ch.cy),d=Math.hypot(p.x-e.clientX,p.y+TH/2*cam.s-e.clientY);return d<(best?.d??34)?{ch,d}:best;},null)?.ch||null;hoverZone=ZONES.find(z=>tile.c>=z.x&&tile.c<z.x+z.w&&tile.r>=z.y&&tile.r<z.y+z.h)||null;floorDirty=true;}});
+function pointerEnd(e){const point=pointers.get(e.pointerId);pointers.delete(e.pointerId);if(!pointers.size&&drag&&drag.id===e.pointerId&&!drag.moved&&point){const nearest=chars.reduce((best,ch)=>{const p=SC(ch.cx,ch.cy),d=Math.hypot(p.x-point.x,p.y+TH/2*cam.s-point.y);return d<(best?.d??38)?{ch,d}:best;},null);if(nearest){selected=nearest.ch;renderPanel(selected);}else{const tile=screenToTile(point.x,point.y),zone=ZONES.find(z=>tile.c>=z.x&&tile.c<z.x+z.w&&tile.r>=z.y&&tile.r<z.y+z.h);if(zone)focusZone(zone);else closePanel();}}if(pointers.size<2)pinch=null;if(!pointers.size)drag=null;}
+addEventListener("pointerup",pointerEnd);addEventListener("pointercancel",pointerEnd);document.getElementById("fitBtn").onclick=()=>{cam.fit=true;fit();};document.getElementById("detailClose").onclick=closePanel;addEventListener("keydown",e=>{if(e.key==="Escape")closePanel();});
 
-// ── 루프 ──
 let last=performance.now();
-function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;
-  chars.forEach(c=>{if(c.locked){c.update(dt);return;}if(c.mstate){c.update(dt);return;}if(c.driven){c.update(dt);return;}c.think-=dt;if(c.think<=0)autoPlan(c);c.update(dt);});
-  if(!meeting.active&&now>nextMeet){const free=chars.filter(c=>!c.locked&&!c.driven&&!PRODUCT.has(c.id));if(free.length>=3)startMeeting(free.sort(()=>Math.random()-.5).slice(0,4),"주간 스탠드업",15000);nextMeet=now+rnd(30000,55000);}
-  if(meeting.active&&now>meeting.until)endMeeting();
-  ctx.clearRect(0,0,cv.width,cv.height);
-  drawFloor();
-  const it=furniture();chars.forEach(c=>it.push({d:c.cx+c.cy+0.6,f:()=>drawChar(c)}));it.sort((a,b)=>a.d-b.d);it.forEach(o=>o.f());
-  drawLabels();updateHUD();requestAnimationFrame(loop);}
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;chars.forEach(ch=>{if(ch.locked||ch.mstate||ch.driven){ch.update(dt);return;}ch.think-=dt;if(ch.think<=0)autoPlan(ch);ch.update(dt);});if(meeting.active&&now>meeting.until)endMeeting();frameCount++;if(now-fpsAt>=1000){fps=frameCount*1000/(now-fpsAt);frameCount=0;fpsAt=now;}mainCtx.clearRect(0,0,innerWidth,innerHeight);drawFloorCached();const items=furniture();chars.forEach(ch=>items.push({d:ch.cx+ch.cy+.65,f:()=>drawChar(ch)}));items.sort((a,b)=>a.d-b.d);items.forEach(o=>o.f());drawAmbient();drawLabels();updateHUD();requestAnimationFrame(loop);}
 
-// ── 부팅: 맵 로드(있으면) → 초기화 → 시작. 실패 시 FALLBACK_MAP으로 동일 동작 ──
-applyMap(FALLBACK_MAP); // 즉시 준비(리사이즈/포인터 핸들러가 빈 상태 안 보게)
-(async function boot(){
-  let map=null;
-  try{ map = window.__MAP__ ? window.__MAP__ : await (await fetch("./office-map.json",{cache:"no-store"})).json(); }catch(e){ map=null; }
-  if(map){ try{ applyMap(map); }catch(e){ applyMap(FALLBACK_MAP); } }
-  loadSprites();resize();poll();setInterval(poll,6000);setInterval(tickClock,1000);tickClock();requestAnimationFrame(loop);
-})();
+(async function boot(){let map=null;try{map=window.__MAP__||await(await fetch("./office-map.json",{cache:"no-store"})).json();}catch{}applyMap(map||FALLBACK_MAP);loadSprites();resize();poll();setInterval(poll,6000);setInterval(tickClock,1000);tickClock();requestAnimationFrame(loop);})();
 })();

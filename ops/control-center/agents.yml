@@ -1,4 +1,4 @@
-# 로봄 본부 등록 직원 — .claude/agents/ 11역할 + 총괄 회의실 3팀.
+# 로봄 본부 등록 직원 — 전문 역할 14개 + 총괄 회의실 3팀.
 # "등록됨"은 역할이 존재한다는 뜻일 뿐, 실제 "작업 중"은 이벤트/세션 증거로만 판정한다.
 agents:
   # 회의실(동등 총괄 권한, 상하 없음) — 실제 세션이 도는 작업실
@@ -49,6 +49,21 @@ agents:
   - id: growth-marketer
     name: 홍보·성장팀
     department: growth
+    cadence: daily
+    kind: agent
+  - id: designer
+    name: 디자인시스템팀
+    department: design
+    cadence: daily
+    kind: agent
+  - id: data-engineer
+    name: 데이터·자동화팀
+    department: data-automation
+    cadence: daily
+    kind: agent
+  - id: support-manager
+    name: 고객지원팀
+    department: support
     cadence: daily
     kind: agent
 

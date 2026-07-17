@@ -7,7 +7,7 @@
 :root{--mono:ui-monospace,"SF Mono","Roboto Mono",Menlo,monospace}
 *{margin:0;box-sizing:border-box}
 html,body{height:100%;overflow:hidden;background:#070b16;font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;color:#e9eef7}
-#game{display:block;cursor:grab}#game:active{cursor:grabbing}
+#game{display:block;cursor:grab;touch-action:none}#game:active{cursor:grabbing}
 .hud{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;pointer-events:none;z-index:5}
 .brand{display:flex;align-items:center;gap:10px}
 .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1c4f74,#0b2438);display:grid;place-items:center;box-shadow:0 0 18px rgba(53,227,155,.35)}
@@ -28,6 +28,10 @@ html,body{height:100%;overflow:hidden;background:#070b16;font-family:"Pretendard
 .legend{position:fixed;left:18px;bottom:16px;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;color:#8ea3c4;z-index:5;pointer-events:none}
 .legend span{display:inline-flex;align-items:center;gap:5px}.legend i{width:9px;height:9px;border-radius:50%}
 .hint{position:fixed;right:18px;bottom:16px;font-family:var(--mono);font-size:10px;color:#5f7391;z-index:5}
+.detail{position:fixed;right:14px;top:76px;bottom:14px;width:min(340px,calc(100vw - 28px));z-index:8;padding:20px;overflow:auto;transform:translateX(calc(100% + 28px));transition:transform .28s ease;background:linear-gradient(180deg,rgba(18,29,50,.97),rgba(7,12,24,.97));border:1px solid rgba(255,255,255,.14);border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.45);backdrop-filter:blur(14px)}
+.detail.open{transform:translateX(0)}.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.detail h2{font-size:21px;line-height:1.2}.detail-role{margin-top:6px;color:#8fa5c7;font-size:12px}.detail-close{width:36px;height:36px;border:1px solid rgba(255,255,255,.14);border-radius:10px;background:#111d31;color:#dbe7fb;font-size:20px;cursor:pointer}.detail-state{margin:20px 0 14px;padding:11px 12px;border-radius:11px;background:rgba(53,227,155,.08);border:1px solid rgba(53,227,155,.2);color:#9cebc9;font-size:12px;font-weight:700}.detail dl{display:grid;grid-template-columns:72px minmax(0,1fr);gap:9px 12px;padding:14px 0;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);font-size:12px}.detail dt{color:#7389a9}.detail dd{margin:0;color:#e9f1ff;overflow-wrap:anywhere}.detail h3{margin:18px 0 9px;font-size:12px;letter-spacing:.08em;color:#9bb0ce}.detail ul{display:grid;gap:8px;list-style:none;padding:0}.detail li{display:grid;gap:3px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,.045);font-size:11px}.detail li b{color:#a879ff}.detail li span,.empty{color:#7f93b4}.toasts{position:fixed;right:16px;top:76px;z-index:12;display:grid;gap:8px;pointer-events:none}.toast{max-width:320px;padding:11px 14px;border-radius:12px;background:rgba(15,25,43,.96);border:1px solid rgba(255,255,255,.14);box-shadow:0 14px 38px rgba(0,0,0,.35);font:700 12px/1.4 Pretendard,sans-serif;opacity:0;transform:translateY(-8px);transition:.22s}.toast.show{opacity:1;transform:none}.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:720px){.hud{align-items:flex-start;padding:9px 10px}.brand .t small{display:none}.logo{width:30px;height:30px}.kpis{position:fixed;top:48px;left:8px;right:8px;justify-content:center}.kpi{min-width:0;flex:1;max-width:82px;padding:5px 7px}.kpi .l{font-size:7px}.kpi .v{font-size:15px}.clock{display:none}.legend{left:10px;right:10px;bottom:8px;gap:7px;font-size:8px}.legend span:last-child{display:none}.hint{display:none}.detail{top:auto;left:8px;right:8px;bottom:8px;width:auto;max-height:64vh;transform:translateY(calc(100% + 18px));border-radius:18px}.detail.open{transform:translateY(0)}.toasts{top:96px;left:10px;right:10px}.toast{max-width:none}.meetban{top:92px;font-size:10px}}
+@media(prefers-reduced-motion:reduce){.meetban i{animation:none}.detail,.toast{transition:none}}
 </style></head><body>
 <canvas id="game"></canvas>
 <div class="hud">
@@ -37,6 +41,7 @@ html,body{height:100%;overflow:hidden;background:#070b16;font-family:"Pretendard
     <div class="kpi" style="--c:#a879ff"><div class="l">회의중</div><div class="v" id="k-meet">0</div></div>
     <div class="kpi" style="--c:#ffcf4d"><div class="l">휴식·식사</div><div class="v" id="k-rest">0</div></div>
     <div class="kpi" style="--c:#ff5d6c"><div class="l">막힘</div><div class="v" id="k-block">0</div></div>
+    <div class="kpi" style="--c:#49c6e5"><div class="l">FPS</div><div class="v" id="k-fps">60</div></div>
   </div>
   <div class="top-right"><span class="clock" id="clock">--:--:--</span><span class="mode" id="mode">AUTO</span><button class="fit" id="fitBtn" title="전체 보기">⤢</button></div>
 </div>
@@ -44,8 +49,14 @@ html,body{height:100%;overflow:hidden;background:#070b16;font-family:"Pretendard
 <div class="legend">
   <span><i style="background:#35e39b"></i>일하는 중</span><span><i style="background:#a879ff"></i>회의</span>
   <span><i style="background:#ffcf4d"></i>휴식·식사</span><span><i style="background:#ff5d6c"></i>막힘</span>
-  <span style="color:#5f7391">· 드래그=이동 · 휠=확대</span>
+  <span style="color:#5f7391">· 클릭=상세/방 확대 · 드래그=이동 · 휠/핀치=확대</span>
 </div>
 <div class="hint">실제 로봄 작업 이벤트 연결 시 LIVE로 그 상태대로 움직임</div>
+<aside class="detail" id="detailPanel" aria-label="직원 작업 상세" aria-hidden="true">
+  <div class="detail-head"><div><h2 id="detailName">직원</h2><p class="detail-role" id="detailRole">상태</p></div><button class="detail-close" id="detailClose" type="button" aria-label="상세 패널 닫기">×</button></div>
+  <p class="detail-state" id="detailState">실시간 작업 없음 · 오토파일럿</p>
+  <dl id="detailMeta"></dl><h3>최근 실시간 이벤트</h3><ul id="detailEvents"></ul>
+</aside>
+<div class="toasts" id="toasts" aria-hidden="true"></div><div class="sr-only" id="ariaLive" aria-live="polite"></div>
 <script src="./office.js"></script>
 </body></html>

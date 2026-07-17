@@ -1,61 +1,106 @@
 {
-  "_doc": "로봄 본부 오피스 레이아웃 정본. 이 파일만 고치면 office.js 코드 수정 없이 배치가 바뀐다. 좌표는 타일 격자(정수/소수), 색은 hex. 편집 방법은 ops/control-center/OFFICE-UPDATE.md 참고.",
-  "grid": { "w": 40, "h": 28, "tileW": 64, "tileH": 32 },
+  "_doc": "로봄 본부 오피스 레이아웃 정본. 공간·직원·외형·비품은 이 파일에서 관리한다.",
+  "grid": { "w": 42, "h": 38, "tileW": 64, "tileH": 32 },
   "teams": {
     "cmd": "#4f8fe0", "strat": "#9a6cf0", "dev": "#2fd08a", "qa": "#39b98a",
-    "ops": "#f59a3c", "sec": "#e8b93c", "gold": "#e8b93c",
-    "out": "#48a7d4", "home": "#4da35e", "run": "#e0574a", "cert": "#5b6ee0", "cal": "#2fd0bd"
+    "ops": "#f59a3c", "sec": "#e8b93c", "gold": "#e8b93c", "design": "#ff7fa3",
+    "data": "#49c6e5", "support": "#8bd17c", "out": "#48a7d4", "home": "#4da35e",
+    "run": "#e0574a", "cert": "#5b6ee0", "cal": "#2fd0bd"
   },
   "products": ["out", "home", "run", "cert", "cal"],
   "names": {
-    "ceo-orchestrator": "비서실장", "room-01": "room-01", "room-02": "room-02", "room-03": "room-03",
-    "strategist": "전략팀", "recorder": "기록팀", "builder": "개발팀", "planner": "기획팀",
-    "inspector": "검사팀", "architect": "설계팀", "upgrader": "R&D팀",
-    "growth-marketer": "홍보팀", "release-manager": "릴리즈팀", "supervisor": "감독팀",
+    "ceo-orchestrator": "비서실장 · 서아", "room-01": "총괄1팀 · 윤슬", "room-02": "총괄2팀 · 유나", "room-03": "총괄3팀 · 하린",
+    "strategist": "전략팀 · 민재", "recorder": "기록팀 · 서윤", "builder": "개발팀 · 도윤", "planner": "기획팀 · 지아",
+    "inspector": "QA팀 · 소은", "architect": "설계팀 · 준호", "upgrader": "R&D팀 · 예린", "designer": "디자인팀 · 나연",
+    "growth-marketer": "홍보팀 · 채원", "release-manager": "릴리즈팀 · 수빈", "supervisor": "감독팀 · 민서",
+    "data-engineer": "데이터팀 · 다온", "support-manager": "지원팀 · 아린",
     "out": "야외봄", "home": "청약봄", "run": "러닝봄", "cert": "자격증봄", "cal": "캘린더봄"
   },
   "zones": [
-    { "x": 2,  "y": 2,  "w": 10, "h": 7, "color": "#4f8fe0", "label": "🧭 본부·전략실",       "code": "COMMAND",    "walls": true, "door": [6, 8] },
-    { "x": 15, "y": 2,  "w": 9,  "h": 7, "color": "#9a6cf0", "label": "💬 회의실",            "code": "MEETING",    "walls": true, "door": [19, 8] },
-    { "x": 28, "y": 2,  "w": 10, "h": 7, "color": "#e8b93c", "label": "👑 회장실",            "code": "CHAIRMAN",   "walls": true, "door": [32, 8] },
-    { "x": 2,  "y": 11, "w": 9,  "h": 7, "color": "#2fd08a", "label": "🛠️ 개발·QA실",         "code": "FLOOR ENG",  "walls": true, "door": [6, 11] },
-    { "x": 13, "y": 11, "w": 10, "h": 7, "color": "#f59a3c", "label": "📣 홍보·보안·릴리스",   "code": "FLOOR OPS",  "walls": true, "door": [17, 11] },
-    { "x": 25, "y": 11, "w": 13, "h": 7, "color": "#9a6cf0", "label": "📦 프로젝트 룸 · 5 APPS", "code": "PROJECTS",   "walls": true, "door": [31, 11] },
-    { "x": 2,  "y": 20, "w": 11, "h": 6, "color": "#2fd0bd", "label": "☕ 휴게실",            "code": "LOUNGE",     "walls": true, "door": [7, 20] },
-    { "x": 15, "y": 20, "w": 11, "h": 6, "color": "#e8b93c", "label": "🍚 구내식당",          "code": "CAFETERIA",  "walls": true, "door": [20, 20] },
-    { "x": 28, "y": 20, "w": 10, "h": 6, "color": "#4f8fe0", "label": "🖥️ 서버·리셉션",       "code": "SERVER",     "walls": true, "door": [32, 20] }
+    { "x": 2, "y": 2, "w": 11, "h": 7, "color": "#4f8fe0", "label": "🧭 본부·전략실", "code": "COMMAND", "walls": true, "door": [7, 8], "props": [
+      { "type": "logoWall", "x": 3, "y": 2.3, "label": "ROBOM" }, { "type": "strategyBoard", "x": 10, "y": 3 },
+      { "type": "printer", "x": 11, "y": 7, "solid": true }, { "type": "plant", "x": 3, "y": 7 }
+    ]},
+    { "x": 15, "y": 2, "w": 11, "h": 7, "color": "#9a6cf0", "label": "🎥 대회의실", "code": "BOARD ROOM", "walls": true, "door": [20, 8], "props": [
+      { "type": "projectorScreen", "x": 18, "y": 2.25 }, { "type": "projector", "x": 20, "y": 4.2 },
+      { "type": "whiteboard", "x": 24, "y": 3 }, { "type": "videoUnit", "x": 16.2, "y": 6.8 }
+    ]},
+    { "x": 28, "y": 2, "w": 11, "h": 7, "color": "#e8b93c", "label": "👑 회장·비서실", "code": "EXECUTIVE", "walls": true, "door": [33, 8], "props": [
+      { "type": "bookshelf", "x": 29, "y": 3, "solid": true }, { "type": "art", "x": 36.5, "y": 2.4 },
+      { "type": "visitorSofa", "x": 29.5, "y": 7, "solid": true }, { "type": "plant", "x": 37, "y": 7 }
+    ]},
+    { "x": 2, "y": 11, "w": 11, "h": 7, "color": "#2fd08a", "label": "🛠️ 개발·QA 스튜디오", "code": "ENGINEERING", "walls": true, "door": [7, 11], "props": [
+      { "type": "dualMonitorBench", "x": 10.5, "y": 15 }, { "type": "whiteboard", "x": 3, "y": 11.3 },
+      { "type": "deviceShelf", "x": 11, "y": 17, "solid": true }, { "type": "plant", "x": 3, "y": 17 }
+    ]},
+    { "x": 15, "y": 11, "w": 11, "h": 7, "color": "#f59a3c", "label": "📣 운영·보안 센터", "code": "OPERATIONS", "walls": true, "door": [20, 11], "props": [
+      { "type": "videoWall", "x": 17, "y": 11.3 }, { "type": "securityConsole", "x": 24, "y": 15, "solid": true },
+      { "type": "copyMachine", "x": 16, "y": 17, "solid": true }, { "type": "documentCabinet", "x": 24, "y": 17, "solid": true }
+    ]},
+    { "x": 28, "y": 11, "w": 11, "h": 7, "color": "#9a6cf0", "label": "📦 프로젝트 워룸 · 5 APPS", "code": "PRODUCTS", "walls": true, "door": [33, 11], "props": [
+      { "type": "roadmapBoard", "x": 29, "y": 11.3 }, { "type": "demoTable", "x": 36, "y": 16, "solid": true },
+      { "type": "trophyShelf", "x": 37, "y": 12.5, "solid": true }, { "type": "plant", "x": 29, "y": 17 }
+    ]},
+    { "x": 2, "y": 20, "w": 11, "h": 7, "color": "#ff7fa3", "label": "🎨 디자인·데이터 랩", "code": "DESIGN LAB", "walls": true, "door": [7, 20], "props": [
+      { "type": "designWall", "x": 3, "y": 20.3 }, { "type": "dataWall", "x": 9, "y": 20.3 },
+      { "type": "materialTable", "x": 6, "y": 24, "solid": true }, { "type": "colorShelf", "x": 11, "y": 25, "solid": true }
+    ]},
+    { "x": 15, "y": 20, "w": 11, "h": 7, "color": "#2fd0bd", "label": "☕ 라운지·폰부스", "code": "LOUNGE", "walls": true, "door": [20, 20], "props": [
+      { "type": "loungeSofa", "x": 17.5, "y": 24, "solid": true }, { "type": "coffeeTable", "x": 21, "y": 24, "solid": true },
+      { "type": "phoneBooth", "x": 24, "y": 22, "solid": true }, { "type": "vending", "x": 24, "y": 25, "solid": true },
+      { "type": "plant", "x": 16, "y": 25 }
+    ]},
+    { "x": 28, "y": 20, "w": 11, "h": 7, "color": "#e8b93c", "label": "🍚 카페테리아", "code": "CAFETERIA", "walls": true, "door": [33, 20], "props": [
+      { "type": "pantryCounter", "x": 29, "y": 22, "solid": true }, { "type": "coffeeMachine", "x": 30, "y": 21.5 },
+      { "type": "fridge", "x": 37, "y": 22, "solid": true }, { "type": "dishReturn", "x": 37, "y": 25, "solid": true }
+    ]},
+    { "x": 2, "y": 29, "w": 11, "h": 7, "color": "#4f8fe0", "label": "🏢 리셉션·방문자", "code": "RECEPTION", "walls": true, "door": [7, 29], "props": [
+      { "type": "receptionDesk", "x": 6, "y": 32, "solid": true }, { "type": "visitorSofa", "x": 9, "y": 34, "solid": true },
+      { "type": "logoWall", "x": 3, "y": 29.3, "label": "ROBOM" }, { "type": "plant", "x": 11, "y": 34 }
+    ]},
+    { "x": 15, "y": 29, "w": 11, "h": 7, "color": "#49c6e5", "label": "🖥️ 서버·관제실", "code": "NOC", "walls": true, "door": [20, 29], "props": [
+      { "type": "serverRack", "x": 16.5, "y": 32, "solid": true }, { "type": "serverRack", "x": 18.5, "y": 32, "solid": true },
+      { "type": "networkConsole", "x": 22, "y": 33, "solid": true }, { "type": "ups", "x": 24.5, "y": 34, "solid": true }
+    ]},
+    { "x": 28, "y": 29, "w": 11, "h": 7, "color": "#8bd17c", "label": "📚 비품창고·물류", "code": "STORAGE", "walls": true, "door": [33, 29], "props": [
+      { "type": "storageRack", "x": 29.5, "y": 32, "solid": true }, { "type": "storageRack", "x": 36.5, "y": 32, "solid": true },
+      { "type": "boxes", "x": 32, "y": 34, "solid": true }, { "type": "lockers", "x": 37, "y": 34, "solid": true }
+    ]}
   ],
   "desks": [
-    { "id": "ceo-orchestrator", "x": 3,  "y": 4,  "team": "cmd" },
-    { "id": "room-01",          "x": 5,  "y": 4,  "team": "cmd" },
-    { "id": "room-02",          "x": 7,  "y": 4,  "team": "cmd" },
-    { "id": "room-03",          "x": 9,  "y": 4,  "team": "cmd" },
-    { "id": "strategist",       "x": 4,  "y": 7,  "team": "strat" },
-    { "id": "recorder",         "x": 7,  "y": 7,  "team": "strat" },
-    { "id": "builder",          "x": 3,  "y": 13, "team": "dev" },
-    { "id": "planner",          "x": 5,  "y": 13, "team": "dev" },
-    { "id": "inspector",        "x": 7,  "y": 13, "team": "qa" },
-    { "id": "architect",        "x": 4,  "y": 16, "team": "dev" },
-    { "id": "upgrader",         "x": 7,  "y": 16, "team": "qa" },
-    { "id": "growth-marketer",  "x": 14, "y": 13, "team": "ops" },
-    { "id": "release-manager",  "x": 17, "y": 13, "team": "ops" },
-    { "id": "supervisor",       "x": 20, "y": 13, "team": "strat" },
-    { "id": "out",              "x": 27, "y": 13, "team": "out" },
-    { "id": "home",             "x": 30, "y": 13, "team": "home" },
-    { "id": "run",              "x": 33, "y": 13, "team": "run" },
-    { "id": "cert",             "x": 28, "y": 16, "team": "cert" },
-    { "id": "cal",              "x": 31, "y": 16, "team": "cal" }
+    { "id": "ceo-orchestrator", "x": 3, "y": 4, "team": "cmd", "appearance": { "gender": "female", "hair": "long", "hairColor": "#382823", "skin": "#f0c9a4", "outfit": "blazer", "accent": "#d7e7ff" } },
+    { "id": "room-01", "x": 5, "y": 4, "team": "cmd", "appearance": { "gender": "female", "hair": "ponytail", "hairColor": "#4a2f28", "skin": "#e8b991", "outfit": "cardigan", "accent": "#ffcfdd" } },
+    { "id": "room-02", "x": 7, "y": 4, "team": "cmd", "appearance": { "gender": "female", "hair": "waves", "hairColor": "#6a4535", "skin": "#f3d0af", "outfit": "blazer", "accent": "#7bdff2", "glasses": true } },
+    { "id": "room-03", "x": 9, "y": 4, "team": "cmd", "appearance": { "gender": "female", "hair": "bun", "hairColor": "#2c2020", "skin": "#d99f78", "outfit": "turtleneck", "accent": "#ffe66d" } },
+    { "id": "strategist", "x": 4, "y": 7, "team": "strat", "appearance": { "gender": "male", "hair": "sidepart", "hairColor": "#2a2524", "skin": "#dca77f", "outfit": "suit", "accent": "#d9c7ff", "glasses": true } },
+    { "id": "recorder", "x": 7, "y": 7, "team": "strat", "appearance": { "gender": "female", "hair": "braid", "hairColor": "#51362d", "skin": "#f0c5a2", "outfit": "blouse", "accent": "#f9a8d4" } },
+    { "id": "builder", "x": 3, "y": 13, "team": "dev", "appearance": { "gender": "male", "hair": "short", "hairColor": "#222b35", "skin": "#c98c67", "outfit": "hoodie", "accent": "#62e6a7", "headset": true } },
+    { "id": "planner", "x": 5, "y": 13, "team": "dev", "appearance": { "gender": "female", "hair": "bob", "hairColor": "#5a3128", "skin": "#f3c9a4", "outfit": "cardigan", "accent": "#ffd1dc" } },
+    { "id": "inspector", "x": 7, "y": 13, "team": "qa", "appearance": { "gender": "female", "hair": "long", "hairColor": "#1f2a37", "skin": "#e7b58d", "outfit": "blazer", "accent": "#72e0bd", "glasses": true } },
+    { "id": "architect", "x": 9, "y": 13, "team": "dev", "appearance": { "gender": "male", "hair": "undercut", "hairColor": "#3b2d28", "skin": "#e0aa82", "outfit": "suit", "accent": "#b8f2e6" } },
+    { "id": "upgrader", "x": 4, "y": 16, "team": "qa", "appearance": { "gender": "female", "hair": "pixie", "hairColor": "#734f96", "skin": "#efc6a4", "outfit": "jacket", "accent": "#cdb4db" } },
+    { "id": "designer", "x": 7, "y": 16, "team": "design", "appearance": { "gender": "female", "hair": "waves", "hairColor": "#b06f48", "skin": "#f1c19c", "outfit": "dress", "accent": "#ff9fba", "hairAccessory": true } },
+    { "id": "growth-marketer", "x": 16, "y": 13, "team": "ops", "appearance": { "gender": "female", "hair": "ponytail", "hairColor": "#3c2925", "skin": "#dca17c", "outfit": "blazer", "accent": "#ffca80" } },
+    { "id": "release-manager", "x": 19, "y": 13, "team": "ops", "appearance": { "gender": "female", "hair": "bob", "hairColor": "#273449", "skin": "#f0c9aa", "outfit": "turtleneck", "accent": "#f59a3c", "headset": true } },
+    { "id": "supervisor", "x": 22, "y": 13, "team": "strat", "appearance": { "gender": "female", "hair": "long", "hairColor": "#4a302d", "skin": "#e3ad86", "outfit": "suit", "accent": "#e9d5ff", "glasses": true } },
+    { "id": "data-engineer", "x": 17, "y": 16, "team": "data", "appearance": { "gender": "female", "hair": "braid", "hairColor": "#202b38", "skin": "#c98f6c", "outfit": "hoodie", "accent": "#6edcf2", "headset": true } },
+    { "id": "support-manager", "x": 21, "y": 16, "team": "support", "appearance": { "gender": "female", "hair": "bun", "hairColor": "#5d3a30", "skin": "#f2c7a5", "outfit": "blouse", "accent": "#b7e4a8", "headset": true } },
+    { "id": "out", "x": 29, "y": 13, "team": "out", "appearance": { "gender": "brand", "hair": "spark", "hairColor": "#48a7d4", "skin": "#d8f1ff", "outfit": "brand", "accent": "#48a7d4" } },
+    { "id": "home", "x": 32, "y": 13, "team": "home", "appearance": { "gender": "brand", "hair": "spark", "hairColor": "#4da35e", "skin": "#dcf4e2", "outfit": "brand", "accent": "#4da35e" } },
+    { "id": "run", "x": 35, "y": 13, "team": "run", "appearance": { "gender": "brand", "hair": "spark", "hairColor": "#e0574a", "skin": "#ffe3dc", "outfit": "brand", "accent": "#e0574a" } },
+    { "id": "cert", "x": 30, "y": 16, "team": "cert", "appearance": { "gender": "brand", "hair": "spark", "hairColor": "#5b6ee0", "skin": "#e4e8ff", "outfit": "brand", "accent": "#5b6ee0" } },
+    { "id": "cal", "x": 34, "y": 16, "team": "cal", "appearance": { "gender": "brand", "hair": "spark", "hairColor": "#2fd0bd", "skin": "#dcfffa", "outfit": "brand", "accent": "#2fd0bd" } }
   ],
-  "chair": { "id": "chairman", "name": "황준필 · 회장", "x": 32, "y": 4 },
+  "chair": { "id": "chairman", "name": "황준필 · 회장", "x": 31, "y": 4, "appearance": { "gender": "male", "hair": "sidepart", "hairColor": "#24201f", "skin": "#ddb08c", "outfit": "executive", "accent": "#e8b93c" } },
   "secretaries": [
-    { "id": "sec-arin", "name": "비서 아린", "x": 35, "y": 4 },
-    { "id": "sec-sein", "name": "비서 세인", "x": 35, "y": 6 }
+    { "id": "sec-arin", "name": "비서 · 세아", "x": 35, "y": 4, "appearance": { "gender": "female", "hair": "long", "hairColor": "#3d2927", "skin": "#f0c5a0", "outfit": "blazer", "accent": "#f5df9a" } },
+    { "id": "sec-sein", "name": "비서 · 은채", "x": 35, "y": 6, "appearance": { "gender": "female", "hair": "ponytail", "hairColor": "#5a382e", "skin": "#dca27b", "outfit": "blouse", "accent": "#fff0b3", "glasses": true } }
   ],
   "seats": {
-    "meeting":      [[19, 4.4], [16.6, 6], [21.4, 6], [19, 7.8], [17, 7], [21, 7]],
-    "meetingTable": [19, 6],
-    "lounge":       [[4, 22.4], [5.2, 22.4], [6.4, 22.4], [9, 21.4]],
-    "cafe":         [[17, 22.6], [18.4, 22.6], [21, 22.6], [22.4, 22.6], [17, 24.4], [21, 24.4]],
-    "cafeTables":   [[17.7, 23], [21.7, 23]]
+    "meeting": [[20, 4.1], [17.2, 5.5], [22.8, 5.5], [20, 7.8], [17.6, 7], [22.4, 7], [18.4, 4.4], [21.6, 4.4]],
+    "meetingTable": [20, 6],
+    "lounge": [[17.2, 23.8], [18.4, 23.8], [19.6, 23.8], [22.2, 23.5], [23.2, 23.5]],
+    "cafe": [[30, 23.1], [31.4, 23.1], [34, 23.1], [35.4, 23.1], [30, 25.2], [31.4, 25.2], [34, 25.2], [35.4, 25.2]],
+    "cafeTables": [[30.7, 23.8], [34.7, 23.8]]
   }
 }
