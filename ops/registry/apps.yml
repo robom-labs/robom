@@ -187,9 +187,9 @@ apps:
     stable_install_url: https://robom.kr/get/notebom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-17T23:29:09+09:00"
-    last_deployed_sha: bbbb306e3545e15d8560ec1c43469cf96a246fda
-    last_data_sync_at: "2026-07-17T23:29:09+09:00"
+    last_verified_at: "2026-07-17T23:59:39+09:00"
+    last_deployed_sha: 7274d11789233b87076451d4c90d82e0e306f48d
+    last_data_sync_at: "2026-07-17T23:59:39+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720
     stack: Vite + React
