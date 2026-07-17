@@ -266,7 +266,8 @@ em { font-style: normal; }
   .hero-intro { margin-bottom: 14px; }.quick-install-grid { gap: 6px; }
   .hero-intro h1 { font-size: clamp(30px, 9.5vw, 38px); }.hero-intro .hero-lead { font-size: 14px; line-height: 1.55; }
   .quick-install-card, .quick-install-card:nth-child(4), .quick-install-card:nth-child(5) { padding: 7px 10px; }
-  .quick-install-card > p { grid-column: 1 / -1; margin: 2px 0 0; }
+  /* 390px 이하는 설명보다 앱 이름과 48px 설치 행동을 우선해 여섯 앱을 짧은 스크롤 안에 둔다. */
+  .quick-install-card > p { display: none; }
   .quick-app-name { grid-template-columns: 30px minmax(0, 1fr); }.quick-app-name .app-glyph { width: 30px; height: 30px; border-radius: 10px; }.quick-app-name .wordmark { font-size: 17px; }
   .quick-install-card > div:last-child a { padding: 0 8px; font-size: 10px; }
   .app-jump { grid-template-columns: 46px minmax(0, 1fr) auto; padding-inline: 11px; }
