@@ -1,14 +1,14 @@
 {
   "product": "ROBOM Control Center · 로봄 본부",
   "phase": "phase-1-readonly",
-  "generatedAt": "2026-07-17T03:25:01.224Z",
+  "generatedAt": "2026-07-17T05:16:27.896Z",
   "company": {
     "trafficLight": "yellow",
     "apps": {
       "total": 5,
       "live": 5,
-      "ok": 4,
-      "warn": 1,
+      "ok": 0,
+      "warn": 5,
       "down": 0,
       "planned": 0
     },
@@ -24,7 +24,7 @@
       "blocked": 0,
       "needsCheck": 0
     },
-    "todayDeploys": 12,
+    "todayDeploys": 0,
     "todayFailures": 0
   },
   "apps": [
@@ -55,84 +55,11 @@
           }
         ]
       },
-      "github": "connected",
+      "github": "error",
       "openPrs": [],
-      "ci": [
-        {
-          "name": "pages build and deployment",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "3662af7",
-          "event": "dynamic",
-          "createdAt": "2026-07-16T22:01:19Z",
-          "url": "https://github.com/robom-labs/outbom/actions/runs/29538114778"
-        },
-        {
-          "name": "Family contract",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "15f318a",
-          "event": "push",
-          "createdAt": "2026-07-16T21:59:50Z",
-          "url": "https://github.com/robom-labs/outbom/actions/runs/29538011020"
-        },
-        {
-          "name": "Deploy outbom Pages",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "15f318a",
-          "event": "push",
-          "createdAt": "2026-07-16T21:59:50Z",
-          "url": "https://github.com/robom-labs/outbom/actions/runs/29538010575"
-        },
-        {
-          "name": "CI",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "15f318a",
-          "event": "push",
-          "createdAt": "2026-07-16T21:59:49Z",
-          "url": "https://github.com/robom-labs/outbom/actions/runs/29538010235"
-        },
-        {
-          "name": "pages build and deployment",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "42f825e",
-          "event": "dynamic",
-          "createdAt": "2026-07-16T12:31:31Z",
-          "url": "https://github.com/robom-labs/outbom/actions/runs/29498470347"
-        },
-        {
-          "name": "Family contract",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "7e0b15f",
-          "event": "push",
-          "createdAt": "2026-07-16T12:30:03Z",
-          "url": "https://github.com/robom-labs/outbom/actions/runs/29498371346"
-        },
-        {
-          "name": "Deploy outbom Pages",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "7e0b15f",
-          "event": "push",
-          "createdAt": "2026-07-16T12:30:02Z",
-          "url": "https://github.com/robom-labs/outbom/actions/runs/29498370694"
-        },
-        {
-          "name": "CI",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "7e0b15f",
-          "event": "push",
-          "createdAt": "2026-07-16T12:30:01Z",
-          "url": "https://github.com/robom-labs/outbom/actions/runs/29498369549"
-        }
-      ],
-      "health": "ok",
-      "todayDeploys": 2,
+      "ci": [],
+      "health": "unknown",
+      "todayDeploys": 0,
       "todayFails": 0,
       "note": null
     },
@@ -169,84 +96,11 @@
           }
         ]
       },
-      "github": "connected",
+      "github": "error",
       "openPrs": [],
-      "ci": [
-        {
-          "name": "pages build and deployment",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "f7db631",
-          "event": "dynamic",
-          "createdAt": "2026-07-16T22:03:22Z",
-          "url": "https://github.com/robom-labs/homebom/actions/runs/29538237133"
-        },
-        {
-          "name": "pages build and deployment",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "0e67e76",
-          "event": "dynamic",
-          "createdAt": "2026-07-16T22:01:37Z",
-          "url": "https://github.com/robom-labs/homebom/actions/runs/29538131452"
-        },
-        {
-          "name": "CI",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "7b91314",
-          "event": "push",
-          "createdAt": "2026-07-16T22:00:09Z",
-          "url": "https://github.com/robom-labs/homebom/actions/runs/29538038200"
-        },
-        {
-          "name": "Deploy homebom Pages",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "7b91314",
-          "event": "push",
-          "createdAt": "2026-07-16T22:00:09Z",
-          "url": "https://github.com/robom-labs/homebom/actions/runs/29538037777"
-        },
-        {
-          "name": "CI",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "d90e566",
-          "event": "push",
-          "createdAt": "2026-07-16T21:59:47Z",
-          "url": "https://github.com/robom-labs/homebom/actions/runs/29538007613"
-        },
-        {
-          "name": "Deploy homebom Pages",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "d90e566",
-          "event": "push",
-          "createdAt": "2026-07-16T21:59:47Z",
-          "url": "https://github.com/robom-labs/homebom/actions/runs/29538006821"
-        },
-        {
-          "name": "pages build and deployment",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "6afd051",
-          "event": "dynamic",
-          "createdAt": "2026-07-16T19:34:28Z",
-          "url": "https://github.com/robom-labs/homebom/actions/runs/29528542663"
-        },
-        {
-          "name": "CI",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "fec0fb2",
-          "event": "push",
-          "createdAt": "2026-07-16T19:32:29Z",
-          "url": "https://github.com/robom-labs/homebom/actions/runs/29528404826"
-        }
-      ],
-      "health": "ok",
-      "todayDeploys": 5,
+      "ci": [],
+      "health": "unknown",
+      "todayDeploys": 0,
       "todayFails": 0,
       "note": null
     },
@@ -283,84 +137,11 @@
           }
         ]
       },
-      "github": "connected",
+      "github": "error",
       "openPrs": [],
-      "ci": [
-        {
-          "name": "pages build and deployment",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "a47072a",
-          "event": "dynamic",
-          "createdAt": "2026-07-17T01:37:24Z",
-          "url": "https://github.com/robom-labs/runningbom/actions/runs/29547901961"
-        },
-        {
-          "name": "Family contract",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "2f3a57a",
-          "event": "push",
-          "createdAt": "2026-07-17T01:36:26Z",
-          "url": "https://github.com/robom-labs/runningbom/actions/runs/29547860256"
-        },
-        {
-          "name": "Deploy runningbom Pages",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "2f3a57a",
-          "event": "push",
-          "createdAt": "2026-07-17T01:36:26Z",
-          "url": "https://github.com/robom-labs/runningbom/actions/runs/29547860119"
-        },
-        {
-          "name": "pages build and deployment",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "aad82a1",
-          "event": "dynamic",
-          "createdAt": "2026-07-16T21:54:36Z",
-          "url": "https://github.com/robom-labs/runningbom/actions/runs/29537683883"
-        },
-        {
-          "name": "Family contract",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "a43b6d0",
-          "event": "push",
-          "createdAt": "2026-07-16T21:53:43Z",
-          "url": "https://github.com/robom-labs/runningbom/actions/runs/29537644604"
-        },
-        {
-          "name": "Deploy runningbom Pages",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "a43b6d0",
-          "event": "push",
-          "createdAt": "2026-07-16T21:53:43Z",
-          "url": "https://github.com/robom-labs/runningbom/actions/runs/29537644455"
-        },
-        {
-          "name": "pages build and deployment",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "1a9a2f2",
-          "event": "dynamic",
-          "createdAt": "2026-07-16T19:33:25Z",
-          "url": "https://github.com/robom-labs/runningbom/actions/runs/29528467833"
-        },
-        {
-          "name": "Family contract",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "ec414c8",
-          "event": "push",
-          "createdAt": "2026-07-16T19:32:31Z",
-          "url": "https://github.com/robom-labs/runningbom/actions/runs/29528407753"
-        }
-      ],
-      "health": "ok",
-      "todayDeploys": 5,
+      "ci": [],
+      "health": "unknown",
+      "todayDeploys": 0,
       "todayFails": 0,
       "note": null
     },
@@ -384,83 +165,10 @@
       "git": {
         "available": false
       },
-      "github": "connected",
+      "github": "error",
       "openPrs": [],
-      "ci": [
-        {
-          "name": "Family contract",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "431e80b",
-          "event": "push",
-          "createdAt": "2026-07-17T01:41:02Z",
-          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29548058708"
-        },
-        {
-          "name": "CalendarBom release",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "431e80b",
-          "event": "push",
-          "createdAt": "2026-07-17T01:41:02Z",
-          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29548058489"
-        },
-        {
-          "name": "Family contract",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "96a10b8",
-          "event": "push",
-          "createdAt": "2026-07-16T22:13:15Z",
-          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29538807623"
-        },
-        {
-          "name": "CalendarBom release",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "96a10b8",
-          "event": "push",
-          "createdAt": "2026-07-16T22:13:14Z",
-          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29538806824"
-        },
-        {
-          "name": "Family contract",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "caed861",
-          "event": "push",
-          "createdAt": "2026-07-16T21:49:12Z",
-          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29537424143"
-        },
-        {
-          "name": "CalendarBom release",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "caed861",
-          "event": "push",
-          "createdAt": "2026-07-16T21:49:11Z",
-          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29537423639"
-        },
-        {
-          "name": "Family contract",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "0ee3f67",
-          "event": "push",
-          "createdAt": "2026-07-16T21:47:00Z",
-          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29537298457"
-        },
-        {
-          "name": "CalendarBom release",
-          "status": "completed",
-          "conclusion": "success",
-          "sha": "0ee3f67",
-          "event": "push",
-          "createdAt": "2026-07-16T21:46:59Z",
-          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29537297864"
-        }
-      ],
-      "health": "ok",
+      "ci": [],
+      "health": "unknown",
       "todayDeploys": 0,
       "todayFails": 0,
       "note": null
