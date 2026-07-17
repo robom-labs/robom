@@ -15,6 +15,7 @@
 | `teams` | 팀색 맵(`키:hex`). 데스크의 `team`이 이 키를 참조 |
 | `products` | 앱 캐릭터로 취급할 id 목록(오토파일럿에서 앱 캐릭터는 자리 위주) |
 | `names` | id→표시명(직원·앱 공통) |
+| `floors[]` | 층 id·이름과 그 층에 보일 `zones`, `employees`, 공용·경영·회의 권한 |
 | `zones[]` | 방 `{x,y,w,h,color,label,code,walls,door,props}`. `door:[x,y]`는 실제 통행 가능한 문이며 `props`는 방 비품 목록 |
 | `desks[]` | 책상 `{id,x,y,team,appearance}`. **직원은 `y+1`에 착석**. 팀·직원·캐릭터 외형은 여기서 변경 |
 | `chair` | 회장 `{id,name,x,y,appearance}` |
@@ -25,16 +26,16 @@
 
 `appearance`는 `gender`, `hair`, `hairColor`, `skin`, `outfit`, `accent`, `glasses`, `headset`, `hairAccessory`를 지원한다. 현재 직원 20명은 남성 4명·여성 16명으로 2:8 비율이며, 앱 캐릭터 5종은 성비와 분리된 브랜드 아바타다.
 
-현재 오피스는 본부·전략실, 대회의실, 회장·비서실, 개발·QA 스튜디오, 운영·보안 센터, 프로젝트 워룸, 디자인·데이터 랩, 라운지·폰부스, 카페테리아, 리셉션, 서버·관제실, 비품창고까지 12개 공간으로 구성된다. 비품 좌표도 코드가 아니라 각 방의 `props`에서 관리한다.
+현재 오피스는 5F 회장·경영, 4F 성장·출시, 3F 개발·품질, 2F 제품, 1F 본사, B1 시스템의 6개 층이다. 본부·전략실, 대회의실, 회장·비서실, 개발·QA 스튜디오, 운영·보안 센터, 프로젝트 워룸, 디자인·데이터 랩, 라운지·폰부스, 카페테리아, 리셉션, 서버·관제실, 비품창고까지 12개 공간을 층별로 보여 준다. 비품 좌표도 코드가 아니라 각 방의 `props`에서 관리한다.
 
 좌표는 타일 격자(정수 또는 소수), 색은 hex. 편집 후 JSON 유효성만 지키면 된다(`node -e "JSON.parse(require('fs').readFileSync('ops/control-center/app/office-map.json','utf8'))"`).
 
 ## 체크리스트 (바뀔 때 — office-map.json만 수정)
 
-- **직원 추가**: `agents.yml`에 등록 → `office-map.json`의 `desks[]`에 `{id,x,y,team,appearance}` 1개 추가 → `names`에 표시명. 색은 `team`, 외형은 `appearance`가 결정한다.
-- **직원 이동(팀 변경)**: 해당 `desks` 항목의 `x,y`를 새 팀 방 좌표로, `team`을 새 팀으로. + `departments.yml` 소속 갱신.
-- **팀(부서) 추가**: `departments.yml`에 부서 + `office-map.json`의 `zones[]`에 방 1개(`label`/`code`/`color`/`door`) + `teams`에 팀색 + 그 팀 직원 `desks` 배치.
-- **앱 추가/이름 변경**: `apps.yml`(정본) 갱신 → `office-map.json`의 `products`·`names`·`teams`(앱색)와 프로젝트룸 `desks`(앱 아바타) 반영. 가드레일의 앱 수 하드코딩이 있으면 비종속화.
+- **직원 추가**: `agents.yml`에 등록 → `office-map.json`의 `desks[]`에 `{id,x,y,team,appearance}` 1개 추가 → `names`에 표시명 → 해당 `floors[].employees`에 id 추가. 색은 `team`, 외형은 `appearance`가 결정한다.
+- **직원 이동(팀 변경)**: 해당 `desks` 항목의 `x,y`와 `team`을 바꾸고 `floors[].employees` 소속 및 `departments.yml`을 함께 갱신한다.
+- **팀(부서) 추가**: `departments.yml`에 부서 + `office-map.json`의 `zones[]`에 방 1개 + `teams`에 팀색 + 직원 `desks` 배치 + 해당 `floors[].zones`와 `employees` 등록.
+- **앱 추가/이름 변경**: `apps.yml` 정본 갱신 → `office-map.json`의 `products`·`names`·`teams`·`desks`와 제품층 `floors[].employees` 반영. 가드레일의 앱 수 하드코딩이 있으면 비종속화.
 - **회장/비서 변경**: `chair`/`secretaries` 수정.
 - **층을 넓히기**: `grid.w`/`grid.h`를 키우고 방(`zones`)·복도를 재배치.
 - **비품 추가**: 해당 방의 `props[]`에 `{type,x,y,solid}`를 추가. `solid:true`면 캐릭터가 비품을 통과하지 않는다.

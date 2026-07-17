@@ -1,12 +1,12 @@
 {
-  "name": "로봄 본부 · ROBOM Control Center",
+  "name": "로봄 본부 · ROBOM COMPANY OS",
   "short_name": "로봄 본부",
-  "description": "로봄 계열사 실시간 운영 관제 (내부 전용)",
+  "description": "로봄 계열사의 경영·제품·출시·회의·결재를 연결하는 내부 전용 회사 운영체제",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#080b13",
-  "theme_color": "#080b13",
+  "background_color": "#f7f2e8",
+  "theme_color": "#244d3d",
   "icons": [
     {
       "src": "./icon.svg",

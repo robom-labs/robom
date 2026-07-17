@@ -2,13 +2,24 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "robom-hq snapshot",
   "type": "object",
-  "required": ["product", "phase", "generatedAt", "company", "apps", "departments", "agents", "runs", "connections"],
+  "required": ["product", "phase", "generatedAt", "company", "apps", "departments", "agents", "runs", "connections", "operations"],
   "properties": {
-    "phase": { "const": "phase-1-readonly" },
+    "phase": { "const": "company-os-v2" },
     "company": { "type": "object", "required": ["trafficLight", "apps", "employees", "tasks"] },
     "apps": { "type": "array", "items": { "type": "object", "required": ["id", "name", "health", "registered"] } },
     "runs": { "type": "array", "description": "실제 이벤트로 도출된 작업만. 증거 없으면 비어 있음(연출 금지)." },
     "agents": { "type": "array" }, "departments": { "type": "array" },
-    "approvals": { "type": "array" }, "events": { "type": "array" }, "connections": { "type": "object" }
+    "approvals": { "type": "array" }, "events": { "type": "array" }, "connections": { "type": "object" },
+    "operations": {
+      "type": "object",
+      "required": ["humanTasks", "roadmap", "automations", "updates", "security"],
+      "properties": {
+        "humanTasks": { "type": "array", "items": { "type": "string" } },
+        "roadmap": { "type": "array" },
+        "automations": { "type": "array" },
+        "updates": { "type": "array" },
+        "security": { "type": "array" }
+      }
+    }
   }
 }

@@ -3,47 +3,78 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#080b13" />
-    <title>로봄 본부 · ROBOM Control Center</title>
+    <meta name="theme-color" content="#f5f2ea" />
+    <meta name="color-scheme" content="light dark" />
+    <title>로봄 본부 · ROBOM Company OS</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="hq">
+    <div class="hq" id="hq">
       <header class="topbar">
-        <div class="brand">
+        <button class="icon-button mobile-only" id="menuBtn" type="button" aria-label="전체 메뉴 열기">☰</button>
+        <button class="brand" type="button" data-screen="chair" aria-label="회장실로 이동">
           <img class="brand-mark" src="./icon.svg" alt="" aria-hidden="true" />
-          <div class="brand-copy"><strong>ROBOM HQ</strong><small id="hqSub">로봄 본부 · Control Center</small></div>
-        </div>
-        <div class="top-right">
-          <span class="clock" id="clock">--:--:--</span>
-          <span class="demo-badge" id="modeBadge">LIVE</span>
-          <button class="refresh" id="refreshBtn" type="button" aria-label="새로고침">↻</button>
+          <span class="brand-copy"><strong>로봄 본부</strong><small>ROBOM COMPANY OS</small></span>
+        </button>
+        <div class="top-status">
+          <span class="clock" id="clock">--:--</span>
+          <span class="mode-badge" id="modeBadge">연결 확인 중</span>
+          <button class="icon-button" id="refreshBtn" type="button" aria-label="회사 상태 새로고침">↻</button>
         </div>
       </header>
 
-      <div class="kpis" id="kpis" aria-label="회사 지표"></div>
+      <aside class="sidebar" id="sidebar" aria-label="로봄 본부 메뉴">
+        <div class="sidebar-head">
+          <span>회사 전체 메뉴</span>
+          <button class="icon-button mobile-only" id="menuCloseBtn" type="button" aria-label="메뉴 닫기">×</button>
+        </div>
+        <label class="nav-search"><span aria-hidden="true">⌕</span><input id="navSearch" type="search" placeholder="메뉴·앱·직원 검색" autocomplete="off" /></label>
+        <nav id="sideNav"></nav>
+        <div class="sidebar-foot">
+          <a class="office-link" href="./office.html"><span aria-hidden="true">🏢</span><span><b>오피스 게임</b><small>층별 회사 둘러보기</small></span></a>
+          <div class="sync-note" id="syncNote">마지막 동기화 확인 중</div>
+        </div>
+      </aside>
 
-      <nav class="side-nav" aria-label="본부 메뉴">
-        <button class="nav-item active" type="button" data-screen="command"><span aria-hidden="true">▦</span>조직 관제</button>
-        <button class="nav-item" type="button" data-screen="today"><span aria-hidden="true">◎</span>오늘의 로봄</button>
-        <button class="nav-item" type="button" data-screen="staff"><span aria-hidden="true">☰</span>직원 상황실</button>
-        <button class="nav-item" type="button" data-screen="apps"><span aria-hidden="true">◫</span>프로젝트(앱)</button>
-        <button class="nav-item" type="button" data-screen="approvals"><span aria-hidden="true">✔</span>승인함</button>
-        <button class="nav-item" type="button" data-screen="log"><span aria-hidden="true">≡</span>활동 로그</button>
-      </nav>
+      <main id="screen" class="screen" tabindex="-1" aria-live="polite">
+        <div class="loading"><span></span><b>회사 상태를 불러오는 중입니다.</b></div>
+      </main>
 
-      <main id="screen" class="screen" aria-live="polite"><div class="loading">SYNCING…</div></main>
-
-      <nav class="tabbar" aria-label="하단 메뉴">
-        <button class="tab active" type="button" data-screen="command"><span aria-hidden="true">▦</span>관제</button>
-        <button class="tab" type="button" data-screen="today"><span aria-hidden="true">◎</span>오늘</button>
-        <button class="tab" type="button" data-screen="staff"><span aria-hidden="true">☰</span>직원</button>
-        <button class="tab" type="button" data-screen="apps"><span aria-hidden="true">◫</span>앱</button>
-        <button class="tab" type="button" data-screen="approvals"><span aria-hidden="true">✔</span>승인</button>
+      <nav class="tabbar" aria-label="모바일 주요 메뉴">
+        <button class="tab active" type="button" data-screen="chair"><span aria-hidden="true">⌂</span>오늘</button>
+        <a class="tab" href="./office.html"><span aria-hidden="true">🏢</span>오피스</a>
+        <button class="tab" type="button" data-screen="portfolio"><span aria-hidden="true">▦</span>앱</button>
+        <button class="tab" type="button" data-screen="approvals"><span aria-hidden="true">✓</span>결재</button>
+        <button class="tab" type="button" id="moreBtn"><span aria-hidden="true">☰</span>전체</button>
       </nav>
     </div>
+
+    <div class="drawer-scrim" id="drawerScrim" hidden></div>
+    <dialog class="modal" id="recordDialog" aria-labelledby="dialogTitle">
+      <form method="dialog" id="recordForm">
+        <div class="modal-head"><div><small id="dialogEyebrow">로컬 기록</small><h2 id="dialogTitle">새 기록</h2></div><button class="icon-button" value="cancel" aria-label="닫기">×</button></div>
+        <input type="hidden" name="collection" id="recordCollection" />
+        <label>제목<input name="title" id="recordTitle" required maxlength="120" /></label>
+        <label>관련 앱<select name="appId" id="recordApp"><option value="">회사 전체</option></select></label>
+        <label>내용<textarea name="body" id="recordBody" rows="5" maxlength="4000" placeholder="확인된 사실과 원하는 결과를 적어 주세요."></textarea></label>
+        <label>우선순위<select name="priority"><option value="normal">보통</option><option value="high">중요</option><option value="urgent">긴급</option><option value="low">낮음</option></select></label>
+        <div class="modal-actions"><button class="button ghost" value="cancel">취소</button><button class="button primary" id="recordSubmit" value="default">저장</button></div>
+      </form>
+    </dialog>
+
+    <dialog class="modal signature-modal" id="signatureDialog" aria-labelledby="signatureTitle">
+      <form method="dialog" id="signatureForm">
+        <div class="modal-head"><div><small>내부 결재</small><h2 id="signatureTitle">회장 서명</h2></div><button class="icon-button" value="cancel" aria-label="닫기">×</button></div>
+        <p class="notice">이 서명은 로봄 본부 내부 결재 기록이며 법적 전자서명이 아닙니다.</p>
+        <canvas id="signaturePad" width="720" height="240" aria-label="서명 입력 영역"></canvas>
+        <label>결재 의견<textarea id="signatureComment" rows="3" maxlength="1000"></textarea></label>
+        <div class="modal-actions split"><button class="button ghost" id="clearSignature" type="button">다시 쓰기</button><span></span><button class="button ghost" value="cancel">취소</button><button class="button primary" id="saveSignature" value="default">서명하고 승인</button></div>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script src="./app.js"></script>
   </body>
 </html>

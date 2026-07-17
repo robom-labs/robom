@@ -7,6 +7,7 @@ import { controlCenterFields } from "./lib/sources.mjs";
 import { readEvents, deriveRuns } from "./lib/events.mjs";
 import { siteDeploySha } from "../../ops/scripts/lib/deployment-sha.mjs";
 import { inspectApp } from "../../ops/scripts/family/operations-watchdog.mjs";
+import { buildCompanyOperations } from "./lib/company-ops.mjs";
 
 const NOW = process.env.ROBOM_HQ_NOW || new Date().toISOString();
 const TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || null;
@@ -138,9 +139,11 @@ async function main() {
     codex: "adapter_pending",
   };
 
+  const operations = buildCompanyOperations(REPO_ROOT, appData);
+
   const snapshot = {
-    product: "ROBOM Control Center · 로봄 본부",
-    phase: "phase-1-readonly",
+    product: "ROBOM COMPANY OS · 로봄 본부",
+    phase: "company-os-v2",
     generatedAt: NOW,
     company,
     apps: appData,
@@ -150,6 +153,7 @@ async function main() {
     approvals,
     events: events.slice(-40).reverse(),
     connections,
+    operations,
   };
 
   const outDir = join(REPO_ROOT, "ops/control-center/snapshots");

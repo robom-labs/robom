@@ -28,7 +28,11 @@ jobs:
       - name: Company OS와 동적 registry 회귀 검사
         run: |
           node --test ops/scripts/lib/company-os.test.mjs ops/scripts/lib/deployment-sha.test.mjs
-          node --test scripts/control-center/office.test.mjs scripts/control-center/lib/events.test.mjs scripts/control-center/lib/sources.test.mjs
+          node --test scripts/control-center/*.test.mjs scripts/control-center/lib/*.test.mjs
+          node --check ops/control-center/app/app.js
+          node --check ops/control-center/app/office.js
+          node scripts/control-center/build-snapshot.mjs
+          node scripts/control-center/build-standalone.mjs
           node ops/scripts/check-company-os.mjs
 
   site:

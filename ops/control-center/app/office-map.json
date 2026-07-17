@@ -7,6 +7,14 @@
     "data": "#49c6e5", "support": "#8bd17c", "out": "#48a7d4", "home": "#4da35e",
     "run": "#e0574a", "cert": "#5b6ee0", "cal": "#2fd0bd"
   },
+  "floors": [
+    { "id": "5F", "name": "회장·경영", "zones": ["COMMAND", "BOARD ROOM", "EXECUTIVE"], "employees": ["ceo-orchestrator", "room-01", "room-02", "room-03", "strategist", "recorder"], "executives": true, "meeting": true },
+    { "id": "4F", "name": "성장·출시", "zones": ["OPERATIONS", "DESIGN LAB"], "employees": ["designer", "growth-marketer", "release-manager", "supervisor", "support-manager"] },
+    { "id": "3F", "name": "개발·품질", "zones": ["ENGINEERING"], "employees": ["builder", "inspector", "architect", "upgrader"] },
+    { "id": "2F", "name": "제품", "zones": ["PRODUCTS"], "employees": ["planner", "out", "home", "run", "cert", "cal"] },
+    { "id": "1F", "name": "본사", "zones": ["RECEPTION", "LOUNGE", "CAFETERIA"], "employees": [], "common": true },
+    { "id": "B1", "name": "시스템", "zones": ["NOC", "STORAGE"], "employees": ["data-engineer"] }
+  ],
   "products": ["out", "home", "run", "cert", "cal"],
   "names": {
     "ceo-orchestrator": "비서실장 · 서아", "room-01": "총괄1팀 · 윤슬", "room-02": "총괄2팀 · 유나", "room-03": "총괄3팀 · 하린",

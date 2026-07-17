@@ -22,9 +22,9 @@ html = html
   .replace(/src="\.\/icon\.svg"/g, `src="${iconData}"`)
   .replace(/<script src="\.\/app\.js"><\/script>/i,
     `<script>window.__PREVIEW__=true;window.__SNAP__=${JSON.stringify(snap)};</script>\n<script>\n${js}\n</script>`)
-  // 미리보기 안내 배너
+  // 휴대용 보기 안내 배너
   .replace(/(<main id="screen")/,
-    `<div style="background:rgba(255,207,77,.1);border-bottom:1px solid rgba(255,207,77,.25);color:#ffcf4d;font:600 11px/1.5 var(--mono,monospace);padding:7px 13px;text-align:center">미리보기 · 예시 작업 데이터입니다. 실시간 가동은 저장소에서 <b>bin/robom-hq</b> 실행 →</div>\n      $1`);
+    `<div style="background:#f7efe2;border-bottom:1px solid #e3d5c1;color:#604f3c;font:700 12px/1.5 var(--sans,sans-serif);padding:9px 14px;text-align:center">휴대용 보기 · 마지막 생성 스냅샷입니다. 기록·결재·백업은 <b>bin/robom-hq</b>로 실행하세요.</div>\n      $1`);
 
 const outDir = join(REPO_ROOT, "ops/control-center/dist");
 if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
@@ -40,10 +40,6 @@ let game = readFileSync(join(APP, "office.html"), "utf8")
   .replace(/<link rel="icon"[^>]*>\s*/i, "")
   .replace(/<script src="\.\/office\.js"><\/script>/i,
     `<script>window.__PREVIEW__=true;window.__SNAP__=${JSON.stringify(snap)};${officeMap ? `window.__MAP__=${JSON.stringify(officeMap)};` : ""}</script>\n<script>\n${officeJs}\n</script>`);
-// LPC 스프라이트를 data URI로 인라인(더블클릭 file://에서도 캐릭터 아트가 뜨게)
-for (const k of ["body", "shirt", "pants", "hair"]) {
-  try { const p = join(APP, "assets", `lpc-${k}.png`); if (existsSync(p)) { const b = readFileSync(p).toString("base64"); game = game.replace(`"./assets/lpc-${k}.png"`, `"data:image/png;base64,${b}"`); } } catch {}
-}
 const gout = join(outDir, "로봄본부-오피스.html");
 writeFileSync(gout, game);
 console.log(`[robom-hq] 단일 HTML(오피스 게임): ${gout} (${Math.round(game.length / 1024)}KB, snapshot=${snapFile})`);

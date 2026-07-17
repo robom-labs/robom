@@ -24,3 +24,4 @@ Thumbs.db
 # 로봄 본부(control-center) 내부 런타임 데이터 — 공개 저장소에 커밋 금지
 ops/control-center/events/*.jsonl
 ops/control-center/snapshots/latest.json
+ops/control-center/runtime/

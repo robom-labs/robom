@@ -1,8 +1,7 @@
-# 캐릭터 스프라이트 — LPC (CC-BY-SA 3.0 / GPL 3.0)
-Universal LPC Spritesheet. 출처: sanderfrenken/Universal-LPC-Spritesheet-Character-Generator,
-jrconway3/Universal-LPC-spritesheet. 원저작자 다수(Liberated Pixel Cup). 라이선스: CC-BY-SA 3.0, GPL 3.0.
-body/torso(longsleeve)/pants/hair 레이어를 로봄 본부 오피스에서 팀 색으로 틴트해 사용.
+# 로봄 Canvas SD 캐릭터
 
-## 로봄 프로시저럴 캐릭터 변형
+오피스의 주요 캐릭터 렌더러는 `office.js`에 구현한 로봄 자체 Canvas 2D 벡터 시스템이다. 외부 이미지 자산을 사용하지 않으며, 직원별 `appearance` 설정으로 머리·의상·안경·헤드셋·머리 장식을 조합한다.
 
-장발·포니테일·웨이브·번·브레이드·보브·픽시·사이드파트, 안경·헤드셋·재킷·블레이저 표현은 외부 에셋을 추가하지 않고 로봄의 Canvas 2D 코드로 그린다. 원 LPC 레이어 위에만 합성하며 추가 라이선스는 없다.
+## 보관 중인 LPC 레거시 자산
+
+`lpc-body.png`, `lpc-shirt.png`, `lpc-pants.png`, `lpc-hair.png`는 이전 구현의 호환 기록으로만 보관하며 런타임 렌더링에는 사용하지 않는다. 원본은 sanderfrenken/Universal-LPC-Spritesheet-Character-Generator와 jrconway3/Universal-LPC-spritesheet이며, Liberated Pixel Cup 원저작자들의 CC-BY-SA 3.0 또는 GPL 3.0 조건을 따른다.
