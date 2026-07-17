@@ -33,7 +33,7 @@ export const generatedAppMeta = [
     "name": "청약봄",
     "englishName": "HomeBom",
     "repo": "robom-labs/homebom",
-    "version": "0.14.4",
+    "version": "0.14.5",
     "dataVersion": "official-notices-runtime-v1",
     "webUrl": "https://robom-labs.github.io/homebom/",
     "healthcheckUrl": "https://robom-labs.github.io/homebom/",
@@ -51,7 +51,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/homebom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-17T07:00:00+09:00",
+    "lastVerifiedAt": "2026-07-17T19:56:38+09:00",
     "lastDeployedSha": "fb9aa0a8cdce9cd1e613285ba745f2d12c0ff23b",
     "lastDataSyncAt": "2026-07-16T13:42:23+09:00",
     "freshnessStatus": "runtime"
