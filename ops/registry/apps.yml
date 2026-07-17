@@ -37,7 +37,7 @@ apps:
     name: 청약봄
     english_name: HomeBom
     repo: robom-labs/homebom
-    version: 0.14.3
+    version: 0.14.4
     data_version: official-notices-runtime-v1
     version_source: https://raw.githubusercontent.com/robom-labs/homebom/main/apps/web/package.json
     web_url: https://robom-labs.github.io/homebom/

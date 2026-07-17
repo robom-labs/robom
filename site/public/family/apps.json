@@ -34,7 +34,7 @@
       "name": "청약봄",
       "englishName": "HomeBom",
       "repo": "robom-labs/homebom",
-      "version": "0.14.3",
+      "version": "0.14.4",
       "dataVersion": "official-notices-runtime-v1",
       "webUrl": "https://robom-labs.github.io/homebom/",
       "healthcheckUrl": "https://robom-labs.github.io/homebom/",
