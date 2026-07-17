@@ -118,7 +118,7 @@
       "name": "자격증봄",
       "englishName": "CertBom",
       "repo": "robom-labs/certbom",
-      "version": "0.7.0",
+      "version": "0.7.1",
       "dataVersion": "2026.07.16-v3",
       "webUrl": "https://certbom.vercel.app/",
       "healthcheckUrl": "https://certbom.vercel.app/",

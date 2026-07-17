@@ -136,7 +136,7 @@ apps:
     name: 자격증봄
     english_name: CertBom
     repo: robom-labs/certbom
-    version: 0.7.0
+    version: 0.7.1
     data_version: 2026.07.16-v3
     version_source: https://raw.githubusercontent.com/robom-labs/certbom/main/package.json
     web_url: https://certbom.vercel.app/
