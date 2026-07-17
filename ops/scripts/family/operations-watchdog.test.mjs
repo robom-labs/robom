@@ -1,7 +1,7 @@
 // 로봄 운영 watchdog의 자산 탐색과 신선도 경계를 고정한다.
 import assert from "node:assert/strict";
 import test from "node:test";
-import { certExpiryDays, dataProbeState, extractAssetUrls, freshnessState } from "./operations-watchdog.mjs";
+import { cacheBustedUrl, certExpiryDays, dataProbeState, extractAssetUrls, freshnessState } from "./operations-watchdog.mjs";
 
 test("상대·절대 운영 자산만 같은 origin에서 수집한다", () => {
   const urls = extractAssetUrls(
@@ -32,4 +32,10 @@ test("TLS 인증서 잔여일을 계산한다", () => {
   const now = new Date("2026-07-16T12:00:00Z");
   assert.equal(Math.floor(certExpiryDays("Aug  5 12:00:00 2026 GMT", now)), 20);
   assert.equal(certExpiryDays("invalid", now), null);
+});
+
+test("운영 점검 URL에 CDN 캐시 우회 marker를 붙인다", () => {
+  const url = new URL(cacheBustedUrl("https://robom.kr/?existing=1", 1234));
+  assert.equal(url.searchParams.get("existing"), "1");
+  assert.equal(url.searchParams.get("robom-watchdog"), "1234");
 });

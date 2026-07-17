@@ -80,8 +80,15 @@ async function fetchText(url, timeout = 20_000) {
   return response.text();
 }
 
+export function cacheBustedUrl(value, marker = Date.now()) {
+  const url = new URL(value);
+  url.searchParams.set("robom-watchdog", String(marker));
+  return url.href;
+}
+
 async function collectSurfaceText(app) {
-  const html = await fetchText(app.healthcheck_url);
+  const marker = Date.now();
+  const html = await fetchText(cacheBustedUrl(app.healthcheck_url, marker));
   const parts = [html];
   const queue = extractAssetUrls(html, app.web_url).slice(0, 24);
   const seen = new Set();
@@ -125,13 +132,13 @@ export async function inspectApp(app, now) {
   let manifest = "";
   let serviceWorker = "";
   try {
-    manifest = await fetchText(new URL("manifest.webmanifest", app.web_url));
+    manifest = await fetchText(cacheBustedUrl(new URL("manifest.webmanifest", app.web_url), Date.now()));
     JSON.parse(manifest);
   } catch (error) {
     errors.push(`manifest 확인 실패: ${error instanceof Error ? error.message : String(error)}`);
   }
   try {
-    serviceWorker = await fetchText(new URL("sw.js", app.web_url));
+    serviceWorker = await fetchText(cacheBustedUrl(new URL("sw.js", app.web_url), Date.now()));
     if (!/(?:cache|workbox|serviceWorker)/i.test(serviceWorker)) errors.push("service worker에 cache 동작이 보이지 않습니다.");
   } catch (error) {
     errors.push(`service worker 확인 실패: ${error instanceof Error ? error.message : String(error)}`);
