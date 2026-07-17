@@ -1,0 +1,100 @@
+# 로봄 본부 조직도 — COMPANY-MODE.md 의 회사 구조를 화면용으로 정리.
+# 이 목록은 "등록된 조직"이며, 실제 작업 중 여부는 이벤트/세션 증거로만 판정한다(연출 금지).
+departments:
+  # A. 사장실·비서실
+  - id: exec
+    name: 사장실·비서실
+    group: exec
+    lead: 사장(사용자)
+    duty: 최종 전략·승인·신규 앱·계약·결제·스토어·법적 결정
+  - id: chief
+    name: 비서실장 / CEO 오케스트레이터
+    group: exec
+    lead: ceo-orchestrator
+    duty: 요청 해석·작업 분해·부서 편성·우선순위·결과 통합·보고
+  - id: portfolio
+    name: 포트폴리오 PM
+    group: exec
+    lead: strategist
+    duty: 다섯 앱 우선순위·집중/안정 구분·중복 조정·월간 로드맵
+
+  # B. 제품 부문
+  - id: hq-web
+    name: 로봄 본사·홈페이지팀
+    group: product
+    duty: robom.kr 허브·브랜드·계열사 소개·설치 진입
+  - id: outbom
+    name: 야외봄 제품팀
+    group: product
+    duty: 날씨·대기질·활동 추천
+  - id: homebom
+    name: 청약봄 제품팀
+    group: product
+    duty: 청약 공고·접수 시작/마감 알림
+  - id: runningbom
+    name: 러닝봄 제품팀
+    group: product
+    duty: 대회 탐색·접수 알림
+  - id: calendarbom
+    name: 캘린더봄 제품팀
+    group: product
+    duty: 계열사 일정 통합 캘린더
+  - id: certbom
+    name: 자격증봄 제품팀
+    group: product
+    duty: 시험 탐색·접수/시험 일정·추천
+
+  # C. 공통 전문 부서
+  - id: pm-ux
+    name: 제품기획·UX부
+    group: common
+    duty: 문제 정의·요구사항·정보구조·완료 기준
+  - id: design
+    name: 디자인시스템·접근성부
+    group: common
+    duty: 패밀리 UI·앱별 개성·모바일 반응형·접근성·설정 화면
+  - id: web-pwa
+    name: 웹·PWA·성능부
+    group: common
+    duty: 렌더링·PWA·서비스워커·캐시·성능·오프라인
+  - id: mobile-store
+    name: Android·iOS·스토어부
+    group: common
+    duty: 네이티브 기반·알림·위젯·딥링크·Play/App Store 심사
+  - id: data-automation
+    name: 데이터·알림·자동화부
+    group: common
+    duty: 외부 데이터·신선도·알림 계산·스케줄러·중복 방지·복구
+  - id: dev
+    name: 개발부
+    group: common
+    lead: builder
+    duty: 코드 구현·리팩터링·버그 수정·테스트 단위 변경
+  - id: qa
+    name: QA·회귀테스트부
+    group: common
+    lead: inspector
+    duty: typecheck·unit·integration·E2E·모바일 뷰포트·운영 검증
+  - id: release-ci
+    name: 릴리스·CI부
+    group: common
+    lead: release-manager
+    duty: 버전·CHANGELOG·PR·CI·배포·롤백
+  - id: security
+    name: 보안·개인정보·정책부
+    group: common
+    duty: 비밀값·개인정보·스토어 데이터 공개·정책·외부 링크·권한
+  - id: growth
+    name: 성장·ASO·광고부
+    group: common
+    lead: growth-marketer
+    duty: 스토어 설명·키워드·스크린샷·설치 전환·광고(사장 승인 전 비활성)
+  - id: support
+    name: 고객의견·지원부
+    group: common
+    duty: 문의·리뷰·오류 제보·반복 불만·개선 후보
+  - id: red-team
+    name: 반대검토·위험감사부
+    group: common
+    lead: supervisor
+    duty: 타 부서 결론 독립 검토·누락/과장/데이터 오류/정책 위험

@@ -1,0 +1,82 @@
+# 로봄 본부 등록 직원 — .claude/agents/ 11역할 + 총괄 회의실 3팀.
+# "등록됨"은 역할이 존재한다는 뜻일 뿐, 실제 "작업 중"은 이벤트/세션 증거로만 판정한다.
+agents:
+  # 회의실(동등 총괄 권한, 상하 없음) — 실제 세션이 도는 작업실
+  - id: room-01
+    name: 로봄 01 · 총괄 부서 1팀
+    department: chief
+    cadence: on-demand
+    kind: room
+  - id: room-02
+    name: 로봄 02 · 총괄 부서 2팀
+    department: chief
+    cadence: on-demand
+    kind: room
+  - id: room-03
+    name: 로봄 03 · 총괄 부서 3팀
+    department: chief
+    cadence: on-demand
+    kind: room
+
+  # 매일 실행(5)
+  - id: ceo-orchestrator
+    name: 비서실장(CEO 오케스트레이터)
+    department: chief
+    cadence: daily
+    kind: agent
+  - id: planner
+    name: 기획팀
+    department: pm-ux
+    cadence: daily
+    kind: agent
+  - id: builder
+    name: 개발팀
+    department: dev
+    cadence: daily
+    kind: agent
+  - id: inspector
+    name: 검사팀
+    department: qa
+    cadence: daily
+    kind: agent
+  - id: recorder
+    name: 기록팀
+    department: chief
+    cadence: daily
+    kind: agent
+
+  # 매일 홍보(1, 초안만)
+  - id: growth-marketer
+    name: 홍보·성장팀
+    department: growth
+    cadence: daily
+    kind: agent
+
+  # 주간(3)
+  - id: supervisor
+    name: 감독팀
+    department: red-team
+    cadence: weekly
+    kind: agent
+  - id: upgrader
+    name: 개선연구팀(R&D)
+    department: pm-ux
+    cadence: weekly
+    kind: agent
+  - id: release-manager
+    name: 릴리즈팀
+    department: release-ci
+    cadence: weekly
+    kind: agent
+
+  # 월간(2)
+  - id: strategist
+    name: 전략·포트폴리오팀
+    department: portfolio
+    cadence: monthly
+    kind: agent
+  - id: architect
+    name: 설계팀
+    department: hq-web
+    cadence: monthly
+    kind: agent

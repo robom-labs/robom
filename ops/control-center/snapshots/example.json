@@ -1,0 +1,755 @@
+{
+  "product": "ROBOM Control Center · 로봄 본부",
+  "phase": "phase-1-readonly",
+  "generatedAt": "2026-07-17T03:25:01.224Z",
+  "company": {
+    "trafficLight": "yellow",
+    "apps": {
+      "total": 5,
+      "live": 5,
+      "ok": 4,
+      "warn": 1,
+      "down": 0,
+      "planned": 0
+    },
+    "employees": {
+      "registered": 14,
+      "working": 0
+    },
+    "tasks": {
+      "investigating": 0,
+      "implementing": 0,
+      "verifying": 0,
+      "approvalPending": 0,
+      "blocked": 0,
+      "needsCheck": 0
+    },
+    "todayDeploys": 12,
+    "todayFailures": 0
+  },
+  "apps": [
+    {
+      "id": "outbom",
+      "name": "야외봄",
+      "accent": null,
+      "repo": "robom-labs/outbom",
+      "url": null,
+      "version": "0.25.2",
+      "registered": true,
+      "stack": "Next.js 16 + React 19",
+      "deployTarget": null,
+      "role": null,
+      "tracked": true,
+      "nextActions": [],
+      "blocked": null,
+      "git": {
+        "available": true,
+        "branch": "main",
+        "sha": "d53a888",
+        "lastMsg": "feat: 오늘 탭 히어로 \"지금\" 마커 + PC·모바일 최적화 (v0.24.0)",
+        "lastDate": "2026-07-14T11:21:17+00:00",
+        "workBranches": [
+          {
+            "name": "agent/outbom-2nd-pass",
+            "date": "2026-07-12T09:20:21+00:00"
+          }
+        ]
+      },
+      "github": "connected",
+      "openPrs": [],
+      "ci": [
+        {
+          "name": "pages build and deployment",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "3662af7",
+          "event": "dynamic",
+          "createdAt": "2026-07-16T22:01:19Z",
+          "url": "https://github.com/robom-labs/outbom/actions/runs/29538114778"
+        },
+        {
+          "name": "Family contract",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "15f318a",
+          "event": "push",
+          "createdAt": "2026-07-16T21:59:50Z",
+          "url": "https://github.com/robom-labs/outbom/actions/runs/29538011020"
+        },
+        {
+          "name": "Deploy outbom Pages",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "15f318a",
+          "event": "push",
+          "createdAt": "2026-07-16T21:59:50Z",
+          "url": "https://github.com/robom-labs/outbom/actions/runs/29538010575"
+        },
+        {
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "15f318a",
+          "event": "push",
+          "createdAt": "2026-07-16T21:59:49Z",
+          "url": "https://github.com/robom-labs/outbom/actions/runs/29538010235"
+        },
+        {
+          "name": "pages build and deployment",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "42f825e",
+          "event": "dynamic",
+          "createdAt": "2026-07-16T12:31:31Z",
+          "url": "https://github.com/robom-labs/outbom/actions/runs/29498470347"
+        },
+        {
+          "name": "Family contract",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "7e0b15f",
+          "event": "push",
+          "createdAt": "2026-07-16T12:30:03Z",
+          "url": "https://github.com/robom-labs/outbom/actions/runs/29498371346"
+        },
+        {
+          "name": "Deploy outbom Pages",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "7e0b15f",
+          "event": "push",
+          "createdAt": "2026-07-16T12:30:02Z",
+          "url": "https://github.com/robom-labs/outbom/actions/runs/29498370694"
+        },
+        {
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "7e0b15f",
+          "event": "push",
+          "createdAt": "2026-07-16T12:30:01Z",
+          "url": "https://github.com/robom-labs/outbom/actions/runs/29498369549"
+        }
+      ],
+      "health": "ok",
+      "todayDeploys": 2,
+      "todayFails": 0,
+      "note": null
+    },
+    {
+      "id": "homebom",
+      "name": "청약봄",
+      "accent": null,
+      "repo": "robom-labs/homebom",
+      "url": null,
+      "version": "0.14.2",
+      "registered": true,
+      "stack": "Vite + React",
+      "deployTarget": null,
+      "role": null,
+      "tracked": true,
+      "nextActions": [
+        "GitHub 계정 이전으로 404가 된 기존 개인 계정 Pages 주소는 해당 계정의 별도 redirect 저장소를 만들 수 있을 때 안내 페이지로 전환한다."
+      ],
+      "blocked": null,
+      "git": {
+        "available": true,
+        "branch": "main",
+        "sha": "72c59f1",
+        "lastMsg": "feat: 설정 카드 아이콘 칩 헤더 — 패밀리 공통 규격 (v0.10.0)",
+        "lastDate": "2026-07-13T15:30:42+00:00",
+        "workBranches": [
+          {
+            "name": "agent/homebom-2nd-pass",
+            "date": "2026-07-12T09:07:31+00:00"
+          },
+          {
+            "name": "agent/sw-install-precache",
+            "date": "2026-07-11T08:02:10+00:00"
+          }
+        ]
+      },
+      "github": "connected",
+      "openPrs": [],
+      "ci": [
+        {
+          "name": "pages build and deployment",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "f7db631",
+          "event": "dynamic",
+          "createdAt": "2026-07-16T22:03:22Z",
+          "url": "https://github.com/robom-labs/homebom/actions/runs/29538237133"
+        },
+        {
+          "name": "pages build and deployment",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "0e67e76",
+          "event": "dynamic",
+          "createdAt": "2026-07-16T22:01:37Z",
+          "url": "https://github.com/robom-labs/homebom/actions/runs/29538131452"
+        },
+        {
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "7b91314",
+          "event": "push",
+          "createdAt": "2026-07-16T22:00:09Z",
+          "url": "https://github.com/robom-labs/homebom/actions/runs/29538038200"
+        },
+        {
+          "name": "Deploy homebom Pages",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "7b91314",
+          "event": "push",
+          "createdAt": "2026-07-16T22:00:09Z",
+          "url": "https://github.com/robom-labs/homebom/actions/runs/29538037777"
+        },
+        {
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "d90e566",
+          "event": "push",
+          "createdAt": "2026-07-16T21:59:47Z",
+          "url": "https://github.com/robom-labs/homebom/actions/runs/29538007613"
+        },
+        {
+          "name": "Deploy homebom Pages",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "d90e566",
+          "event": "push",
+          "createdAt": "2026-07-16T21:59:47Z",
+          "url": "https://github.com/robom-labs/homebom/actions/runs/29538006821"
+        },
+        {
+          "name": "pages build and deployment",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "6afd051",
+          "event": "dynamic",
+          "createdAt": "2026-07-16T19:34:28Z",
+          "url": "https://github.com/robom-labs/homebom/actions/runs/29528542663"
+        },
+        {
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "fec0fb2",
+          "event": "push",
+          "createdAt": "2026-07-16T19:32:29Z",
+          "url": "https://github.com/robom-labs/homebom/actions/runs/29528404826"
+        }
+      ],
+      "health": "ok",
+      "todayDeploys": 5,
+      "todayFails": 0,
+      "note": null
+    },
+    {
+      "id": "runningbom",
+      "name": "러닝봄",
+      "accent": null,
+      "repo": "robom-labs/runningbom",
+      "url": null,
+      "version": "0.17.3",
+      "registered": true,
+      "stack": "static HTML + CSS + JavaScript",
+      "deployTarget": null,
+      "role": null,
+      "tracked": true,
+      "nextActions": [
+        "GitHub 계정 이전으로 404가 된 기존 개인 계정 Pages 주소는 해당 계정의 별도 redirect 저장소를 만들 수 있을 때 안내 페이지로 전환한다."
+      ],
+      "blocked": null,
+      "git": {
+        "available": true,
+        "branch": "main",
+        "sha": "69c0939",
+        "lastMsg": "feat: 러닝봄 메인(대회 찾기) 전면 재설계 — 시안 1:1 (v0.16.0)",
+        "lastDate": "2026-07-14T13:53:50+00:00",
+        "workBranches": [
+          {
+            "name": "agent/runningbom-2nd-pass",
+            "date": "2026-07-12T09:06:49+00:00"
+          },
+          {
+            "name": "agent/search-enter-apply",
+            "date": "2026-07-11T08:05:24+00:00"
+          }
+        ]
+      },
+      "github": "connected",
+      "openPrs": [],
+      "ci": [
+        {
+          "name": "pages build and deployment",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "a47072a",
+          "event": "dynamic",
+          "createdAt": "2026-07-17T01:37:24Z",
+          "url": "https://github.com/robom-labs/runningbom/actions/runs/29547901961"
+        },
+        {
+          "name": "Family contract",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "2f3a57a",
+          "event": "push",
+          "createdAt": "2026-07-17T01:36:26Z",
+          "url": "https://github.com/robom-labs/runningbom/actions/runs/29547860256"
+        },
+        {
+          "name": "Deploy runningbom Pages",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "2f3a57a",
+          "event": "push",
+          "createdAt": "2026-07-17T01:36:26Z",
+          "url": "https://github.com/robom-labs/runningbom/actions/runs/29547860119"
+        },
+        {
+          "name": "pages build and deployment",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "aad82a1",
+          "event": "dynamic",
+          "createdAt": "2026-07-16T21:54:36Z",
+          "url": "https://github.com/robom-labs/runningbom/actions/runs/29537683883"
+        },
+        {
+          "name": "Family contract",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "a43b6d0",
+          "event": "push",
+          "createdAt": "2026-07-16T21:53:43Z",
+          "url": "https://github.com/robom-labs/runningbom/actions/runs/29537644604"
+        },
+        {
+          "name": "Deploy runningbom Pages",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "a43b6d0",
+          "event": "push",
+          "createdAt": "2026-07-16T21:53:43Z",
+          "url": "https://github.com/robom-labs/runningbom/actions/runs/29537644455"
+        },
+        {
+          "name": "pages build and deployment",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "1a9a2f2",
+          "event": "dynamic",
+          "createdAt": "2026-07-16T19:33:25Z",
+          "url": "https://github.com/robom-labs/runningbom/actions/runs/29528467833"
+        },
+        {
+          "name": "Family contract",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "ec414c8",
+          "event": "push",
+          "createdAt": "2026-07-16T19:32:31Z",
+          "url": "https://github.com/robom-labs/runningbom/actions/runs/29528407753"
+        }
+      ],
+      "health": "ok",
+      "todayDeploys": 5,
+      "todayFails": 0,
+      "note": null
+    },
+    {
+      "id": "calendarbom",
+      "name": "캘린더봄",
+      "accent": null,
+      "repo": "robom-labs/calendarbom",
+      "url": null,
+      "version": "0.6.1",
+      "registered": true,
+      "stack": "static HTML + CSS + JavaScript",
+      "deployTarget": null,
+      "role": null,
+      "tracked": true,
+      "nextActions": [
+        "70대 실제 사용자 과업 테스트.",
+        "Android·iOS local notification 프로젝트의 서명·스토어 계정 연결."
+      ],
+      "blocked": "- 스토어 계약·서명·최종 제출은 계정 소유자 작업입니다.",
+      "git": {
+        "available": false
+      },
+      "github": "connected",
+      "openPrs": [],
+      "ci": [
+        {
+          "name": "Family contract",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "431e80b",
+          "event": "push",
+          "createdAt": "2026-07-17T01:41:02Z",
+          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29548058708"
+        },
+        {
+          "name": "CalendarBom release",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "431e80b",
+          "event": "push",
+          "createdAt": "2026-07-17T01:41:02Z",
+          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29548058489"
+        },
+        {
+          "name": "Family contract",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "96a10b8",
+          "event": "push",
+          "createdAt": "2026-07-16T22:13:15Z",
+          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29538807623"
+        },
+        {
+          "name": "CalendarBom release",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "96a10b8",
+          "event": "push",
+          "createdAt": "2026-07-16T22:13:14Z",
+          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29538806824"
+        },
+        {
+          "name": "Family contract",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "caed861",
+          "event": "push",
+          "createdAt": "2026-07-16T21:49:12Z",
+          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29537424143"
+        },
+        {
+          "name": "CalendarBom release",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "caed861",
+          "event": "push",
+          "createdAt": "2026-07-16T21:49:11Z",
+          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29537423639"
+        },
+        {
+          "name": "Family contract",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "0ee3f67",
+          "event": "push",
+          "createdAt": "2026-07-16T21:47:00Z",
+          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29537298457"
+        },
+        {
+          "name": "CalendarBom release",
+          "status": "completed",
+          "conclusion": "success",
+          "sha": "0ee3f67",
+          "event": "push",
+          "createdAt": "2026-07-16T21:46:59Z",
+          "url": "https://github.com/robom-labs/calendarbom/actions/runs/29537297864"
+        }
+      ],
+      "health": "ok",
+      "todayDeploys": 0,
+      "todayFails": 0,
+      "note": null
+    },
+    {
+      "id": "certbom",
+      "name": "자격증봄",
+      "accent": null,
+      "repo": "robom-labs/certbom",
+      "url": null,
+      "version": "0.7.1",
+      "registered": true,
+      "stack": "Vite + React",
+      "deployTarget": null,
+      "role": null,
+      "tracked": true,
+      "nextActions": [
+        "data.go.kr 서비스 키를 Actions secret에 연결해 첫 API 스냅샷을 공식 공고와 대조한 뒤 last-known-good 자동 갱신을 활성화한다.",
+        "Supabase 프로젝트와 소셜 OAuth를 연결한 뒤 기기 간 동기화를 별도 출시한다.",
+        "VAPID 키와 알림 동의 UX를 준비한 뒤 웹 푸시를 별도 출시한다."
+      ],
+      "blocked": null,
+      "git": {
+        "available": true,
+        "branch": "main",
+        "sha": "3f4ca83",
+        "lastMsg": "docs: record CertBom 0.5.0 deployment [skip ci]",
+        "lastDate": "2026-07-16T07:38:53+09:00",
+        "workBranches": []
+      },
+      "github": "error",
+      "openPrs": [],
+      "ci": [],
+      "health": "unknown",
+      "todayDeploys": 0,
+      "todayFails": 0,
+      "note": null
+    }
+  ],
+  "departments": [
+    {
+      "id": "exec",
+      "name": "사장실·비서실",
+      "group": "exec",
+      "lead": "사장(사용자)",
+      "duty": "최종 전략·승인·신규 앱·계약·결제·스토어·법적 결정"
+    },
+    {
+      "id": "chief",
+      "name": "비서실장 / CEO 오케스트레이터",
+      "group": "exec",
+      "lead": "ceo-orchestrator",
+      "duty": "요청 해석·작업 분해·부서 편성·우선순위·결과 통합·보고"
+    },
+    {
+      "id": "portfolio",
+      "name": "포트폴리오 PM",
+      "group": "exec",
+      "lead": "strategist",
+      "duty": "다섯 앱 우선순위·집중/안정 구분·중복 조정·월간 로드맵"
+    },
+    {
+      "id": "hq-web",
+      "name": "로봄 본사·홈페이지팀",
+      "group": "product",
+      "duty": "robom.kr 허브·브랜드·계열사 소개·설치 진입"
+    },
+    {
+      "id": "outbom",
+      "name": "야외봄 제품팀",
+      "group": "product",
+      "duty": "날씨·대기질·활동 추천"
+    },
+    {
+      "id": "homebom",
+      "name": "청약봄 제품팀",
+      "group": "product",
+      "duty": "청약 공고·접수 시작/마감 알림"
+    },
+    {
+      "id": "runningbom",
+      "name": "러닝봄 제품팀",
+      "group": "product",
+      "duty": "대회 탐색·접수 알림"
+    },
+    {
+      "id": "calendarbom",
+      "name": "캘린더봄 제품팀",
+      "group": "product",
+      "duty": "계열사 일정 통합 캘린더"
+    },
+    {
+      "id": "certbom",
+      "name": "자격증봄 제품팀",
+      "group": "product",
+      "duty": "시험 탐색·접수/시험 일정·추천"
+    },
+    {
+      "id": "pm-ux",
+      "name": "제품기획·UX부",
+      "group": "common",
+      "duty": "문제 정의·요구사항·정보구조·완료 기준"
+    },
+    {
+      "id": "design",
+      "name": "디자인시스템·접근성부",
+      "group": "common",
+      "duty": "패밀리 UI·앱별 개성·모바일 반응형·접근성·설정 화면"
+    },
+    {
+      "id": "web-pwa",
+      "name": "웹·PWA·성능부",
+      "group": "common",
+      "duty": "렌더링·PWA·서비스워커·캐시·성능·오프라인"
+    },
+    {
+      "id": "mobile-store",
+      "name": "Android·iOS·스토어부",
+      "group": "common",
+      "duty": "네이티브 기반·알림·위젯·딥링크·Play/App Store 심사"
+    },
+    {
+      "id": "data-automation",
+      "name": "데이터·알림·자동화부",
+      "group": "common",
+      "duty": "외부 데이터·신선도·알림 계산·스케줄러·중복 방지·복구"
+    },
+    {
+      "id": "dev",
+      "name": "개발부",
+      "group": "common",
+      "lead": "builder",
+      "duty": "코드 구현·리팩터링·버그 수정·테스트 단위 변경"
+    },
+    {
+      "id": "qa",
+      "name": "QA·회귀테스트부",
+      "group": "common",
+      "lead": "inspector",
+      "duty": "typecheck·unit·integration·E2E·모바일 뷰포트·운영 검증"
+    },
+    {
+      "id": "release-ci",
+      "name": "릴리스·CI부",
+      "group": "common",
+      "lead": "release-manager",
+      "duty": "버전·CHANGELOG·PR·CI·배포·롤백"
+    },
+    {
+      "id": "security",
+      "name": "보안·개인정보·정책부",
+      "group": "common",
+      "duty": "비밀값·개인정보·스토어 데이터 공개·정책·외부 링크·권한"
+    },
+    {
+      "id": "growth",
+      "name": "성장·ASO·광고부",
+      "group": "common",
+      "lead": "growth-marketer",
+      "duty": "스토어 설명·키워드·스크린샷·설치 전환·광고(사장 승인 전 비활성)"
+    },
+    {
+      "id": "support",
+      "name": "고객의견·지원부",
+      "group": "common",
+      "duty": "문의·리뷰·오류 제보·반복 불만·개선 후보"
+    },
+    {
+      "id": "red-team",
+      "name": "반대검토·위험감사부",
+      "group": "common",
+      "lead": "supervisor",
+      "duty": "타 부서 결론 독립 검토·누락/과장/데이터 오류/정책 위험"
+    }
+  ],
+  "agents": [
+    {
+      "id": "room-01",
+      "name": "로봄 01 · 총괄 부서 1팀",
+      "department": "chief",
+      "cadence": "on-demand",
+      "kind": "room"
+    },
+    {
+      "id": "room-02",
+      "name": "로봄 02 · 총괄 부서 2팀",
+      "department": "chief",
+      "cadence": "on-demand",
+      "kind": "room"
+    },
+    {
+      "id": "room-03",
+      "name": "로봄 03 · 총괄 부서 3팀",
+      "department": "chief",
+      "cadence": "on-demand",
+      "kind": "room"
+    },
+    {
+      "id": "ceo-orchestrator",
+      "name": "비서실장(CEO 오케스트레이터)",
+      "department": "chief",
+      "cadence": "daily",
+      "kind": "agent"
+    },
+    {
+      "id": "planner",
+      "name": "기획팀",
+      "department": "pm-ux",
+      "cadence": "daily",
+      "kind": "agent"
+    },
+    {
+      "id": "builder",
+      "name": "개발팀",
+      "department": "dev",
+      "cadence": "daily",
+      "kind": "agent"
+    },
+    {
+      "id": "inspector",
+      "name": "검사팀",
+      "department": "qa",
+      "cadence": "daily",
+      "kind": "agent"
+    },
+    {
+      "id": "recorder",
+      "name": "기록팀",
+      "department": "chief",
+      "cadence": "daily",
+      "kind": "agent"
+    },
+    {
+      "id": "growth-marketer",
+      "name": "홍보·성장팀",
+      "department": "growth",
+      "cadence": "daily",
+      "kind": "agent"
+    },
+    {
+      "id": "supervisor",
+      "name": "감독팀",
+      "department": "red-team",
+      "cadence": "weekly",
+      "kind": "agent"
+    },
+    {
+      "id": "upgrader",
+      "name": "개선연구팀(R&D)",
+      "department": "pm-ux",
+      "cadence": "weekly",
+      "kind": "agent"
+    },
+    {
+      "id": "release-manager",
+      "name": "릴리즈팀",
+      "department": "release-ci",
+      "cadence": "weekly",
+      "kind": "agent"
+    },
+    {
+      "id": "strategist",
+      "name": "전략·포트폴리오팀",
+      "department": "portfolio",
+      "cadence": "monthly",
+      "kind": "agent"
+    },
+    {
+      "id": "architect",
+      "name": "설계팀",
+      "department": "hq-web",
+      "cadence": "monthly",
+      "kind": "agent"
+    }
+  ],
+  "runs": [],
+  "approvals": [],
+  "events": [],
+  "connections": {
+    "github": "connected",
+    "localGit": [
+      "robom",
+      "outbom",
+      "homebom",
+      "runningbom",
+      "certbom"
+    ],
+    "events": "no_events(아직 작업 이벤트 없음)",
+    "claudeCode": "adapter_pending(훅으로 emit-event 연결 시 활성)",
+    "codex": "adapter_pending"
+  }
+}
