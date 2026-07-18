@@ -235,16 +235,24 @@ async function readText(path) {
   }
 }
 
-async function readJsonLines(path) {
+async function readJsonLines(path, { strict = false } = {}) {
   const text = await readText(path);
   const rows = [];
+  let corrupt = 0;
   for (const [index, raw] of text.split(/\r?\n/).entries()) {
     if (!raw.trim()) continue;
     try { rows.push(JSON.parse(raw)); }
     catch {
-      throw new CompanyStoreError(`runtime JSONL이 손상되었습니다: ${index + 1}행`, { code: "CORRUPT_RUNTIME", statusCode: 500 });
+      // 자가복구: 손상된 줄(동시 쓰기로 잘린 append 등)은 건너뛰고 나머지를 살린다.
+      // 한 줄 손상으로 화면 전체가 '연결 안 됨'이 되지 않게 한다.
+      corrupt += 1;
+      if (strict) {
+        throw new CompanyStoreError(`runtime JSONL이 손상되었습니다: ${index + 1}행`, { code: "CORRUPT_RUNTIME", statusCode: 500 });
+      }
+      console.error(`[company-store] 손상된 줄 건너뜀: ${path}:${index + 1}`);
     }
   }
+  if (corrupt) console.error(`[company-store] ${path} — 손상된 줄 ${corrupt}개를 건너뛰고 로드`);
   return rows;
 }
 

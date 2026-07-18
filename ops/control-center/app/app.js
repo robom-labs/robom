@@ -59,7 +59,7 @@ const statusPill=(s)=>{const l=simpleStatus(s);return `<span class="status ${STA
 const tonePill=(t,l)=>`<span class="status ${t}">${esc(l)}</span>`;
 const appAccent={robom:"#35e39b",outbom:"#42a9ff",homebom:"#3fd28a",runningbom:"#ff7a4d",calendarbom:"#2fd0bd",certbom:"#7f8cff",notebom:"#ff6fa8"};
 
-const HQ_VERSION="1.3.1"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="1.3.2"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null, CURRENT="today", SELECTED_APP=null, ARCHIVE_TAB="approvals";
 let ATTACH=[]; // 첨부 이미지 [{tmpId,id,thumb,uploading}]
@@ -67,11 +67,13 @@ const preview=Boolean(window.__PREVIEW__);
 const $=(q)=>document.querySelector(q), $$=(q)=>[...document.querySelectorAll(q)];
 
 async function fetchJson(url,options){const res=await fetch(url,{cache:"no-store",...options});if(!res.ok){let m="";try{m=(await res.json()).message||"";}catch{}throw new Error(m||`${res.status} ${url}`);}return res.json();}
+// 서버 응답 state에는 mode가 없다 → 실앱(비-미리보기)에서는 항상 live로 유지(쓰기 후 대기로 오판 방지).
+function applyState(state){LOCAL=state||LOCAL;if(!preview)LOCAL.mode="live";}
 async function load(){
   try{SNAP=window.__SNAP__||await fetchJson("./snapshot.json");}catch(e){$("#screen").innerHTML=empty("회사 스냅샷을 불러오지 못했습니다.","로컬 본부를 다시 실행해 주세요.");return;}
   if(!preview){try{LOCAL=await fetchJson("/api/company-state");LOCAL.mode="live";}catch{LOCAL={records:loadPortable(),audit:[],mode:"portable"};}}
   else LOCAL={records:loadPortable(),audit:[],mode:"portable"};
-  if(LOCAL.mode==="live"){try{HQ=await fetchJson("/api/hq-status");}catch{HQ=null;}}else HQ=null;
+  if(!preview){try{HQ=await fetchJson("/api/hq-status");}catch{HQ=null;}}else HQ=null;
   SELECTED_APP=SELECTED_APP||familyApps()[0]?.id;
   updateStatusbar();render(CURRENT);
 }
@@ -233,7 +235,7 @@ async function stripAndResize(file){const im=await loadImage(file);const max=160
 function blobToBase64(blob){return new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(String(fr.result).split(",")[1]);fr.onerror=rej;fr.readAsDataURL(blob);});}
 function renderThumbs(){const el=$("#taskThumbs");if(!el)return;el.innerHTML=ATTACH.map(a=>a.uploading?`<div class="thumb up" data-tmp="${a.tmpId}"></div>`:`<div class="thumb"><img src="${a.thumb}" alt="첨부"/><button type="button" data-rm="${a.tmpId}" aria-label="삭제">×</button></div>`).join("");}
 async function addImages(files){
-  if(LOCAL.mode!=="live"){showToast("이미지 첨부는 본부(앱) 실행 중일 때만 돼요.","warn");return;}
+  if(preview){showToast("이미지 첨부는 본부(앱) 실행 중일 때만 돼요.","warn");return;}
   for(const file of files){
     if(!file.type||!file.type.startsWith("image/"))continue;
     const tmpId="t"+Math.random().toString(36).slice(2,9);
@@ -253,27 +255,27 @@ async function saveTask(form){const fd=new FormData(form);
   const pre=String(fd.get("mustPreserve")||"").trim();if(pre)payload.mustPreserve=pre;
   const ids=ATTACH.filter(a=>a.id).map(a=>a.id);if(ids.length)payload.attachments=ids;
   if(!payload.title)return;
-  if(LOCAL.mode==="live"){const data=await fetchJson("/api/tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});LOCAL=data.state;showToast("요청을 Codex 대기열에 넣었습니다.","good");try{HQ=await fetchJson("/api/hq-status");}catch{}}
-  else{const l=LOCAL.records.tasks||=[];l.unshift({...payload,id:`local-${Date.now()}`,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});savePortable();showToast("휴대용 모드: 임시 저장. 본부 연결 시 다시 등록해 주세요.","warn");}
+  if(!preview){const data=await fetchJson("/api/tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});applyState(data.state);showToast("요청을 Codex 대기열에 넣었습니다.","good");try{HQ=await fetchJson("/api/hq-status");}catch{}}
+  else{const l=LOCAL.records.tasks||=[];l.unshift({...payload,id:`local-${Date.now()}`,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});savePortable();showToast("미리보기 모드: 임시 저장. 본부에서 다시 등록해 주세요.","warn");}
   $("#taskDialog").close();render(CURRENT);
 }
 function openRecord(collection,titleText=""){const d=$("#recordDialog");$("#recordCollection").value=collection;$("#dialogEyebrow").textContent=COLLECTION_LABEL[collection]||"기록";$("#dialogTitle").textContent=`새 ${COLLECTION_LABEL[collection]||"기록"}`;$("#recordTitle").value=titleText;$("#recordBody").value="";$("#recordApp").innerHTML=`<option value="">회사 전체</option>`+(SNAP.apps||[]).map(a=>`<option value="${attr(a.id)}">${esc(a.name)}</option>`).join("");d.showModal();setTimeout(()=>$("#recordTitle").focus(),30);}
 async function saveRecord(form){const fd=new FormData(form),c=fd.get("collection"),payload={title:String(fd.get("title")||"").trim(),body:String(fd.get("body")||"").trim(),appId:String(fd.get("appId")||""),priority:String(fd.get("priority")||"normal")};if(!payload.title)return;
-  if(LOCAL.mode==="live"){const data=await fetchJson(`/api/records/${encodeURIComponent(c)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});LOCAL=data.state;}
+  if(!preview){const data=await fetchJson(`/api/records/${encodeURIComponent(c)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});applyState(data.state);}
   else{const l=LOCAL.records[c]||=[];l.unshift({...payload,id:`local-${Date.now()}`,status:"open",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});savePortable();}
   $("#recordDialog").close();showToast(`${COLLECTION_LABEL[c]||"기록"}을 저장했습니다.`,"good");render(CURRENT);
 }
 async function patchRecord(collection,id,status){if(!id){showToast("스냅샷 안건은 근거 화면에서 처리합니다.");return;}
-  if(LOCAL.mode==="live"){const data=await fetchJson(`/api/records/${encodeURIComponent(collection)}/${encodeURIComponent(id)}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status})});LOCAL=data.state;}
+  if(!preview){const data=await fetchJson(`/api/records/${encodeURIComponent(collection)}/${encodeURIComponent(id)}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status})});applyState(data.state);}
   else{const r=(LOCAL.records[collection]||[]).find(x=>x.id===id);if(r)Object.assign(r,{status,updatedAt:new Date().toISOString()});savePortable();}
   showToast("반영했습니다.","good");render(CURRENT);}
-async function approveProposal(id){if(LOCAL.mode!=="live"){showToast("본부 실행 중일 때만 승인할 수 있어요.","warn");return;}
-  const data=await fetchJson(`/api/approve-proposal/${encodeURIComponent(id)}`,{method:"POST"});LOCAL=data.state;try{HQ=await fetchJson("/api/hq-status");}catch{}showToast("승인 완료 — 업무로 등록해 Codex에 맡겼습니다.","good");render(CURRENT);}
-async function setControl(ch,msg){if(LOCAL.mode!=="live"){showToast("휴대용 보기에서는 제어할 수 없어요.","warn");return;}await fetchJson("/api/control",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(ch)});try{HQ=await fetchJson("/api/hq-status");}catch{}showToast(msg,"good");render(CURRENT);}
+async function approveProposal(id){if(preview){showToast("본부(앱)에서만 승인할 수 있어요.","warn");return;}
+  const data=await fetchJson(`/api/approve-proposal/${encodeURIComponent(id)}`,{method:"POST"});applyState(data.state);try{HQ=await fetchJson("/api/hq-status");}catch{}showToast("승인 완료 — 업무로 등록해 Codex에 맡겼습니다.","good");render(CURRENT);}
+async function setControl(ch,msg){if(preview){showToast("미리보기 모드에서는 제어할 수 없어요.","warn");return;}await fetchJson("/api/control",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(ch)});try{HQ=await fetchJson("/api/hq-status");}catch{}showToast(msg,"good");render(CURRENT);}
 function download(name,text,type="text/markdown"){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 function bundleFor(r){const a=appById(r.appId);return `# 로봄 작업 패킷 ${r.id}\n\n- 대상: ${appName(r.appId)} (${a?.repo||"robom-labs/robom"})\n- 기준 SHA: ${a?.git?.sha||a?.production?.deployedSha||"최신 main"}\n- 요청: ${r.title}\n- 문제: ${r.problem||r.body||"기록 없음"}\n- 원하는 결과: ${r.desiredOutcome||"기록 없음"}\n- 유지: ${r.mustPreserve||"기존 사용자 데이터·저장 키·배포 경로"}\n- 자율 범위: ${AUTONOMY_LABEL[r.autonomy]||r.autonomy||"고친 뒤 확인 대기"}\n- 첨부: ${(r.attachments||[]).length}개\n\n실행 전에는 작업 중으로 표시하지 않는다. 완료 기준: 구현·테스트·실제 화면 확인.\n`;}
-async function doBackup(){if(LOCAL.mode!=="live"){download(`robom-hq-backup-${Date.now()}.json`,JSON.stringify({exportedAt:new Date().toISOString(),records:LOCAL.records},null,2),"application/json");showToast("휴대용 기록을 내보냈습니다.","good");return;}const data=await fetchJson("/api/backup",{method:"POST"});LOCAL=data.state||LOCAL;showToast(`백업 완료 · ${data.file||"로컬 저장"}`,"good");}
-async function doExport(){if(LOCAL.mode!=="live"){download(`robom-company-${Date.now()}.json`,JSON.stringify({snapshot:SNAP,records:LOCAL.records},null,2),"application/json");return;}const data=await fetchJson("/api/export",{method:"POST"});download(data.name||"robom-company-export.json",JSON.stringify(data.payload,null,2),"application/json");}
+async function doBackup(){if(preview){download(`robom-hq-backup-${Date.now()}.json`,JSON.stringify({exportedAt:new Date().toISOString(),records:LOCAL.records},null,2),"application/json");showToast("미리보기 기록을 내보냈습니다.","good");return;}const data=await fetchJson("/api/backup",{method:"POST"});applyState(data.state);showToast(`백업 완료 · ${data.file||"로컬 저장"}`,"good");}
+async function doExport(){if(preview){download(`robom-company-${Date.now()}.json`,JSON.stringify({snapshot:SNAP,records:LOCAL.records},null,2),"application/json");return;}const data=await fetchJson("/api/export",{method:"POST"});download(data.name||"robom-company-export.json",JSON.stringify(data.payload,null,2),"application/json");}
 
 function bindScreen(){
   $("#memoryInput")?.addEventListener("keydown",e=>{if(e.key==="Enter")$("#memoryResults").innerHTML=memoryResults(e.target.value);});
