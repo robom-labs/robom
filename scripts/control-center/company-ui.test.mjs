@@ -133,6 +133,20 @@ test("본사(robom)와 계열사 앱을 분리하고 예시 스냅샷도 registr
   assert.ok(example.apps.some((a) => a.id === "notebom"), "노트봄 포함");
 });
 
+test("결정론적 health 엔진이 review에 연결되고 incident만 중복 없이 결재로 상신된다", () => {
+  assert.match(server, /import \{ runHealthEngine \}/);
+  assert.match(server, /runHealthEngine\(\{/);
+  // 건강/CI/PR은 엔진이 담당, 제안기는 성장(:next)·보안(:security)만 → 중복 방지
+  assert.match(server, /\/:next\$\|:security\$\//);
+  assert.match(server, /proposalKey: inc\.contractId/); // incident별 dedup 키
+  assert.match(server, /health: readHealthSummary\(\)/); // hq-status 노출
+  const engine = readFileSync(join(REPO_ROOT, "scripts/control-center/lib/health-engine.mjs"), "utf8");
+  assert.match(engine, /CONFIRM_CONSECUTIVE/); // warn/error 연속 2회 확정
+  assert.match(engine, /company:network/); // 전역 네트워크 선행(스팸 억제)
+  assert.match(engine, /RECOVERY_CONSECUTIVE/); // 회복 조건
+  assert.match(app, /HQ\?\.health/); // UI가 점검 결과 표시
+});
+
 test("Codex 미연결을 정직하게 표시하고 긴급 제어를 제공한다", () => {
   assert.match(app, /미연결|Codex 미연결/);
   assert.match(app, /not_connected/);

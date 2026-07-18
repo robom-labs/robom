@@ -13,9 +13,10 @@ import {
   createCompanyStore,
 } from "./lib/company-store.mjs";
 import {
-  cancelPendingTask, enqueueTask, queueSummary, recoverStaleLeases, writeControl,
+  cancelPendingTask, enqueueTask, queueSummary, readRunnerStatus, recoverStaleLeases, writeControl,
 } from "./lib/task-queue.mjs";
 import { generateProposals } from "./lib/propose-improvements.mjs";
+import { runHealthEngine } from "./lib/health-engine.mjs";
 import { startRunnerSupervisor } from "./lib/runner-supervisor.mjs";
 import { REPO_ROOT } from "./lib/sources.mjs";
 
@@ -208,22 +209,52 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
   if (!snapshot) return { skipped: "no-snapshot" };
   const state = await store.getState();
   const existing = (state.records.approvals || []).filter((a) => !["approved", "rejected", "dismissed", "archived"].includes(a.status));
-  const proposals = generateProposals(snapshot, existing, { limit: 5 });
+  const existingKeys = new Set(existing.map((a) => a.proposalKey).filter(Boolean));
   const created = [];
-  for (const p of proposals) {
+  const appTarget = (t) => (t === "company" || t === "robom-hq" ? "" : t);
+
+  // 1) 결정론적 health 엔진 — 실제 신호로 판정한 확정 incident를 결재로 상신(중복 방지)
+  let healthSummary = null;
+  try {
+    let runner = null; try { runner = readRunnerStatus(); } catch { /* 러너 상태 없음 */ }
+    const health = runHealthEngine({ snapshot, runtimeDir: DEFAULT_COMPANY_RUNTIME_DIR, now, runner, watchdogMinutes: WATCHDOG_MINUTES });
+    healthSummary = health.summary;
+    for (const inc of health.newIncidents) {
+      if (existingKeys.has(inc.contractId)) continue;
+      const priority = inc.severity === "critical" ? "urgent" : inc.severity === "error" ? "high" : "normal";
+      const body = inc.actual ? `확인된 값: ${inc.actual}${inc.expected ? ` / 기대: ${inc.expected}` : ""}` : (inc.userImpact || "");
+      try {
+        const rec = await store.createRecord("approvals", {
+          title: inc.userImpact || `${inc.target} 확인 필요`, appId: appTarget(inc.target), body,
+          recommendation: inc.recommendedAction, priority, requestedBy: "auto-review", proposalKey: inc.contractId, status: "pending",
+        });
+        created.push(rec.id); existingKeys.add(inc.contractId);
+      } catch { /* 개별 실패는 건너뛴다 */ }
+    }
+  } catch (error) { console.error("[robom-hq] health 엔진 실행 실패", error?.message); }
+
+  // 2) 성장 제안(다음 개선 행동)·회사 보안만 기존 제안기에서 가져온다(건강/CI/PR은 엔진이 담당 — 중복 방지)
+  const growth = generateProposals(snapshot, existing, { limit: 20 }).filter((p) => /:next$|:security$/.test(p.key));
+  for (const p of growth) {
+    if (existingKeys.has(p.key)) continue;
     try {
       const rec = await store.createRecord("approvals", {
         title: p.title, appId: p.appId, body: p.body, recommendation: p.recommendation,
         priority: p.priority, requestedBy: "auto-review", proposalKey: p.key, status: "pending",
       });
-      created.push(rec.id);
+      created.push(rec.id); existingKeys.add(p.key);
     } catch { /* 개별 실패는 건너뛴다 */ }
   }
   try {
     mkdirSync(DEFAULT_COMPANY_RUNTIME_DIR, { recursive: true, mode: 0o700 });
-    writeFileSync(REVIEW_MARKER, JSON.stringify({ at: new Date().toISOString(), everyMinutes: readReviewEveryMinutes(), created: created.length }), { mode: 0o600 });
+    writeFileSync(REVIEW_MARKER, JSON.stringify({ at: new Date().toISOString(), everyMinutes: readReviewEveryMinutes(), created: created.length, health: healthSummary }), { mode: 0o600 });
   } catch { /* 마커 기록 실패 무시 */ }
-  return { created: created.length };
+  return { created: created.length, health: healthSummary };
+}
+// 최근 health 요약(hq-status 노출용)
+function readHealthSummary() {
+  try { return JSON.parse(readFileSync(join(DEFAULT_COMPANY_RUNTIME_DIR, "health", "latest.json"), "utf8")).summary || null; }
+  catch { return null; }
 }
 
 async function handleApi(req, res, path, store, maxBodyBytes, snapDir) {
@@ -242,7 +273,7 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir) {
     recoverStaleLeases();
     const summary = queueSummary();
     if (summary.runner) summary.runner.managed = MANAGE_RUNNER; // 러너 자동 관리 여부는 서버가 정본
-    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED ? "token" : "local-only", reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES });
+    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED ? "token" : "local-only", reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary() });
     return;
   }
 
