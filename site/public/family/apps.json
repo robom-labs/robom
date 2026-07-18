@@ -81,7 +81,7 @@
       "mobileStatus": "pwa",
       "familySpecVersion": "1.0.0",
       "lastVerifiedAt": "2026-07-19T08:40:00+09:00",
-      "lastDeployedSha": "e878e9ccf9c0c62c32b44d51d012fa82b14faf85",
+      "lastDeployedSha": "e47aab2512118b341f993787fa5fbf6c12fbccc1",
       "lastDataSyncAt": "2026-07-12T00:00:00+09:00",
       "freshnessStatus": "fresh"
     },
@@ -164,8 +164,8 @@
       "stableInstallUrl": "https://robom.kr/get/notebom",
       "mobileStatus": "pwa",
       "familySpecVersion": "1.0.0",
-      "lastVerifiedAt": "2026-07-19T08:21:46+09:00",
-      "lastDeployedSha": "11f6e1f0670084e6ffcb3463ad39a00bcda491b9",
+      "lastVerifiedAt": "2026-07-19T08:28:36+09:00",
+      "lastDeployedSha": "7f3a848a2a4bfc8f26f86119fff983094a7eb8fb",
       "lastDataSyncAt": "2026-07-17T23:59:39+09:00",
       "freshnessStatus": "local-only"
     }
