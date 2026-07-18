@@ -124,7 +124,7 @@ apps:
     mobile_status: pwa
     family_spec_version: 1.0.0
     last_verified_at: "2026-07-18T14:17:25+09:00"
-    last_deployed_sha: 2ea90677ec7cb4e8488b2aa405573d9cdf93e8f7
+    last_deployed_sha: b7164e0496d7ee1b78c5eb7d3398db8b9225a20a
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720
