@@ -34,7 +34,7 @@
       "name": "청약봄",
       "englishName": "HomeBom",
       "repo": "robom-labs/homebom",
-      "version": "0.14.6",
+      "version": "0.14.7",
       "dataVersion": "official-notices-runtime-v1",
       "webUrl": "https://robom-labs.github.io/homebom/",
       "healthcheckUrl": "https://robom-labs.github.io/homebom/",
@@ -52,7 +52,7 @@
       "stableInstallUrl": "https://robom.kr/get/homebom",
       "mobileStatus": "pwa",
       "familySpecVersion": "1.0.0",
-      "lastVerifiedAt": "2026-07-18T14:14:02+09:00",
+      "lastVerifiedAt": "2026-07-18T14:35:19+09:00",
       "lastDeployedSha": "0fb86ad7db67dd5be950594b696e44c4c2117ea9",
       "lastDataSyncAt": "2026-07-17T21:05:01+09:00",
       "freshnessStatus": "runtime"

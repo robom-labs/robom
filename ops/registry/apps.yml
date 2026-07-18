@@ -37,7 +37,7 @@ apps:
     name: 청약봄
     english_name: HomeBom
     repo: robom-labs/homebom
-    version: 0.14.6
+    version: 0.14.7
     data_version: official-notices-runtime-v1
     version_source: https://raw.githubusercontent.com/robom-labs/homebom/main/apps/web/package.json
     web_url: https://robom-labs.github.io/homebom/
@@ -56,7 +56,7 @@ apps:
     stable_install_url: https://robom.kr/get/homebom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-18T14:14:02+09:00"
+    last_verified_at: "2026-07-18T14:35:19+09:00"
     last_deployed_sha: 0fb86ad7db67dd5be950594b696e44c4c2117ea9
     last_data_sync_at: "2026-07-17T21:05:01+09:00"
     freshness_status: runtime
