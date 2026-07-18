@@ -72,7 +72,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="1.5.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="1.6.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -129,8 +129,8 @@ function codexState(){
   const r=HQ.runner||{};
   if(HQ.control?.paused)return {cls:"warn",label:"일시정지",detail:"모든 자동작업이 멈춰 있습니다."};
   if(r.state==="running")return {cls:"busy",label:"작업 중",detail:`${appName(HQ.runningTask?.app)} · ${HQ.runningTask?.title||""}`};
-  if(r.state==="not_running")return {cls:"warn",label:"실행기 꺼짐",detail:"터미널에서 codex-runner를 켜세요."};
-  if(r.codex==="not_connected")return {cls:"warn",label:"Codex 미연결",detail:r.codexDetail||"codex login이 필요합니다."};
+  if(r.state==="not_running")return {cls:"warn",label:"실행기 꺼짐",detail:r.managed?"HQ가 자동으로 다시 켜는 중입니다.":"터미널에서 codex-runner를 켜세요."};
+  if(r.codex==="not_connected")return {cls:"warn",label:"Codex 미연결",detail:r.managed?"맥에서 codex login 한 번만 하면 이후 자동 실행됩니다.":(r.codexDetail||"codex login이 필요합니다.")};
   return {cls:"on",label:"대기 중",detail:`대기 ${HQ.pending||0}건 · 준비 완료 · ${ago(r.at)}`};
 }
 function healthSummary(){
@@ -230,8 +230,9 @@ function renderToday(){
         ${HQ?.nextTask?`<p class="fine">다음: ${esc(appName(HQ.nextTask.app))} · ${esc(HQ.nextTask.title||"")}</p>`:""}
         <div class="today-actions" style="margin-top:12px"><a class="button ghost" href="#/automation">${icon("chev")}자동화 현황판</a></div>`)}
       ${panel("자동 운영",`<div class="simple-list">
-        <div><b>매일 아침 자동 점검 → 결재 상신</b>${tonePill(autos.length?"gold":"good",autos.length?`상신 ${autos.length}건`:"이상 없음")}</div>
+        <div><b>하루 두 번(아침 6시·저녁 6시) 종합 점검 → 결재 상신</b>${tonePill(autos.length?"gold":"good",autos.length?`상신 ${autos.length}건`:"이상 없음")}</div>
         <div><b>10분 간격 앱 감시(워치독)</b>${tonePill(LOCAL.mode==="live"?"good":"neutral",LOCAL.mode==="live"?"가동":"본부 꺼짐")}</div>
+        <div><b>Codex 실행기 자동 관리</b>${tonePill(HQ?.runner?.managed?(HQ?.runner?.codex==="connected"?"good":"warn"):"neutral",HQ?.runner?.managed?(HQ?.runner?.codex==="connected"?"자동 실행 중":"로그인 대기"):"수동")}</div>
       </div>`)}
       ${panel("최근 활동",acts.length?`<div class="timeline">${acts.map(r=>`<div><time>${fmt(r.updatedAt||r.createdAt)}</time><div><b>${esc(COLLECTION_LABEL[r.collection]||r.collection)} · ${esc(r.title||"기록")}</b><p>${esc(simpleStatus(r.status||"open"))}${r.appId?` · ${esc(appName(r.appId))}`:""}</p></div></div>`).join("")}</div>`:empty("아직 기록된 활동이 없습니다."))}
     </div>
@@ -337,11 +338,11 @@ function renderAutomation(){
   ${HQ?.runningTask?panel("실행 중 작업",`<div class="record-list"><article><header><div><span>${esc(appName(HQ.runningTask.app))}</span><h3>${esc(HQ.runningTask.title)}</h3></div>${tonePill("accent","작업 중")}</header><p>시작 ${fmt(HQ.runningTask.lease?.claimedAt)} · 마지막 신호 ${ago(HQ.runningTask.lease?.heartbeatAt)}</p></article></div>`):""}
   ${HQ?.nextTask?panel("다음 대기",`<div class="simple-list"><div><b>${esc(appName(HQ.nextTask.app))} · ${esc(HQ.nextTask.title)}</b>${tonePill("neutral","대기")}</div></div>`):""}
   ${panel("자동 점검 → 결재",`<div class="simple-list">
-    <div><b>매일 아침 6개 앱 점검 후 개선 제안을 결재로 상신</b>${tonePill(autos?"gold":"good",autos?`상신 ${autos}건 대기`:"이상 없음")}</div>
+    <div><b>하루 두 번(아침 6시·저녁 6시) 6개 앱 종합 점검 후 개선 제안을 결재로 상신</b>${tonePill(autos?"gold":"good",autos?`상신 ${autos}건 대기`:"이상 없음")}</div>
     <a href="#/records/approvals"><b>결재함 열기</b><span class="status neutral">이동</span></a>
   </div>`)}
   ${panel("제어",`<div class="today-actions">${HQ?.control?.paused?button("자동작업 다시 시작","resume-all","secondary","","play"):button("모든 자동작업 일시정지","pause-all","danger","","pause")}${HQ?.control?.intakeClosed?button("새 작업 접수 재개","open-intake","secondary"):button("새 작업 접수 중지","close-intake","ghost")}</div>`)}
-  ${panel("연결 방법 (맥북에서 1회)",`<ol class="number-list"><li>터미널: <code>codex login</code> — 구독 계정 로그인 (API 키 금지)</li><li><code>node scripts/control-center/codex-runner.mjs</code> 실행 — 대기열 자동 처리</li><li>이 화면 상태가 '대기 중'으로 바뀌면 연결 완료</li></ol><p class="fine">연결 전에는 미연결로 정직하게 표시하며, 요청은 대기열에 안전 보관됩니다.</p>`)}`;
+  ${panel("연결 방법 (맥에서 딱 한 번)",`<ol class="number-list"><li>맥 터미널에서 한 번만: <code>codex login</code> — 구독 계정 로그인 (API 키 금지)</li><li>끝. ROBOM HQ가 실행기를 자동으로 켜고 감시합니다 — 이 앱을 켜 두기만 하면 승인한 작업이 자동 처리됩니다.</li></ol><p class="fine">${HQ?.runner?.managed?"실행기 자동 관리가 켜져 있습니다. ":""}로그인 전에는 미연결로 정직하게 표시하며, 요청은 대기열에 안전 보관됩니다. 실제 코드 수정에는 맥에 로봄 저장소 클론이 필요하며, HQ가 <code>~/robom-labs/robom</code> 등을 자동으로 찾습니다.</p>`)}`;
 }
 
 /* ── 기록: 그룹형 서브내비 ── */

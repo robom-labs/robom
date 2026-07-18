@@ -30,14 +30,27 @@ export function generateProposals(snapshot, existingApprovals = [], { limit = 5 
       title: `${app.name} 개선: ${next.length > 40 ? next.slice(0, 40) + "…" : next}`, body: next,
       recommendation: "핵심 행동까지의 단계를 줄이거나 오류를 낮추는 방향으로 작은 단위로 구현합니다." });
   }
-  // 3) 열린 PR이 오래 남아 있으면 정리 제안
+  // 3) CI 실패 → 배포 안전 점검(장애로 이미 잡히지 않은 경우만)
+  for (const app of family) {
+    if (app.health === "down") continue; // 장애 제안과 중복 방지
+    const failedCi = (app.ci || []).find((r) => r.conclusion === "failure");
+    if (failedCi) push({ appId: app.id, key: KEY(app.id, "ci"), priority: "high",
+      title: `${app.name} CI 실패 확인`, body: `${failedCi.name || "워크플로"} 실행이 실패로 끝났습니다.`,
+      recommendation: "실패 로그를 확인하고, 배포 전에 원인을 수정하거나 재실행합니다." });
+  }
+  // 4) 열린 PR이 오래 남아 있으면 정리 제안
   for (const app of family) {
     if ((app.openPrs || []).length) push({ appId: app.id, key: KEY(app.id, "pr"), priority: "normal",
       title: `${app.name} 열린 PR ${app.openPrs.length}건 검토`, body: "머지 대기 중인 변경이 남아 있습니다.",
       recommendation: "리뷰를 마치고 머지하거나, 필요 없으면 닫아 작업 흐름을 정리합니다." });
   }
+  // 5) 회사 차원 보안 점검 실패 → 보안 확인 제안(실측 점검 결과가 있을 때만)
+  const failedSecurity = (snapshot.operations?.security || []).filter((c) => c && c.ok === false);
+  if (failedSecurity.length) push({ appId: "", key: KEY("company", "security"), priority: "high",
+    title: `보안 점검 ${failedSecurity.length}건 확인 필요`, body: failedSecurity.map((c) => c.name).filter(Boolean).join(", ") || "보안 점검 항목이 통과하지 못했습니다.",
+    recommendation: "비밀값 노출·권한·외부 링크 등 실패 항목을 확인하고 조치합니다." });
 
-  // 장애 > 경고 > 다음개선 > PR 순으로 정렬해 상위 limit개
+  // 장애 > 경고·CI > 다음개선 > PR 순으로 정렬해 상위 limit개
   const rank = { urgent: 0, high: 1, normal: 2, low: 3 };
   out.sort((a, b) => (rank[a.priority] ?? 9) - (rank[b.priority] ?? 9));
   return out.slice(0, limit);

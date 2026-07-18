@@ -49,6 +49,7 @@ export function buildLaunchAgentPlist({ nodePath, scriptPath, workingDirectory, 
   <key>EnvironmentVariables</key>
   <dict>
     <key>ROBOM_HQ_OPEN_BROWSER</key><string>0</string>
+    <key>ROBOM_HQ_MANAGE_RUNNER</key><string>1</string>
     <key>PATH</key><string>${escapeXml(`${dirname(nodePath)}:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`)}</string>
   </dict>
   <key>RunAtLoad</key><true/>

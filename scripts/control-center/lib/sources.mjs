@@ -6,7 +6,13 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
 export const repoRootFromModuleUrl = (moduleUrl) => resolve(dirname(fileURLToPath(moduleUrl)), "../../..");
-export const REPO_ROOT = repoRootFromModuleUrl(import.meta.url);
+// 기본은 이 스크립트가 들어 있는 저장소. 단, 데스크톱 앱은 읽기 전용 payload에서 실행되므로
+// 실제 git 클론을 ROBOM_HQ_REPO_ROOT로 지정하면 그 클론을 정본으로 사용한다(러너가 실제 작업 가능).
+export const REPO_ROOT = (() => {
+  const override = process.env.ROBOM_HQ_REPO_ROOT;
+  if (override && existsSync(join(override, ".git"))) return resolve(override);
+  return repoRootFromModuleUrl(import.meta.url);
+})();
 
 export function readText(path) {
   try { return readFileSync(path, "utf8"); } catch { return null; }

@@ -46,7 +46,23 @@ function prepareDataDirs() {
   if (existsSync(example) && !existsSync(target)) copyFileSync(example, target);
   process.env.ROBOM_HQ_RUNTIME_DIR = runtimeDir;
   process.env.ROBOM_HQ_SNAP_DIR = snapDir;
-  return { runtimeDir, snapDir };
+  // 완전 자동: 서버가 codex-runner를 직접 실행·감시하게 한다(회장이 터미널을 열지 않아도 됨).
+  process.env.ROBOM_HQ_MANAGE_RUNNER = "1";
+  return { runtimeDir, snapDir, dataRoot };
+}
+
+// 첫 실행 시 로그인 자동 시작을 기본 ON으로 한다(이후에는 회장의 선택을 존중).
+function ensureLoginItemDefault(dataRoot) {
+  try {
+    const marker = join(dataRoot, "login-item-initialized");
+    if (existsSync(marker)) return;
+    if (process.platform === "darwin" || process.platform === "win32") {
+      app.setLoginItemSettings({ openAtLogin: true, openAsHidden: true });
+    }
+    require("node:fs").writeFileSync(marker, new Date().toISOString());
+  } catch (error) {
+    console.error("[robom-hq] 로그인 자동 시작 기본 설정 실패", error);
+  }
 }
 
 async function startServer() {
@@ -133,7 +149,8 @@ if (!gotLock) {
   app.on("second-instance", showWindow);
   app.whenReady().then(async () => {
     app.setName("ROBOM HQ");
-    prepareDataDirs();
+    const { dataRoot } = prepareDataDirs();
+    ensureLoginItemDefault(dataRoot);
     try {
       serverLink = await startServer();
     } catch (error) {

@@ -16,6 +16,7 @@ import {
   cancelPendingTask, enqueueTask, queueSummary, recoverStaleLeases, writeControl,
 } from "./lib/task-queue.mjs";
 import { generateProposals } from "./lib/propose-improvements.mjs";
+import { startRunnerSupervisor } from "./lib/runner-supervisor.mjs";
 import { REPO_ROOT } from "./lib/sources.mjs";
 
 const DEFAULT_PORT = Number(process.env.ROBOM_HQ_PORT || 4321);
@@ -29,6 +30,7 @@ const REVIEW_MARKER = join(DEFAULT_COMPANY_RUNTIME_DIR, "last-auto-review.json")
 const REMOTE_TOKEN = String(process.env.ROBOM_HQ_REMOTE_TOKEN || "").trim();
 const REMOTE_ENABLED = REMOTE_TOKEN.length >= 12;
 const WATCHDOG_MINUTES = Number(process.env.ROBOM_HQ_WATCH_MINUTES ?? 10);
+const MANAGE_RUNNER = process.env.ROBOM_HQ_MANAGE_RUNNER === "1"; // 데스크톱·자동시작에서 러너를 HQ가 직접 관리
 const AUTO_REVIEW = process.env.ROBOM_HQ_AUTO_REVIEW !== "0"; // 매일 자동 개선 제안(끄려면 0)
 // 첨부 이미지 매직바이트 → 확장자
 const IMAGE_SIGNATURES = [
@@ -158,13 +160,28 @@ function seoulDate(now = new Date()) {
   try { return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(now); }
   catch { return now.toISOString().slice(0, 10); }
 }
-// 매일 1회: 실제 스냅샷 신호로 개선 제안을 만들어 결재(approvals)에 올린다. 하루에 한 번만(마커로 방지).
-async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNAP_DIR, force = false } = {}) {
+function seoulHour(now = new Date()) {
+  try { return Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Seoul", hour: "numeric", hourCycle: "h23" }).format(now)); }
+  catch { return now.getUTCHours(); }
+}
+// 하루 두 번(아침 6시·저녁 6시) 점검 슬롯. 자정~새벽(00~05시)에는 예약 점검을 하지 않는다.
+export function currentReviewSlot(now = new Date()) {
+  const h = seoulHour(now);
+  if (h >= 18) return "pm";
+  if (h >= 6) return "am";
+  return null;
+}
+// 아침 6시·저녁 6시에 실제 스냅샷 신호로 종합 점검해 개선 제안을 결재(approvals)에 올린다.
+// 같은 슬롯에서 중복 상신하지 않도록 마커(날짜-슬롯)로 방지한다. 감시기가 10분마다 호출하므로
+// 06:00·18:00 직후 첫 호출에서 한 번씩만 실행된다.
+async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNAP_DIR, force = false, now = new Date() } = {}) {
   if (!AUTO_REVIEW && !force) return { skipped: "disabled" };
-  const today = seoulDate();
+  const slot = currentReviewSlot(now);
+  if (!force && !slot) return { skipped: "off-hours" };
+  const marker = `${seoulDate(now)}-${slot || "manual"}`;
   try {
-    if (!force && existsSync(REVIEW_MARKER) && JSON.parse(readFileSync(REVIEW_MARKER, "utf8")).date === today) {
-      return { skipped: "already-today" };
+    if (!force && existsSync(REVIEW_MARKER) && JSON.parse(readFileSync(REVIEW_MARKER, "utf8")).slot === marker) {
+      return { skipped: "already-done" };
     }
   } catch { /* 마커 손상 시 진행 */ }
   const snapshot = readSnapshotValue(snapDir);
@@ -184,7 +201,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
   }
   try {
     mkdirSync(DEFAULT_COMPANY_RUNTIME_DIR, { recursive: true, mode: 0o700 });
-    writeFileSync(REVIEW_MARKER, JSON.stringify({ date: today, created: created.length, at: new Date().toISOString() }), { mode: 0o600 });
+    writeFileSync(REVIEW_MARKER, JSON.stringify({ slot: marker, date: seoulDate(now), created: created.length, at: new Date().toISOString() }), { mode: 0o600 });
   } catch { /* 마커 기록 실패 무시 */ }
   return { created: created.length };
 }
@@ -203,7 +220,9 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir) {
   if (path === "/api/hq-status") {
     if (req.method !== "GET") { sendText(res, 405, "method not allowed", { Allow: "GET" }); return; }
     recoverStaleLeases();
-    sendJson(res, 200, { ok: true, ...queueSummary(), remote: REMOTE_ENABLED ? "token" : "local-only" });
+    const summary = queueSummary();
+    if (summary.runner) summary.runner.managed = MANAGE_RUNNER; // 러너 자동 관리 여부는 서버가 정본
+    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED ? "token" : "local-only" });
     return;
   }
 
@@ -478,7 +497,16 @@ export async function startControlCenter({ port = DEFAULT_PORT, openBrowser = tr
       const timer = setInterval(() => { buildSnapshotInBackground(); runDailyReviewIfDue().catch(() => {}); }, WATCHDOG_MINUTES * 60_000);
       timer.unref?.();
     }
-    if (AUTO_REVIEW) console.log("[robom-hq] 매일 자동 점검 활성 — 개선 제안을 '오늘' 화면 결재로 올립니다(끄려면 ROBOM_HQ_AUTO_REVIEW=0).");
+    if (AUTO_REVIEW) console.log("[robom-hq] 하루 두 번(아침 6시·저녁 6시) 종합 점검 — 개선 제안을 '오늘' 화면 결재로 올립니다(끄려면 ROBOM_HQ_AUTO_REVIEW=0).");
+    // 완전 자동: HQ가 codex-runner를 직접 실행·감시(터미널 불필요). 데스크톱/자동시작에서 켜진다.
+    if (MANAGE_RUNNER) {
+      try {
+        const supervisor = startRunnerSupervisor({ runtimeDir: DEFAULT_COMPANY_RUNTIME_DIR, snapDir: SNAP_DIR });
+        console.log(`[robom-hq] codex-runner 자동 관리 활성${supervisor.repoRoot ? ` · 작업 저장소 ${supervisor.repoRoot}` : " (작업 저장소 미발견 — 요청은 대기열에 안전 보관)"}`);
+      } catch (error) {
+        console.error("[robom-hq] 러너 자동 관리 시작 실패", error);
+      }
+    }
   }
   if (openBrowser) {
     const opener = process.platform === "darwin" ? "open" : process.platform === "win32" ? "cmd" : "xdg-open";
