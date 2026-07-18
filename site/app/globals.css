@@ -19,9 +19,9 @@
   --home: #0e9e67;
   --home-strong: #0b7a50;
   --home-soft: #e2f5ee;
-  --run: #57ab0d;
-  --run-strong: #34640a;
-  --run-soft: #eef7d6;
+  --run: #b8d61a;
+  --run-strong: #1d2014;
+  --run-soft: #f3fbd0;
   --cal: #5e77a6;
   --cal-strong: #3e547e;
   --cal-soft: #eceff6;
@@ -292,7 +292,7 @@ em { font-style: normal; }
 }
 
 @media (prefers-color-scheme: dark) {
-  :root { color-scheme: light; --ink: #17211d; --muted: #5f6e67; --paper: #fff8ef; --surface: #ffffff; --soft: #f6f0e7; --line: #eadfd2; --robom-soft: #e5f3f2; --out-soft: #e9f5fc; --home-soft: #eaf6ed; --run-soft: #fff0e7; --cal-soft: #f1ebfb; --cert-soft: #eef2ff; --note-soft: #fbe8f0; --shadow: 0 18px 50px rgba(91,67,44,.09); }
+  :root { color-scheme: light; --ink: #17211d; --muted: #5f6e67; --paper: #fff8ef; --surface: #ffffff; --soft: #f6f0e7; --line: #eadfd2; --robom-soft: #e5f3f2; --out-soft: #e9f5fc; --home-soft: #eaf6ed; --run-soft: #f3fbd0; --cal-soft: #f1ebfb; --cert-soft: #eef2ff; --note-soft: #f1ecf6; --shadow: 0 18px 50px rgba(91,67,44,.09); }
   .site-header { background: rgba(255, 248, 239, .92); }.family-preview { background: rgba(255, 255, 255, .94); }.button.primary { background: var(--ink); color: #fff; }.button.secondary, .desktop-nav a:hover { background: var(--surface); }.preview-hero > a { background: var(--ink); color: #fff; }.mobile-tabbar { background: rgba(255, 255, 255, .96); }
 }
 
