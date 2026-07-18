@@ -168,7 +168,7 @@ apps:
     name: 노트봄
     english_name: NoteBom
     repo: robom-labs/notebom
-    version: 0.2.5
+    version: 0.2.6
     data_version: local-schema-v1
     version_source: https://raw.githubusercontent.com/robom-labs/notebom/main/package.json
     web_url: https://robom-labs.github.io/notebom/
