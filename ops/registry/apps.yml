@@ -24,8 +24,8 @@ apps:
     stable_install_url: https://robom.kr/get/outbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-19T00:11:07+09:00"
-    last_deployed_sha: acec78cad2fc65ad2e99ae21d51ae71d553bec62
+    last_verified_at: "2026-07-19T00:40:00+09:00"
+    last_deployed_sha: 21e0883571b5413328a81d9185e3b57c99ed00a0
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
@@ -56,8 +56,8 @@ apps:
     stable_install_url: https://robom.kr/get/homebom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-19T00:11:07+09:00"
-    last_deployed_sha: 47e0d28889845f6c78d159d7453004fb5f0687cd
+    last_verified_at: "2026-07-19T00:40:00+09:00"
+    last_deployed_sha: 651dc0f37ace59c1707c1eb742e9fc9e06749d9b
     last_data_sync_at: "2026-07-17T21:05:01+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
@@ -123,8 +123,8 @@ apps:
     stable_install_url: https://robom.kr/get/calendarbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-19T00:11:07+09:00"
-    last_deployed_sha: b6fb935465cec298cec2becab3f1976e74eaea8c
+    last_verified_at: "2026-07-19T00:40:00+09:00"
+    last_deployed_sha: 7b4d0325ac0d8534a698747eda0e716545010b18
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720
@@ -155,8 +155,8 @@ apps:
     stable_install_url: https://robom.kr/get/certbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-19T00:11:07+09:00"
-    last_deployed_sha: 609975ffae13995e298f308223ccd981dd89b9d7
+    last_verified_at: "2026-07-19T00:40:00+09:00"
+    last_deployed_sha: ef11828197932b9725317bd418f3b2edd850dcdd
     last_data_sync_at: "2026-07-16T15:00:00+09:00"
     freshness_status: last-known-good
     freshness_slo_hours: 48
@@ -187,8 +187,8 @@ apps:
     stable_install_url: https://robom.kr/get/notebom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-19T00:11:07+09:00"
-    last_deployed_sha: 08ec32087402165ce2d976f5c3d7ed7874b52d88
+    last_verified_at: "2026-07-19T00:40:00+09:00"
+    last_deployed_sha: 85ed681323aeab9d49e4268973998c9e4c18d12d
     last_data_sync_at: "2026-07-17T23:59:39+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720

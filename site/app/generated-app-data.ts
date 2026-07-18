@@ -23,8 +23,8 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/outbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-19T00:11:07+09:00",
-    "lastDeployedSha": "acec78cad2fc65ad2e99ae21d51ae71d553bec62",
+    "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
+    "lastDeployedSha": "21e0883571b5413328a81d9185e3b57c99ed00a0",
     "lastDataSyncAt": "2026-07-16T13:42:23+09:00",
     "freshnessStatus": "runtime"
   },
@@ -51,8 +51,8 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/homebom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-19T00:11:07+09:00",
-    "lastDeployedSha": "47e0d28889845f6c78d159d7453004fb5f0687cd",
+    "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
+    "lastDeployedSha": "651dc0f37ace59c1707c1eb742e9fc9e06749d9b",
     "lastDataSyncAt": "2026-07-17T21:05:01+09:00",
     "freshnessStatus": "runtime"
   },
@@ -107,8 +107,8 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/calendarbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-19T00:11:07+09:00",
-    "lastDeployedSha": "b6fb935465cec298cec2becab3f1976e74eaea8c",
+    "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
+    "lastDeployedSha": "7b4d0325ac0d8534a698747eda0e716545010b18",
     "lastDataSyncAt": "2026-07-16T13:42:23+09:00",
     "freshnessStatus": "local-only"
   },
@@ -135,8 +135,8 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/certbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-19T00:11:07+09:00",
-    "lastDeployedSha": "609975ffae13995e298f308223ccd981dd89b9d7",
+    "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
+    "lastDeployedSha": "ef11828197932b9725317bd418f3b2edd850dcdd",
     "lastDataSyncAt": "2026-07-16T15:00:00+09:00",
     "freshnessStatus": "last-known-good"
   },
@@ -163,8 +163,8 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/notebom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-19T00:11:07+09:00",
-    "lastDeployedSha": "08ec32087402165ce2d976f5c3d7ed7874b52d88",
+    "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
+    "lastDeployedSha": "85ed681323aeab9d49e4268973998c9e4c18d12d",
     "lastDataSyncAt": "2026-07-17T23:59:39+09:00",
     "freshnessStatus": "local-only"
   }
