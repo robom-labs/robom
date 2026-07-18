@@ -187,8 +187,8 @@ apps:
     stable_install_url: https://robom.kr/get/notebom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-19T02:49:20+09:00"
-    last_deployed_sha: a6a83be4369a9da3e90de50d2624931816959b0d
+    last_verified_at: "2026-07-19T04:07:52+09:00"
+    last_deployed_sha: c07742206d8ab836d02f9c30ab3967f3b87d8d3f
     last_data_sync_at: "2026-07-17T23:59:39+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720
