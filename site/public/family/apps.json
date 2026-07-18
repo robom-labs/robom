@@ -90,7 +90,7 @@
       "name": "캘린더봄",
       "englishName": "CalendarBom",
       "repo": "robom-labs/calendarbom",
-      "version": "0.6.4",
+      "version": "0.6.5",
       "dataVersion": "local-schema-v3",
       "webUrl": "https://robom-labs.github.io/calendarbom/",
       "healthcheckUrl": "https://robom-labs.github.io/calendarbom/",
@@ -108,7 +108,7 @@
       "stableInstallUrl": "https://robom.kr/get/calendarbom",
       "mobileStatus": "pwa",
       "familySpecVersion": "1.0.0",
-      "lastVerifiedAt": "2026-07-18T14:17:25+09:00",
+      "lastVerifiedAt": "2026-07-18T14:38:16+09:00",
       "lastDeployedSha": "b7164e0496d7ee1b78c5eb7d3398db8b9225a20a",
       "lastDataSyncAt": "2026-07-16T13:42:23+09:00",
       "freshnessStatus": "local-only"
