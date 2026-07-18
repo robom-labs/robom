@@ -5,7 +5,7 @@ export const generatedAppMeta = [
     "name": "야외봄",
     "englishName": "OutBom",
     "repo": "robom-labs/outbom",
-    "version": "0.25.2",
+    "version": "0.25.3",
     "dataVersion": "runtime-weather-v1",
     "webUrl": "https://robom-labs.github.io/outbom/",
     "healthcheckUrl": "https://robom-labs.github.io/outbom/",
@@ -23,7 +23,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/outbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-18T12:12:02+09:00",
+    "lastVerifiedAt": "2026-07-18T14:19:47+09:00",
     "lastDeployedSha": "e1d93cfabcbba19a923111c5525db54f9dc92af4",
     "lastDataSyncAt": "2026-07-16T13:42:23+09:00",
     "freshnessStatus": "runtime"
