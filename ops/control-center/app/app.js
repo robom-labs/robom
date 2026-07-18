@@ -25,6 +25,7 @@ const ICON = {
   spark: SVG('<path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6L12 3Z"/>'),
   search: SVG('<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>'),
   book: SVG('<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5Z"/><path d="M8 3v14"/>'),
+  bulb: SVG('<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5.9 1.2.9 1.9v.2h5.2v-.2c0-.7.3-1.4.9-1.9A6 6 0 0 0 12 3Z"/>'),
   gavel: SVG('<path d="M14 4l6 6-3 3-6-6 3-3Z"/><path d="M11 7L4 14l3 3 7-7M3 21h9"/>'),
   chat: SVG('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.5A8 8 0 1 1 21 12Z"/>'),
   ship: SVG('<path d="M12 3v10M8 7l4-4 4 4"/><path d="M4 13l8 4 8-4M4 17l8 4 8-4"/>'),
@@ -46,8 +47,8 @@ const NAV = [
   { id: "records", name: "기록", icon: "archive", hash: "#/records/approvals" },
 ];
 const REC_SECTIONS = [
-  { group: "업무 흐름", items: [["approvals", "결재", "gavel"], ["memory", "기억", "search"]] },
-  { group: "운영 기록", items: [["meetings", "회의", "chat"], ["decisions", "결정", "book"], ["incidents", "장애", "alert"]] },
+  { group: "업무 흐름", items: [["approvals", "결재", "gavel"], ["ideas", "아이디어", "bulb"], ["memory", "기억", "search"]] },
+  { group: "운영 기록", items: [["incidents", "장애", "alert"]] },
   { group: "시스템", items: [["delivery", "배포", "ship"], ["data", "데이터", "db"], ["backup", "백업", "save"], ["connections", "연결", "link"], ["security", "보안", "shield"], ["settings", "설정", "cog"]] },
 ];
 const REC_IDS = REC_SECTIONS.flatMap((g) => g.items.map(([id]) => id));
@@ -55,7 +56,7 @@ const REC_IDS = REC_SECTIONS.flatMap((g) => g.items.map(([id]) => id));
 const SIMPLE_STATUS = {queued:"대기",received:"대기",pending:"대기",open:"대기",assigned:"작업 중",in_progress:"작업 중",implementing:"작업 중",working:"작업 중",investigating:"작업 중",verifying:"검토 중",in_review:"검토 중",fixing:"작업 중",approval_pending:"승인 필요",deploying:"배포 중",completed:"완료",done:"완료",resolved:"완료",approved:"승인",blocked:"막힘",needs_check:"막힘",failed:"실패",cancelled:"취소",dismissed:"취소",held:"보류",on_hold:"보류",rejected:"반려",external_wait:"막힘",scheduled:"대기",active:"대기",proposed:"대기",draft:"대기",decided:"완료",closed:"완료",archived:"완료"};
 const STATUS_TONE = {대기:"neutral","작업 중":"accent","검토 중":"warn","승인 필요":"gold","배포 중":"accent",완료:"good",승인:"good",막힘:"bad",실패:"bad",취소:"neutral",보류:"neutral",반려:"bad"};
 const HEALTH = {ok:["정상","good"],warn:["확인 필요","warn"],down:["막힘","bad"],unknown:["확인 중","neutral"],running:["작업 중","accent"],planned:["준비 중","neutral"]};
-const COLLECTION_LABEL = {meetings:"회의",decisions:"결정",approvals:"결재",requests:"요청",reviews:"검수",tasks:"업무",notes:"메모",incidents:"장애",feedback:"사용자 의견"};
+const COLLECTION_LABEL = {meetings:"회의",decisions:"결정",approvals:"결재",requests:"요청",reviews:"검수",tasks:"업무",notes:"아이디어",incidents:"장애",feedback:"사용자 의견"};
 const AUTONOMY_LABEL = {research_only:"조사만 하고 보고",implement_and_review:"고친 뒤 내 확인 대기",implement_test_wait_for_deploy:"고치고 테스트까지, 배포는 대기",guarded_auto_deploy:"안전장치 걸고 배포까지 자동"};
 const OPEN_DONE = ["approved","rejected","closed","completed","cancelled","dismissed","done","resolved","archived"];
 const esc = (s)=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -71,7 +72,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="1.4.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="1.5.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -365,9 +366,8 @@ function recBody(){
       ${open.length?`<div class="approval-list">${open.map(r=>decreeCard(r)).join("")}</div>`:empty("회장 재가가 필요한 안건이 없습니다.","비용·계정·복구 불가능한 결정, 그리고 시스템 개선 제안이 여기로 올라와요.")}
       ${done.length?`<section class="panel" style="margin-top:16px"><div class="panel-title"><span>처리 완료</span><span class="pt-count">${done.length}</span></div><div class="approval-list">${done.slice(0,6).map(r=>decreeCard(r)).join("")}</div></section>`:""}`;
     }
+    case "ideas":return ideasBody();
     case "memory":return `<div class="memory-search"><input id="memoryInput" type="search" placeholder="예: 청약봄 가격 비교를 왜 보류했지" value="${attr(MEMORY_Q)}" />${button("검색","search-memory","primary","","search")}</div><div id="memoryResults">${memoryResults(MEMORY_Q)}</div>`;
-    case "meetings":return `<div class="panel-actions">${button("회의 기록","new-record","primary",'data-collection="meetings"',"plus")}</div>${recordList("meetings",{emptyTitle:"저장된 회의가 없습니다."})}`;
-    case "decisions":return `<div class="panel-actions">${button("결정 기록","new-record","primary",'data-collection="decisions"',"plus")}</div>${recordList("decisions",{emptyTitle:"저장된 결정이 없습니다."})}`;
     case "incidents":{
       const down=familyApps().filter(a=>a.health==="down");
       return `<div class="panel-actions">${button("장애 기록","new-record","primary",'data-collection="incidents"',"plus")}</div>${down.length?`<div class="incident-banner">${icon("alert")}<b>운영 장애 ${down.length}건</b><span>${esc(down.map(a=>a.name).join(", "))}</span></div>`:""}${recordList("incidents",{emptyTitle:"기록된 장애가 없습니다."})}`;
@@ -389,7 +389,37 @@ function recBody(){
     default:return empty("준비되지 않은 탭입니다.");
   }
 }
-function memoryResults(q){const all=Object.entries(LOCAL.records||{}).flatMap(([c,l])=>(l||[]).map(r=>({...r,collection:c})));const n=q.trim().toLowerCase(),found=n?all.filter(r=>JSON.stringify(r).toLowerCase().includes(n)):all.slice(0,12);return found.length?`<div class="memory-list">${found.map(r=>`<article><span>${esc(COLLECTION_LABEL[r.collection]||r.collection)} · ${fmt(r.createdAt)}</span><h3>${esc(r.title||"기록")}</h3><p>${esc(r.body||r.problem||"")}</p>${r.appId?`<small class="fine">${esc(appName(r.appId))}</small>`:""}</article>`).join("")}</div>`:empty(n?"검색 결과가 없습니다.":"아직 회사 기억이 없습니다.","회의·결정·업무가 쌓이면 여기서 검색할 수 있어요.")}
+function memoryResults(q){const all=Object.entries(LOCAL.records||{}).flatMap(([c,l])=>(l||[]).map(r=>({...r,collection:c}))).filter(r=>r.status!=="archived");const n=q.trim().toLowerCase(),found=n?all.filter(r=>JSON.stringify(r).toLowerCase().includes(n)):all.slice(0,12);return found.length?`<div class="memory-list">${found.map(r=>`<article><span>${esc(COLLECTION_LABEL[r.collection]||r.collection)} · ${fmt(r.createdAt)}</span><h3>${esc(r.title||"기록")}</h3><p>${esc(r.body||r.problem||"")}</p>${r.appId?`<small class="fine">${esc(appName(r.appId))}</small>`:""}</article>`).join("")}</div>`:empty(n?"검색 결과가 없습니다.":"아직 회사 기억이 없습니다.","결재·업무·아이디어가 쌓이면 여기서 검색할 수 있어요.")}
+
+/* ── 아이디어 메모장 (앱 선택 + 자유 메모, 결재로 올릴 필요 없는 가벼운 기록) ── */
+function ideasBody(){
+  const notes=records("notes").filter(r=>r.status!=="archived");
+  const opts=`<option value="">회사 전체</option>`+familyApps().map(a=>`<option value="${attr(a.id)}">${esc(a.name)}</option>`).join("")+`<option value="robom">로봄 본사</option>`;
+  return `<div class="memo-compose">
+    <div class="memo-row"><label>어느 앱 아이디어인가요?</label><select id="memoApp">${opts}</select></div>
+    <textarea id="memoText" placeholder="떠오른 아이디어·개선점을 자유롭게 적어 두세요. 결재로 올릴 것 없이 그냥 메모입니다."></textarea>
+    <div class="memo-foot">${button("메모 저장","save-memo","gold","","plus")}</div>
+  </div>
+  ${notes.length?`<div class="memo-list">${notes.map(memoCard).join("")}</div>`:empty("아직 저장한 아이디어가 없습니다.","위에서 앱을 고르고 떠오른 생각을 적어 저장해 보세요.")}`;
+}
+function memoCard(r){
+  return `<article class="memo-card" ${r.appId?`style="--app:${accent(r.appId)}"`:""}><div class="mc-top"><span class="mc-app">${esc(r.appId?appName(r.appId):"회사 전체")}</span><time>${fmt(r.createdAt)}</time></div><p>${esc(r.body||r.title||"")}</p><button class="mc-del" type="button" data-action="delete-memo" data-id="${attr(r.id)}">삭제</button></article>`;
+}
+async function saveMemo(){
+  const text=($("#memoText")?.value||"").trim();
+  if(!text){showToast("내용을 적어 주세요.","warn");return;}
+  const appId=$("#memoApp")?.value||"";
+  const payload={title:text.slice(0,40).replace(/\s+/g," ")||"메모",body:text,appId,priority:"normal"};
+  if(!preview){const data=await fetchJson("/api/records/notes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});applyState(data.state);}
+  else{const l=LOCAL.records.notes||=[];l.unshift({...payload,id:`local-${Date.now()}`,status:"active",createdAt:new Date().toISOString()});savePortable();}
+  showToast("아이디어를 저장했습니다.","good");renderScreen();
+}
+async function deleteMemo(id){
+  if(!id)return;
+  if(!preview){const data=await fetchJson(`/api/records/notes/${encodeURIComponent(id)}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status:"archived"})});applyState(data.state);}
+  else{const r=(LOCAL.records.notes||[]).find(x=>x.id===id);if(r)r.status="archived";savePortable();}
+  showToast("메모를 정리했습니다.","good");renderScreen();
+}
 function connectionMarkup(){const c=SNAP.connections||{};return `<div class="connection-list">${[["로컬 본부",LOCAL.mode==="live","실시간 기록·백업"],["GitHub",String(c.github).startsWith("connected"),c.github],["작업 이벤트",c.events==="connected",c.events],["Claude Code",!String(c.claudeCode).includes("pending"),c.claudeCode],["Codex 실행기",HQ?.runner?.codex==="connected","codex-runner"],["휴대폰 원격",HQ?.remote==="token","토큰 인증 사설망"]].map(([nm,ok,d])=>`<div>${tonePill(ok?"good":"neutral",ok?"연결":"대기")}<b>${esc(nm)}</b><span>${esc(d===true||d===false?"":(d||""))}</span></div>`).join("")}</div>`;}
 function recordList(collection,opt={}){const items=opt.items||records(collection);return items.length?`<div class="record-list">${items.map(r=>`<article><header><div><span>${esc(appName(r.appId))} · ${fmt(r.createdAt)}</span><h3>${esc(r.title||COLLECTION_LABEL[collection]||"기록")}</h3></div>${statusPill(r.status||"open")}</header>${r.body?`<p>${esc(r.body)}</p>`:""}</article>`).join("")}</div>`:empty(opt.emptyTitle||`저장된 ${COLLECTION_LABEL[collection]||"기록"}이 없습니다.`);}
 function renderNotReady(){return `${title("ROBOM HQ","로봄 본부","실제 연결 상태를 기준으로 표시합니다.")}${empty("표시할 정보가 없습니다.")}`;}
@@ -496,6 +526,8 @@ document.addEventListener("click",async e=>{
     if(a==="new-task")openTaskDialog(SELECTED_APP||"");
     else if(a==="new-task-for")openTaskDialog(action.dataset.appId||"");
     else if(a==="new-record")openRecord(action.dataset.collection);
+    else if(a==="save-memo")await saveMemo();
+    else if(a==="delete-memo")await deleteMemo(action.dataset.id);
     else if(a==="patch-record")await patchRecord(action.dataset.collection,action.dataset.id,action.dataset.status);
     else if(a==="approve-proposal")await approveProposal(action.dataset.id);
     else if(a==="pause-all")await setControl({paused:true},"모든 자동작업을 일시정지했습니다.");
