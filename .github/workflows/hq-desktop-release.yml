@@ -62,7 +62,7 @@ jobs:
           gh release create "$TAG" \
             --target "$GITHUB_SHA" \
             --title "ROBOM HQ ${TAG#hq-}" \
-            --notes "ROBOM HQ 데스크톱 앱 (미서명 빌드 — 맥: 우클릭→열기 1회 필요 / 윈도우: SmartScreen '추가 정보→실행'). 설치·사용법: docs/hq/CEO-QUICK-GUIDE.md" \
+            --notes "ROBOM HQ 데스크톱 앱 (맥은 ad-hoc 서명 — 우클릭→열기 1회. '손상됨' 뜨면 터미널 'xattr -cr \"/Applications/ROBOM HQ.app\"' / 윈도우: SmartScreen '추가 정보→실행'). 설치·사용법: docs/hq/CEO-QUICK-GUIDE.md" \
             2>/dev/null || true
           shopt -s nullglob
           files=(desktop/dist/*.dmg desktop/dist/*.zip desktop/dist/*.exe)

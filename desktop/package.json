@@ -1,7 +1,7 @@
 {
   "name": "robom-hq",
   "productName": "ROBOM HQ",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "로봄 전용 자율 운영 본사 — 모든 로봄 앱을 감시·관리·개선하는 데스크톱 프로그램",
   "author": "robom-labs",
   "license": "UNLICENSED",
@@ -20,6 +20,7 @@
     "appId": "kr.robom.hq",
     "productName": "ROBOM HQ",
     "asar": true,
+    "afterPack": "build/after-pack.cjs",
     "files": [
       "main.cjs"
     ],

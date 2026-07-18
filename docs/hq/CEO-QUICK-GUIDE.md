@@ -3,7 +3,9 @@
 ## 설치 (회사컴·맥북)
 
 1. https://github.com/robom-labs/robom/releases 에서 최신 `hq-v*` 릴리스를 연다.
-2. **맥**: `ROBOM-HQ-*-mac-arm64.dmg`(M1/M2/M3/M4) 또는 `-x64.dmg`(인텔) 다운로드 → 열어서 `ROBOM HQ.app`을 응용 프로그램에 끌어넣기 → **처음 한 번만 우클릭 → 열기** (미서명 앱이라 필요).
+2. **맥**: `ROBOM-HQ-*-mac-arm64.dmg`(M1/M2/M3/M4) 또는 `-x64.dmg`(인텔) 다운로드 → 열어서 `ROBOM HQ.app`을 응용 프로그램에 끌어넣기 → **처음 한 번만 우클릭 → 열기 → 열기** (미서명 앱이라 필요).
+   - "**손상되었기 때문에 열 수 없습니다**"가 뜨면(다운로드 검역 때문): 응용 프로그램에 넣은 뒤 터미널에 한 줄:
+     `xattr -cr "/Applications/ROBOM HQ.app"` → 다시 실행. (그래도 안 되면 같은 줄 뒤에 `; codesign --force --deep -s - "/Applications/ROBOM HQ.app"`)
 3. **윈도우**: `ROBOM-HQ-Setup-*-win-x64.exe` 다운로드 → 실행. SmartScreen이 막으면 **추가 정보 → 실행**.
 4. 창을 닫아도 메뉴 막대(트레이)에서 계속 감시한다. 완전 종료는 트레이 → 완전 종료.
 

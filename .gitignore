@@ -26,3 +26,7 @@ ops/control-center/events/*.jsonl
 ops/control-center/snapshots/latest.json
 ops/control-center/runtime/
 desktop/payload/
+
+# desktop 앱 빌드 자산(아이콘·훅)은 소스라 추적
+!desktop/build/
+!desktop/build/**
