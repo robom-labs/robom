@@ -74,13 +74,24 @@ test("결재는 정식 문서(decree) + 도장(seal)으로 표현한다", () => 
   assert.match(server, /generateProposals/);
 });
 
-test("오늘은 다열 미션 컨트롤: KPI·확인할 일·포트폴리오 매트릭스·최근 활동", () => {
+test("오늘은 다열 미션 컨트롤: KPI(클릭 가능)·확인할 일·포트폴리오 매트릭스·최근 활동", () => {
   assert.match(app, /kpi-row/);
   assert.match(app, /attn-list/);
   assert.match(app, /function matrixTable/);
   assert.match(app, /class="timeline"/);
   assert.match(css, /\.grid\.main-side/);
   assert.match(css, /\.matrix\b/);
+  // KPI 4장은 각각 관련 화면으로 이동하는 링크(클릭 가능)
+  assert.match(app, /"#\/tasks"\)\}/); assert.match(app, /"#\/records\/approvals"\)\}/);
+  assert.match(app, /class="kpi \$\{tone\} clickable"/);
+  assert.match(css, /\.kpi\.clickable/);
+});
+
+test("전체 화면 밀도 축소(약 2/3) — 데스크톱만, 모바일은 원본 크기", () => {
+  assert.match(css, /--ui-zoom:\.72/);
+  assert.match(css, /\.hq\{zoom:var\(--ui-zoom\)/);
+  assert.match(css, /width:calc\(100vw \/ var\(--ui-zoom\)\)/);
+  assert.match(css, /@media \(max-width:820px\)\{\s*:root\{--ui-zoom:1\}/);
 });
 
 test("폴링은 표적 갱신: 상태 서명 비교 + 스크롤 보존 + 입력 중 재렌더 금지", () => {
@@ -199,14 +210,17 @@ test("완전 자동: HQ가 codex-runner를 관리하고 하루 2회(6시·18시)
   assert.match(server, /ROBOM_HQ_MANAGE_RUNNER/);
   assert.match(server, /startRunnerSupervisor/);
   assert.match(server, /function currentReviewSlot|currentReviewSlot\(/);
-  assert.match(server, /h >= 18/); assert.match(server, /h >= 6/);
+  assert.match(server, /REVIEW_HOURS/); // 하루 N회 예약 점검(설정 가능)
+  assert.match(server, /ROBOM_HQ_REVIEW_HOURS/);
+  assert.match(server, /reviewHours/); // hq-status로 점검 시각 노출
   // 데스크톱이 관리 러너 켜고 로그인 자동시작 기본 ON
   const main = readFileSync(join(REPO_ROOT, "desktop/main.cjs"), "utf8");
   assert.match(main, /ROBOM_HQ_MANAGE_RUNNER = "1"/);
   assert.match(main, /setLoginItemSettings\(\{ openAtLogin: true/);
-  // UI가 자동 관리·2회 점검을 정직하게 표시
+  // UI가 자동 관리·점검 횟수를 정직하게 표시(점검 시각은 hq-status의 reviewHours로 동적 표기)
   assert.match(app, /자동으로 다시 켜는 중|자동 실행 중|자동 관리/);
-  assert.match(app, /아침 6시·저녁 6시/);
+  assert.match(app, /function reviewLabel/);
+  assert.match(app, /reviewHours/);
 });
 
 test("상단에 설치 버전을 항상 표시하고 실제 앱 버전과 맞춘다", () => {

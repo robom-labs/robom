@@ -72,7 +72,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="1.6.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="1.7.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -184,7 +184,8 @@ function stateSignature(){
   return JSON.stringify({hq,rec:LOCAL.records});
 }
 function title(k,t,d,a=""){return `<header class="page-head"><div><small>${esc(k)}</small><h1>${esc(t)}</h1>${d?`<p>${esc(d)}</p>`:""}</div>${a?`<div class="head-actions">${a}</div>`:""}</header>`;}
-function kpi(v,l,tone="",note=""){return `<div class="kpi ${tone}"><b>${esc(v)}</b><span>${esc(l)}</span>${note?`<small>${esc(note)}</small>`:""}</div>`;}
+function kpi(v,l,tone="",note="",go=""){const inner=`<b>${esc(v)}</b><span>${esc(l)}</span>${note?`<small>${esc(note)}</small>`:`<small class="kpi-go">${go?"눌러서 보기 →":""}</small>`}`;return go?`<a class="kpi ${tone} clickable" href="${attr(go)}" aria-label="${attr(l)} 자세히">${inner}</a>`:`<div class="kpi ${tone}">${inner}</div>`;}
+function reviewLabel(){const rh=(HQ?.reviewHours)||[];return rh.length?`하루 ${rh.length}번(${rh.map(h=>h+"시").join("·")})`:"하루 여러 번";}
 function panel(l,body,extra="",cls=""){return `<section class="panel ${cls}"><div class="panel-title"><span>${esc(l)}</span>${extra}</div>${body}</section>`;}
 function empty(main,sub=""){return `<div class="empty-state">${icon("spark")}<b>${esc(main)}</b>${sub?`<p>${esc(sub)}</p>`:""}</div>`;}
 function button(label,action,kind="ghost",extra="",ic=""){return `<button class="button ${kind}" type="button" data-action="${action}" ${extra}>${ic?icon(ic):""}${label}</button>`;}
@@ -213,10 +214,10 @@ function renderToday(){
   const dateLine=new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",dateStyle:"full"}).format(new Date());
   return `${title("MISSION CONTROL","오늘",dateLine,`${HQ?.control?.paused?button("자동작업 다시 시작","resume-all","secondary","","play"):button("모든 자동작업 일시정지","pause-all","danger","","pause")}`)}
   <div class="kpi-row">
-    ${kpi(HQ?HQ.pending??0:openCount("tasks"),"대기 중 요청",HQ?.pending?"accent":"")}
-    ${kpi(HQ?.running??0,"Codex 작업 중",HQ?.running?"accent":"")}
-    ${kpi(review,"회장 확인 필요",review?"warn":"")}
-    ${kpi(blocked,"막힘·장애",blocked?"bad":"good",blocked?"먼저 확인하세요":"모두 순항")}
+    ${kpi(HQ?HQ.pending??0:openCount("tasks"),"대기 중 요청",HQ?.pending?"accent":"","","#/tasks")}
+    ${kpi(HQ?.running??0,"Codex 작업 중",HQ?.running?"accent":"","","#/automation")}
+    ${kpi(review,"회장 확인 필요",review?"warn":"","","#/records/approvals")}
+    ${kpi(blocked,"막힘·장애",blocked?"bad":"good",blocked?"먼저 확인하세요":undefined,"#/apps")}
   </div>
   <div class="grid main-side">
     <div>
@@ -230,7 +231,7 @@ function renderToday(){
         ${HQ?.nextTask?`<p class="fine">다음: ${esc(appName(HQ.nextTask.app))} · ${esc(HQ.nextTask.title||"")}</p>`:""}
         <div class="today-actions" style="margin-top:12px"><a class="button ghost" href="#/automation">${icon("chev")}자동화 현황판</a></div>`)}
       ${panel("자동 운영",`<div class="simple-list">
-        <div><b>하루 두 번(아침 6시·저녁 6시) 종합 점검 → 결재 상신</b>${tonePill(autos.length?"gold":"good",autos.length?`상신 ${autos.length}건`:"이상 없음")}</div>
+        <div><b>${reviewLabel()} 종합 점검 → 결재 상신</b>${tonePill(autos.length?"gold":"good",autos.length?`상신 ${autos.length}건`:"이상 없음")}</div>
         <div><b>10분 간격 앱 감시(워치독)</b>${tonePill(LOCAL.mode==="live"?"good":"neutral",LOCAL.mode==="live"?"가동":"본부 꺼짐")}</div>
         <div><b>Codex 실행기 자동 관리</b>${tonePill(HQ?.runner?.managed?(HQ?.runner?.codex==="connected"?"good":"warn"):"neutral",HQ?.runner?.managed?(HQ?.runner?.codex==="connected"?"자동 실행 중":"로그인 대기"):"수동")}</div>
       </div>`)}
@@ -338,7 +339,7 @@ function renderAutomation(){
   ${HQ?.runningTask?panel("실행 중 작업",`<div class="record-list"><article><header><div><span>${esc(appName(HQ.runningTask.app))}</span><h3>${esc(HQ.runningTask.title)}</h3></div>${tonePill("accent","작업 중")}</header><p>시작 ${fmt(HQ.runningTask.lease?.claimedAt)} · 마지막 신호 ${ago(HQ.runningTask.lease?.heartbeatAt)}</p></article></div>`):""}
   ${HQ?.nextTask?panel("다음 대기",`<div class="simple-list"><div><b>${esc(appName(HQ.nextTask.app))} · ${esc(HQ.nextTask.title)}</b>${tonePill("neutral","대기")}</div></div>`):""}
   ${panel("자동 점검 → 결재",`<div class="simple-list">
-    <div><b>하루 두 번(아침 6시·저녁 6시) 6개 앱 종합 점검 후 개선 제안을 결재로 상신</b>${tonePill(autos?"gold":"good",autos?`상신 ${autos}건 대기`:"이상 없음")}</div>
+    <div><b>${reviewLabel()} 6개 앱 종합 점검 후 개선 제안을 결재로 상신</b>${tonePill(autos?"gold":"good",autos?`상신 ${autos}건 대기`:"이상 없음")}</div>
     <a href="#/records/approvals"><b>결재함 열기</b><span class="status neutral">이동</span></a>
   </div>`)}
   ${panel("제어",`<div class="today-actions">${HQ?.control?.paused?button("자동작업 다시 시작","resume-all","secondary","","play"):button("모든 자동작업 일시정지","pause-all","danger","","pause")}${HQ?.control?.intakeClosed?button("새 작업 접수 재개","open-intake","secondary"):button("새 작업 접수 중지","close-intake","ghost")}</div>`)}
@@ -383,7 +384,7 @@ function recBody(){
       <article><div><h3>프로그램 버전</h3><p>ROBOM HQ v${esc(APP_VERSION)} — 상단 금색 버전 칩과 동일하면 최신 설치본입니다.</p></div>${tonePill("gold",`v${APP_VERSION}`)}</article>
       <article><div><h3>휴대폰 연결</h3><p>${HQ?.remote==="token"?"토큰 인증으로 사설망 접속 허용됨":"이 컴퓨터 전용(127.0.0.1) — docs/hq/REMOTE-ACCESS.md"}</p></div>${tonePill(HQ?.remote==="token"?"accent":"good",HQ?.remote==="token"?"원격 허용":"비공개")}</article>
       <article><div><h3>추가 운영비</h3><p>유료 API·상시 유료 서버 없이 로컬 Node.js와 GitHub 무료 범위만 사용.</p></div>${tonePill("good","0원")}</article>
-      <article><div><h3>자동 점검</h3><p>매일 아침 6개 앱을 점검해 개선 제안을 결재로 상신합니다.</p></div>${tonePill("accent","매일")}</article>
+      <article><div><h3>자동 점검</h3><p>${reviewLabel()} 6개 앱을 점검해 개선 제안을 결재로 상신합니다.</p></div>${tonePill("accent",`하루 ${(HQ?.reviewHours||[]).length||"—"}회`)}</article>
       <article><div><h3>회장이 직접 할 일</h3><p>${(SNAP.operations?.humanTasks||[]).slice(0,3).map(esc).join(" · ")||"현재 없음"}</p></div></article>
       <article><div><h3>부가기능 · 로봄 오피스</h3><p>살아있는 6층 오피스(실제 이벤트 연동)</p></div><a class="button ghost" href="./office.html">오피스 보기</a></article>
     </div>`;

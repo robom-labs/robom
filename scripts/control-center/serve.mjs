@@ -31,6 +31,12 @@ const REMOTE_TOKEN = String(process.env.ROBOM_HQ_REMOTE_TOKEN || "").trim();
 const REMOTE_ENABLED = REMOTE_TOKEN.length >= 12;
 const WATCHDOG_MINUTES = Number(process.env.ROBOM_HQ_WATCH_MINUTES ?? 10);
 const MANAGE_RUNNER = process.env.ROBOM_HQ_MANAGE_RUNNER === "1"; // 데스크톱·자동시작에서 러너를 HQ가 직접 관리
+// 하루 자동 점검 시각(서울 기준 시). 점검은 로컬·무료라 자주 돌려도 안전하다(기본 4번). 최대 12번으로 제한.
+const REVIEW_HOURS = (() => {
+  const raw = String(process.env.ROBOM_HQ_REVIEW_HOURS || "6,11,16,21");
+  const hours = [...new Set(raw.split(",").map((n) => parseInt(n, 10)).filter((h) => Number.isInteger(h) && h >= 0 && h <= 23))].sort((a, b) => a - b);
+  return hours.length ? hours.slice(0, 12) : [6, 18];
+})();
 const AUTO_REVIEW = process.env.ROBOM_HQ_AUTO_REVIEW !== "0"; // 매일 자동 개선 제안(끄려면 0)
 // 첨부 이미지 매직바이트 → 확장자
 const IMAGE_SIGNATURES = [
@@ -164,12 +170,12 @@ function seoulHour(now = new Date()) {
   try { return Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Seoul", hour: "numeric", hourCycle: "h23" }).format(now)); }
   catch { return now.getUTCHours(); }
 }
-// 하루 두 번(아침 6시·저녁 6시) 점검 슬롯. 자정~새벽(00~05시)에는 예약 점검을 하지 않는다.
-export function currentReviewSlot(now = new Date()) {
+// 예약된 점검 시각(REVIEW_HOURS) 중 지금까지 지난 가장 최근 시각을 이번 슬롯으로 삼는다.
+// 예: [6,11,16,21]에서 14시면 "11". 첫 예약 시각(06시) 전이면 null(점검 안 함).
+export function currentReviewSlot(now = new Date(), hours = REVIEW_HOURS) {
   const h = seoulHour(now);
-  if (h >= 18) return "pm";
-  if (h >= 6) return "am";
-  return null;
+  const passed = hours.filter((x) => h >= x);
+  return passed.length ? String(passed[passed.length - 1]) : null;
 }
 // 아침 6시·저녁 6시에 실제 스냅샷 신호로 종합 점검해 개선 제안을 결재(approvals)에 올린다.
 // 같은 슬롯에서 중복 상신하지 않도록 마커(날짜-슬롯)로 방지한다. 감시기가 10분마다 호출하므로
@@ -222,7 +228,7 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir) {
     recoverStaleLeases();
     const summary = queueSummary();
     if (summary.runner) summary.runner.managed = MANAGE_RUNNER; // 러너 자동 관리 여부는 서버가 정본
-    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED ? "token" : "local-only" });
+    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED ? "token" : "local-only", reviewHours: AUTO_REVIEW ? REVIEW_HOURS : [] });
     return;
   }
 
@@ -497,7 +503,7 @@ export async function startControlCenter({ port = DEFAULT_PORT, openBrowser = tr
       const timer = setInterval(() => { buildSnapshotInBackground(); runDailyReviewIfDue().catch(() => {}); }, WATCHDOG_MINUTES * 60_000);
       timer.unref?.();
     }
-    if (AUTO_REVIEW) console.log("[robom-hq] 하루 두 번(아침 6시·저녁 6시) 종합 점검 — 개선 제안을 '오늘' 화면 결재로 올립니다(끄려면 ROBOM_HQ_AUTO_REVIEW=0).");
+    if (AUTO_REVIEW) console.log(`[robom-hq] 하루 ${REVIEW_HOURS.length}번(${REVIEW_HOURS.map((h) => `${h}시`).join("·")}) 종합 점검 — 개선 제안을 '오늘' 화면 결재로 올립니다(시각 조정: ROBOM_HQ_REVIEW_HOURS, 끄기: ROBOM_HQ_AUTO_REVIEW=0).`);
     // 완전 자동: HQ가 codex-runner를 직접 실행·감시(터미널 불필요). 데스크톱/자동시작에서 켜진다.
     if (MANAGE_RUNNER) {
       try {
