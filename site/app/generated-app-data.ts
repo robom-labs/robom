@@ -145,7 +145,7 @@ export const generatedAppMeta = [
     "name": "노트봄",
     "englishName": "NoteBom",
     "repo": "robom-labs/notebom",
-    "version": "0.2.8",
+    "version": "0.2.9",
     "dataVersion": "local-schema-v1",
     "webUrl": "https://robom-labs.github.io/notebom/",
     "healthcheckUrl": "https://robom-labs.github.io/notebom/",
