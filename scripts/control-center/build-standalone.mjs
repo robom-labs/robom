@@ -13,6 +13,7 @@ const js = readFileSync(join(APP, "app.js"), "utf8");
 const icon = readFileSync(join(APP, "icon.svg"), "utf8");
 const iconData = "data:image/svg+xml;utf8," + encodeURIComponent(icon);
 const snap = JSON.parse(readFileSync(join(SNAP_DIR, snapFile), "utf8"));
+const ver = existsSync(join(APP, "version.json")) ? JSON.parse(readFileSync(join(APP, "version.json"), "utf8")) : null;
 
 let html = readFileSync(join(APP, "index.html"), "utf8");
 html = html
@@ -21,7 +22,7 @@ html = html
   .replace(/<link rel="stylesheet" href="\.\/styles\.css" \/>/i, `<style>\n${css}\n</style>`)
   .replace(/src="\.\/icon\.svg"/g, `src="${iconData}"`)
   .replace(/<script src="\.\/app\.js"><\/script>/i,
-    `<script>window.__PREVIEW__=true;window.__SNAP__=${JSON.stringify(snap)};</script>\n<script>\n${js}\n</script>`)
+    `<script>window.__PREVIEW__=true;window.__SNAP__=${JSON.stringify(snap)};${ver ? `window.__VER__=${JSON.stringify(ver)};` : ""}</script>\n<script>\n${js}\n</script>`)
   // 휴대용 보기 안내 배너
   .replace(/(<main id="screen")/,
     `<div style="background:#f7efe2;border-bottom:1px solid #e3d5c1;color:#604f3c;font:700 12px/1.5 var(--sans,sans-serif);padding:9px 14px;text-align:center">휴대용 보기 · 마지막 생성 스냅샷입니다. 기록·결재·백업은 <b>bin/robom-hq</b>로 실행하세요.</div>\n      $1`);

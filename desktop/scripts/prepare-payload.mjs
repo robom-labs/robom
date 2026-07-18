@@ -1,7 +1,7 @@
 // 데스크톱 앱 payload 준비 — 본부 실행에 필요한 저장소 부분집합을 desktop/payload/에 복사한다.
 // payload는 저장소 구조를 그대로 미러링해 REPO_ROOT(../../..) 해석이 payload 루트가 되게 한다.
 // 내부 데이터(runtime·latest.json·events)는 절대 포함하지 않는다.
-import { cpSync, existsSync, mkdirSync, rmSync, copyFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, rmSync, copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -54,5 +54,13 @@ for (const internal of ["ops/control-center/snapshots/latest.json", "ops/control
 // 트레이 아이콘(있으면)
 const trayIcon = join(here, "../build/icon.png");
 if (existsSync(trayIcon)) copyFileSync(trayIcon, join(payload, "tray.png"));
+
+// 화면에 표시할 버전을 데스크톱 앱 버전(=다운로드한 버전)으로 확정 주입 → 회장이 어떤 버전인지 항상 확인 가능
+try {
+  const pkg = JSON.parse(readFileSync(join(here, "../package.json"), "utf8"));
+  const verFile = join(payload, "ops/control-center/app/version.json");
+  writeFileSync(verFile, JSON.stringify({ version: pkg.version }) + "\n");
+  console.log(`[payload] 화면 표시 버전 = v${pkg.version}`);
+} catch (e) { console.warn("[payload] version.json 주입 실패:", e.message); }
 
 console.log(`[payload] ${copied}개 항목 복사 완료 → ${payload}`);

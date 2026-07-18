@@ -36,6 +36,8 @@ button{font-family:inherit;cursor:pointer;color:inherit}
 .sb-center{flex:1;display:flex;align-items:center;gap:16px;min-width:0;justify-content:center}
 .sb-right{flex:0 0 auto;display:flex;align-items:center;gap:12px}
 .sb-clock{font-family:var(--mono);font-size:15px;letter-spacing:1px;color:var(--ink2);font-variant-numeric:tabular-nums}
+.app-ver{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--green);padding:4px 9px;border-radius:8px;border:1px solid rgba(53,227,155,.3);background:rgba(53,227,155,.08);cursor:pointer;transition:.15s;white-space:nowrap}
+.app-ver:hover{background:rgba(53,227,155,.16)}
 .mode-badge{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;padding:5px 11px;border-radius:20px;border:1px solid var(--line2);color:var(--muted);text-transform:uppercase}
 .mode-badge.live{color:var(--green);border-color:rgba(53,227,155,.4);background:rgba(53,227,155,.08)}
 .mode-badge.warn{color:var(--amber);border-color:rgba(255,203,82,.35);background:rgba(255,203,82,.08)}

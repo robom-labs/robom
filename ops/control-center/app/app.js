@@ -59,6 +59,8 @@ const statusPill=(s)=>{const l=simpleStatus(s);return `<span class="status ${STA
 const tonePill=(t,l)=>`<span class="status ${t}">${esc(l)}</span>`;
 const appAccent={robom:"#35e39b",outbom:"#42a9ff",homebom:"#3fd28a",runningbom:"#ff7a4d",calendarbom:"#2fd0bd",certbom:"#7f8cff",notebom:"#ff6fa8"};
 
+const HQ_VERSION="1.3.1"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null, CURRENT="today", SELECTED_APP=null, ARCHIVE_TAB="approvals";
 let ATTACH=[]; // 첨부 이미지 [{tmpId,id,thumb,uploading}]
 const preview=Boolean(window.__PREVIEW__);
@@ -322,8 +324,13 @@ $$(".icon-close").forEach(b=>{if(!b.innerHTML.trim())b.innerHTML=icon("x");});
 $("#recordForm").addEventListener("submit",e=>{if(e.submitter?.value==="cancel")return;e.preventDefault();saveRecord(e.currentTarget).catch(err=>showToast(err.message,"bad"));});
 $("#taskForm").addEventListener("submit",e=>{if(e.submitter?.value==="cancel")return;e.preventDefault();saveTask(e.currentTarget).catch(err=>showToast(err.message,"bad"));});
 
+async function loadVersion(){
+  try{ APP_VERSION=(window.__VER__||await fetchJson("./version.json")).version||HQ_VERSION; }catch{ APP_VERSION=HQ_VERSION; }
+  const t="v"+APP_VERSION;const a=$("#appVersion"),b=$("#brandVer");if(a)a.textContent=t;if(b)b.textContent=t;
+}
+$("#appVersion")?.addEventListener("click",()=>showToast(`ROBOM HQ v${APP_VERSION} · 이 화면이 최신인지 확인하려면 릴리스 페이지를 보세요.`));
 function tick(){try{$("#clock").textContent=new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date());}catch{}}
 setInterval(tick,1000);tick();
 setInterval(async()=>{if(LOCAL.mode==="live"&&!preview){try{HQ=await fetchJson("/api/hq-status");updateStatusbar();if(["today","codex"].includes(CURRENT))render(CURRENT);}catch{}}},20000);
 if("serviceWorker" in navigator&&!preview&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
-buildRail();load();
+buildRail();loadVersion();load();
