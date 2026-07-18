@@ -16,7 +16,10 @@ export const COMPANY_COLLECTIONS = Object.freeze([
   "feedback",
 ]);
 
-export const DEFAULT_COMPANY_RUNTIME_DIR = join(REPO_ROOT, "ops/control-center/runtime");
+// 데스크톱 앱(.app) 배포 시 read-only 번들과 데이터를 분리하기 위해 env로 재지정할 수 있다.
+export const DEFAULT_COMPANY_RUNTIME_DIR = process.env.ROBOM_HQ_RUNTIME_DIR && isAbsolute(process.env.ROBOM_HQ_RUNTIME_DIR)
+  ? process.env.ROBOM_HQ_RUNTIME_DIR
+  : join(REPO_ROOT, "ops/control-center/runtime");
 export const MAX_RECORD_BYTES = 16 * 1024;
 
 const COLLECTION_SET = new Set(COMPANY_COLLECTIONS);
@@ -49,7 +52,7 @@ const COLLECTION_FIELDS = Object.freeze({
   approvals: new Set([...COMMON_FIELDS, "requestedBy", "recommendation", "impact", "reversible", "decidedAt"]),
   requests: new Set([...COMMON_FIELDS, "requestedBy", "desiredOutcome", "urgency"]),
   reviews: new Set([...COMMON_FIELDS, "target", "url", "viewport", "finding", "severity"]),
-  tasks: new Set([...COMMON_FIELDS, "assignedTo", "targetRepo", "acceptanceCriteria", "startedAt", "completedAt"]),
+  tasks: new Set([...COMMON_FIELDS, "assignedTo", "targetRepo", "acceptanceCriteria", "startedAt", "completedAt", "problem", "desiredOutcome", "mustPreserve", "autonomy"]),
   notes: new Set([...COMMON_FIELDS, "body", "topic"]),
   incidents: new Set([...COMMON_FIELDS, "impact", "cause", "mitigation", "severity", "detectedAt", "resolvedAt"]),
   feedback: new Set([...COMMON_FIELDS, "category", "channel", "userImpact", "appVersion"]),
@@ -59,8 +62,9 @@ const BOOLEAN_FIELDS = new Set(["reversible"]);
 const DATE_FIELDS = new Set(["dueAt", "scheduledAt", "decidedAt", "startedAt", "completedAt", "detectedAt", "resolvedAt"]);
 const LONG_TEXT_FIELDS = new Set([
   "summary", "body", "agenda", "outcome", "rationale", "impact", "cause", "mitigation",
-  "desiredOutcome", "finding", "userImpact",
+  "desiredOutcome", "finding", "userImpact", "problem", "mustPreserve",
 ]);
+const AUTONOMY_VALUES = new Set(["research_only", "implement_and_review", "implement_test_wait_for_deploy", "guarded_auto_deploy"]);
 const SENSITIVE_CONTENT = [
   /-----BEGIN(?: [A-Z]+)* PRIVATE KEY-----/i,
   /\bBearer\s+[A-Za-z0-9._~+/=-]{12,}/i,
@@ -177,6 +181,9 @@ function normalizeRecord(collection, payload) {
   }
   if (normalized.priority && !PRIORITIES.has(normalized.priority)) {
     throw new CompanyStoreError("priority 값이 올바르지 않습니다.", { code: "INVALID_FIELD" });
+  }
+  if (normalized.autonomy && !AUTONOMY_VALUES.has(normalized.autonomy)) {
+    throw new CompanyStoreError("autonomy 값이 올바르지 않습니다.", { code: "INVALID_FIELD" });
   }
   normalized.status = normalized.status || DEFAULT_STATUS[collection];
   if (!STATUSES.has(normalized.status)) {

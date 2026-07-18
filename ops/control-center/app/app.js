@@ -1,210 +1,237 @@
-// 로봄 본부 Company OS 클라이언트 — 실제 snapshot과 로컬 기록 API를 하나의 경영 화면으로 연결한다.
+// 로봄 HQ 클라이언트 — v1.2 정보구조(오늘·앱·업무·Codex·기록설정)로 회사를 관리한다.
+// 원칙: 연출 금지(실제 이벤트·스냅샷 근거만 표시), 본사와 계열사 앱 분리, 비전문가 회장 기준 문장.
 "use strict";
 
 const MENU = [
-  ["오늘", [["chair","회장 홈","⌂"],["approvals","결재","✓"],["office","회사 둘러보기","🏢"]]],
-  ["앱·실행", [["portfolio","앱 전체","▥"],["tasks","업무 지시","☷"],["launch","스토어 출시","🚀"]]],
-  ["운영", [["delivery","배포 상태","⇧"],["data","데이터","▤"],["incidents","장애","⚠"],["costs","비용·계정","₩"]]],
-  ["기록·설정", [["meetings","회의 기록","◌"],["memory","회사 기억","⌕"],["settings","설정·백업","⋯"]]],
+  ["회장 메뉴", [["today","오늘","⌂"],["apps","앱","▦"],["tasks","업무","☷"],["codex","Codex","🤖"],["archive","기록·설정","⋯"]]],
 ];
 const SCREEN_NAMES = Object.fromEntries(MENU.flatMap(([,items])=>items.map(([id,name])=>[id,name])));
-const STATUS = {waiting:"대기",queued:"지시 대기",assigned:"배정",in_progress:"진행 중",investigating:"조사",implementing:"구현",verifying:"검증",fixing:"수정",deploying:"배포",approval_pending:"결재 대기",external_wait:"외부 작업 대기",blocked:"막힘",completed:"완료",failed:"실패",needs_check:"상태 확인 필요",working:"작업 중",pending:"대기",approved:"승인",rejected:"반려",held:"보류",open:"진행",closed:"종료"};
-const HEALTH = {ok:["정상","good"],warn:["주의","warn"],down:["장애","bad"],unknown:["확인 중","neutral"],running:["배포 중","warn"],planned:["준비 중","neutral"]};
+// 사용자용 단순 상태(v1.2 §5.3) — 세부 내부 상태는 로그에만 둔다.
+const SIMPLE_STATUS = {queued:"대기",received:"대기",pending:"대기",open:"대기",assigned:"작업 중",in_progress:"작업 중",implementing:"작업 중",working:"작업 중",investigating:"작업 중",verifying:"검토 중",in_review:"검토 중",fixing:"작업 중",approval_pending:"승인 필요",deploying:"배포 중",completed:"완료",done:"완료",resolved:"완료",approved:"승인",blocked:"막힘",needs_check:"막힘",failed:"실패",cancelled:"취소",dismissed:"취소",held:"보류",on_hold:"보류",rejected:"반려",external_wait:"막힘",scheduled:"대기",active:"대기",proposed:"대기",draft:"대기",decided:"완료",closed:"완료",archived:"완료"};
+const STATUS_TONE = {대기:"neutral","작업 중":"accent","검토 중":"warn","승인 필요":"warn","배포 중":"accent",완료:"good",승인:"good",막힘:"bad",실패:"bad",취소:"neutral",보류:"neutral",반려:"bad"};
+const HEALTH = {ok:["정상","good"],warn:["확인 필요","warn"],down:["막힘","bad"],unknown:["확인 중","neutral"],running:["작업 중","accent"],planned:["준비 중","neutral"]};
 const COLLECTION_LABEL = {meetings:"회의",decisions:"결정",approvals:"결재",requests:"요청",reviews:"검수",tasks:"업무",notes:"메모",incidents:"장애",feedback:"사용자 의견"};
+const AUTONOMY_LABEL = {research_only:"조사만 하고 보고",implement_and_review:"고친 뒤 내 확인 대기",implement_test_wait_for_deploy:"고치고 테스트까지, 배포는 대기",guarded_auto_deploy:"안전장치 걸고 배포까지 자동"};
 const esc = (s)=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const attr = esc;
 const fmt = (iso,detail=true)=>{if(!iso)return "—";try{return new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",month:"numeric",day:"numeric",hour:detail?"2-digit":undefined,minute:detail?"2-digit":undefined}).format(new Date(iso));}catch{return String(iso)}};
 const ago = (iso)=>{if(!iso)return "—";const d=(Date.now()-Date.parse(iso))/1000;if(!Number.isFinite(d))return "—";if(d<60)return "방금";if(d<3600)return `${Math.floor(d/60)}분 전`;if(d<86400)return `${Math.floor(d/3600)}시간 전`;return `${Math.floor(d/86400)}일 전`;};
-const statusPill = (status,label)=>`<span class="status ${status||"neutral"}">${esc(label||STATUS[status]||status||"확인 중")}</span>`;
+const simpleStatus=(status)=>SIMPLE_STATUS[status]||"대기";
+const statusPill=(status)=>{const label=simpleStatus(status);return `<span class="status ${STATUS_TONE[label]||"neutral"}">${esc(label)}</span>`;};
+const tonePill=(tone,label)=>`<span class="status ${tone}">${esc(label)}</span>`;
 const appAccent = {robom:"#3b7a57",outbom:"#3b8fc2",homebom:"#48a565",runningbom:"#e97142",calendarbom:"#24a69a",certbom:"#6f75d8",notebom:"#b33768"};
 
-let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, CURRENT="chair", SELECTED_APP=null, CURRENT_APPROVAL=null;
+let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null, CURRENT="today", SELECTED_APP=null, ARCHIVE_TAB="memory";
 const preview = Boolean(window.__PREVIEW__);
 const $=(q)=>document.querySelector(q), $$=(q)=>[...document.querySelectorAll(q)];
 
-function navMarkup(){return MENU.map(([group,items])=>`<section class="nav-group"><button class="nav-group-title" type="button" data-nav-toggle><span>${esc(group)}</span><span>⌄</span></button><div>${items.map(([id,name,icon])=>`<button class="nav-item" type="button" data-screen="${id}" data-search="${esc(name)}"><span aria-hidden="true">${icon}</span><b>${esc(name)}</b></button>`).join("")}</div></section>`).join("");}
+function navMarkup(){return MENU.map(([group,items])=>`<section class="nav-group"><button class="nav-group-title" type="button" data-nav-toggle><span>${esc(group)}</span><span>⌄</span></button><div>${items.map(([id,name,icon])=>`<button class="nav-item" type="button" data-screen="${id}" data-search="${esc(name)}"><span aria-hidden="true">${icon}</span><b>${esc(name)}</b></button>`).join("")}</div></section>`).join("")+`<section class="nav-group"><button class="nav-group-title" type="button" data-nav-toggle><span>부가기능</span><span>⌄</span></button><div><a class="nav-item" href="./office.html" data-search="오피스"><span aria-hidden="true">🏢</span><b>로봄 오피스 보기</b></a></div></section>`;}
 
-async function fetchJson(url,options){const res=await fetch(url,{cache:"no-store",...options});if(!res.ok)throw new Error(`${res.status} ${url}`);return res.json();}
+async function fetchJson(url,options){const res=await fetch(url,{cache:"no-store",...options});if(!res.ok){let detail="";try{detail=(await res.json()).message||"";}catch{}throw new Error(detail||`${res.status} ${url}`);}return res.json();}
 async function load(){
   try{SNAP=window.__SNAP__||await fetchJson("./snapshot.json");}catch(e){$("#screen").innerHTML=empty("회사 스냅샷을 불러오지 못했습니다.","로컬 본부를 다시 실행해 주세요.");return;}
   if(!preview){try{LOCAL=await fetchJson("/api/company-state");LOCAL.mode="live";}catch{LOCAL={records:loadPortable(),audit:[],mode:"portable"};}}
   else LOCAL={records:loadPortable(),audit:[],mode:"portable"};
-  SELECTED_APP=SELECTED_APP||SNAP.apps?.[0]?.id;
-  fillAppSelect();fillAssigneeSelect();updateShell();render(CURRENT);
+  if(LOCAL.mode==="live"){try{HQ=await fetchJson("/api/hq-status");}catch{HQ=null;}}else HQ=null;
+  SELECTED_APP=SELECTED_APP||familyApps()[0]?.id;
+  updateShell();render(CURRENT);
 }
 function loadPortable(){try{return JSON.parse(localStorage.getItem("robom-hq-portable-records")||"{}");}catch{return {};}}
 function savePortable(){localStorage.setItem("robom-hq-portable-records",JSON.stringify(LOCAL.records||{}));}
-function fillAppSelect(){$("#recordApp").innerHTML=`<option value="">회사 전체</option>`+(SNAP.apps||[]).map(a=>`<option value="${attr(a.id)}">${esc(a.name)}</option>`).join("");}
-function fillAssigneeSelect(){$("#recordAssignee").innerHTML=`<option value="">담당 미정</option>`+(SNAP.agents||[]).map(a=>`<option value="${attr(a.id)}">${esc(a.name||a.id)}</option>`).join("");}
-function agentName(id){return(SNAP.agents||[]).find(a=>a.id===id)?.name||id||"담당 미정";}
+function familyApps(){return (SNAP.apps||[]).filter(a=>a.id!=="robom");}
+function hqSystems(){return (SNAP.apps||[]).filter(a=>a.id==="robom");}
+function appById(id){return (SNAP.apps||[]).find(a=>a.id===id);}
+function appName(id){return appById(id)?.name||id||"회사 전체";}
+function records(name){return LOCAL.records?.[name]||[];}
+function openCount(name){return records(name).filter(r=>!["approved","rejected","closed","completed","cancelled","dismissed","done","resolved","archived"].includes(r.status)).length;}
 function updateShell(){
   const live=LOCAL.mode==="live"&&!preview, badge=$("#modeBadge");
-  badge.textContent=live?"실시간 회사 모드 · 로컬 연결":"휴대용 보기 모드 · 마지막 저장 상태";badge.className=`mode-badge ${live?"live":"portable"}`;
+  badge.textContent=live?"실시간 회사 모드":"휴대용 보기 모드";badge.className=`mode-badge ${live?"live":"portable"}`;
   $("#syncNote").textContent=`마지막 동기화 ${ago(SNAP.generatedAt)} · ${live?"기록 저장 가능":"읽기 중심"}`;
   $$('[data-screen]').forEach(b=>b.classList.toggle("active",b.dataset.screen===CURRENT));
 }
-
 function render(name){CURRENT=name;updateShell();const screen=$("#screen");screen.innerHTML=(RENDER[name]||renderNotReady)();screen.scrollTop=0;screen.focus({preventScroll:true});closeMenu();bindScreen();}
-function title(kicker,title,desc,actions=""){return `<header class="page-head"><div><small>${esc(kicker)}</small><h1>${esc(title)}</h1>${desc?`<p>${esc(desc)}</p>`:""}</div>${actions?`<div class="head-actions">${actions}</div>`:""}</header>`;}
+function title(kicker,titleText,desc,actions=""){return `<header class="page-head"><div><small>${esc(kicker)}</small><h1>${esc(titleText)}</h1>${desc?`<p>${esc(desc)}</p>`:""}</div>${actions?`<div class="head-actions">${actions}</div>`:""}</header>`;}
 function metric(value,label,tone="neutral",note=""){return `<div class="metric ${tone}"><b>${esc(value)}</b><span>${esc(label)}</span>${note?`<small>${esc(note)}</small>`:""}</div>`;}
 function panel(label,body,cls=""){return `<section class="panel ${cls}"><div class="panel-title">${esc(label)}</div>${body}</section>`;}
 function empty(main,sub=""){return `<div class="empty-state"><span aria-hidden="true">○</span><b>${esc(main)}</b>${sub?`<p>${esc(sub)}</p>`:""}</div>`;}
-function records(name){return LOCAL.records?.[name]||[];}
-function openCount(name){return records(name).filter(r=>!["approved","rejected","closed","completed"].includes(r.status)).length;}
-function appById(id){return (SNAP.apps||[]).find(a=>a.id===id);}
-function appName(id){return appById(id)?.name||id||"회사 전체";}
 function button(label,action,kind="ghost",extra=""){return `<button class="button ${kind}" type="button" data-action="${action}" ${extra}>${label}</button>`;}
 
-function recommendation(){
-  const blocked=(SNAP.apps||[]).filter(a=>a.blocked); if(blocked.length)return {title:`${blocked[0].name} 외부 작업을 먼저 정리`,reason:"다음 출시 단계가 계정 소유자 작업에서 멈춰 있습니다.",screen:"launch"};
-  const failures=SNAP.company?.todayFailures||0;if(failures)return {title:"오늘 실패한 배포부터 확인",reason:"신규 기능보다 운영 복구가 우선입니다.",screen:"delivery"};
-  if(openCount("approvals"))return {title:"결재 대기 안건 확인",reason:"회장 판단이 필요한 안건이 있어 다음 실행이 대기 중입니다.",screen:"approvals"};
-  return {title:"스토어 출시 준비를 한 앱부터 파일럿 진행",reason:"웹 운영은 정상이며 다음 성장 단계는 실제 Android 내부 테스트입니다.",screen:"launch"};
+// ── 내가 확인할 일: 실제 근거(결재 대기·막힌 업무·앱 경고·사람 작업)만 모은다 ──
+function attentionItems(){
+  const items=[];
+  records("approvals").filter(r=>r.status==="pending").forEach(r=>items.push({label:`결재: ${r.title}`,screen:"archive",tab:"approvals"}));
+  [...(SNAP.approvals||[])].forEach(r=>items.push({label:`결재: ${r.title||r.decision}`,screen:"archive",tab:"approvals"}));
+  records("tasks").filter(r=>["blocked","approval_pending","in_review"].includes(r.status)).forEach(r=>items.push({label:`${simpleStatus(r.status)} 업무: ${r.title}`,screen:"tasks"}));
+  familyApps().filter(a=>a.health&&a.health!=="ok").forEach(a=>items.push({label:`${a.name} 상태 확인 필요`,screen:"apps",app:a.id}));
+  (SNAP.operations?.humanTasks||[]).slice(0,3).forEach(t=>items.push({label:t,screen:"archive",tab:"settings"}));
+  return items;
+}
+function codexStateLine(){
+  if(!HQ)return {label:"연결 안 됨",tone:"neutral",detail:LOCAL.mode==="live"?"HQ 상태 API를 읽지 못했습니다.":"휴대용 보기에서는 Codex 상태를 읽지 않습니다."};
+  const runner=HQ.runner||{};
+  if(HQ.control?.paused)return {label:"일시정지됨",tone:"warn",detail:"모든 자동작업이 회장 지시로 멈춰 있습니다."};
+  if(runner.state==="running")return {label:"작업 중",tone:"accent",detail:`${appName(HQ.runningTask?.app)} · ${HQ.runningTask?.title||""} · ${ago(runner.at)}`};
+  if(runner.state==="not_running")return {label:"실행기 꺼짐",tone:"neutral",detail:"codex-runner가 실행되어 있지 않습니다."};
+  if(runner.codex==="not_connected")return {label:"Codex 미연결",tone:"warn",detail:runner.codexDetail||"codex CLI 로그인이 필요합니다."};
+  return {label:"대기",tone:"good",detail:`대기 ${HQ.pending}건 · 최근 확인 ${ago(runner.at)}`};
 }
 
-function renderChair(){
-  const c=SNAP.company,r=recommendation(),apps=SNAP.apps||[],problems=apps.filter(a=>a.health!=="ok");
-  const working=(SNAP.runs||[]).filter(x=>!["completed","failed"].includes(x.status));
-  return `${title("CEO OFFICE","회장실","30초 안에 회사 상태와 다음 결정을 확인합니다.",button("오피스 들어가기","open-office","secondary"))}
-  <section class="hero-card traffic-${c.trafficLight}"><div><span class="eyebrow">오늘의 회사 신호</span><h2>${c.trafficLight==="green"?"회사는 정상 운영 중입니다.":c.trafficLight==="yellow"?"확인이 필요한 항목이 있습니다.":"즉시 대응이 필요한 장애가 있습니다."}</h2><p>${problems.length?`${problems.map(a=>a.name).join(", ")} 상태를 먼저 확인하세요.`:"운영 앱과 로봄 웹의 최신 상태가 모두 정상입니다."}</p></div><div class="traffic-light"><i></i><i></i><i></i></div></section>
-  <div class="metrics-grid">${metric(`${c.apps.ok}/${c.apps.live}`,"운영 정상","good")}${metric(working.length,"실제 실행 중",working.length?"accent":"neutral","이벤트 증거 기준")}${metric(openCount("approvals")+(c.tasks.approvalPending||0),"결재 대기",openCount("approvals")?"warn":"neutral")}${metric(c.todayDeploys,"오늘 배포","accent")}${metric(c.todayFailures,"오늘 실패",c.todayFailures?"bad":"good")}${metric(fmt(SNAP.generatedAt),"마지막 동기화","neutral")}</div>
-  ${panel("회장 바로가기",`<div class="ceo-shortcuts">${button("앱 전체","goto","ghost",'data-target="portfolio"')}${button("업무 지시","goto","ghost",'data-target="tasks"')}${button("배포 상태","goto","ghost",'data-target="delivery"')}${button("장애 확인","goto","ghost",'data-target="incidents"')}${button("회사 기록","goto","ghost",'data-target="memory"')}</div>`)}
-  <div class="dashboard-grid">
-    ${panel("회사 추천",`<div class="recommend"><span>추천안</span><h3>${esc(r.title)}</h3><p>${esc(r.reason)}</p>${button("추천안 보기","goto","primary",`data-target="${r.screen}"`)}</div>`,"recommend-panel")}
-    ${panel("오늘의 30초 브리핑",`<ol class="brief-list"><li><b>회사 상태</b><span>${c.apps.ok}개 운영 표면 정상</span></li><li><b>개발 중</b><span>${working.length?`${working.length}개 실제 작업 이벤트 확인`:`현재 실행 중인 작업 없음`}</span></li><li><b>완료</b><span>최근 배포 ${apps.filter(a=>a.git?.lastDate).sort((a,b)=>String(b.git.lastDate).localeCompare(String(a.git.lastDate)))[0]?.name||"확인 중"}</span></li><li><b>회장 결정</b><span>${openCount("approvals")?`${openCount("approvals")}건 대기`:`현재 없음`}</span></li></ol>${button("브리핑 듣기","speak-briefing","ghost")}`)}
-  </div>
-  ${panel("제품 한눈에",`<div class="app-strip">${apps.map(appMini).join("")}</div><div class="panel-actions">${button("포트폴리오 전체 보기","goto","ghost",'data-target="portfolio"')}</div>`)}
-  ${panel("회장 행동 필요", humanTasksMarkup())}`;
+// ── 오늘 (§5.1: 확인할 일 → Codex → 앱 전체 → 새 수정 요청) ──
+function renderToday(){
+  const attention=attentionItems(), codex=codexStateLine(), apps=familyApps();
+  return `${title("TODAY","오늘","지금 확인할 일과 회사 상태를 30초 안에 봅니다.")}
+  ${panel(`내가 확인할 일 ${attention.length?attention.length+"건":""}`,attention.length?`<div class="simple-list">${attention.slice(0,6).map(item=>`<button type="button" data-action="goto-item" data-target="${item.screen}" ${item.tab?`data-tab="${item.tab}"`:""} ${item.app?`data-app-id="${item.app}"`:""}><b>${esc(item.label)}</b><span>›</span></button>`).join("")}</div>`:empty("지금 확인할 일이 없습니다.","막힘·결재·경고가 생기면 여기에 먼저 나타납니다."))}
+  ${panel("Codex 현재 상태",`<div class="codex-line">${tonePill(codex.tone,codex.label)}<p>${esc(codex.detail)}</p>${button("자세히","goto","ghost",'data-target="codex"')}</div>`)}
+  ${panel(`${apps.length}개 앱`,`<div class="today-apps">${apps.map(a=>{const [label,tone]=HEALTH[a.health]||HEALTH.unknown;const working=(SNAP.runs||[]).some(r=>r.appId===a.id&&!["completed","failed"].includes(r.status));const openTasks=records("tasks").filter(t=>t.appId===a.id&&!["completed","cancelled","dismissed","done"].includes(t.status)).length;
+    return `<button type="button" class="today-app" data-app="${attr(a.id)}" style="--app:${appAccent[a.id]||"#64748b"}"><span class="app-dot"></span><b>${esc(a.name)}</b><small>${working?"작업 중":label}${openTasks?` · 요청 ${openTasks}건`:""}</small>${tonePill(working?"accent":tone,working?"작업 중":label)}</button>`;}).join("")}</div>
+    <div class="sys-line">${hqSystems().map(a=>`<span>본사 시스템 · ${esc(a.name)} ${tonePill((HEALTH[a.health]||HEALTH.unknown)[1],(HEALTH[a.health]||HEALTH.unknown)[0])}</span>`).join("")||""}</div>`)}
+  <div class="today-actions">${button("새 수정 요청","new-task","primary")}${HQ?.control?.paused?button("자동작업 다시 시작","resume-all","secondary"):button("모든 자동작업 일시정지","pause-all","danger")}</div>`;
 }
 
-function appMini(a){const [label,tone]=HEALTH[a.health]||HEALTH.unknown;return `<button class="app-mini" type="button" data-app="${attr(a.id)}" style="--app:${appAccent[a.id]||a.accent||"#64748b"}"><span class="app-dot"></span><b>${esc(a.name)}</b><small>v${esc(a.version||"—")}</small>${statusPill(tone,label)}</button>`;}
-function humanTasksMarkup(){const tasks=SNAP.operations?.humanTasks||[];if(!tasks.length)return empty("회장이 직접 처리할 긴급 항목이 없습니다.");return `<div class="simple-list">${tasks.slice(0,5).map(t=>`<div><span class="priority-dot"></span><b>${esc(t)}</b></div>`).join("")}</div>`;}
+// ── 앱 (§5.2: 계열사와 본사 분리, registry 동적) ──
+function renderApps(){
+  const apps=familyApps();
+  return `${title("APPS",`운영 앱 ${apps.length}개`,"registry 기준으로 자동 생성됩니다. 본사 시스템은 아래에 따로 표시합니다.")}
+  <div class="portfolio-grid">${apps.map(appCard).join("")}</div>
+  ${panel("본사 시스템",`<div class="simple-list">${hqSystems().map(a=>`<button type="button" data-app="${attr(a.id)}"><b>${esc(a.name)} · robom.kr</b>${tonePill((HEALTH[a.health]||HEALTH.unknown)[1],(HEALTH[a.health]||HEALTH.unknown)[0])}</button>`).join("")}<div><b>ROBOM HQ (이 프로그램)</b>${tonePill("good","실행 중")}</div></div>`)}`;
+}
+function appCard(a){const [label,tone]=HEALTH[a.health]||HEALTH.unknown;const openTasks=records("tasks").filter(t=>t.appId===a.id&&!["completed","cancelled","done","dismissed"].includes(t.status)).length;
+  return `<article class="product-card" style="--app:${appAccent[a.id]||"#3b7a57"}"><header><div><span class="app-kicker">계열사 앱</span><h2>${esc(a.name)}</h2></div>${tonePill(tone,label)}</header>
+  <div class="product-version"><b>v${esc(a.version||"—")}</b><span>${esc(a.git?.sha?.slice(0,7)||a.production?.deployedSha?.slice(0,7)||"")}</span></div>
+  <dl><dt>사용자 가치</dt><dd>${esc(a.role||a.note||"")}</dd><dt>상태 이유</dt><dd>${esc(a.health==="ok"?"운영 확인 통과":(a.production?.warnings?.[0]||a.blocked||"확인 필요"))}</dd><dt>현재 작업</dt><dd>${esc((SNAP.runs||[]).find(r=>r.appId===a.id&&!["completed","failed"].includes(r.status))?.task||(openTasks?`요청 ${openTasks}건 대기`:"없음"))}</dd><dt>다음 행동</dt><dd>${esc(a.nextActions?.[0]||"안정 운영")}</dd></dl>
+  <footer>${button("자세히","select-app","ghost",`data-app="${a.id}"`)}${a.url?`<a class="button secondary" href="${attr(a.url)}" target="_blank" rel="noopener">앱 사용</a>`:""}${button("수정 요청","new-task-for","primary",`data-app-id="${a.id}"`)}</footer></article>`;}
+function renderAppDetail(){const a=appById(SELECTED_APP)||familyApps()[0];if(!a)return renderApps();const [label,tone]=HEALTH[a.health]||HEALTH.unknown;const ci=a.ci?.[0];
+  return `${title("APP",a.name,"사용자 영향부터 보고 기술 정보는 아래에 접습니다.",`${a.url?`<a class="button primary" href="${attr(a.url)}" target="_blank" rel="noopener">운영 앱 열기</a>`:""}${button("수정 요청","new-task-for","secondary",`data-app-id="${a.id}"`)}`)}
+  <div class="product-hero" style="--app:${appAccent[a.id]||"#3b7a57"}"><div><span>현재 운영</span><h2>v${esc(a.version||"—")}</h2>${tonePill(tone,label)}</div>
+  <dl><dt>사용자 가치</dt><dd>${esc(a.role||a.note||"")}</dd><dt>상태 이유</dt><dd>${esc(a.health==="ok"?"운영 확인 통과":(a.production?.warnings?.[0]||a.blocked||"확인 필요"))}</dd><dt>다음 개선</dt><dd>${esc(a.nextActions?.[0]||"안정 운영")}</dd></dl></div>
+  <div class="detail-grid">${panel("진행 중 업무",records("tasks").filter(t=>t.appId===a.id).length?`<div class="simple-list">${records("tasks").filter(t=>t.appId===a.id).slice(0,6).map(t=>`<div><b>${esc(t.title)}</b>${statusPill(t.status)}</div>`).join("")}</div>`:empty("이 앱에 등록된 업무가 없습니다."))}
+  ${panel("기술 정보 (근거)",`<dl class="data-list"><dt>저장소</dt><dd>${esc(a.repo||"—")}</dd><dt>브랜치·SHA</dt><dd>${esc(a.git?.branch||"main")} · ${esc(a.git?.sha||a.production?.deployedSha?.slice(0,7)||"—")}</dd><dt>배포</dt><dd>${esc(a.deployTarget||"—")}</dd><dt>CI</dt><dd>${esc(ci?`${ci.name} · ${ci.conclusion||ci.status}`:"GitHub 연결 시 표시")}</dd><dt>열린 PR</dt><dd>${a.openPrs?.length||0}</dd><dt>데이터</dt><dd>${esc(a.production?.version?`운영 v${a.production.version}`:"확인 중")}</dd></dl>`)}</div>`;}
 
-function renderBriefing(){const c=SNAP.company, apps=SNAP.apps||[];return `${title("EXECUTIVE BRIEFING","경영 브리핑","기술 용어를 줄이고 사용자·사업 영향을 중심으로 설명합니다.",button("전체 듣기","speak-briefing","primary"))}<div class="story-grid">${panel("오늘 정상인가",`<h3>${c.trafficLight==="green"?"예, 정상입니다.":"확인이 필요합니다."}</h3><p>운영 ${c.apps.live}개 중 ${c.apps.ok}개가 정상입니다.</p>`)}${panel("무엇을 개발 중인가",SNAP.runs?.length?`<div class="simple-list">${SNAP.runs.slice(0,5).map(r=>`<div><b>${esc(r.task||r.agentId)}</b>${statusPill(r.status)}</div>`).join("")}</div>`:empty("현재 실제 실행 이벤트가 없습니다.","직원은 대기 상태로 표시됩니다."))}${panel("어떤 제품을 볼까",`<div class="simple-list">${apps.map(a=>`<button data-app="${a.id}"><b>${esc(a.name)}</b><span>${esc(a.nextActions?.[0]||"안정 운영")}</span></button>`).join("")}</div>`)}${panel("다음 행동",`<h3>${esc(recommendation().title)}</h3><p>${esc(recommendation().reason)}</p>`)}</div>`;}
+// ── 업무 (§5.3: 말하듯 등록 → 패킷 → queue) ──
+function renderTasks(){
+  const list=records("tasks");
+  return `${title("WORK","업무","말하듯 등록하면 Codex 작업 패킷으로 바뀌어 대기열에 들어갑니다.",button("새 수정 요청","new-task","primary"))}
+  <div class="metrics-grid">${metric(HQ?HQ.pending:openCount("tasks"),"대기",HQ?.pending?"accent":"neutral")}${metric(HQ?.running??"—","작업 중",HQ?.running?"accent":"neutral")}${metric(list.filter(t=>["in_review","approval_pending"].includes(t.status)).length,"검토·승인 필요","warn")}${metric(list.filter(t=>t.status==="blocked").length,"막힘",list.some(t=>t.status==="blocked")?"bad":"neutral")}</div>
+  ${list.length?`<div class="record-list">${list.map(r=>`<article><header><div><span>${esc(appName(r.appId))} · ${fmt(r.createdAt)}</span><h3>${esc(r.title)}</h3>${r.autonomy?`<small>${esc(AUTONOMY_LABEL[r.autonomy]||r.autonomy)}</small>`:""}</div>${statusPill(r.status)}</header>${r.problem||r.body?`<p>${esc(r.problem||r.body)}</p>`:""}${r.desiredOutcome?`<p class="outcome">→ ${esc(r.desiredOutcome)}</p>`:""}<footer>${["in_review","approval_pending"].includes(r.status)?button("확인 완료","patch-record","primary",`data-collection="tasks" data-id="${r.id}" data-status="completed"`):""}${["queued","blocked"].includes(r.status)?button("취소","patch-record","ghost",`data-collection="tasks" data-id="${r.id}" data-status="cancelled"`):""}${button("작업 패킷","download-bundle","ghost",`data-id="${r.id}"`)}</footer></article>`).join("")}</div>`:empty("등록된 업무가 없습니다.","새 수정 요청을 누르고 어떤 앱의 무엇이 불편한지 말하듯 적어 주세요.")}`;
+}
 
-function renderPortfolio(){const apps=SNAP.apps||[];return `${title("PRODUCT PORTFOLIO","포트폴리오","등록 앱과 로봄 웹을 같은 기준으로 비교합니다.")}<div class="portfolio-grid">${apps.map(appCard).join("")}</div>${panel("집중도 경고",`<p>동시에 집중 개발하는 제품은 기본 2개 이하가 안전합니다. 실제 작업 이벤트 기준 현재 집중 개발은 <b>${new Set((SNAP.runs||[]).filter(r=>!["completed","failed"].includes(r.status)).map(r=>r.appId).filter(Boolean)).size}개</b>입니다.</p>`)}`;}
-function appCard(a){const [label,tone]=HEALTH[a.health]||HEALTH.unknown;const ci=a.ci?.[0];return `<article class="product-card" style="--app:${appAccent[a.id]||"#3b7a57"}"><header><div><span class="app-kicker">${a.id==="robom"?"본사 제품":"계열사 앱"}</span><h2>${esc(a.name)}</h2></div>${statusPill(tone,label)}</header><div class="product-version"><b>v${esc(a.version||"—")}</b><span>${esc(a.git?.sha||a.production?.deployedSha?.slice(0,7)||"SHA 확인 중")}</span></div><dl><dt>운영 주소</dt><dd>${a.url?`<a href="${attr(a.url)}" target="_blank" rel="noopener">서비스 열기 ↗</a>`:"연결 대기"}</dd><dt>최근 업데이트</dt><dd>${esc(a.git?.lastMsg||"운영 저장소에서 확인")}</dd><dt>다음 목표</dt><dd>${esc(a.nextActions?.[0]||"안정 운영과 사용자 검증")}</dd><dt>CI</dt><dd>${esc(ci?`${ci.name} · ${ci.conclusion||ci.status}`:"GitHub 연결 시 표시")}</dd></dl><footer>${button("경영 카드 보기","select-app","ghost",`data-app="${a.id}"`)}${a.url?`<a class="button secondary" href="${attr(a.url)}" target="_blank" rel="noopener">앱 사용</a>`:""}</footer></article>`;}
+// ── Codex (§5.4: 회장용 작업 현황판) ──
+function renderCodex(){
+  const codex=codexStateLine();const runner=HQ?.runner||{};
+  return `${title("CODEX","Codex 작업 현황판","기술 콘솔이 아니라 지금 무엇을 하는지 보는 화면입니다.")}
+  ${panel("현재 상태",`<div class="codex-line big">${tonePill(codex.tone,codex.label)}<p>${esc(codex.detail)}</p></div>
+  <div class="metrics-grid">${metric(HQ?.pending??"—","다음 대기")}${metric(HQ?.running??"—","실행 중",HQ?.running?"accent":"neutral")}${metric(HQ?.done??"—","완료","good")}${metric(HQ?.failed??"—","실패·막힘",HQ?.failed?"bad":"neutral")}</div>`)}
+  ${HQ?.runningTask?panel("실행 중 작업",`<div class="record-list"><article><header><div><span>${esc(appName(HQ.runningTask.app))}</span><h3>${esc(HQ.runningTask.title)}</h3></div>${tonePill("accent","작업 중")}</header><p>시작 ${fmt(HQ.runningTask.lease?.claimedAt)} · 마지막 신호 ${ago(HQ.runningTask.lease?.heartbeatAt)}</p></article></div>`):""}
+  ${HQ?.nextTask?panel("다음 대기",`<div class="simple-list"><div><b>${esc(appName(HQ.nextTask.app))} · ${esc(HQ.nextTask.title)}</b>${tonePill("neutral","대기")}</div></div>`):""}
+  ${panel("제어",`<div class="today-actions">${HQ?.control?.paused?button("자동작업 다시 시작","resume-all","secondary"):button("모든 자동작업 일시정지","pause-all","danger")}${HQ?.control?.intakeClosed?button("새 작업 접수 재개","open-intake","secondary"):button("새 작업 접수 중지","close-intake","ghost")}</div>`)}
+  ${panel("연결 방법 (맥북에서 1회)",`<ol class="number-list"><li>터미널에서 <code>codex login</code> — 구독 계정으로 로그인 (API 키 금지)</li><li><code>node scripts/control-center/codex-runner.mjs</code> 실행 — 대기열을 자동 처리</li><li>이 화면에서 상태가 '대기'로 바뀌면 연결 완료</li></ol><p class="fine">연결 전에는 미연결로 정직하게 표시하며, 요청은 대기열에 안전하게 보관됩니다.</p>`)}`;
+}
 
-function renderAppDetail(){const a=appById(SELECTED_APP)||SNAP.apps[0],[label,tone]=HEALTH[a.health]||HEALTH.unknown;return `${title("PRODUCT CARD",a.name,"비전공자용 경영 정보와 기술 근거를 분리했습니다.",`<a class="button primary" href="${attr(a.url)}" target="_blank" rel="noopener">운영 앱 열기</a>`)}<div class="product-hero" style="--app:${appAccent[a.id]||"#3b7a57"}"><div><span>현재 운영</span><h2>v${esc(a.version||"—")}</h2>${statusPill(tone,label)}</div><dl><dt>사용자 가치</dt><dd>${esc(a.role||a.note||productPurpose(a.id))}</dd><dt>최근 좋아진 점</dt><dd>${esc(a.git?.lastMsg||"최신 운영 상태 확인 완료")}</dd><dt>다음 방향</dt><dd>${esc(a.nextActions?.[0]||"사용자 검증과 안정 운영")}</dd></dl></div><div class="detail-grid">${panel("경영 정보",`<dl class="data-list"><dt>대상 사용자</dt><dd>${esc(productAudience(a.id))}</dd><dt>현재 불편</dt><dd>${esc(a.blocked||"운영 장부에 긴급 결함 없음")}</dd><dt>회장 행동</dt><dd>${a.blocked?"외부 계정 항목 확인":"현재 없음"}</dd></dl>`)}${panel("기술 근거",`<dl class="data-list"><dt>저장소</dt><dd>${esc(a.repo||"—")}</dd><dt>브랜치·SHA</dt><dd>${esc(a.git?.branch||"main")} · ${esc(a.git?.sha||a.production?.deployedSha?.slice(0,7)||"—")}</dd><dt>기술</dt><dd>${esc(a.stack||"본사 웹")}</dd><dt>배포</dt><dd>${esc(a.deployTarget||"—")}</dd><dt>열린 PR</dt><dd>${a.openPrs?.length||0}</dd></dl>`)}</div>${panel("관련 업데이트",updatesFor(a.id))}`;}
-function productPurpose(id){return ({robom:"등록 앱을 발견하고 안전하게 설치하는 패밀리 허브",outbom:"나가기 좋은 시간과 준비물을 알려 주는 야외 활동 도우미",homebom:"놓치기 쉬운 청약 일정을 한눈에 보여 주는 알림 도우미",runningbom:"러닝 대회 접수 일정을 놓치지 않게 돕는 앱",calendarbom:"로봄 앱의 일정을 한곳에서 보는 캘린더",certbom:"자격증 시험과 접수 일정을 찾는 도우미",notebom:"말한 원음을 먼저 보존하고 필요한 곳으로 넘기는 음성 인박스"})[id]||"사용자 행동을 단순하게 만드는 로봄 제품";}
-function productAudience(id){return ({robom:"어떤 로봄 앱이 필요한지 찾는 사용자",outbom:"산책·러닝·자전거·등산을 계획하는 사용자",homebom:"청약 접수와 발표 일정을 놓치기 싫은 사용자",runningbom:"달리기 대회 접수 시기를 확인하는 러너",calendarbom:"여러 일정을 큰 글자로 관리하는 사용자",certbom:"시험 일정을 준비하는 수험생",notebom:"떠오른 말과 회의 원음을 안전하게 남기려는 사용자"})[id]||"로봄 사용자";}
+// ── 기록·설정 (§5.5: 통합) ──
+const ARCHIVE_TABS=[["memory","기억 검색"],["approvals","결재"],["meetings","회의"],["decisions","결정"],["incidents","장애"],["delivery","배포"],["data","데이터"],["backup","백업"],["connections","연결"],["security","보안"],["settings","설정"]];
+function renderArchive(){
+  return `${title("RECORDS","기록·설정","회의·결정·장애·배포·백업·보안을 한곳에서 관리합니다.")}
+  <div class="filter-row">${ARCHIVE_TABS.map(([id,label])=>`<button class="chip ${ARCHIVE_TAB===id?"active":""}" data-archive-tab="${id}">${esc(label)}</button>`).join("")}<a class="chip" href="./office.html">🏢 오피스</a></div>
+  <div id="archiveBody">${archiveBody()}</div>`;
+}
+function archiveBody(){
+  switch(ARCHIVE_TAB){
+    case "memory":return `<label class="memory-search"><span>⌕</span><input id="memoryInput" type="search" placeholder="예: 청약봄 가격 비교를 왜 보류했지" /><button class="button primary" data-action="search-memory">검색</button></label><div id="memoryResults">${memoryResults("")}</div>`;
+    case "approvals":return approvalsBody();
+    case "meetings":return `<div class="panel-actions">${button("회의 기록","new-record","primary",'data-collection="meetings"')}</div>${recordList("meetings",{emptyTitle:"저장된 회의가 없습니다."})}`;
+    case "decisions":return `<div class="panel-actions">${button("결정 기록","new-record","primary",'data-collection="decisions"')}</div>${recordList("decisions",{emptyTitle:"저장된 결정이 없습니다."})}`;
+    case "incidents":return `<div class="panel-actions">${button("장애 기록","new-record","primary",'data-collection="incidents"')}</div>${(familyApps().filter(a=>a.health==="down").length?`<div class="incident-banner"><b>운영 장애 ${familyApps().filter(a=>a.health==="down").length}건</b><span>${familyApps().filter(a=>a.health==="down").map(a=>a.name).join(", ")}</span></div>`:"")}${recordList("incidents",{emptyTitle:"기록된 장애가 없습니다."})}`;
+    case "delivery":return `<div class="delivery-list">${(SNAP.apps||[]).map(a=>{const ci=a.ci?.[0];return `<article><div><span class="app-dot" style="background:${appAccent[a.id]||"#64748b"}"></span><h3>${esc(a.name)}</h3><p>${esc(a.deployTarget||"배포 방식 확인 중")}</p></div><div>${tonePill((HEALTH[a.health]||HEALTH.unknown)[1],(HEALTH[a.health]||HEALTH.unknown)[0])}<small>${ci?`${esc(ci.name)} · ${ago(ci.createdAt)}`:"운영 smoke 기준"}</small></div><code>${esc(a.production?.deployedSha?.slice(0,12)||a.git?.sha||"—")}</code></article>`;}).join("")}</div>`;
+    case "data":return `<div class="data-grid">${familyApps().map(a=>`<article><header><h2>${esc(a.name)}</h2>${tonePill(a.production?.status==="PASS"?"good":"warn",a.production?.status||"확인")}</header><dl><dt>마지막 운영 확인</dt><dd>${esc(a.production?.version?`v${a.production.version}`:"확인 중")}</dd><dt>신선도</dt><dd>${esc(a.production?.warnings?.[0]||"운영 기준 통과")}</dd></dl></article>`).join("")}</div>`;
+    case "backup":return `<div class="panel-actions">${button("지금 백업","backup","primary")}${button("JSON 내보내기","export","ghost")}</div><dl class="data-list"><dt>저장 위치</dt><dd>${LOCAL.mode==="live"?"이 컴퓨터의 비공개 runtime 폴더":"브라우저 휴대용 저장"}</dd><dt>마지막 백업</dt><dd>${esc(LOCAL.meta?.lastBackupAt?fmt(LOCAL.meta.lastBackupAt):"아직 없음")}</dd><dt>백업 대상</dt><dd>회의·결재·업무·장애 기록과 감사 로그</dd></dl>`;
+    case "connections":return connectionMarkup();
+    case "security":return `<div class="security-grid">${(SNAP.operations?.security||[]).map(c=>`<article>${tonePill(c.ok?"good":"warn",c.ok?"통과":"확인")}<h3>${esc(c.name)}</h3><p>${esc(c.note||"")}</p></article>`).join("")||""}</div>`;
+    case "settings":return `<div class="settings-list"><article><div><h3>현재 모드</h3><p>${LOCAL.mode==="live"?"실시간 로컬 본부":"휴대용 보기"}</p></div>${tonePill(LOCAL.mode==="live"?"good":"neutral",LOCAL.mode==="live"?"연결됨":"제한됨")}</article><article><div><h3>휴대폰 연결</h3><p>${HQ?.remote==="token"?"토큰 인증으로 같은 사설망 접속 허용됨":"현재 이 컴퓨터 전용(127.0.0.1) — docs/hq/REMOTE-ACCESS.md 참고"}</p></div>${tonePill(HQ?.remote==="token"?"accent":"good",HQ?.remote==="token"?"원격 허용":"비공개")}</article><article><div><h3>추가 운영비</h3><p>유료 API·상시 유료 서버 없이 로컬 Node.js와 GitHub 무료 범위를 사용합니다.</p></div>${tonePill("good","0원")}</article><article><div><h3>회장이 직접 할 일</h3><p>${(SNAP.operations?.humanTasks||[]).slice(0,3).map(esc).join(" · ")||"현재 없음"}</p></div></article><article><div><h3>부가기능</h3><p>살아있는 6층 오피스 게임(실제 이벤트 연동)</p></div><a class="button ghost" href="./office.html">오피스 보기</a></article></div>`;
+    default:return empty("준비되지 않은 탭입니다.");
+  }
+}
+function approvalsBody(){const items=[...(SNAP.approvals||[]),...records("approvals")];
+  return `<div class="panel-actions">${button("안건 상신","new-record","primary",'data-collection="approvals"')}</div>${items.length?`<div class="approval-list">${items.map(r=>`<article class="approval-card"><header><div><span>${esc(appName(r.appId||r.app))}</span><h2>${esc(r.title||r.decision||"결정 필요")}</h2></div>${statusPill(r.status||"pending")}</header><p>${esc(r.body||r.why||"")}</p><footer>${r.id?`${button("승인","patch-record","primary",`data-collection="approvals" data-id="${attr(r.id)}" data-status="approved"`)}${button("보류","patch-record","ghost",`data-collection="approvals" data-id="${attr(r.id)}" data-status="held"`)}${button("반려","patch-record","danger",`data-collection="approvals" data-id="${attr(r.id)}" data-status="rejected"`)}`:`<small>스냅샷 안건 — 근거 화면에서 처리</small>`}</footer></article>`).join("")}</div>`:empty("회장 결정이 필요한 안건이 없습니다.","비용·계정·복구 불가능한 결정만 여기로 올라옵니다.")}`;}
+function memoryResults(q){const all=Object.entries(LOCAL.records||{}).flatMap(([collection,list])=>list.map(r=>({...r,collection})));const needle=q.trim().toLowerCase(),found=needle?all.filter(r=>JSON.stringify(r).toLowerCase().includes(needle)):all.slice(0,12);return found.length?`<div class="memory-list">${found.map(r=>`<article><span>${esc(COLLECTION_LABEL[r.collection]||r.collection)} · ${fmt(r.createdAt)}</span><h3>${esc(r.title||"기록")}</h3><p>${esc(r.body||r.problem||"")}</p>${r.appId?`<small>${esc(appName(r.appId))}</small>`:""}</article>`).join("")}</div>`:empty(needle?"검색 결과가 없습니다.":"아직 회사 기억이 없습니다.","회의·결정·업무 기록이 쌓이면 여기서 검색할 수 있습니다.")}
+function connectionMarkup(){const c=SNAP.connections||{};return `<div class="connection-list">${[["로컬 본부",LOCAL.mode==="live","실시간 기록·백업"],["GitHub",String(c.github).startsWith("connected"),c.github],["작업 이벤트",c.events==="connected",c.events],["Claude Code",!String(c.claudeCode).includes("pending"),c.claudeCode],["Codex 실행기",HQ?.runner?.codex==="connected","이 컴퓨터의 codex-runner"],["휴대폰 원격",HQ?.remote==="token","토큰 인증 사설망"]].map(([n,ok,d])=>`<div>${tonePill(ok?"good":"neutral",ok?"연결":"대기")}<b>${esc(n)}</b><span>${esc(d===true||d===false?"":(d||""))}</span></div>`).join("")}</div>`;}
+function recordList(collection,opt={}){const items=opt.items||records(collection);return items.length?`<div class="record-list">${items.map(r=>`<article><header><div><span>${esc(appName(r.appId))} · ${fmt(r.createdAt)}</span><h3>${esc(r.title||COLLECTION_LABEL[collection]||"기록")}</h3></div>${statusPill(r.status||"open")}</header>${r.body?`<p>${esc(r.body)}</p>`:""}<footer>${opt.actions?opt.actions(r):""}</footer></article>`).join("")}</div>`:empty(opt.emptyTitle||`저장된 ${COLLECTION_LABEL[collection]||"기록"}이 없습니다.`);}
+function renderNotReady(){return `${title("ROBOM HQ",SCREEN_NAMES[CURRENT]||"로봄 본부","실제 연결 상태를 기준으로 표시합니다.")}${empty("표시할 정보가 없습니다.")}`;}
 
-function renderWeb(){const a=appById("robom");return `${title("ROBOM.KR CONTROL","로봄 웹 관제실","홈페이지를 별도 제품으로 관리합니다.",`<a class="button primary" href="https://robom.kr/" target="_blank" rel="noopener">robom.kr 열기</a>`)}<div class="metrics-grid">${metric(`v${a?.version||"—"}`,"사이트 버전","accent")}${metric(a?.production?.status||"확인 중","Production","good")}${metric(SNAP.apps.length-1,"노출 앱","accent")}${metric(a?.production?.assetCount||0,"운영 자산","neutral")}</div><div class="detail-grid">${panel("모바일",`<ul class="check-list"><li>운영체제별 설치 버튼</li><li>앱 바로 열기</li><li>설치 전 웹 체험</li><li>안정 URL /get/&lt;app-id&gt;</li></ul>`)}${panel("PC",`<ul class="check-list"><li>앱별 QR과 스토어 준비</li><li>여섯 앱 비교</li><li>모바일 화면 미리보기</li><li>개인정보·지원·신뢰 정보</li></ul>`)}</div>${panel("개선 방향",`<div class="roadmap-list">${["스토어 출시 후 실제 배지 연결","앱 선택 도우미","업데이트 뉴스와 FAQ","운영 데이터 신뢰 설명"].map((x,i)=>`<div><b>${i+1}</b><span>${x}</span>${statusPill(i?"planned":"open",i?"후보":"우선")}</div>`).join("")}</div>`)}`;}
-
-function updateItems(){return SNAP.operations?.updates||[];}
-function updatesFor(id){const items=updateItems().filter(x=>!id||x.appId===id).slice(0,8);return items.length?`<div class="timeline-list">${items.map(x=>`<article><time>${esc(x.date||"")}</time><div><b>${esc(x.title)}</b><p>${esc(x.impact||"사용자 영향은 운영 장부에서 확인합니다.")}</p></div></article>`).join("")}</div>`:empty("업데이트 기록을 찾지 못했습니다.");}
-function renderUpdates(){return `${title("UPDATE CENTER","업데이트 센터","왜 바꿨고 사용자에게 무엇이 좋아졌는지 시간순으로 봅니다.")}<div class="filter-row"><button class="chip active" data-update-filter="">전체</button>${(SNAP.apps||[]).map(a=>`<button class="chip" data-update-filter="${a.id}">${esc(a.name)}</button>`).join("")}</div><div id="updatesList">${updatesFor("")}</div>`;}
-
-function renderOrganization(){const groups=[...new Set((SNAP.departments||[]).map(d=>d.group))];return `${title("ORGANIZATION","조직도·부서","등록된 조직과 실제 작업 상태를 구분합니다.",button("오피스에서 보기","open-office","secondary"))}${groups.map(g=>panel(({exec:"경영",product:"제품 전담팀",common:"공통 전문팀"})[g]||g,`<div class="org-grid">${SNAP.departments.filter(d=>d.group===g).map(d=>`<article><span>${esc(d.id.toUpperCase())}</span><h3>${esc(d.name)}</h3><p>${esc(d.duty||"")}</p><small>${d.lead?`담당 ${esc(d.lead)}`:"업무 배정 시 담당 표시"}</small></article>`).join("")}</div>`)).join("")}`;}
-function renderStaff(){const rb={};(SNAP.runs||[]).forEach(r=>{if(r.agentId&&!rb[r.agentId])rb[r.agentId]=r;});return `${title("AI EMPLOYEES","임직원","실제 이벤트가 없으면 업무 중으로 표시하지 않습니다.")}<div class="staff-grid">${(SNAP.agents||[]).map((a,i)=>{const r=rb[a.id];return `<article class="staff-card"><div class="avatar" style="--h:${(i*47)%360}">${esc((a.name||"직원").replace(/[^가-힣A-Za-z]/g,"").slice(0,1))}</div><div><h3>${esc(a.name)}</h3><p>${esc(a.department||"")} · ${esc(a.cadence||"")}</p>${statusPill(r?.status||"waiting")}</div><dl><dt>현재 업무</dt><dd>${esc(r?.task||"배정 대기")}</dd><dt>마지막 활동</dt><dd>${r?ago(r.lastActivity):"이벤트 없음"}</dd></dl></article>`;}).join("")}</div>`;}
-
-function renderMeetings(){return `${title("MEETINGS","회의실","실제 회의 기록과 발언만 저장합니다.",button("회의 만들기","new-record","primary",'data-collection="meetings"'))}${recordList("meetings",{emptyTitle:"저장된 회의가 없습니다.",actions:r=>button("회의 듣기","speak-record","ghost",`data-id="${r.id}" data-collection="meetings"`)})}`;}
-function renderBroadcast(){const events=(SNAP.events||[]).filter(e=>/deploy|incident|approval/.test(e.type||""));return `${title("INTERNAL BROADCAST","사내 방송","실제 배포·장애·결재 이벤트만 방송합니다.",button("최근 방송 듣기","speak-events","primary"))}${events.length?`<div class="broadcast-list">${events.map(e=>`<article><span>방송</span><div><b>${esc(e.message||e.type)}</b><p>${fmt(e.createdAt)} · ${esc(e.appId||"회사 전체")}</p></div></article>`).join("")}</div>`:empty("방송할 실제 이벤트가 없습니다.","가짜 사내 방송은 만들지 않습니다.")}`;}
-
-function renderApprovals(){const items=[...(SNAP.approvals||[]),...records("approvals")];return `${title("CEO APPROVALS","결재판","비용·계정·스토어·복구 불가능한 결정만 올립니다.",button("안건 상신","new-record","primary",'data-collection="approvals"'))}${items.length?`<div class="approval-list">${items.map(r=>`<article class="approval-card"><header><div><span>${esc(appName(r.appId||r.app))}</span><h2>${esc(r.title||r.decision||"결정 필요")}</h2></div>${statusPill(r.status||"pending")}</header><p>${esc(r.body||r.why||"결정 이유를 근거 보기에서 확인하세요.")}</p>${r.recommendation?`<div class="company-reco"><b>회사 추천</b><span>${esc(r.recommendation)}</span></div>`:""}<footer>${button("승인·서명","sign-approval","primary",`data-id="${attr(r.id||r.runId||"")}"`)}${button("보류","patch-record","ghost",`data-collection="approvals" data-id="${attr(r.id||"")}" data-status="held"`)}${button("반려","patch-record","danger",`data-collection="approvals" data-id="${attr(r.id||"")}" data-status="rejected"`)}</footer></article>`).join("")}</div>`:empty("회장 결정이 필요한 안건이 없습니다.","일반 코드 수정과 기존 배포는 보고함으로 처리합니다.")}`;}
-function renderDecisions(){return `${title("DECISIONS","의사결정","결정과 이유, 현재 유효 여부를 함께 보존합니다.",button("결정 기록","new-record","primary",'data-collection="decisions"'))}${recordList("decisions")}`;}
-
-function renderSchedule(){const automation=SNAP.operations?.automations||[];return `${title("COMPANY CALENDAR","회사 일정","컴퓨터가 꺼져 실행하지 못한 작업은 완료로 표시하지 않습니다.")}<div class="schedule-grid">${automation.map(a=>`<article><time>${esc(a.schedule||"수동")}</time><div><h3>${esc(a.name)}</h3><p>${esc(a.purpose||"")}</p>${statusPill(a.status||"planned",a.statusLabel||"예약")}</div></article>`).join("")||empty("등록된 자동화 일정이 없습니다.")}</div>`;}
-
-function renderTasks(){return `${title("WORK QUEUE","업무 대기열","회장 지시부터 운영 확인까지 실제 상태를 기록합니다.",button("업무 추가","new-record","primary",'data-collection="tasks"'))}${recordList("tasks",{actions:r=>`${button("작업 꾸러미","download-bundle","ghost",`data-id="${r.id}"`)}${button("완료","patch-record","secondary",`data-collection="tasks" data-id="${r.id}" data-status="completed"`)}`})}`;}
-function renderRoadmap(){const items=SNAP.operations?.roadmap||[];return `${title("ROADMAP","로드맵·프로젝트","회사 목표부터 검증·출시까지 연결합니다.",button("프로젝트 추가","new-record","primary",'data-collection="tasks"'))}<div class="roadmap-list">${items.map((x,i)=>`<div><b>${i+1}</b><span>${esc(x.title||x)}</span>${statusPill(x.done?"completed":"planned",x.done?"완료":"다음")}</div>`).join("")||empty("로드맵 항목을 불러오지 못했습니다.")}</div>`;}
-function renderStudio(){return `${title("AI WORKROOM","Claude·Codex 작업실","구독 CLI를 위한 작업 지시서를 만들고 실행 대기열에 저장합니다.",button("작업 꾸러미 만들기","new-record","primary",'data-collection="tasks"'))}<div class="detail-grid">${panel("실제 실행 원칙",`<ol class="number-list"><li>대상 저장소와 기준 SHA 고정</li><li>Claude 또는 Codex에 작업 지시</li><li>실제 시작 이벤트가 있어야 작업 중 표시</li><li>동일 파일 동시 수정 금지</li><li>테스트·배포 증거를 이벤트로 기록</li></ol>`)}${panel("연결 상태",connectionMarkup())}</div>${recordList("tasks",{emptyTitle:"실행 대기 작업이 없습니다.",actions:r=>button("지시서 내려받기","download-bundle","primary",`data-id="${r.id}"`)})}`;}
-
-function renderCode(){const prs=(SNAP.apps||[]).flatMap(a=>(a.openPrs||[]).map(p=>({...p,app:a.name})));return `${title("CODE REVIEW","PR·코드검토","열린 PR과 최신 main 근거를 확인합니다.")}<div class="metrics-grid">${metric(prs.length,"열린 PR",prs.length?"warn":"good")}${metric((SNAP.apps||[]).filter(a=>a.github==="connected").length,"GitHub 연결","accent")}${metric((SNAP.apps||[]).filter(a=>a.git?.available).length,"로컬 저장소","neutral")}</div>${prs.length?`<div class="simple-list">${prs.map(p=>`<a href="${attr(p.url)}" target="_blank" rel="noopener"><b>${esc(p.app)} · #${p.number} ${esc(p.title)}</b><span>${p.draft?"Draft":"검토 가능"}</span></a>`).join("")}</div>`:empty("열린 PR이 없습니다.","현재 main이 기준입니다.")}`;}
-function renderDelivery(){return `${title("DELIVERY","CI·배포","앱별 최근 검사와 실제 운영 배포를 비교합니다.")}<div class="delivery-list">${(SNAP.apps||[]).map(a=>{const ci=a.ci?.[0];return `<article><div><span class="app-dot" style="background:${appAccent[a.id]||"#64748b"}"></span><h3>${esc(a.name)}</h3><p>${esc(a.deployTarget||"배포 방식 확인 중")}</p></div><div>${statusPill(a.health,...(HEALTH[a.health]||HEALTH.unknown).slice(0,1))}<small>${ci?`${esc(ci.name)} · ${ago(ci.createdAt)}`:"운영 smoke 기준"}</small></div><code>${esc(a.production?.deployedSha?.slice(0,12)||a.git?.sha||"—")}</code></article>`;}).join("")}</div>`;}
-function renderLaunch(){return `${title("STORE LAUNCH","Android·iOS 출시 센터","계정 연결 전에는 상태를 만들어내지 않습니다.")}<div class="launch-grid">${(SNAP.apps||[]).filter(a=>a.id!=="robom").map(a=>`<article><header><h2>${esc(a.name)}</h2><span>v${esc(a.version||"—")}</span></header><div class="store-row"><b>Android</b>${statusPill("neutral","NOT_CONNECTED")}</div><div class="store-row"><b>iOS</b>${statusPill("neutral","NOT_CONNECTED")}</div><ul><li>패키지·Bundle ID는 registry 기준</li><li>메타데이터·개인정보 URL 준비</li><li>서명·스토어 제출은 계정 소유자 작업</li></ul></article>`).join("")}</div>${panel("회사 추천 출시 순서",`<div class="number-list"><li><b>1. 청약봄 Android 파일럿</b><span>알림 가치가 크고 테스트 구조가 안정적입니다.</span></li><li><b>2. 러닝봄 Android</b><span>접수 알림의 사용 목적이 명확합니다.</span></li><li><b>3. 야외봄 Android</b><span>위치·알림 권한 설명을 함께 검증합니다.</span></li></div>`)}`;}
-
-function renderReviews(){const a=appById(SELECTED_APP)||SNAP.apps[0];return `${title("APP REVIEW LAB","앱 검수실","운영 앱을 사용하면서 회장 의견을 구조화해 저장합니다.",button("검수 의견 남기기","new-review","primary"))}<div class="review-toolbar"><label>검수 앱<select id="reviewApp">${SNAP.apps.map(x=>`<option value="${x.id}" ${x.id===a.id?"selected":""}>${esc(x.name)}</option>`).join("")}</select></label><label>화면<select id="reviewViewport"><option value="390">휴대전화 390px</option><option value="320">작은 휴대전화 320px</option><option value="430">큰 휴대전화 430px</option><option value="768">태블릿 768px</option><option value="1200">PC 1200px</option></select></label><a class="button ghost" href="${attr(a.url)}" target="_blank" rel="noopener">새 창으로 열기</a></div><div class="review-stage"><div class="device-frame" id="deviceFrame" style="--device:390px"><iframe title="${attr(a.name)} 운영 화면" src="${attr(a.url)}" loading="lazy"></iframe></div><aside>${panel("검수 체크",`<ul class="check-list"><li>첫 화면의 핵심 결론</li><li>버튼 48px와 엄지 접근</li><li>가로 스크롤·겹침</li><li>큰 글자·200% 확대</li><li>오류에서 다음 행동</li></ul>`)}${panel("저장된 의견",records("reviews").filter(r=>!r.appId||r.appId===a.id).length?`<div class="simple-list">${records("reviews").filter(r=>!r.appId||r.appId===a.id).slice(0,6).map(r=>`<div><b>${esc(r.title)}</b><span>${esc(r.body||"")}</span></div>`).join("")}</div>`:empty("아직 의견이 없습니다."))}</aside></div>`;}
-function renderDesign(){const rows=["워드마크","헤더","하단 메뉴","버튼 48px","설정·문의","오류·빈 화면","safe area","200% 확대"];return `${title("DESIGN SYSTEM","디자인시스템 검수실","70% 패밀리 규칙과 30% 앱 개성을 함께 지킵니다.")}<div class="compare-table"><div class="compare-head"><b>항목</b>${SNAP.apps.filter(a=>a.id!=="robom").map(a=>`<b>${esc(a.name)}</b>`).join("")}</div>${rows.map((r,i)=>`<div><b>${r}</b>${SNAP.apps.filter(a=>a.id!=="robom").map(()=>statusPill(i<5?"approved":"neutral",i<5?"공통화":"검수 대상")).join("")}</div>`).join("")}</div>`;}
-
-function renderData(){return `${title("DATA CONTROL","데이터 관제실","앱별 공식 데이터 신선도와 마지막 성공을 봅니다.")}<div class="data-grid">${(SNAP.apps||[]).filter(a=>a.id!=="robom").map(a=>`<article><header><h2>${esc(a.name)}</h2>${statusPill(a.production?.status==="PASS"?"good":"warn",a.production?.status||"확인")}</header><dl><dt>마지막 운영 확인</dt><dd>${esc(a.production?.version?`v${a.production.version}`:"확인 중")}</dd><dt>신선도</dt><dd>${esc(a.production?.warnings?.[0]||"운영 기준 통과")}</dd><dt>데이터 영향</dt><dd>${esc(dataPurpose(a.id))}</dd></dl></article>`).join("")}</div>`;}
-function dataPurpose(id){return ({outbom:"날씨·대기질·위치 검색과 추천 계산",homebom:"청약 공고·주택형·분양가·공식 검증",runningbom:"대회·접수 일정·공식 링크·중복",calendarbom:"저장 스키마·알람 계산·백업",certbom:"시험 일정·Q-Net·공식 출처",notebom:"원음 청크·전사본·백업 무결성·복구"})[id]||"운영 데이터";}
-function renderIncidents(){const failures=(SNAP.apps||[]).filter(a=>a.health==="down"), local=records("incidents");return `${title("INCIDENT ROOM","장애 상황실","감지부터 재발 방지까지 한 기록으로 연결합니다.",button("장애 기록","new-record","primary",'data-collection="incidents"'))}${failures.length?`<div class="incident-banner"><b>운영 장애 ${failures.length}건</b><span>${failures.map(a=>a.name).join(", ")}</span></div>`:""}${recordList("incidents",{items:local,emptyTitle:"현재 기록된 장애가 없습니다."})}`;}
-function renderFeedback(){return `${title("USER VOICE","사용자 의견 센터","수동 입력·CSV 없이도 회장 검수 의견부터 시작할 수 있습니다.",button("의견 입력","new-record","primary",'data-collection="feedback"'))}${recordList("feedback",{emptyTitle:"등록된 사용자 의견이 없습니다."})}`;}
-function renderGrowth(){return `${title("GROWTH","성장·SEO·ASO","사용자 신뢰를 해치지 않는 재방문 가치만 설계합니다.")}<div class="growth-grid">${(SNAP.apps||[]).filter(a=>a.id!=="robom").map(a=>`<article><h2>${esc(a.name)}</h2><dl><dt>설치 이유</dt><dd>${esc(productPurpose(a.id))}</dd><dt>재방문 이유</dt><dd>${esc(growthReason(a.id))}</dd><dt>현재 상태</dt><dd>측정 연결 대기 · 추측 수치 없음</dd></dl></article>`).join("")}</div>`;}
-function growthReason(id){return ({outbom:"오늘 나가기 좋은 시간이 바뀝니다.",homebom:"새 공고와 접수 일정이 바뀝니다.",runningbom:"대회 접수 일정이 새로 열립니다.",calendarbom:"오늘 일정과 알람을 확인합니다.",certbom:"시험 접수와 시험일이 가까워집니다.",notebom:"떠오른 말을 즉시 남기고 다시 찾습니다."})[id]||"다음 행동 확인";}
-function renderCosts(){return `${title("COSTS","비용·계약·갱신","금액을 모르면 추측하지 않고 수동 장부로 관리합니다.")}<div class="cost-grid">${["Claude 구독","Codex 사용 환경","Google Play 개발자 계정","Apple Developer Program","robom.kr 도메인"].map((x,i)=>`<article><span>${i<2?"현재 사용":"계정 소유자 확인"}</span><h3>${x}</h3><p>금액·갱신일 미등록</p>${statusPill(i<2?"approved":"neutral",i<2?"사용 중":"정보 입력 대기")}</article>`).join("")}</div>`;}
-function renderSecurity(){const checks=SNAP.operations?.security||[];return `${title("TRUST CENTER","보안·개인정보","비밀값과 내부 회의는 화면·공개 저장소에 노출하지 않습니다.")}<div class="security-grid">${checks.map(c=>`<article>${statusPill(c.ok?"good":"warn",c.ok?"통과":"확인") }<h3>${esc(c.name)}</h3><p>${esc(c.note||"")}</p></article>`).join("")||["비밀값 화면 미표시","로컬 서버 127.0.0.1","내부 runtime gitignore","외부 유료 API 0"].map(x=>`<article>${statusPill("good","적용")}<h3>${x}</h3></article>`).join("")}</div>`;}
-function renderBackup(){return `${title("BACKUP & RECOVERY","백업·복구","코드 백업과 내부 회사 기록 백업을 분리합니다.",`${button("지금 백업","backup","primary")}${button("JSON 내보내기","export","ghost")}`)}<div class="detail-grid">${panel("백업 대상",`<ul class="check-list"><li>회의·결재·회장 요청</li><li>앱 검수·로드맵·태스크</li><li>회사 결정·설정·runtime 이벤트</li><li>복구 전 현재 상태 자동 보존</li></ul>`)}${panel("현재 상태",`<dl class="data-list"><dt>저장 위치</dt><dd>${LOCAL.mode==="live"?"이 컴퓨터의 비공개 runtime 폴더":"브라우저 휴대용 저장"}</dd><dt>마지막 백업</dt><dd>${esc(LOCAL.meta?.lastBackupAt?fmt(LOCAL.meta.lastBackupAt):"아직 없음")}</dd><dt>무결성</dt><dd>${statusPill("good","읽기 가능")}</dd></dl>`)}</div>`;}
-
-function renderMemory(){return `${title("COMPANY MEMORY","회사 기억 검색","회의·결재·결정·실패와 이유를 로컬에서 검색합니다.")}<label class="memory-search"><span>⌕</span><input id="memoryInput" type="search" placeholder="예: 청약봄 가격 비교를 왜 보류했지" /><button class="button primary" data-action="search-memory">검색</button></label><div id="memoryResults">${memoryResults("")}</div>`;}
-function memoryResults(q){const all=Object.entries(LOCAL.records||{}).flatMap(([collection,list])=>list.map(r=>({...r,collection})));const needle=q.trim().toLowerCase(),found=needle?all.filter(r=>JSON.stringify(r).toLowerCase().includes(needle)):all.slice(0,12);return found.length?`<div class="memory-list">${found.map(r=>`<article><span>${esc(COLLECTION_LABEL[r.collection]||r.collection)} · ${fmt(r.createdAt)}</span><h3>${esc(r.title||"기록")}</h3><p>${esc(r.body||"")}</p>${r.appId?`<small>${esc(appName(r.appId))}</small>`:""}</article>`).join("")}</div>`:empty(needle?"검색 결과가 없습니다.":"아직 회사 기억이 없습니다.","회의·결정·검수 기록이 쌓이면 여기서 검색할 수 있습니다.")}
-function renderReports(){return `${title("REPORTS","보고서","최신 운영 장부와 실제 이벤트를 기반으로 요약합니다.")}<div class="report-grid">${["일일 회사 브리핑","주간 포트폴리오","월간 이사회","장애 사후 분석","앱 업데이트 설명"].map((x,i)=>`<article><span>${i<2?"자동화 준비":"필요 시 생성"}</span><h3>${x}</h3><p>현재 snapshot과 로컬 기록을 기준으로 생성합니다.</p>${button("미리보기","report-preview","ghost",`data-report="${x}"`)}</article>`).join("")}</div>`;}
-function renderActivity(){const events=[...(SNAP.events||[]),...(LOCAL.audit||[])];return `${title("AUDIT LOG","실행 기록","실제 이벤트와 로컬 변경만 시간순으로 표시합니다.")}<div class="activity-list">${events.length?events.slice(0,80).map(e=>`<article><time>${fmt(e.createdAt||e.at)}</time><div><b>${esc(e.type||e.action||"기록")}</b><p>${esc(e.message||e.collection||e.agentId||"")}</p></div></article>`).join(""):empty("기록된 실행 이벤트가 없습니다.")}</div>`;}
-function connectionMarkup(){const c=SNAP.connections||{};return `<div class="connection-list">${[["로컬 본부",LOCAL.mode==="live","실시간 기록·백업"],["GitHub",String(c.github).startsWith("connected"),c.github],["로컬 Git",(c.localGit||[]).length>0,`${(c.localGit||[]).length}개 저장소`],["작업 이벤트",c.events==="connected",c.events],["Claude Code",!String(c.claudeCode).includes("pending"),c.claudeCode],["Codex",!String(c.codex).includes("pending"),c.codex]].map(([n,ok,d])=>`<div>${statusPill(ok?"good":"neutral",ok?"연결":"대기")}<b>${esc(n)}</b><span>${esc(d||"")}</span></div>`).join("")}</div>`;}
-function renderConnections(){return `${title("CONNECTIONS","연결 상태","연결되지 않은 기능을 실제 동작처럼 표시하지 않습니다.")}${panel("현재 연결",connectionMarkup())}${panel("모드 차이",`<div class="mode-compare"><article><h3>실시간 회사 모드</h3><p>snapshot 갱신, 회의·결재·검수 저장, 백업과 작업 대기열을 사용할 수 있습니다.</p></article><article><h3>휴대용 보기 모드</h3><p>마지막 회사 상태와 기록을 읽습니다. 실제 저장소 수정과 AI 실행은 할 수 없습니다.</p></article></div>`)}`;}
-function renderAutomations(){const list=SNAP.operations?.automations||[];return `${title("AUTOMATION","자동화","예약됐다는 이유로 실행 완료로 표시하지 않습니다.")}<div class="automation-list">${list.map(a=>`<article><div><h3>${esc(a.name)}</h3><p>${esc(a.purpose||"")}</p></div><dl><dt>주기</dt><dd>${esc(a.schedule||"수동")}</dd><dt>마지막 실행</dt><dd>${esc(a.lastRun||"증거 없음")}</dd></dl>${statusPill(a.status||"planned",a.statusLabel||"예약")}</article>`).join("")||empty("자동화 정보를 불러오지 못했습니다.")}</div>`;}
-function renderSettings(){return `${title("SYSTEM","설정·데이터 내보내기","내부 정보는 이 컴퓨터 안에 보관합니다.",`${button("새로고침","refresh","primary")}${button("백업","backup","ghost")}`)}<div class="settings-list"><article><div><h3>현재 모드</h3><p>${LOCAL.mode==="live"?"실시간 로컬 본부":"휴대용 보기"}</p></div>${statusPill(LOCAL.mode==="live"?"good":"neutral",LOCAL.mode==="live"?"연결됨":"제한됨")}</article><article><div><h3>외부 공개</h3><p>로봄 본부는 127.0.0.1 로컬 전용이며 robom.kr에 배포하지 않습니다.</p></div>${statusPill("good","비공개")}</article><article><div><h3>추가 운영비</h3><p>유료 API·서버 없이 로컬 Node.js와 GitHub 무료 범위를 사용합니다.</p></div>${statusPill("good","0원")}</article><article><div><h3>회사 기록 내보내기</h3><p>회의·결재·요청·검수 기록을 JSON으로 저장합니다.</p></div>${button("내보내기","export","ghost")}</article></div>`;}
-function renderOffice(){location.href="./office.html";return empty("오피스로 이동합니다.");}
-function renderNotReady(){return `${title("ROBOM HQ",SCREEN_NAMES[CURRENT]||"로봄 본부","이 화면은 실제 연결 상태를 기준으로 표시합니다.")}${empty("표시할 정보가 없습니다.")}`;}
-
-function recordList(collection,opt={}){const items=opt.items||records(collection);return items.length?`<div class="record-list">${items.map(r=>`<article><header><div><span>${esc(appName(r.appId))} · ${fmt(r.createdAt)}</span><h3>${esc(r.title||COLLECTION_LABEL[collection]||"기록")}</h3>${collection==="tasks"&&r.assignedTo?`<small>담당 · ${esc(agentName(r.assignedTo))}</small>`:""}</div>${statusPill(r.status||"open")}</header>${r.body?`<p>${esc(r.body)}</p>`:""}<footer>${opt.actions?opt.actions(r):""}</footer></article>`).join("")}</div>`:empty(opt.emptyTitle||`저장된 ${COLLECTION_LABEL[collection]||"기록"}이 없습니다.`);}
-
-const RENDER={chair:renderChair,briefing:renderBriefing,approvals:renderApprovals,decisions:renderDecisions,schedule:renderSchedule,office:renderOffice,organization:renderOrganization,staff:renderStaff,meetings:renderMeetings,broadcast:renderBroadcast,tasks:renderTasks,portfolio:renderPortfolio,web:renderWeb,updates:renderUpdates,reviews:renderReviews,design:renderDesign,roadmap:renderRoadmap,studio:renderStudio,code:renderCode,delivery:renderDelivery,launch:renderLaunch,data:renderData,incidents:renderIncidents,feedback:renderFeedback,growth:renderGrowth,costs:renderCosts,security:renderSecurity,backup:renderBackup,memory:renderMemory,reports:renderReports,activity:renderActivity,connections:renderConnections,automations:renderAutomations,settings:renderSettings,app:renderAppDetail};
+const RENDER={today:renderToday,apps:renderApps,app:renderAppDetail,tasks:renderTasks,codex:renderCodex,archive:renderArchive};
 
 function openMenu(){$("#sidebar").classList.add("open");$("#drawerScrim").hidden=false;document.body.classList.add("drawer-open");}
 function closeMenu(){$("#sidebar").classList.remove("open");$("#drawerScrim").hidden=true;document.body.classList.remove("drawer-open");}
 function showToast(message,tone="") {const t=$("#toast");t.textContent=message;t.className=`toast show ${tone}`;clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove("show"),2600);}
-function openRecord(collection,title=""){const d=$("#recordDialog"),task=collection==="tasks";$("#recordCollection").value=collection;$("#dialogEyebrow").textContent=COLLECTION_LABEL[collection]||"로컬 기록";$("#dialogTitle").textContent=`새 ${COLLECTION_LABEL[collection]||"기록"}`;$("#recordTitle").value=title;$("#recordBody").value="";$("#recordApp").value=SELECTED_APP||"";$("#recordAssigneeWrap").hidden=!task;$("#recordAssignee").value="";d.showModal();setTimeout(()=>$("#recordTitle").focus(),30);}
-async function saveRecord(form){const fd=new FormData(form),collection=fd.get("collection"),payload={title:String(fd.get("title")||"").trim(),body:String(fd.get("body")||"").trim(),appId:String(fd.get("appId")||""),priority:String(fd.get("priority")||"normal"),status:collection==="tasks"?"queued":"open"};if(collection==="tasks"&&fd.get("assignedTo"))payload.assignedTo=String(fd.get("assignedTo"));if(!payload.title)return;
+
+// ── 새 수정 요청 (§5.3의 질문 흐름) ──
+function openTaskDialog(appId=""){const d=$("#taskDialog");$("#taskApp").innerHTML=familyApps().map(a=>`<option value="${attr(a.id)}" ${a.id===appId?"selected":""}>${esc(a.name)}</option>`).join("")+`<option value="robom" ${appId==="robom"?"selected":""}>로봄 웹(robom.kr)</option>`;$("#taskTitle").value="";$("#taskProblem").value="";$("#taskOutcome").value="";$("#taskPreserve").value="";d.showModal();setTimeout(()=>$("#taskTitle").focus(),30);}
+async function saveTask(form){const fd=new FormData(form);
+  const payload={title:String(fd.get("title")||"").trim(),appId:String(fd.get("appId")||""),problem:String(fd.get("problem")||"").trim(),desiredOutcome:String(fd.get("desiredOutcome")||"").trim(),priority:String(fd.get("priority")||"normal"),autonomy:String(fd.get("autonomy")||"implement_and_review"),status:"queued"};
+  const preserve=String(fd.get("mustPreserve")||"").trim();if(preserve)payload.mustPreserve=preserve;
+  if(!payload.title)return;
+  if(LOCAL.mode==="live"){const data=await fetchJson("/api/tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});LOCAL=data.state;showToast("요청을 저장하고 Codex 대기열에 넣었습니다.","good");try{HQ=await fetchJson("/api/hq-status");}catch{}}
+  else{const list=LOCAL.records.tasks||=[];list.unshift({...payload,id:`local-${Date.now()}`,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});savePortable();showToast("휴대용 모드: 요청을 임시 저장했습니다. 본부 연결 시 다시 등록해 주세요.","warn");}
+  $("#taskDialog").close();render(CURRENT);
+}
+function openRecord(collection,titleText=""){const d=$("#recordDialog");$("#recordCollection").value=collection;$("#dialogEyebrow").textContent=COLLECTION_LABEL[collection]||"기록";$("#dialogTitle").textContent=`새 ${COLLECTION_LABEL[collection]||"기록"}`;$("#recordTitle").value=titleText;$("#recordBody").value="";$("#recordApp").innerHTML=`<option value="">회사 전체</option>`+(SNAP.apps||[]).map(a=>`<option value="${attr(a.id)}">${esc(a.name)}</option>`).join("");d.showModal();setTimeout(()=>$("#recordTitle").focus(),30);}
+async function saveRecord(form){const fd=new FormData(form),collection=fd.get("collection"),payload={title:String(fd.get("title")||"").trim(),body:String(fd.get("body")||"").trim(),appId:String(fd.get("appId")||""),priority:String(fd.get("priority")||"normal")};if(!payload.title)return;
   if(LOCAL.mode==="live"){const data=await fetchJson(`/api/records/${encodeURIComponent(collection)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});LOCAL=data.state;}
-  else{const list=LOCAL.records[collection]||=[];list.unshift({...payload,id:`local-${Date.now()}`,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});savePortable();}
+  else{const list=LOCAL.records[collection]||=[];list.unshift({...payload,id:`local-${Date.now()}`,status:"open",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});savePortable();}
   $("#recordDialog").close();showToast(`${COLLECTION_LABEL[collection]||"기록"}을 저장했습니다.`,"good");render(CURRENT);
 }
-async function patchRecord(collection,id,status,extra={}){if(!id){showToast("스냅샷 안건은 로컬 기록으로 복사한 뒤 변경할 수 있습니다.");return;}if(LOCAL.mode==="live"){const data=await fetchJson(`/api/records/${encodeURIComponent(collection)}/${encodeURIComponent(id)}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status,...extra})});LOCAL=data.state;}else{const r=(LOCAL.records[collection]||[]).find(x=>x.id===id);if(r)Object.assign(r,{status,...extra,updatedAt:new Date().toISOString()});savePortable();}showToast("상태를 반영했습니다.","good");render(CURRENT);}
-function speak(text){if(!("speechSynthesis" in window)){showToast("이 브라우저는 음성 읽기를 지원하지 않습니다.");return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g," "));u.lang="ko-KR";u.rate=.95;speechSynthesis.speak(u);}
-function briefText(){const c=SNAP.company,r=recommendation();return `로봄 회장 브리핑입니다. 운영 앱 ${c.apps.live}개 중 ${c.apps.ok}개가 정상입니다. 실제 실행 중 업무는 ${SNAP.runs?.length||0}건입니다. 결재 대기는 ${openCount("approvals")}건입니다. 회사 추천은 ${r.title}입니다. 이유는 ${r.reason}`;}
+async function patchRecord(collection,id,status){if(!id){showToast("스냅샷 안건은 근거 화면에서 처리합니다.");return;}
+  if(LOCAL.mode==="live"){const data=await fetchJson(`/api/records/${encodeURIComponent(collection)}/${encodeURIComponent(id)}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({status})});LOCAL=data.state;}
+  else{const r=(LOCAL.records[collection]||[]).find(x=>x.id===id);if(r)Object.assign(r,{status,updatedAt:new Date().toISOString()});savePortable();}
+  showToast("상태를 반영했습니다.","good");render(CURRENT);}
+async function setControl(changes,message){if(LOCAL.mode!=="live"){showToast("휴대용 보기에서는 제어할 수 없습니다.");return;}await fetchJson("/api/control",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(changes)});try{HQ=await fetchJson("/api/hq-status");}catch{}showToast(message,"good");render(CURRENT);}
 function download(name,text,type="text/markdown"){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
-function bundleFor(r){const a=appById(r.appId);return `# 로봄 작업 꾸러미\n\n- 생성 시각: ${new Date().toISOString()}\n- 대상 앱: ${appName(r.appId)}\n- 저장소: ${a?.repo||"robom-labs/robom"}\n- 기준 SHA: ${a?.git?.sha||a?.production?.deployedSha||"최신 main 확인 필요"}\n- 회장 요청: ${r.title}\n- 문제와 원하는 결과: ${r.body||"기록 없음"}\n- 우선순위: ${r.priority||"normal"}\n\n## 완료 기준\n\n구현, 관련 테스트, 운영 반영, 실제 화면 확인까지 완료하고 증거를 보고한다. 실행이 시작되기 전에는 작업 중으로 표시하지 않는다.\n`;}
+function bundleFor(r){const a=appById(r.appId);return `# 로봄 작업 패킷 ${r.id}\n\n- 대상: ${appName(r.appId)} (${a?.repo||"robom-labs/robom"})\n- 기준 SHA: ${a?.git?.sha||a?.production?.deployedSha||"최신 main"}\n- 요청: ${r.title}\n- 문제: ${r.problem||r.body||"기록 없음"}\n- 원하는 결과: ${r.desiredOutcome||"기록 없음"}\n- 유지: ${r.mustPreserve||"기존 사용자 데이터·저장 키·배포 경로"}\n- 자율 범위: ${AUTONOMY_LABEL[r.autonomy]||r.autonomy||"고친 뒤 확인 대기"}\n\n실행 전에는 작업 중으로 표시하지 않는다. 완료 기준: 구현·테스트·실제 화면 확인.\n`;}
 async function doBackup(){if(LOCAL.mode!=="live"){download(`robom-hq-backup-${Date.now()}.json`,JSON.stringify({exportedAt:new Date().toISOString(),records:LOCAL.records},null,2),"application/json");showToast("휴대용 기록을 내보냈습니다.","good");return;}const data=await fetchJson("/api/backup",{method:"POST"});LOCAL=data.state||LOCAL;showToast(`백업 완료 · ${data.file||"로컬 저장"}`,"good");}
 async function doExport(){if(LOCAL.mode!=="live"){download(`robom-company-${Date.now()}.json`,JSON.stringify({snapshot:SNAP,records:LOCAL.records},null,2),"application/json");return;}const data=await fetchJson("/api/export",{method:"POST"});download(data.name||"robom-company-export.json",JSON.stringify(data.payload,null,2),"application/json");}
 
 function bindScreen(){
-  $("#reviewApp")?.addEventListener("change",e=>{SELECTED_APP=e.target.value;render("reviews");});
-  $("#reviewViewport")?.addEventListener("change",e=>{$("#deviceFrame").style.setProperty("--device",`${e.target.value}px`);});
   $("#memoryInput")?.addEventListener("keydown",e=>{if(e.key==="Enter"){$("#memoryResults").innerHTML=memoryResults(e.target.value);}});
+  $$('[data-archive-tab]').forEach(chip=>chip.addEventListener("click",()=>{ARCHIVE_TAB=chip.dataset.archiveTab;render("archive");}));
 }
 
 document.addEventListener("click",async e=>{
   const nav=e.target.closest("[data-screen]");if(nav){e.preventDefault();render(nav.dataset.screen);return;}
-  const app=e.target.closest("[data-app]");if(app&&!app.dataset.action){SELECTED_APP=app.dataset.app;render("app");return;}
   const group=e.target.closest("[data-nav-toggle]");if(group){group.parentElement.classList.toggle("collapsed");return;}
-  const action=e.target.closest("[data-action]");if(!action)return;
+  const action=e.target.closest("[data-action]");
+  if(!action){const app=e.target.closest("[data-app]");if(app){SELECTED_APP=app.dataset.app;render("app");}return;}
   const a=action.dataset.action;
   try{
     if(a==="goto")render(action.dataset.target);
-    else if(a==="open-office")location.href="./office.html";
+    else if(a==="goto-item"){if(action.dataset.tab)ARCHIVE_TAB=action.dataset.tab;if(action.dataset.appId)SELECTED_APP=action.dataset.appId;render(action.dataset.appId?"app":action.dataset.target);}
     else if(a==="select-app"){SELECTED_APP=action.dataset.app;render("app");}
+    else if(a==="new-task")openTaskDialog(SELECTED_APP||"");
+    else if(a==="new-task-for")openTaskDialog(action.dataset.appId||"");
     else if(a==="new-record")openRecord(action.dataset.collection);
-    else if(a==="new-review")openRecord("reviews",`${appName(SELECTED_APP)} 화면 검수`);
-    else if(a==="speak-briefing")speak(briefText());
-    else if(a==="speak-events")speak((SNAP.events||[]).slice(0,8).map(x=>x.message||x.type).join(". ")||"방송할 실제 이벤트가 없습니다.");
-    else if(a==="speak-record"){const r=records(action.dataset.collection).find(x=>x.id===action.dataset.id);if(r)speak(`${r.title}. ${r.body||""}`);}
     else if(a==="patch-record")await patchRecord(action.dataset.collection,action.dataset.id,action.dataset.status);
-    else if(a==="sign-approval"){CURRENT_APPROVAL=action.dataset.id;$("#signatureDialog").showModal();}
+    else if(a==="pause-all")await setControl({paused:true},"모든 자동작업을 일시정지했습니다.");
+    else if(a==="resume-all")await setControl({paused:false},"자동작업을 다시 시작했습니다.");
+    else if(a==="close-intake")await setControl({intakeClosed:true},"새 작업 접수를 중지했습니다.");
+    else if(a==="open-intake")await setControl({intakeClosed:false},"새 작업 접수를 재개했습니다.");
     else if(a==="download-bundle"){const r=records("tasks").find(x=>x.id===action.dataset.id);if(r)download(`robom-task-${r.id}.md`,bundleFor(r));}
     else if(a==="backup")await doBackup();
     else if(a==="export")await doExport();
     else if(a==="refresh")await load();
     else if(a==="search-memory")$("#memoryResults").innerHTML=memoryResults($("#memoryInput")?.value||"");
-    else if(a==="report-preview")speak(`${action.dataset.report}. 현재 회사 앱 ${SNAP.company.apps.live}개 중 ${SNAP.company.apps.ok}개가 정상입니다.`);
   }catch(err){showToast(`처리하지 못했습니다. ${err.message}`,"bad");}
 });
 
 $("#sideNav").innerHTML=navMarkup();
-$("#menuBtn").addEventListener("click",openMenu);$("#moreBtn").addEventListener("click",openMenu);$("#menuCloseBtn").addEventListener("click",closeMenu);$("#drawerScrim").addEventListener("click",closeMenu);
+$("#menuBtn").addEventListener("click",openMenu);$("#moreBtn").addEventListener("click",()=>{ARCHIVE_TAB="memory";render("archive");});$("#menuCloseBtn").addEventListener("click",closeMenu);$("#drawerScrim").addEventListener("click",closeMenu);
 $("#refreshBtn").addEventListener("click",load);
 $("#navSearch").addEventListener("input",e=>{const q=e.target.value.trim().toLowerCase();$$('[data-search]').forEach(x=>x.hidden=q&&!x.dataset.search.toLowerCase().includes(q));$$('.nav-group').forEach(g=>g.hidden=q&&![...g.querySelectorAll('[data-search]')].some(x=>!x.hidden));});
 $$('[data-dialog-close]').forEach(button=>button.addEventListener("click",()=>{const dialog=document.getElementById(button.dataset.dialogClose);if(dialog?.open)dialog.close("cancel");}));
 $("#recordForm").addEventListener("submit",e=>{if(e.submitter?.value==="cancel")return;e.preventDefault();saveRecord(e.currentTarget).catch(err=>showToast(err.message,"bad"));});
-
-const sig=$("#signaturePad"),sctx=sig.getContext("2d");let drawing=false,signed=false;
-function sigPos(e){const r=sig.getBoundingClientRect(),p=e.touches?.[0]||e;return{x:(p.clientX-r.left)*sig.width/r.width,y:(p.clientY-r.top)*sig.height/r.height};}
-function clearSig(){sctx.clearRect(0,0,sig.width,sig.height);sctx.fillStyle="#fffdf8";sctx.fillRect(0,0,sig.width,sig.height);signed=false;}
-clearSig();sig.addEventListener("pointerdown",e=>{drawing=true;signed=true;const p=sigPos(e);sctx.beginPath();sctx.moveTo(p.x,p.y);sig.setPointerCapture(e.pointerId);});sig.addEventListener("pointermove",e=>{if(!drawing)return;const p=sigPos(e);sctx.lineWidth=5;sctx.lineCap="round";sctx.strokeStyle="#18332a";sctx.lineTo(p.x,p.y);sctx.stroke();});sig.addEventListener("pointerup",()=>drawing=false);$("#clearSignature").addEventListener("click",clearSig);
-$("#signatureForm").addEventListener("submit",async e=>{if(e.submitter?.value==="cancel")return;e.preventDefault();if(!signed){showToast("서명을 입력해 주세요.");return;}await patchRecord("approvals",CURRENT_APPROVAL,"approved",{comment:$("#signatureComment").value,signatureRecorded:true});$("#signatureDialog").close();clearSig();});
+$("#taskForm").addEventListener("submit",e=>{if(e.submitter?.value==="cancel")return;e.preventDefault();saveTask(e.currentTarget).catch(err=>showToast(err.message,"bad"));});
 
 function tick(){try{$("#clock").textContent=new Intl.DateTimeFormat("ko-KR",{timeZone:"Asia/Seoul",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date());}catch{}}
 setInterval(tick,1000);tick();
+// 라이브 모드에서는 30초마다 HQ 상태를 조용히 갱신(오늘·Codex 화면 최신 유지)
+setInterval(async()=>{if(LOCAL.mode==="live"&&!preview){try{HQ=await fetchJson("/api/hq-status");if(["today","codex"].includes(CURRENT))render(CURRENT);}catch{}}},30_000);
 if("serviceWorker" in navigator&&!preview&&location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
 load();

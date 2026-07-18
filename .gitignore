@@ -25,3 +25,4 @@ Thumbs.db
 ops/control-center/events/*.jsonl
 ops/control-center/snapshots/latest.json
 ops/control-center/runtime/
+desktop/payload/

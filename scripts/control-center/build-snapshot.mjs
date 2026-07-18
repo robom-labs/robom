@@ -78,14 +78,14 @@ async function collectApp(app) {
 }
 
 async function main() {
-  const sitePackage = JSON.parse(readText(join(REPO_ROOT, "site/package.json")));
+  const sitePackage = JSON.parse(readText(join(REPO_ROOT, "site/package.json")) || "{}"); // 데스크톱 payload처럼 site가 없는 배치에서도 동작
   const centralGit = gitInfo(REPO_ROOT);
   const deployedSiteSha = siteDeploySha(REPO_ROOT);
   const apps = [{
     id: "robom",
     name: "로봄 본사",
     repo: "robom-labs/robom",
-    version: sitePackage.version,
+    version: sitePackage.version || null,
     version_source: "https://raw.githubusercontent.com/robom-labs/robom/main/site/package.json",
     web_url: "https://robom.kr/",
     healthcheck_url: "https://robom.kr/",
@@ -163,7 +163,7 @@ async function main() {
     operations,
   };
 
-  const outDir = join(REPO_ROOT, "ops/control-center/snapshots");
+  const outDir = process.env.ROBOM_HQ_SNAP_DIR || join(REPO_ROOT, "ops/control-center/snapshots");
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
   writeFileSync(join(outDir, "latest.json"), JSON.stringify(snapshot, null, 2));
   console.log(`[robom-hq] snapshot 생성: apps=${appData.length} agents=${agents.length} runs=${runs.length} github=${connections.github}`);

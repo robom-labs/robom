@@ -1,5 +1,8 @@
 // 로봄 본부 로컬 실행 서버 — 기존 스냅샷·정적 화면과 Company OS 저장 API를 함께 제공한다.
+// 기본은 127.0.0.1 로컬 전용. ROBOM_HQ_REMOTE_TOKEN(12자 이상)을 설정한 경우에만
+// 같은 네트워크(권장: Tailscale 사설망)의 휴대폰이 토큰 인증으로 접속할 수 있다.
 import { createServer } from "node:http";
+import { timingSafeEqual } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { extname, isAbsolute, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -8,13 +11,19 @@ import {
   CompanyStoreError,
   createCompanyStore,
 } from "./lib/company-store.mjs";
+import {
+  cancelPendingTask, enqueueTask, queueSummary, recoverStaleLeases, writeControl,
+} from "./lib/task-queue.mjs";
 import { REPO_ROOT } from "./lib/sources.mjs";
 
 const DEFAULT_PORT = Number(process.env.ROBOM_HQ_PORT || 4321);
 export const LOCAL_HOST = "127.0.0.1";
 export const MAX_REQUEST_BYTES = 32 * 1024;
 const APP_DIR = join(REPO_ROOT, "ops/control-center/app");
-const SNAP_DIR = join(REPO_ROOT, "ops/control-center/snapshots");
+const SNAP_DIR = process.env.ROBOM_HQ_SNAP_DIR || join(REPO_ROOT, "ops/control-center/snapshots");
+const REMOTE_TOKEN = String(process.env.ROBOM_HQ_REMOTE_TOKEN || "").trim();
+const REMOTE_ENABLED = REMOTE_TOKEN.length >= 12;
+const WATCHDOG_MINUTES = Number(process.env.ROBOM_HQ_WATCH_MINUTES ?? 10);
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -122,13 +131,60 @@ function assertEmptyOperationBody(body) {
   }
 }
 
-async function handleApi(req, res, path, store, maxBodyBytes) {
+function readSnapshotValue(snapDir) {
+  try {
+    const latest = join(snapDir, "latest.json");
+    const example = join(snapDir, "example.json");
+    const file = existsSync(latest) ? latest : example;
+    return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
+  } catch { return null; }
+}
+
+async function handleApi(req, res, path, store, maxBodyBytes, snapDir) {
   if (path === "/api/company-state") {
     if (req.method !== "GET") {
       sendText(res, 405, "method not allowed", { Allow: "GET" });
       return;
     }
     sendJson(res, 200, await store.getState());
+    return;
+  }
+
+  // HQ 상태: 대기열·러너·긴급 제어를 화면이 한 번에 읽는다.
+  if (path === "/api/hq-status") {
+    if (req.method !== "GET") { sendText(res, 405, "method not allowed", { Allow: "GET" }); return; }
+    recoverStaleLeases();
+    sendJson(res, 200, { ok: true, ...queueSummary(), remote: REMOTE_ENABLED ? "token" : "local-only" });
+    return;
+  }
+
+  // 긴급 제어: 전체 일시정지 / 새 작업 접수 중지
+  if (path === "/api/control") {
+    if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "POST" }); return; }
+    const body = await readJsonBody(req, maxBodyBytes);
+    const allowed = new Set(["paused", "intakeClosed"]);
+    const keys = Object.keys(body);
+    if (!keys.length || keys.some((key) => !allowed.has(key) || typeof body[key] !== "boolean")) {
+      throw new HttpError("paused·intakeClosed boolean만 허용합니다.", 400, "INVALID_CONTROL");
+    }
+    sendJson(res, 200, { ok: true, control: writeControl(body) });
+    return;
+  }
+
+  // 업무 접수: 회장 요청 → 기록 저장 + Codex 작업 패킷을 대기열에 넣는다.
+  if (path === "/api/tasks") {
+    if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "POST" }); return; }
+    const control = queueSummary().control;
+    if (control.intakeClosed) throw new HttpError("새 작업 접수가 중지된 상태입니다.", 409, "INTAKE_CLOSED");
+    const body = await readJsonBody(req, maxBodyBytes);
+    const record = await store.createRecord("tasks", body);
+    let packet = null;
+    try { packet = enqueueTask(record, { snapshot: readSnapshotValue(snapDir) }); }
+    catch (error) {
+      await store.updateStatus("tasks", record.id, { status: "blocked" });
+      throw new HttpError(`작업 패킷 생성 실패: ${error.message}`, 500, "PACKET_FAILED");
+    }
+    sendJson(res, 201, { ok: true, record, packet, state: await store.getState() });
     return;
   }
 
@@ -176,6 +232,9 @@ async function handleApi(req, res, path, store, maxBodyBytes) {
   if (req.method === "PATCH" && id) {
     const body = await readJsonBody(req, maxBodyBytes);
     const record = await store.updateStatus(collection, id, body);
+    if (collection === "tasks" && ["cancelled", "dismissed", "on_hold", "held"].includes(record.status)) {
+      cancelPendingTask(id); // 대기열에서도 제거(실행 중이면 러너가 안전 중단 판단)
+    }
     sendJson(res, 200, { ok: true, record, state: await store.getState() });
     return;
   }
@@ -190,14 +249,52 @@ function resolveStaticFile(appDir, path) {
   return file;
 }
 
+// ── 원격(휴대폰) 인증: 토큰이 설정된 경우에만 localhost 밖 요청을 허용 ──
+const remoteSessions = new Map(); // ip → {count, windowStart} 간이 rate limit
+function tokenMatches(candidate) {
+  if (!REMOTE_ENABLED || typeof candidate !== "string") return false;
+  const expected = Buffer.from(REMOTE_TOKEN);
+  const actual = Buffer.from(candidate);
+  return expected.length === actual.length && timingSafeEqual(expected, actual);
+}
+function remoteAuthorized(req) {
+  const header = String(req.headers.authorization || "");
+  if (header.startsWith("Bearer ") && tokenMatches(header.slice(7).trim())) return true;
+  const cookies = String(req.headers.cookie || "");
+  const match = cookies.match(/(?:^|;\s*)robomhq=([^;]+)/);
+  if (match && tokenMatches(decodeURIComponent(match[1]))) return true;
+  const query = new URL(req.url, "http://x").searchParams.get("token");
+  return query ? tokenMatches(query) : false;
+}
+function rateLimited(req) {
+  const ip = req.socket.remoteAddress || "unknown";
+  const nowMs = Date.now();
+  const entry = remoteSessions.get(ip) || { count: 0, windowStart: nowMs };
+  if (nowMs - entry.windowStart > 60_000) { entry.count = 0; entry.windowStart = nowMs; }
+  entry.count += 1;
+  remoteSessions.set(ip, entry);
+  return entry.count > 240;
+}
+
 async function handleRequest(req, res, { store, appDir, snapDir, maxBodyBytes }) {
-  if (!isLocalHostHeader(req.headers.host)) {
-    sendJson(res, 403, { error: "LOCAL_ONLY", message: "localhost 요청만 허용합니다." });
-    return;
+  const local = isLocalHostHeader(req.headers.host) && [LOCAL_HOST, "::1", "::ffff:127.0.0.1"].includes(req.socket.remoteAddress);
+  if (!local) {
+    if (!REMOTE_ENABLED) {
+      sendJson(res, 403, { error: "LOCAL_ONLY", message: "localhost 요청만 허용합니다." });
+      return;
+    }
+    if (rateLimited(req)) { sendJson(res, 429, { error: "RATE_LIMITED", message: "요청이 너무 많습니다." }); return; }
+    if (!remoteAuthorized(req)) {
+      sendJson(res, 401, { error: "UNAUTHORIZED", message: "휴대폰 연결 토큰이 필요합니다." });
+      return;
+    }
+    // 첫 접속(?token=)이면 세션 쿠키로 고정해 URL에서 토큰을 지울 수 있게 한다.
+    const query = new URL(req.url, "http://x").searchParams.get("token");
+    if (query) res.setHeader("Set-Cookie", `robomhq=${encodeURIComponent(query)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=86400`);
   }
   const path = decodeSafePath(req.url);
   if (path.startsWith("/api/")) {
-    await handleApi(req, res, path, store, maxBodyBytes);
+    await handleApi(req, res, path, store, maxBodyBytes, snapDir);
     return;
   }
   if (req.method !== "GET" && req.method !== "HEAD") {
@@ -253,9 +350,10 @@ export function createControlCenterServer({
 export async function startControlCenter({ port = DEFAULT_PORT, openBrowser = true, refreshSnapshot = true } = {}) {
   if (!Number.isSafeInteger(port) || port < 0 || port > 65_535) throw new TypeError("ROBOM_HQ_PORT가 올바르지 않습니다.");
   const server = createControlCenterServer();
+  const bindHost = REMOTE_ENABLED ? "0.0.0.0" : LOCAL_HOST;
   await new Promise((resolveListen, rejectListen) => {
     server.once("error", rejectListen);
-    server.listen(port, LOCAL_HOST, () => {
+    server.listen(port, bindHost, () => {
       server.off("error", rejectListen);
       resolveListen();
     });
@@ -263,10 +361,18 @@ export async function startControlCenter({ port = DEFAULT_PORT, openBrowser = tr
   const actualPort = server.address().port;
   const link = `http://${LOCAL_HOST}:${actualPort}/`;
   const officeLink = `${link}office.html`;
-  console.log(`\n  로봄 본부 ROBOM Company OS 실행됨\n  → 경영 OS: ${link}\n  → 6층 오피스: ${officeLink}\n  (종료: Ctrl+C)\n`);
+  console.log(`\n  로봄 본부 ROBOM HQ 실행됨\n  → 경영 OS: ${link}\n  → 6층 오피스(부가기능): ${officeLink}\n  (종료: Ctrl+C)\n`);
+  if (REMOTE_ENABLED) {
+    console.log(`[robom-hq] 휴대폰 연결 허용됨(토큰 인증). 같은 사설망에서 http://<이 컴퓨터 IP>:${actualPort}/?token=<토큰> 으로 1회 접속하면 이후 쿠키로 유지됩니다.`);
+  }
   if (refreshSnapshot) {
     console.log("[robom-hq] 기존 화면을 먼저 열고 스냅샷은 백그라운드에서 갱신합니다.");
     buildSnapshotInBackground();
+    // 결정론적 감시기: Codex 없이 주기적으로 실데이터 스냅샷을 갱신한다(0이면 끔).
+    if (Number.isFinite(WATCHDOG_MINUTES) && WATCHDOG_MINUTES > 0) {
+      const timer = setInterval(buildSnapshotInBackground, WATCHDOG_MINUTES * 60_000);
+      timer.unref?.();
+    }
   }
   if (openBrowser) {
     const opener = process.platform === "darwin" ? "open" : process.platform === "win32" ? "cmd" : "xdg-open";
