@@ -1,0 +1,51 @@
+{
+  "name": "robom-hq",
+  "productName": "ROBOM HQ",
+  "version": "1.2.0",
+  "description": "로봄 전용 자율 운영 본사 — 모든 로봄 앱을 감시·관리·개선하는 데스크톱 프로그램",
+  "author": "robom-labs",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "prepare-payload": "node scripts/prepare-payload.mjs",
+    "start": "electron .",
+    "dist": "electron-builder --publish never"
+  },
+  "devDependencies": {
+    "electron": "^33.3.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "kr.robom.hq",
+    "productName": "ROBOM HQ",
+    "asar": true,
+    "files": [
+      "main.cjs"
+    ],
+    "extraResources": [
+      { "from": "payload", "to": "payload" }
+    ],
+    "directories": { "output": "dist" },
+    "icon": "build/icon.png",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "identity": null,
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] },
+        { "target": "zip", "arch": ["arm64"] }
+      ],
+      "artifactName": "ROBOM-HQ-${version}-mac-${arch}.${ext}"
+    },
+    "dmg": { "writeUpdateInfo": false },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "artifactName": "ROBOM-HQ-Setup-${version}-win-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "deleteAppDataOnUninstall": false,
+      "differentialPackage": false
+    }
+  }
+}
