@@ -7,7 +7,7 @@
   /* 따뜻한 전사 팔레트(v2): 브랜드는 앰버·테라코타, 잉크·중간톤도 웜그레이로 통일.
      야외봄·청약봄·자격증봄은 앱 고유색 유지, 러닝봄·캘린더봄은 앱 재도색과 짝을 맞춘다. */
   --ink: #241d16;
-  --muted: #7a6a5b;
+  --muted: #6f5f50;
   --paper: #fdf6ec;
   --surface: #fffdf9;
   --soft: #f7efe3;
@@ -310,7 +310,7 @@ em { font-style: normal; }
 @media (max-width: 900px) { .app-preview { grid-template-columns: 1fr; } .phone-frame { width: min(280px, 82vw); } }
 
 @media (prefers-color-scheme: dark) {
-  :root { color-scheme: light; --ink: #241d16; --muted: #7a6a5b; --paper: #fdf6ec; --surface: #fffdf9; --soft: #f7efe3; --line: #ecdfcd; --robom-soft: #f9eedd; --out-soft: #e9f5fc; --home-soft: #eaf6ed; --run-soft: #fcece5; --cal-soft: #f7e9eb; --cert-soft: #eef2ff; --note-soft: #f1ecf6; --shadow: 0 18px 50px rgba(91,67,44,.09); }
+  :root { color-scheme: light; --ink: #241d16; --muted: #6f5f50; --paper: #fdf6ec; --surface: #fffdf9; --soft: #f7efe3; --line: #ecdfcd; --robom-soft: #f9eedd; --out-soft: #e9f5fc; --home-soft: #eaf6ed; --run-soft: #fcece5; --cal-soft: #f7e9eb; --cert-soft: #eef2ff; --note-soft: #f1ecf6; --shadow: 0 18px 50px rgba(91,67,44,.09); }
   .site-header { background: rgba(253, 247, 238, .92); }.family-preview { background: rgba(255, 255, 255, .94); }.button.primary { background: var(--ink); color: #fff; }.button.secondary, .desktop-nav a:hover { background: var(--surface); }.preview-hero > a { background: var(--ink); color: #fff; }.mobile-tabbar { background: rgba(255, 255, 255, .96); }
 }
 
