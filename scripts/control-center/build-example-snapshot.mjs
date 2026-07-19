@@ -75,8 +75,7 @@ function main() {
       github: "not_connected(예시 스냅샷 — 본부 실행 시 실제 상태로 대체)",
       localGit: [],
       events: "no_events(아직 작업 이벤트 없음)",
-      claudeCode: "adapter_pending(훅으로 emit-event 연결 시 활성)",
-      codex: "adapter_pending",
+      codex: "runner(단일 실행기 — 모든 자동 수정은 코덱스)",
     },
     operations: { humanTasks: [], security: [] },
   };

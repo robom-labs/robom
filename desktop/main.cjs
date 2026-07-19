@@ -66,7 +66,59 @@ function ensureLoginItemDefault(dataRoot) {
   }
 }
 
+// 심층 브라우저 점검 드라이버: 숨김 창(sandbox·메모리 세션)으로 운영 앱을 실제 렌더해 검사한다.
+// 원격 페이지 script는 로컬 filesystem·IPC·token에 접근할 수 없다(§6.1). 사용자 프로필은 절대 쓰지 않는다.
+async function registerElectronBrowserDriver() {
+  const driverUrl = pathToFileURL(join(payloadDir, "scripts/control-center/lib/browser-driver.mjs")).href;
+  const { setBrowserDriver, metricsScript, seedScript } = await import(driverUrl);
+  let serial = 0;
+  setBrowserDriver({
+    name: "electron",
+    async run({ url, viewport, timeoutMs = 45_000, seedStorage, collectStorageKeys }) {
+      const win = new BrowserWindow({
+        show: false,
+        width: viewport?.width || 390,
+        height: viewport?.height || 844,
+        webPreferences: {
+          sandbox: true, contextIsolation: true, nodeIntegration: false,
+          partition: `smoke-${Date.now()}-${serial++}`, // 메모리 세션 — 실제 사용자 데이터와 격리
+          images: true,
+        },
+      });
+      const consoleErrors = [];
+      win.webContents.on("console-message", (_e, level, message) => {
+        if (level >= 3) consoleErrors.push(String(message).slice(0, 200));
+      });
+      win.webContents.on("will-navigate", (event, target) => {
+        try { if (new URL(target).origin !== new URL(url).origin) event.preventDefault(); } catch { event.preventDefault(); }
+      });
+      win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+      try {
+        const load = (target) => new Promise((resolveLoad, rejectLoad) => {
+          const timer = setTimeout(() => rejectLoad(new Error("load timeout")), timeoutMs);
+          win.webContents.once("did-finish-load", () => { clearTimeout(timer); resolveLoad(); });
+          win.webContents.once("did-fail-load", (_e, code, desc) => { clearTimeout(timer); rejectLoad(new Error(`load fail ${code} ${desc}`)); });
+          win.loadURL(target).catch(rejectLoad);
+        });
+        await load(url);
+        if (seedStorage && Object.keys(seedStorage).length) {
+          await win.webContents.executeJavaScript(seedScript(seedStorage), true);
+          await load(url);
+        }
+        await new Promise((r) => setTimeout(r, 1500)); // 렌더 안정화
+        const metrics = await win.webContents.executeJavaScript(metricsScript(collectStorageKeys || []), true);
+        return { consoleErrors, ...metrics };
+      } finally {
+        if (!win.isDestroyed()) win.destroy();
+      }
+    },
+  });
+}
+
 async function startServer() {
+  try { await registerElectronBrowserDriver(); } catch (error) {
+    console.error("[robom-hq] 브라우저 점검 드라이버 등록 실패(HTTP 계약은 계속 동작)", error);
+  }
   const serveUrl = pathToFileURL(join(payloadDir, "scripts/control-center/serve.mjs")).href;
   const { startControlCenter } = await import(serveUrl);
   const { link } = await startControlCenter({ port: 0, openBrowser: false, refreshSnapshot: true });

@@ -1,0 +1,664 @@
+{
+ "contract_set": {
+  "schema_version": "2.2.0",
+  "target": "robom-hq",
+  "generated_from": "scripts/control-center/lib/contract-catalog.mjs",
+  "note": "정본은 카탈로그 모듈. 이 파일은 machine-readable 산출물이며 직접 수정하지 않는다(build-health-contracts.mjs 재실행).",
+  "rules_count": 24
+ },
+ "rules": [
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:snapshot-exists",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "snapshot-exists",
+    "appCount": 6
+   },
+   "severityIfFail": "error",
+   "failureClass": "observability",
+   "what": "실제 스냅샷(latest.json) 존재 — 예시 폴백을 운영 증거로 오인 금지",
+   "userImpact": "예시 데이터로는 회사를 판단할 수 없습니다.",
+   "recommendedAction": "스냅샷 생성 프로세스를 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:snapshot-age",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "snapshot-age",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "freshness",
+   "what": "스냅샷 나이 ≤ 감시기 주기×3+5분",
+   "userImpact": "상태 갱신 지연은 판단 지연입니다.",
+   "recommendedAction": "감시기 프로세스를 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:snapshot-app-count",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "snapshot-app-count",
+    "appCount": 6
+   },
+   "severityIfFail": "error",
+   "failureClass": "parity",
+   "what": "스냅샷 앱 수 == registry(6) + 본사",
+   "userImpact": "앱이 누락되면 그 앱은 무점검 상태가 됩니다.",
+   "recommendedAction": "수집 실패 앱을 확인합니다(전체 삭제 금지 구조)."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:queue-integrity",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "queue-integrity",
+    "appCount": 6
+   },
+   "severityIfFail": "error",
+   "failureClass": "automation",
+   "what": "작업 대기열 디렉터리·JSON parse·중복 task id 0",
+   "userImpact": "대기열이 깨지면 자동 실행이 멈춥니다.",
+   "recommendedAction": "대기열 파일을 점검합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:stale-lease",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "stale-lease",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "automation",
+   "what": "죽은 실행 lease 자동 회수 동작",
+   "userImpact": "고아 lease는 작업을 영원히 막습니다.",
+   "recommendedAction": "lease 회수 로그를 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:control-flags",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "control-flags",
+    "appCount": 6
+   },
+   "severityIfFail": "info",
+   "failureClass": "automation",
+   "what": "긴급 제어(paused·intakeClosed) 플래그 parse",
+   "userImpact": "제어 상태를 읽지 못하면 오작동합니다.",
+   "recommendedAction": "control.json을 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:authority-valid",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "authority-valid",
+    "appCount": 6
+   },
+   "severityIfFail": "error",
+   "failureClass": "automation",
+   "what": "회사 가동·결재 모드 정본 parse 유효",
+   "userImpact": "권한 정본이 깨지면 전결·자동화가 멈춥니다.",
+   "recommendedAction": "company-authority.json을 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:review-marker",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "review-marker",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "automation",
+   "what": "자동 점검 최근 실행 marker(하트비트)",
+   "userImpact": "점검 루프가 멈추면 문제를 놓칩니다.",
+   "recommendedAction": "HQ를 재시작하면 자동 복구됩니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:settings-parity",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "settings-parity",
+    "appCount": 6
+   },
+   "severityIfFail": "info",
+   "failureClass": "observability",
+   "what": "설정 파일과 런타임 표시값 parity",
+   "userImpact": "설정 UI가 실제와 다르면 회장 판단이 틀립니다.",
+   "recommendedAction": "설정 저장 로직을 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:runner-status",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "runner-status",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "automation",
+   "what": "코덱스 실행기 상태 신선도(관리 모드에서 실행 중)",
+   "userImpact": "실행기가 죽으면 승인 작업이 진행되지 않습니다.",
+   "recommendedAction": "HQ가 자동 재시작합니다. 반복되면 로그 확인."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:codex-cli",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "codex-cli",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "automation",
+   "what": "Codex CLI 설치·로그인 흔적(실행기는 오로지 Codex)",
+   "userImpact": "Codex 미연결이면 자동 수정이 불가합니다(점검은 계속 동작).",
+   "recommendedAction": "터미널에서 codex login 1회 실행."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:disk-free",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "disk-free",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "availability",
+   "what": "디스크 여유(2GB 경고·500MB 위험)",
+   "userImpact": "디스크가 차면 증거 저장·스냅샷이 실패합니다.",
+   "recommendedAction": "공간을 확보합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:backup-age",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "backup-age",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "storage",
+   "what": "회사 기록 백업 나이 ≤ 7일",
+   "userImpact": "백업이 오래되면 사고 시 기록을 잃습니다.",
+   "recommendedAction": "기록 화면에서 백업을 실행합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:health-history-size",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "health-history-size",
+    "appCount": 6
+   },
+   "severityIfFail": "info",
+   "failureClass": "observability",
+   "what": "health 증거 저장 용량 상한(200MB) 관리",
+   "userImpact": "무한 증가는 디스크를 채웁니다.",
+   "recommendedAction": "오래된 history를 정리합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:version-triad",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "version-triad",
+    "appCount": 6
+   },
+   "severityIfFail": "error",
+   "failureClass": "parity",
+   "what": "desktop·payload·앱 버전 삼중 일치",
+   "userImpact": "버전 불일치는 업데이트 혼란을 만듭니다.",
+   "recommendedAction": "세 곳의 버전을 함께 올립니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:org-canon",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "org-canon",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "schema",
+   "what": "조직 정본(organization.json) parse·12본부·임원 구성",
+   "userImpact": "조직 정본이 깨지면 회사 화면이 비어 보입니다.",
+   "recommendedAction": "organization.json을 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:runtime-permissions",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "runtime-permissions",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "runtime 디렉터리 권한(700) — 기록·첨부 보호",
+   "userImpact": "권한이 느슨하면 로컬 기록이 노출될 수 있습니다.",
+   "recommendedAction": "권한을 700으로 되돌립니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:clock-seoul",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "clock-seoul",
+    "appCount": 6
+   },
+   "severityIfFail": "info",
+   "failureClass": "freshness",
+   "what": "Asia/Seoul 시간 계산 정상(교대조 판정 기반)",
+   "userImpact": "시간 계산이 깨지면 교대·점검 시각이 틀립니다.",
+   "recommendedAction": "OS 시간대 데이터를 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:engine-self",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "engine-self",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "observability",
+   "what": "monitor-the-monitor: 계약 카탈로그 로드·기대 계약 수 == 실행 수·직전 run 완결",
+   "userImpact": "감시기 자신이 죽으면 아무도 모르게 됩니다.",
+   "recommendedAction": "HQ 재시작 후 반복되면 로그를 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:redaction-selftest",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "redaction-selftest",
+    "appCount": 6
+   },
+   "severityIfFail": "error",
+   "failureClass": "security",
+   "what": "증거 저장 전 secret·원문 redaction 자가 검사",
+   "userImpact": "증거에 비밀이 섞이면 안 됩니다.",
+   "recommendedAction": "redaction 규칙을 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:remote-optin",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "remote-optin",
+    "appCount": 6
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "원격 접속은 opt-in·토큰 12자 이상·기본 localhost 전용",
+   "userImpact": "기본 공개는 보안 사고입니다.",
+   "recommendedAction": "토큰 설정을 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:release-artifacts",
+   "target": "robom-hq",
+   "category": "release",
+   "evaluator": "github_release",
+   "config": {
+    "repo": "robom-labs/robom",
+    "tagPrefix": "hq-v",
+    "minAssets": 4
+   },
+   "severityIfFail": "warning",
+   "failureClass": "integrity",
+   "what": "최신 HQ 릴리스에 mac(arm64·x64)·win 산출물 존재·크기 0 금지",
+   "userImpact": "산출물이 깨지면 설치·업데이트가 막힙니다.",
+   "recommendedAction": "릴리스 워크플로를 재실행합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:robom-hq:hq-ci",
+   "target": "robom-hq",
+   "category": "ci",
+   "evaluator": "github_actions",
+   "config": {
+    "repo": "robom-labs/robom"
+   },
+   "severityIfFail": "error",
+   "failureClass": "automation",
+   "what": "본사 저장소 최신 main CI",
+   "userImpact": "CI 실패는 다음 배포 위험입니다.",
+   "recommendedAction": "실패 원인을 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "filesystem"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": true,
+   "id": "c:robom-hq:login-item-status",
+   "target": "robom-hq",
+   "category": "self",
+   "evaluator": "hq_runtime",
+   "config": {
+    "check": "login-item-status",
+    "appCount": 6
+   },
+   "severityIfFail": "info",
+   "failureClass": "observability",
+   "sourceNeeded": "macOS 로그인 항목 실제 등록 상태를 renderer에 노출하는 desktop API",
+   "whyNeeded": "Electron 설정값만으로는 사용자가 시스템 설정에서 껐는지 알 수 없음",
+   "privacyRisk": "boolean 상태만 — 개인정보 없음",
+   "freeImplementationOption": "desktop main이 app.getLoginItemSettings()를 스냅샷에 포함",
+   "fallbackStatus": "UNAVAILABLE",
+   "what": "맥 부팅 자동 시작 실제 등록 상태",
+   "userImpact": "자동 시작이 꺼진 걸 모르면 24/7 운영이 끊깁니다.",
+   "recommendedAction": "desktop API 노출 시 자동 점검됩니다."
+  }
+ ]
+}

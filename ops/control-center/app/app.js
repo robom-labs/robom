@@ -73,7 +73,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="2.0.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="2.1.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -349,10 +349,36 @@ function renderTasks(){
   ${list.length?`<div class="record-list">${list.map(taskRow).join("")}</div>`:empty("등록된 업무가 없습니다.","'새 수정 요청'을 눌러 어떤 앱의 무엇이 불편한지 말하듯 적어 주세요. 사진도 붙일 수 있어요.")}`;
 }
 
+/* ── 심층 계약 진단(진단률 100%) — 자동화·회사 화면이 공유 ── */
+let CONTRACTS=null,CONTRACTS_LOADING=false;
+function loadContracts(){ // 1회 로드 후 도착 시 한 번만 재렌더(무한 재렌더 금지)
+  if(CONTRACTS||CONTRACTS_LOADING||preview)return;
+  CONTRACTS_LOADING=true;
+  fetchJson("/api/health-contracts").then(v=>{CONTRACTS=v;if(["automation","company"].includes(CURRENT))renderScreen();}).catch(()=>{CONTRACTS={ok:false};});
+}
+const TARGET_NAMES={company:"회사 전역",robom:"robom.kr",["robom-hq"]:"ROBOM HQ",outbom:"야외봄",homebom:"청약봄",runningbom:"러닝봄",calendarbom:"캘린더봄",certbom:"자격증봄",notebom:"노트봄"};
+function contractsPanel(){
+  const d=CONTRACTS?.defined,r=CONTRACTS?.report;
+  if(!CONTRACTS)return panel("심층 진단 — 진단률",empty("진단 결과를 불러오는 중입니다."));
+  if(!d)return panel("심층 진단 — 진단률",empty("계약 카탈로그를 읽지 못했습니다."));
+  const bt=r?.coverage?.byTarget||{};
+  const row=(t)=>{const v=bt[t]||{total:0,pass:0,degraded:0,fail:0,unavailable:0};
+    const tone=v.fail?"bad":v.degraded?"warn":v.pass?"good":"neutral";
+    const label=v.total?`${v.pass}/${v.total} 정상${v.fail?` · 장애 ${v.fail}`:""}${v.degraded?` · 확인 ${v.degraded}`:""}${v.unavailable?` · 불가 ${v.unavailable}`:""}`:"실행 대기";
+    return `<div><b>${esc(TARGET_NAMES[t]||t)}</b>${tonePill(tone,label)}</div>`;};
+  const targets=Object.keys(TARGET_NAMES).filter(t=>(d.byTarget||{})[t]);
+  return panel("심층 진단 — 프롬프트 계약 진단률 100%",`
+    <div class="kpi-row" style="margin-bottom:10px">${kpi(d.total,"정의된 계약","gold")}${kpi(r?.coverage?.pass??"—","정상","good")}${kpi((r?.coverage?.fail??0)||0,"장애",r?.coverage?.fail?"bad":"")}${kpi((r?.coverage?.degraded??0)||0,"확인 필요",r?.coverage?.degraded?"warn":"")}${kpi(d.needNewSource,"새 신호 필요")}</div>
+    <div class="simple-list">${targets.map(row).join("")}</div>
+    <p class="fine">업로드 지침의 계약 전부(${d.total}건)를 프로그램 안에서 정의·실행합니다. ‘새 신호 필요’ ${d.needNewSource}건은 앱 쪽 진단 신호가 생기면 자동으로 실측으로 전환됩니다(숨기지 않고 정직 표기). 마지막 실행 ${r?ago(r.runAt):"—"} · 실행기: 코덱스 단일.</p>
+    <div class="today-actions">${button("지금 전체 재점검(심층 포함)","run-health","secondary","","search")}</div>`);
+}
+
 /* ── 자동화 (구 Codex) ── */
 function renderAutomation(){
   const cx=codexState();
   const autos=pendingApprovals().filter(a=>a.requestedBy==="auto-review").length;
+  loadContracts();
   return `${title("AUTOMATION","자동화 현황판","Codex 실행기와 자동 점검이 지금 무엇을 하는지 보는 화면입니다.")}
   <div class="kpi-row">${kpi(HQ?.pending??"—","다음 대기")}${kpi(HQ?.running??"—","실행 중",HQ?.running?"accent":"")}${kpi(HQ?.done??"—","완료","good")}${kpi(HQ?.failed??"—","실패·막힘",HQ?.failed?"bad":"")}</div>
   ${panel("현재 상태",`<div class="codex-line"><span class="status ${cx.cls==="on"?"good":cx.cls==="busy"?"accent":cx.cls==="warn"?"warn":"neutral"}">${esc(cx.label)}</span><p>${esc(cx.detail)}</p></div>`)}
@@ -363,6 +389,7 @@ function renderAutomation(){
     <a href="#/records/approvals"><b>결재함 열기</b><span class="status neutral">이동</span></a>
   </div>`)}
   ${HQ?.health?panel("결정론적 점검 결과 (AI 없이 자동)",`<div class="kpi-row" style="margin-bottom:0">${kpi(HQ.health.pass??0,"정상","good")}${kpi(HQ.health.degraded??0,"확인 필요",HQ.health.degraded?"warn":"")}${kpi(HQ.health.fail??0,"장애",HQ.health.fail?"bad":"")}${kpi(HQ.health.openIncidents??0,"열린 사건",HQ.health.openIncidents?"warn":"")}${kpi(HQ.health.unavailable??0,"점검 불가")}</div><p class="fine">실제 신호(운영 응답·버전·CI·데이터 신선도·PR)를 규칙으로 판정합니다. 같은 문제는 반복 상신하지 않고, 회복되면 자동으로 닫힙니다.</p>`):""}
+  ${contractsPanel()}
   ${panel("제어",`<div class="today-actions">${HQ?.control?.paused?button("자동작업 다시 시작","resume-all","secondary","","play"):button("모든 자동작업 일시정지","pause-all","danger","","pause")}${HQ?.control?.intakeClosed?button("새 작업 접수 재개","open-intake","secondary"):button("새 작업 접수 중지","close-intake","ghost")}</div>`)}
   ${panel("연결 방법 (맥에서 딱 한 번)",`<ol class="number-list"><li>맥 터미널에서 한 번만: <code>codex login</code> — 구독 계정 로그인 (API 키 금지)</li><li>끝. ROBOM HQ가 실행기를 자동으로 켜고 감시합니다 — 이 앱을 켜 두기만 하면 승인한 작업이 자동 처리됩니다.</li></ol><p class="fine">${HQ?.runner?.managed?"실행기 자동 관리가 켜져 있습니다. ":""}로그인 전에는 미연결로 정직하게 표시하며, 요청은 대기열에 안전 보관됩니다. 실제 코드 수정에는 맥에 로봄 저장소 클론이 필요하며, HQ가 <code>~/robom-labs/robom</code> 등을 자동으로 찾습니다.</p>`)}`;
 }
@@ -412,7 +439,8 @@ function renderCompany(){
         <div><b>기술개발·품질본부 · CI/코드 흐름</b>${tonePill(health.degraded?"warn":"good",health.degraded?`확인 ${health.degraded}`:"통과")}</div>
         <div><b>전사 열린 사건</b>${tonePill(health.openIncidents?"warn":"good",String(health.openIncidents??0))}</div>
         <div><b>점검 불가(신호 부족)</b>${tonePill("neutral",String(health.unavailable??0))}</div>
-      </div><p class="fine">마지막 점검 ${ago(health.runAt)} · 같은 문제는 반복 상신하지 않고, 회복되면 자동으로 닫힙니다.</p>`:empty("아직 점검 결과가 없습니다."))}
+        ${health.contracts?`<div><b>심층 계약 진단(정의 ${health.contracts.totalContracts??health.contracts.executed??0}건)</b>${tonePill(health.contracts.fail?"bad":health.contracts.degraded?"warn":"good",health.contracts.fail?`장애 ${health.contracts.fail}`:health.contracts.degraded?`확인 ${health.contracts.degraded}`:"전 계약 정상")}</div>`:""}
+      </div><p class="fine">마지막 점검 ${ago(health.runAt)} · 같은 문제는 반복 상신하지 않고, 회복되면 자동으로 닫힙니다. <a href="#/automation">진단 상세 보기</a></p>`:empty("아직 점검 결과가 없습니다."))}
       ${panel("복지시설 (생활 연출)",ORG?`<div class="simple-list">${(ORG.facilities||[]).map(f=>`<div><b>${esc(f.name)}</b><span class="status neutral">${esc(f.floor)}</span></div>`).join("")}</div><p class="fine">시설과 생활 모습은 회사 세계관 연출이며 실제 업무 성과와 분리 집계됩니다.</p>`:"")}
     </div>
   </div>`;
@@ -494,7 +522,7 @@ async function deleteMemo(id){
   else{const r=(LOCAL.records.notes||[]).find(x=>x.id===id);if(r)r.status="archived";savePortable();}
   showToast("메모를 정리했습니다.","good");renderScreen();
 }
-function connectionMarkup(){const c=SNAP.connections||{};return `<div class="connection-list">${[["로컬 본부",LOCAL.mode==="live","실시간 기록·백업"],["GitHub",String(c.github).startsWith("connected"),c.github],["작업 이벤트",c.events==="connected",c.events],["Claude Code",!String(c.claudeCode).includes("pending"),c.claudeCode],["Codex 실행기",HQ?.runner?.codex==="connected","codex-runner"],["휴대폰 원격",HQ?.remote==="token","토큰 인증 사설망"]].map(([nm,ok,d])=>`<div>${tonePill(ok?"good":"neutral",ok?"연결":"대기")}<b>${esc(nm)}</b><span>${esc(d===true||d===false?"":(d||""))}</span></div>`).join("")}</div>`;}
+function connectionMarkup(){const c=SNAP.connections||{};return `<div class="connection-list">${[["로컬 본부",LOCAL.mode==="live","실시간 기록·백업"],["GitHub",String(c.github).startsWith("connected"),c.github],["작업 이벤트",c.events==="connected",c.events],["코덱스 실행기 (단일 실행기)",HQ?.runner?.codex==="connected","codex-runner — 모든 자동 수정은 코덱스가 수행"],["휴대폰 원격",HQ?.remote==="token","토큰 인증 사설망"]].map(([nm,ok,d])=>`<div>${tonePill(ok?"good":"neutral",ok?"연결":"대기")}<b>${esc(nm)}</b><span>${esc(d===true||d===false?"":(d||""))}</span></div>`).join("")}</div>`;}
 function recordList(collection,opt={}){const items=opt.items||records(collection);return items.length?`<div class="record-list">${items.map(r=>`<article><header><div><span>${esc(appName(r.appId))} · ${fmt(r.createdAt)}</span><h3>${esc(r.title||COLLECTION_LABEL[collection]||"기록")}</h3></div>${statusPill(r.status||"open")}</header>${r.body?`<p>${esc(r.body)}</p>`:""}</article>`).join("")}</div>`:empty(opt.emptyTitle||`저장된 ${COLLECTION_LABEL[collection]||"기록"}이 없습니다.`);}
 function renderNotReady(){return `${title("ROBOM HQ","로봄 본부","실제 연결 상태를 기준으로 표시합니다.")}${empty("표시할 정보가 없습니다.")}`;}
 
@@ -603,6 +631,7 @@ document.addEventListener("click",async e=>{
     else if(a==="save-memo")await saveMemo();
     else if(a==="delete-memo")await deleteMemo(action.dataset.id);
     else if(a==="apply-review-schedule")await saveReviewSchedule();
+    else if(a==="run-health"){await fetchJson("/api/health-run",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});showToast("전체 재점검을 시작했습니다(심층 포함). 결과는 1~3분 안에 이 화면에 반영됩니다.","good");CONTRACTS=null;CONTRACTS_LOADING=false;setTimeout(()=>{CONTRACTS=null;CONTRACTS_LOADING=false;loadContracts();},90_000);}
     else if(a==="set-company-mode"){const data=await fetchJson("/api/company-mode",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:action.dataset.mode})});try{HQ=await fetchJson("/api/hq-status");}catch{}showToast({RUNNING:"회사를 가동했습니다 — 상시 관제·자동 복구·전결이 켜집니다.",MONITOR_ONLY:"관제만 모드 — 점검·기안만 하고 수정은 하지 않습니다.",PAUSED:"회사를 안전하게 일시정지했습니다."}[data.mode]||"반영했습니다.","good");updateChrome();renderScreen();}
     else if(a==="set-delegation"){const data=await fetchJson("/api/delegation",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({approvalMode:action.dataset.approval})});try{HQ=await fetchJson("/api/hq-status");}catch{}showToast(data.approvalMode==="VICE_CHAIR_DELEGATED"?"수석부회장 전결을 위임했습니다 — 위임 가능 안건은 자동 재가됩니다.":"전결을 해제했습니다 — 새 안건은 회장 직접결재입니다.","good");updateChrome();renderScreen();}
     else if(a==="patch-record")await patchRecord(action.dataset.collection,action.dataset.id,action.dataset.status);

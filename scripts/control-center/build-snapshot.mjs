@@ -158,8 +158,7 @@ async function main() {
       : "not_connected(GitHub REST 읽기 실패 · 로컬 git만)",
     localGit: apps.map((app) => app.id).filter((id) => existsSync(join(localDir(id), ".git"))),
     events: events.length > 0 ? "connected" : "no_events(아직 작업 이벤트 없음)",
-    claudeCode: "adapter_pending(훅으로 emit-event 연결 시 활성)",
-    codex: "adapter_pending",
+    codex: "runner(단일 실행기 — 모든 자동 수정은 코덱스)",
   };
 
   const operations = buildCompanyOperations(REPO_ROOT, appData);

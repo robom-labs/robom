@@ -1,31 +1,59 @@
-# ROBOM HQ 결정론적 health 엔진 (v1.9.0)
+# ROBOM HQ 결정론적 health 엔진 (v2.1.0 — 진단률 100%)
 
 AI 없이(규칙만으로) 회사 앱들의 실제 신호를 읽고 **정상 / 확인 필요 / 장애 / 점검 불가**를 판정한다.
+v2.1.0부터 업로드 지침(PART 07~12)의 계약이 **전부 machine-readable 정본으로 정의**되고(정의 진단률 100%),
+프로그램 안의 계약 엔진이 실제로 실행한다. 실행기는 **오로지 Codex 단일**이다.
 
-## 어떻게 도는가
-- 신호 수집은 기존 `build-snapshot.mjs`(운영 watchdog·git·GitHub 무료 REST)가 이미 한다.
-- `lib/health-engine.mjs`는 그 스냅샷 위에 **결정론적 판정 + 연속 실패/회복(anti-flap) + incident/회복 + 전역 네트워크 선행**만 얹는다.
-- 자동 점검 주기마다(회장이 설정) 서버가 엔진을 실행하고, **확정된 incident만 결재(approvals)로 상신**한다.
-- Codex·LLM 없이도 동작한다. Codex는 결재 승인 후 코드 수정에만 쓰인다.
+## 2층 구조
+1. **심층 계약 엔진** `lib/contract-engine.mjs` + 카탈로그 `lib/contract-catalog.mjs`
+   - 계약 257개(회사 전역 8 · 앱 공통 22종×6 · 앱 전용 심층 · robom.kr 23 · HQ 자체 25)를
+     evaluator allowlist(약 25종: http/html/json·surface marker·TLS·DNS·manifest·SW·GitHub·sitemap·SEO·
+     UA parity·데이터 검증기·HQ 런타임·브라우저 smoke)로 실행한다.
+   - 판정은 오직 구조화된 config + 형식 검증된 assertion 연산(`lib/contract-assert.mjs`)으로만 한다.
+     `eval`·shell·자연어 해석·LLM 판정 금지.
+   - 정본 산출물: `ops/health-contracts/*.json` (`build-health-contracts.mjs`로 생성, 직접 수정 금지).
+2. **판정·사건 엔진** `lib/health-engine.mjs`
+   - anti-flap(critical 1회·warn/error 연속 2회·회복 연속 2회 PASS), incident/회복, 결재 상신.
+   - 심층 계약 결과가 레거시 스냅샷 판정(production/ci/pr)을 대체해 중복 상신을 막는다.
 
-## 판정 규칙 (요약)
-- **critical**(운영 사이트 FAIL 등): 1회로 확정.
-- **warning/error**(데이터 STALE·CI 실패·오래된 PR): 연속 2회에서 확정(일시적 오류 오탐 방지).
-- **회복**: 연속 2회 PASS에서 사건 자동 종료.
-- **전역 네트워크 장애**: 여러 앱 운영 점검이 동시에 실패하면 앱별 critical 스팸 대신 **회사 사건 1건** + 앱은 `점검 불가`로 강등.
-- **같은 문제 반복 상신 금지**: 이미 열린 결재/사건은 다시 만들지 않는다.
-- **점검 불가를 정상으로 위장 금지**: 신호가 없으면 PASS가 아니라 `UNAVAILABLE`.
+## 실행 계층(§6)과 주기
+- **cheap·standard**: 자동 점검 주기마다(기본 감시기 10분 흐름 안에서) 전부 실행.
+- **deep**(브라우저 렌더 smoke·저장 fixture): 60분 TTL — 데스크톱에서는 **Electron 숨김 창(sandbox·메모리 세션)**,
+  개발·CI에서는 Playwright로 실행. 브라우저가 없으면 그 계약만 `점검 불가(browser_missing)`로 정직 표기하고
+  HTTP 계약은 계속 실행한다.
+- run planner: 동일 URL 요청 병합(fetch 캐시), GitHub는 ETag 캐시(304는 rate limit 미소모),
+  예산 초과 시 남은 계약은 `budget_exhausted` UNAVAILABLE(몰래 SKIP 금지).
 
-## 지금 판정하는 것 (registry·운영 URL·GitHub·로컬만으로 가능한 것)
-앱별: 운영 응답(Production), 배포/버전 신선도(STALE), 자동 검사(CI) 실패, 오래된 열린 PR, 다음 개선 행동.
-회사/HQ: 전역 네트워크 선행, 스냅샷 신선도, 예시(fallback) 스냅샷 표시, 관리 러너 상태.
-증거는 `runtime/health/`(latest.json·history·incidents.jsonl·recoveries.jsonl)에 비밀·원문 없이 숫자·상태만 저장한다.
+## 심층으로 실측하는 것(예)
+- **청약봄**: 공고 probe 200/JSON, `x-verified-at` 신선도·미래 skew·단조 증가, `x-data-stale` 정직 강등,
+  필수 필드·stable id 중복 0·날짜 순서·`&amp;` 잔존, CORS expose, refresh 인증(코드 감사), 파이프라인 워크플로.
+- **러닝봄**: races.json 심층(중복·날짜·접수 순서·상태-날짜 모순·미래 접수·종료 비율), data_version parity,
+  ASSET_VERSION↔SW 정합, 공식 링크 회전 표본(403은 정책으로 구분).
+- **자격증봄**: source registry 무결(중복 id·HTTPS·parserVersion·lastVerifiedAt), 수집 워크플로 36h 하트비트,
+  Q-Net 키 번들 노출 0.
+- **캘린더봄**: 저장 키(`calendarbom:events:v1`·`data:v2`) 보존, app.js 문법(vm compile),
+  손상 fixture 부팅·원문 보존(브라우저 fixture).
+- **노트봄**(main 읽기 전용 — 절대 수정 금지): 외부 모델 CDN 금지, 모델 프리캐시 금지, checksum 코드 존재,
+  업로드 endpoint 부재, MediaRecorder/IndexedDB capability.
+- **robom.kr**: robots/sitemap 전수 200, 앱별 3라우트(/apps·/get·/privacy) 전수, JSON-LD, Yeti UA parity,
+  네이버 인증 meta, 내부 링크 404 0, 360/390/412 넘침 smoke.
+- **HQ 자체**: 스냅샷 존재/나이/앱 수 parity, 대기열 무결, 권한 정본, 디스크·백업·증거 용량,
+  버전 삼중 일치, redaction 자가 검사, 원격 opt-in, Codex 연결(단일 실행기), monitor-the-monitor.
 
-## 아직 판정하지 못하는 것 — `need_new_source`
-업로드된 상세 계약(스토리지 스키마·알림 fixture·브라우저 smoke·모델 checksum 등 앱 내부 동작)은
-**각 앱 저장소 소스 또는 앱이 내보내는 비식별 진단 신호**가 있어야 기계적으로 판정할 수 있다.
-현재 HQ 세션은 `robom-labs/robom`만 접근하므로 이들은 정직하게 "새 신호 필요"로 남겨 두고,
-추측한 URL·경로로 거짓 PASS 처리하지 않는다. 앱별 진단 endpoint·health header가 준비되면 계약을 확장한다.
+## 아직 실측 불가 — `need_new_source` 7건(§18, 숨기지 않음)
+각각 `source_needed / why_needed / privacy_risk / free_implementation_option / fallback_status`를 계약에 명시했다.
+- 야외봄 forecast probe URL(registry 선언 필요 — 추측 URL로 거짓 PASS 금지)
+- 청약봄 수집 통계(fetched·published·preserved) read-only 신호
+- 자격증봄 source 문서 hash 변경 감지
+- 캘린더봄·노트봄 실사용자 로컬 데이터 건강(옵트인 진단 브리지 필요 — 원문 절대 금지, 숫자만)
+- 노트봄 native 세션(준비 전 과잉 표시 금지)
+- HQ 로그인 항목 실제 상태(desktop API 노출 필요)
+앱 쪽 신호가 생기면 계약이 자동으로 실측으로 전환된다. 반복 상신은 하지 않고 화면에만 표시한다.
 
-향후 확장: 앱이 동의 기반으로 내보내는 read-only `/health`(숫자·verifiedAt·fingerprint만)를 registry에 선언 →
-`http_json_contract` 계열 평가기로 데이터 신선도·저장·알림 정확성까지 결정론적으로 판정.
+## 증거·프라이버시(§7)
+`runtime/health/`에 저장: `latest.json`(판정)·`contracts-latest.json`(심층 결과·coverage)·`incidents.jsonl`·
+`recoveries.jsonl`·`source-cache/`(GitHub ETag). secret·본문 원문·개인 데이터는 저장하지 않으며
+redaction 자가 검사가 매 run 돈다(실패 시 보안 계약 FAIL).
+
+## 알림 예산(§8.1)
+critical·error 무제한, warning은 run당 10건까지만 결재 상신, info는 기록만(스팸 방지). 저장은 전부 한다.

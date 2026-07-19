@@ -17,6 +17,10 @@ import {
 } from "./lib/task-queue.mjs";
 import { generateProposals } from "./lib/propose-improvements.mjs";
 import { runHealthEngine } from "./lib/health-engine.mjs";
+import { runContractEngine, contractResultsToRaw } from "./lib/contract-engine.mjs";
+import { buildContractCatalog, catalogCoverage } from "./lib/contract-catalog.mjs";
+import { readApps } from "./lib/sources.mjs";
+import { tryActivatePlaywrightDriver } from "./lib/browser-driver.mjs";
 import { readAuthority, writeAuthority, isDelegable, currentShift, COMPANY_MODES, APPROVAL_MODES } from "./lib/company-authority.mjs";
 import { startRunnerSupervisor } from "./lib/runner-supervisor.mjs";
 import { REPO_ROOT } from "./lib/sources.mjs";
@@ -189,6 +193,55 @@ function seoulDate(now = new Date()) {
   try { return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(now); }
   catch { return now.toISOString().slice(0, 10); }
 }
+
+// ── 심층 계약 엔진(진단률 100%): 카탈로그 257개 계약을 실제 실행한다 ──
+// cheap·standard는 매 점검, deep(브라우저 렌더)은 60분 TTL. 이전 run에서만 실행된 계약은 cached로 이어 붙인다.
+const DEEP_TTL_MINUTES = 60;
+const CONTRACTS_LATEST = join(DEFAULT_COMPANY_RUNTIME_DIR, "health", "contracts-latest.json");
+const DEEP_MARKER = join(DEFAULT_COMPANY_RUNTIME_DIR, "health", "last-deep-run.json");
+let CONTRACT_RUNNING = false;
+function readContractReport() {
+  try { return JSON.parse(readFileSync(CONTRACTS_LATEST, "utf8")); } catch { return null; }
+}
+export async function runDeepContracts({ now = new Date(), force = false } = {}) {
+  if (CONTRACT_RUNNING) return readContractReport(); // 동시 실행 방지(run lease)
+  CONTRACT_RUNNING = true;
+  try {
+    const registryApps = readApps(REPO_ROOT).filter((a) => a.registered);
+    const contracts = buildContractCatalog({ registryApps });
+    let deepDue = force;
+    try {
+      const last = JSON.parse(readFileSync(DEEP_MARKER, "utf8"));
+      deepDue = deepDue || (now.getTime() - Date.parse(last.at || 0)) > DEEP_TTL_MINUTES * 60_000;
+    } catch { deepDue = true; }
+    const tiers = deepDue ? ["cheap", "standard", "deep"] : ["cheap", "standard"];
+    const previous = readContractReport();
+    const report = await runContractEngine({
+      contracts, runtimeDir: DEFAULT_COMPANY_RUNTIME_DIR, repoRoot: REPO_ROOT, snapDir: SNAP_DIR,
+      registryAppCount: registryApps.length, watchdogMinutes: WATCHDOG_MINUTES, manageRunner: MANAGE_RUNNER,
+      now, tiers,
+    });
+    // 이번 tier에 없던 계약(deep 미실행 회차)은 직전 증거를 cached로 유지 — 현재 PASS처럼 위장하지 않는다(§5.4)
+    if (previous?.results) {
+      const currentIds = new Set(report.results.map((r) => r.contractId));
+      const carried = previous.results.filter((r) => !currentIds.has(r.contractId)).map((r) => ({ ...r, usedCachedEvidence: true }));
+      if (carried.length) {
+        report.results.push(...carried);
+        try { writeFileSync(CONTRACTS_LATEST, JSON.stringify(report, null, 1), { mode: 0o600 }); } catch { /* 무시 */ }
+      }
+    }
+    if (deepDue) {
+      try {
+        mkdirSync(join(DEFAULT_COMPANY_RUNTIME_DIR, "health"), { recursive: true, mode: 0o700 });
+        writeFileSync(DEEP_MARKER, JSON.stringify({ at: now.toISOString() }), { mode: 0o600 });
+      } catch { /* 무시 */ }
+    }
+    return report;
+  } catch (error) {
+    console.error("[robom-hq] 계약 엔진 실행 실패", error?.message);
+    return readContractReport();
+  } finally { CONTRACT_RUNNING = false; }
+}
 // 설정된 주기(분)마다 실제 스냅샷 신호로 종합 점검해 개선 제안을 결재(approvals)에 올린다.
 // 감시기가 10분마다 호출하며, 마지막 점검 이후 everyMinutes가 지났을 때만 실행한다(마커로 관리).
 async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNAP_DIR, force = false, now = new Date() } = {}) {
@@ -216,14 +269,20 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
   const created = [];
   const appTarget = (t) => (t === "company" || t === "robom-hq" ? "" : t);
 
-  // 1) 결정론적 health 엔진 — 실제 신호로 판정한 확정 incident를 결재로 상신(중복 방지)
+  // 1) 결정론적 health 엔진 — 심층 계약 엔진(257개)을 먼저 실행하고, anti-flap 판정 후 확정 incident만 결재 상신
   let healthSummary = null;
   try {
     let runner = null; try { runner = readRunnerStatus(); } catch { /* 러너 상태 없음 */ }
-    const health = runHealthEngine({ snapshot, runtimeDir: DEFAULT_COMPANY_RUNTIME_DIR, now, runner, watchdogMinutes: WATCHDOG_MINUTES });
-    healthSummary = health.summary;
+    const contractReport = await runDeepContracts({ now });
+    const extraResults = contractResultsToRaw(contractReport);
+    const health = runHealthEngine({ snapshot, runtimeDir: DEFAULT_COMPANY_RUNTIME_DIR, now, runner, watchdogMinutes: WATCHDOG_MINUTES, extraResults });
+    healthSummary = { ...health.summary, contracts: contractReport?.coverage || null };
+    // 알림 예산(§8.1): critical·error 무제한, warning은 run당 10건, info는 결재 상신 안 함(기록만)
+    let warningBudget = 10;
     for (const inc of health.newIncidents) {
       if (existingKeys.has(inc.contractId)) continue;
+      if (inc.severity === "info") continue;
+      if (inc.severity === "warning" && warningBudget-- <= 0) continue;
       const priority = inc.severity === "critical" ? "urgent" : inc.severity === "error" ? "high" : "normal";
       const body = inc.actual ? `확인된 값: ${inc.actual}${inc.expected ? ` / 기대: ${inc.expected}` : ""}` : (inc.userImpact || "");
       try {
@@ -275,10 +334,14 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
   } catch { /* 마커 기록 실패 무시 */ }
   return { created: created.length, delegated, health: healthSummary };
 }
-// 최근 health 요약(hq-status 노출용)
+// 최근 health 요약(hq-status 노출용) — 심층 계약 coverage(진단률) 포함
 function readHealthSummary() {
-  try { return JSON.parse(readFileSync(join(DEFAULT_COMPANY_RUNTIME_DIR, "health", "latest.json"), "utf8")).summary || null; }
-  catch { return null; }
+  try {
+    const summary = JSON.parse(readFileSync(join(DEFAULT_COMPANY_RUNTIME_DIR, "health", "latest.json"), "utf8")).summary || null;
+    if (!summary) return null;
+    const report = readContractReport();
+    return { ...summary, contracts: report?.coverage || null, contractsRunAt: report?.runAt || null };
+  } catch { return null; }
 }
 
 async function handleApi(req, res, path, store, maxBodyBytes, snapDir) {
@@ -322,6 +385,27 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir) {
       runDailyReviewIfDue({ force: true }).catch(() => {}); // 위임 즉시 대기 안건 전결 처리
     }
     sendJson(res, 200, { ok: true, ...next });
+    return;
+  }
+  // 심층 계약 진단(진단률 100%) — 최근 실행 결과 + 카탈로그 정의 집계
+  if (path === "/api/health-contracts") {
+    if (req.method !== "GET") { sendText(res, 405, "method not allowed", { Allow: "GET" }); return; }
+    const report = readContractReport();
+    let defined = null;
+    try {
+      const registryApps = readApps(REPO_ROOT).filter((a) => a.registered);
+      defined = catalogCoverage(buildContractCatalog({ registryApps }));
+    } catch { /* 카탈로그 빌드 실패 시 실행 결과만 */ }
+    sendJson(res, 200, { ok: true, defined, report });
+    return;
+  }
+  // 지금 재점검(심층 포함) — 회장 버튼. 비동기 시작 후 즉시 응답.
+  if (path === "/api/health-run") {
+    if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "POST" }); return; }
+    const body = await readJsonBody(req, maxBodyBytes);
+    assertEmptyOperationBody(body);
+    runDeepContracts({ force: true }).then(() => runDailyReviewIfDue({ force: true })).catch(() => {});
+    sendJson(res, 202, { ok: true, started: true });
     return;
   }
   // 조직 정본(조직도·팀·시설) — ops/organization/organization.json
@@ -607,6 +691,10 @@ export async function startControlCenter({ port = DEFAULT_PORT, openBrowser = tr
   if (REMOTE_ENABLED) {
     console.log(`[robom-hq] 휴대폰 연결 허용됨(토큰 인증). 같은 사설망에서 http://<이 컴퓨터 IP>:${actualPort}/?token=<토큰> 으로 1회 접속하면 이후 쿠키로 유지됩니다.`);
   }
+  // 데스크톱은 Electron 드라이버가 이미 등록됨. 개발·CI에서는 Playwright가 있으면 활성(없으면 브라우저 계약만 점검 불가로 정직 표기).
+  tryActivatePlaywrightDriver(process.env.ROBOM_HQ_PLAYWRIGHT || "playwright").then((ok) => {
+    if (ok) console.log("[robom-hq] 브라우저 심층 점검: Playwright 드라이버 활성");
+  }).catch(() => {});
   if (refreshSnapshot) {
     console.log("[robom-hq] 기존 화면을 먼저 열고 스냅샷은 백그라운드에서 갱신합니다.");
     buildSnapshotInBackground();

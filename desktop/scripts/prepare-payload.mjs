@@ -27,6 +27,8 @@ const copies = [
   ["ops/control-center/apps-extra.yml", "ops/control-center/apps-extra.yml"],
   ["ops/registry/apps.yml", "ops/registry/apps.yml"],
   ["ops/organization", "ops/organization"],
+  // health contract 정본(진단률 100% 카탈로그 산출물 — 엔진은 카탈로그 모듈로 재생성하지만 감사를 위해 동봉)
+  ["ops/health-contracts", "ops/health-contracts"],
   // 운영 장부(회장 할 일·로드맵·상태)
   ["ops/state", "ops/state"],
   ["ops/HUMAN-TASKS.md", "ops/HUMAN-TASKS.md"],

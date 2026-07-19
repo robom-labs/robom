@@ -1,0 +1,66 @@
+{
+ "generatedNote": "진단률(정의) 집계",
+ "coverage": {
+  "total": 257,
+  "defined": 257,
+  "definedRate": 1,
+  "executable": 250,
+  "needNewSource": 7,
+  "byTarget": {
+   "company": {
+    "total": 8,
+    "executable": 8,
+    "needNewSource": 0,
+    "browserGated": 0
+   },
+   "outbom": {
+    "total": 31,
+    "executable": 30,
+    "needNewSource": 1,
+    "browserGated": 2
+   },
+   "homebom": {
+    "total": 40,
+    "executable": 39,
+    "needNewSource": 1,
+    "browserGated": 2
+   },
+   "runningbom": {
+    "total": 32,
+    "executable": 32,
+    "needNewSource": 0,
+    "browserGated": 2
+   },
+   "calendarbom": {
+    "total": 33,
+    "executable": 32,
+    "needNewSource": 1,
+    "browserGated": 3
+   },
+   "certbom": {
+    "total": 33,
+    "executable": 32,
+    "needNewSource": 1,
+    "browserGated": 2
+   },
+   "notebom": {
+    "total": 34,
+    "executable": 32,
+    "needNewSource": 2,
+    "browserGated": 2
+   },
+   "robom": {
+    "total": 22,
+    "executable": 22,
+    "needNewSource": 0,
+    "browserGated": 1
+   },
+   "robom-hq": {
+    "total": 24,
+    "executable": 23,
+    "needNewSource": 1,
+    "browserGated": 0
+   }
+  }
+ }
+}

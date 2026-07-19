@@ -94,6 +94,24 @@ function hqSelfResults(snapshot, ctx) {
   return out;
 }
 
+// 심층 계약 엔진 결과가 있으면 같은 근거의 레거시 스냅샷 판정을 대체한다(중복 incident 방지).
+const SUPERSEDE = [
+  [(id) => `c:${id}:production-home`, (id) => `production:${id}`],
+  [(id) => `c:${id}:ci-latest`, (id) => `ci:${id}`],
+  [(id) => `c:${id}:open-pr-age`, (id) => `pr-age:${id}`],
+];
+export function mergeExtraResults(raw, extraResults) {
+  if (!extraResults?.length) return raw;
+  const extraIds = new Set(extraResults.map((r) => r.contractId));
+  const dropped = new Set();
+  for (const r of raw) {
+    for (const [deepId, legacyId] of SUPERSEDE) {
+      if (extraIds.has(deepId(r.target))) dropped.add(legacyId(r.target));
+    }
+  }
+  return [...raw.filter((r) => !dropped.has(r.contractId)), ...extraResults];
+}
+
 // ── 전역 네트워크 선행: 모든 앱 운영 점검이 동시에 불가하면 앱별 스팸 대신 회사 incident 1건 ──
 export function collectRawResults(snapshot, ctx) {
   const fam = familyApps(snapshot);
@@ -129,8 +147,8 @@ function writeJson(file, value) {
 }
 
 // 원시 결과 배열 → 확정 상태·신규 incident·회복. 순수 로직(now 주입) + runtimeDir 지속.
-export function runHealthEngine({ snapshot, runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, now = new Date(), runner = null, watchdogMinutes = 10 } = {}) {
-  const raw = collectRawResults(snapshot, { now, runner, watchdogMinutes });
+export function runHealthEngine({ snapshot, runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, now = new Date(), runner = null, watchdogMinutes = 10, extraResults = [] } = {}) {
+  const raw = mergeExtraResults(collectRawResults(snapshot, { now, runner, watchdogMinutes }), extraResults);
   const state = readState(runtimeDir);
   state.contracts = state.contracts || {};
   const nowIso = now.toISOString();

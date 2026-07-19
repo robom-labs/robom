@@ -1,0 +1,1020 @@
+{
+ "contract_set": {
+  "schema_version": "2.2.0",
+  "target": "calendarbom",
+  "generated_from": "scripts/control-center/lib/contract-catalog.mjs",
+  "note": "정본은 카탈로그 모듈. 이 파일은 machine-readable 산출물이며 직접 수정하지 않는다(build-health-contracts.mjs 재실행).",
+  "rules_count": 33
+ },
+ "rules": [
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 1,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:production-home",
+   "target": "calendarbom",
+   "category": "production",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "minBytes": 500,
+    "negativeMarkers": [
+     "Application Error",
+     "DEPLOYMENT_NOT_FOUND",
+     "This page could not be found",
+     "There isn't a GitHub Pages site here"
+    ]
+   },
+   "severityIfFail": "critical",
+   "failureClass": "availability",
+   "what": "캘린더봄 운영 첫 화면이 실제로 열리는지(200·HTML·빈 화면 아님·오류 페이지 아님)",
+   "userImpact": "캘린더봄을(를) 열어도 화면이 뜨지 않을 수 있습니다.",
+   "recommendedAction": "운영 배포 상태를 확인하고 마지막 정상 배포로 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:critical-assets",
+   "target": "calendarbom",
+   "category": "production",
+   "evaluator": "surface_assets",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/"
+   },
+   "severityIfFail": "critical",
+   "failureClass": "availability",
+   "what": "캘린더봄 핵심 CSS·JS 자산이 모두 200으로 응답",
+   "userImpact": "핵심 파일이 깨지면 화면이 하얗게 나오거나 기능이 죽습니다.",
+   "recommendedAction": "배포 산출물·경로를 확인하고 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:response-time",
+   "target": "calendarbom",
+   "category": "production",
+   "evaluator": "http_timing",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "warnMs": 8000
+   },
+   "severityIfFail": "warning",
+   "failureClass": "availability",
+   "what": "캘린더봄 첫 응답 시간",
+   "userImpact": "응답이 느리면 사용자가 이탈합니다.",
+   "recommendedAction": "호스팅·자산 크기를 점검합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:tls",
+   "target": "calendarbom",
+   "category": "production",
+   "evaluator": "tls_certificate",
+   "config": {
+    "host": "robom-labs.github.io"
+   },
+   "severityIfFail": "error",
+   "failureClass": "transport",
+   "what": "캘린더봄 TLS 인증서 잔여일(21일 경고·10일 위험)",
+   "userImpact": "인증서가 만료되면 접속 자체가 차단됩니다.",
+   "recommendedAction": "인증서 자동 갱신 상태를 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:dns",
+   "target": "calendarbom",
+   "category": "production",
+   "evaluator": "dns_resolution",
+   "config": {
+    "hosts": [
+     "robom-labs.github.io"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "transport",
+   "what": "캘린더봄 도메인 DNS 해석",
+   "userImpact": "DNS 실패 시 접속 불가입니다.",
+   "recommendedAction": "도메인 설정을 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:manifest",
+   "target": "calendarbom",
+   "category": "pwa",
+   "evaluator": "manifest_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/calendarbom/"
+   },
+   "severityIfFail": "error",
+   "failureClass": "schema",
+   "what": "캘린더봄 PWA manifest JSON·필수 필드(name·start_url·icons)",
+   "userImpact": "manifest가 깨지면 홈 화면 설치가 실패합니다.",
+   "recommendedAction": "manifest.webmanifest를 수정해 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:manifest-icons",
+   "target": "calendarbom",
+   "category": "pwa",
+   "evaluator": "manifest_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "iconCheck": true
+   },
+   "severityIfFail": "error",
+   "failureClass": "availability",
+   "what": "캘린더봄 manifest 아이콘 자산 200",
+   "userImpact": "아이콘이 깨지면 설치 아이콘이 표시되지 않습니다.",
+   "recommendedAction": "아이콘 파일 경로를 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:service-worker",
+   "target": "calendarbom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "syntax": true,
+    "mustContainAny": [
+     "cache",
+     "workbox"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "availability",
+   "what": "캘린더봄 service worker 200·문법·캐시 동작 존재",
+   "userImpact": "SW가 깨지면 오프라인·업데이트가 실패합니다.",
+   "recommendedAction": "sw.js를 수정해 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:sw-cache-isolation",
+   "target": "calendarbom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "mustContainAny": [
+     "calendarbom"
+    ],
+    "mustNotContainAny": [
+     "outbom-",
+     "homebom-",
+     "runningbom-",
+     "certbom-",
+     "notebom-"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "storage",
+   "what": "캘린더봄 SW 캐시 접두사가 자기 앱 소유이고 다른 앱 캐시를 건드리지 않음",
+   "userImpact": "다른 앱 캐시를 지우면 가족 앱들이 함께 고장납니다.",
+   "recommendedAction": "캐시 이름 접두사를 앱 전용으로 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:offline-shell",
+   "target": "calendarbom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "mustContainAny": [
+     "index.html",
+     "./"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "availability",
+   "what": "캘린더봄 오프라인 셸 프리캐시 선언",
+   "userImpact": "오프라인에서 앱이 아예 열리지 않을 수 있습니다.",
+   "recommendedAction": "SW 프리캐시 목록에 앱 셸을 포함합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:version-registry-main",
+   "target": "calendarbom",
+   "category": "version",
+   "evaluator": "version_parity",
+   "config": {
+    "rawUrl": "https://raw.githubusercontent.com/robom-labs/calendarbom/main/package.json",
+    "expected": "0.6.6"
+   },
+   "severityIfFail": "error",
+   "failureClass": "parity",
+   "what": "registry 0.6.6 == 앱 main package.json",
+   "userImpact": "버전 장부가 어긋나면 배포 판단이 틀립니다.",
+   "recommendedAction": "registry 또는 앱 버전을 정합화합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:version-production",
+   "target": "calendarbom",
+   "category": "version",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "markersAny": [
+     "0.6.6"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "parity",
+   "what": "운영 자산에 버전 0.6.6 marker 존재",
+   "userImpact": "운영에 오래된 버전이 남아 있으면 사용자에게 구버전이 보입니다.",
+   "recommendedAction": "배포 전파를 확인하고 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:deployed-sha",
+   "target": "calendarbom",
+   "category": "version",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "markersAny": [
+     "7b4d032"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "parity",
+   "what": "운영 자산에 registry deployed SHA marker 존재",
+   "userImpact": "장부의 배포 기록과 실제 운영이 다를 수 있습니다.",
+   "recommendedAction": "registry last_deployed_sha를 실제 배포와 맞춥니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:registry-freshness",
+   "target": "calendarbom",
+   "category": "version",
+   "evaluator": "data_freshness",
+   "config": {
+    "value": "2026-07-19T00:40:00+09:00",
+    "maxHours": 720
+   },
+   "severityIfFail": "warning",
+   "failureClass": "freshness",
+   "what": "registry last_verified_at 나이",
+   "userImpact": "장부 확인이 오래되면 상태 신뢰가 떨어집니다.",
+   "recommendedAction": "운영 검증 후 registry를 갱신합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:ci-latest",
+   "target": "calendarbom",
+   "category": "ci",
+   "evaluator": "github_actions",
+   "config": {
+    "repo": "robom-labs/calendarbom"
+   },
+   "severityIfFail": "error",
+   "failureClass": "automation",
+   "what": "캘린더봄 최신 main CI 결과",
+   "userImpact": "CI 실패 상태에서는 다음 배포가 위험합니다.",
+   "recommendedAction": "실패 로그를 확인해 수정 후 재실행합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:open-pr-age",
+   "target": "calendarbom",
+   "category": "github",
+   "evaluator": "github_prs",
+   "config": {
+    "repo": "robom-labs/calendarbom",
+    "warnDays": 14,
+    "errorDays": 30
+   },
+   "severityIfFail": "warning",
+   "failureClass": "automation",
+   "what": "캘린더봄 열린 PR 정체(14일 경고·30일 오류)",
+   "userImpact": "오래 열린 변경은 작업 흐름 정체 신호입니다.",
+   "recommendedAction": "리뷰 후 병합하거나 닫아 정리합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:privacy-url",
+   "target": "calendarbom",
+   "category": "security",
+   "evaluator": "http_status",
+   "config": {
+    "url": "https://robom.kr/privacy/calendarbom",
+    "expectStatus": [
+     200
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "security",
+   "what": "개인정보처리방침 URL 200",
+   "userImpact": "스토어 심사·신뢰에 필수인 문서가 끊기면 안 됩니다.",
+   "recommendedAction": "robom.kr 개인정보 페이지를 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:install-url",
+   "target": "calendarbom",
+   "category": "production",
+   "evaluator": "http_status",
+   "config": {
+    "url": "https://robom.kr/get/calendarbom",
+    "expectStatus": [
+     200
+    ],
+    "finalHostSuffixes": [
+     "robom.kr"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "availability",
+   "what": "고정 설치 URL(robom.kr/get)이 200이고 외부로 강제 이동하지 않음",
+   "userImpact": "설치 안내 링크가 죽으면 신규 사용자를 잃습니다.",
+   "recommendedAction": "사이트 설치 페이지를 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 1,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:secret-scan",
+   "target": "calendarbom",
+   "category": "security",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "forbiddenMarkers": [
+     "-----BEGIN PRIVATE KEY",
+     "service_role",
+     "SUPABASE_SERVICE",
+     "AKIA",
+     "sk-proj-",
+     "sk-ant-",
+     "ghp_",
+     "KakaoAK "
+    ]
+   },
+   "severityIfFail": "critical",
+   "failureClass": "security",
+   "what": "공개 번들에 secret 패턴 0건",
+   "userImpact": "secret이 노출되면 즉시 폐기·교체가 필요합니다.",
+   "recommendedAction": "번들에서 secret을 제거하고 키를 교체합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:mixed-content",
+   "target": "calendarbom",
+   "category": "security",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "negativeMarkers": [
+     "src=\"http://",
+     "src='http://"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "HTTPS 페이지에 http:// 활성 콘텐츠 없음",
+   "userImpact": "혼합 콘텐츠는 브라우저가 차단해 기능이 깨집니다.",
+   "recommendedAction": "자산 URL을 https로 바꿉니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:unsafe-scheme",
+   "target": "calendarbom",
+   "category": "security",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "negativeMarkers": [
+     "href=\"javascript:",
+     "href='javascript:"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "위험 scheme 링크 없음",
+   "userImpact": "javascript: 링크는 보안 위험입니다.",
+   "recommendedAction": "해당 링크를 제거합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:analytics-off",
+   "target": "calendarbom",
+   "category": "security",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "forbiddenMarkers": [
+     "googletagmanager.com",
+     "google-analytics.com",
+     "adsbygoogle",
+     "doubleclick.net"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "광고·추적 스크립트 기본 OFF 계약",
+   "userImpact": "회장 승인 없는 광고·추적은 회사 원칙 위반입니다.",
+   "recommendedAction": "동의 없는 추적 코드를 제거합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:page-title",
+   "target": "calendarbom",
+   "category": "user_surface",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "markers": [
+     "<title"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "user_flow",
+   "what": "페이지 title 존재",
+   "userImpact": "탭·검색에서 앱 이름이 비어 보입니다.",
+   "recommendedAction": "title을 채웁니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "deep",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 45000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network",
+    "browser"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:browser-smoke",
+   "target": "calendarbom",
+   "category": "user_surface",
+   "evaluator": "browser_smoke",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "viewports": [
+     {
+      "width": 360,
+      "height": 800
+     },
+     {
+      "width": 390,
+      "height": 844
+     }
+    ],
+    "maxConsoleErrors": 0,
+    "checkOverflow": true
+   },
+   "severityIfFail": "warning",
+   "failureClass": "user_flow",
+   "what": "캘린더봄 360·390 모바일 화면 smoke(콘솔 오류 0·가로 넘침 0)",
+   "userImpact": "휴대폰에서 화면이 깨지거나 스크립트 오류가 날 수 있습니다.",
+   "recommendedAction": "콘솔 오류·넘치는 요소를 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 1,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:storage-keys-preserved",
+   "target": "calendarbom",
+   "category": "storage",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "markersAll": [
+     "calendarbom:events:v1",
+     "calendarbom:data:v2"
+    ]
+   },
+   "severityIfFail": "critical",
+   "failureClass": "storage",
+   "what": "기존 저장 키 문자열(calendarbom:events:v1·data:v2)이 번들에 보존",
+   "userImpact": "키가 바뀌면 기존 사용자 일정이 사라져 보입니다.",
+   "recommendedAction": "마이그레이션 없이 키를 바꾸지 않습니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:js-syntax",
+   "target": "calendarbom",
+   "category": "production",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "scriptPath": "app.js",
+    "syntax": true
+   },
+   "severityIfFail": "critical",
+   "failureClass": "availability",
+   "what": "핵심 app.js 문법 오류 0(vm compile)",
+   "userImpact": "문법 오류면 앱 전체가 죽습니다.",
+   "recommendedAction": "배포 전 문법 검사를 통과시킵니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:schema-v3-marker",
+   "target": "calendarbom",
+   "category": "storage",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "markersAny": [
+     "schemaVersion"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "schema",
+   "what": "저장 스키마 버전 관리 코드 존재",
+   "userImpact": "스키마 버전 없이는 안전한 마이그레이션이 불가능합니다.",
+   "recommendedAction": "schemaVersion 관리를 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "deep",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 45000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network",
+    "browser"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:boot-clean",
+   "target": "calendarbom",
+   "category": "user_surface",
+   "evaluator": "browser_smoke",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "viewports": [
+     {
+      "width": 390,
+      "height": 844
+     }
+    ],
+    "maxConsoleErrors": 0,
+    "checkOverflow": true,
+    "bodyMinTextLength": 20
+   },
+   "severityIfFail": "warning",
+   "failureClass": "user_flow",
+   "what": "부팅 smoke(콘솔 오류 0·넘침 0·본문 렌더)",
+   "userImpact": "부팅 실패는 모든 기능 상실입니다.",
+   "recommendedAction": "부팅 오류를 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "deep",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 45000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network",
+    "browser"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:corrupt-v2-recovery",
+   "target": "calendarbom",
+   "category": "storage",
+   "evaluator": "browser_smoke",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "viewports": [
+     {
+      "width": 390,
+      "height": 844
+     }
+    ],
+    "bodyMinTextLength": 20,
+    "seedStorage": {
+     "calendarbom:data:v2": "{corrupt-not-json"
+    },
+    "storageAssertions": [
+     {
+      "key": "calendarbom:data:v2",
+      "op": "not_eq_empty_overwrite",
+      "label": "손상 원문을 빈 값으로 덮지 않음"
+     }
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "storage",
+   "what": "손상된 저장 데이터 fixture에서 앱이 부팅하고 원문을 빈 값으로 덮어쓰지 않음",
+   "userImpact": "손상 시 덮어쓰면 사용자 일정이 영구 소실됩니다.",
+   "recommendedAction": "recovery 보존 로직을 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:multi-tab-safety-static",
+   "target": "calendarbom",
+   "category": "storage",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "markersAny": [
+     "storage"
+    ]
+   },
+   "severityIfFail": "info",
+   "failureClass": "storage",
+   "what": "multi-tab storage event 처리 코드 존재",
+   "userImpact": "두 탭 동시 사용 시 데이터가 덮일 수 있습니다.",
+   "recommendedAction": "storage event 처리를 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:backup-roundtrip-static",
+   "target": "calendarbom",
+   "category": "storage",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "markersAny": [
+     "backup",
+     "내보내기"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "storage",
+   "what": "JSON 백업 내보내기 기능 존재",
+   "userImpact": "백업이 없으면 기기 교체 때 일정을 잃습니다.",
+   "recommendedAction": "백업 기능을 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:calendarbom:ics-static",
+   "target": "calendarbom",
+   "category": "storage",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/calendarbom/",
+    "baseUrl": "https://robom-labs.github.io/calendarbom/",
+    "markersAny": [
+     "BEGIN:VCALENDAR",
+     "ics",
+     "ICS"
+    ]
+   },
+   "severityIfFail": "info",
+   "failureClass": "storage",
+   "what": "ICS 내보내기·가져오기 코드 존재",
+   "userImpact": "캘린더 앱 연동이 끊깁니다.",
+   "recommendedAction": "ICS 지원을 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": true,
+   "id": "c:calendarbom:user-storage-health",
+   "target": "calendarbom",
+   "category": "storage",
+   "evaluator": "need_new_source",
+   "config": {},
+   "severityIfFail": "info",
+   "failureClass": "observability",
+   "sourceNeeded": "사용자 동의 후 로컬에서 출력하는 비식별 진단 JSON(손상 여부·마지막 백업 나이·저장공간 버킷·예약 알림 수)",
+   "whyNeeded": "HQ는 다른 origin의 localStorage를 직접 읽을 수 없음(§18.1 opt-in handshake 필요)",
+   "privacyRisk": "일정 제목·내용은 절대 포함 금지 — 숫자·버킷만",
+   "freeImplementationOption": "캘린더봄 설정에 '진단 데이터 보내기(내 맥의 HQ로)' 옵트인 버튼",
+   "fallbackStatus": "UNAVAILABLE",
+   "what": "실사용자 저장 데이터 건강(손상·백업 나이·잔여 공간·알림 수)",
+   "userImpact": "사용자 기기 문제를 원격에서 알 수 없습니다.",
+   "recommendedAction": "옵트인 진단 브리지를 구현하면 자동 점검됩니다."
+  }
+ ]
+}

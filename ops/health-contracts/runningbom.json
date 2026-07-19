@@ -1,0 +1,993 @@
+{
+ "contract_set": {
+  "schema_version": "2.2.0",
+  "target": "runningbom",
+  "generated_from": "scripts/control-center/lib/contract-catalog.mjs",
+  "note": "정본은 카탈로그 모듈. 이 파일은 machine-readable 산출물이며 직접 수정하지 않는다(build-health-contracts.mjs 재실행).",
+  "rules_count": 32
+ },
+ "rules": [
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 1,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:production-home",
+   "target": "runningbom",
+   "category": "production",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "minBytes": 500,
+    "negativeMarkers": [
+     "Application Error",
+     "DEPLOYMENT_NOT_FOUND",
+     "This page could not be found",
+     "There isn't a GitHub Pages site here"
+    ]
+   },
+   "severityIfFail": "critical",
+   "failureClass": "availability",
+   "what": "러닝봄 운영 첫 화면이 실제로 열리는지(200·HTML·빈 화면 아님·오류 페이지 아님)",
+   "userImpact": "러닝봄을(를) 열어도 화면이 뜨지 않을 수 있습니다.",
+   "recommendedAction": "운영 배포 상태를 확인하고 마지막 정상 배포로 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:critical-assets",
+   "target": "runningbom",
+   "category": "production",
+   "evaluator": "surface_assets",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "baseUrl": "https://robom-labs.github.io/runningbom/"
+   },
+   "severityIfFail": "critical",
+   "failureClass": "availability",
+   "what": "러닝봄 핵심 CSS·JS 자산이 모두 200으로 응답",
+   "userImpact": "핵심 파일이 깨지면 화면이 하얗게 나오거나 기능이 죽습니다.",
+   "recommendedAction": "배포 산출물·경로를 확인하고 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:response-time",
+   "target": "runningbom",
+   "category": "production",
+   "evaluator": "http_timing",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "warnMs": 8000
+   },
+   "severityIfFail": "warning",
+   "failureClass": "availability",
+   "what": "러닝봄 첫 응답 시간",
+   "userImpact": "응답이 느리면 사용자가 이탈합니다.",
+   "recommendedAction": "호스팅·자산 크기를 점검합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:tls",
+   "target": "runningbom",
+   "category": "production",
+   "evaluator": "tls_certificate",
+   "config": {
+    "host": "robom-labs.github.io"
+   },
+   "severityIfFail": "error",
+   "failureClass": "transport",
+   "what": "러닝봄 TLS 인증서 잔여일(21일 경고·10일 위험)",
+   "userImpact": "인증서가 만료되면 접속 자체가 차단됩니다.",
+   "recommendedAction": "인증서 자동 갱신 상태를 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:dns",
+   "target": "runningbom",
+   "category": "production",
+   "evaluator": "dns_resolution",
+   "config": {
+    "hosts": [
+     "robom-labs.github.io"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "transport",
+   "what": "러닝봄 도메인 DNS 해석",
+   "userImpact": "DNS 실패 시 접속 불가입니다.",
+   "recommendedAction": "도메인 설정을 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:manifest",
+   "target": "runningbom",
+   "category": "pwa",
+   "evaluator": "manifest_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/runningbom/"
+   },
+   "severityIfFail": "error",
+   "failureClass": "schema",
+   "what": "러닝봄 PWA manifest JSON·필수 필드(name·start_url·icons)",
+   "userImpact": "manifest가 깨지면 홈 화면 설치가 실패합니다.",
+   "recommendedAction": "manifest.webmanifest를 수정해 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:manifest-icons",
+   "target": "runningbom",
+   "category": "pwa",
+   "evaluator": "manifest_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/runningbom/",
+    "iconCheck": true
+   },
+   "severityIfFail": "error",
+   "failureClass": "availability",
+   "what": "러닝봄 manifest 아이콘 자산 200",
+   "userImpact": "아이콘이 깨지면 설치 아이콘이 표시되지 않습니다.",
+   "recommendedAction": "아이콘 파일 경로를 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:service-worker",
+   "target": "runningbom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/runningbom/",
+    "syntax": true,
+    "mustContainAny": [
+     "cache",
+     "workbox"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "availability",
+   "what": "러닝봄 service worker 200·문법·캐시 동작 존재",
+   "userImpact": "SW가 깨지면 오프라인·업데이트가 실패합니다.",
+   "recommendedAction": "sw.js를 수정해 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:sw-cache-isolation",
+   "target": "runningbom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/runningbom/",
+    "mustContainAny": [
+     "runningbom"
+    ],
+    "mustNotContainAny": [
+     "outbom-",
+     "homebom-",
+     "calendarbom-",
+     "certbom-",
+     "notebom-"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "storage",
+   "what": "러닝봄 SW 캐시 접두사가 자기 앱 소유이고 다른 앱 캐시를 건드리지 않음",
+   "userImpact": "다른 앱 캐시를 지우면 가족 앱들이 함께 고장납니다.",
+   "recommendedAction": "캐시 이름 접두사를 앱 전용으로 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:offline-shell",
+   "target": "runningbom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/runningbom/",
+    "mustContainAny": [
+     "index.html",
+     "./"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "availability",
+   "what": "러닝봄 오프라인 셸 프리캐시 선언",
+   "userImpact": "오프라인에서 앱이 아예 열리지 않을 수 있습니다.",
+   "recommendedAction": "SW 프리캐시 목록에 앱 셸을 포함합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:version-registry-main",
+   "target": "runningbom",
+   "category": "version",
+   "evaluator": "version_parity",
+   "config": {
+    "rawUrl": "https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json",
+    "expected": "0.17.10"
+   },
+   "severityIfFail": "error",
+   "failureClass": "parity",
+   "what": "registry 0.17.10 == 앱 main package.json",
+   "userImpact": "버전 장부가 어긋나면 배포 판단이 틀립니다.",
+   "recommendedAction": "registry 또는 앱 버전을 정합화합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:version-production",
+   "target": "runningbom",
+   "category": "version",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "baseUrl": "https://robom-labs.github.io/runningbom/",
+    "markersAny": [
+     "0.17.10"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "parity",
+   "what": "운영 자산에 버전 0.17.10 marker 존재",
+   "userImpact": "운영에 오래된 버전이 남아 있으면 사용자에게 구버전이 보입니다.",
+   "recommendedAction": "배포 전파를 확인하고 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:deployed-sha",
+   "target": "runningbom",
+   "category": "version",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "baseUrl": "https://robom-labs.github.io/runningbom/",
+    "markersAny": [
+     "c82ce46"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "parity",
+   "what": "운영 자산에 registry deployed SHA marker 존재",
+   "userImpact": "장부의 배포 기록과 실제 운영이 다를 수 있습니다.",
+   "recommendedAction": "registry last_deployed_sha를 실제 배포와 맞춥니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:registry-freshness",
+   "target": "runningbom",
+   "category": "version",
+   "evaluator": "data_freshness",
+   "config": {
+    "value": "2026-07-19T08:55:00+09:00",
+    "maxHours": 168
+   },
+   "severityIfFail": "warning",
+   "failureClass": "freshness",
+   "what": "registry last_verified_at 나이",
+   "userImpact": "장부 확인이 오래되면 상태 신뢰가 떨어집니다.",
+   "recommendedAction": "운영 검증 후 registry를 갱신합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:ci-latest",
+   "target": "runningbom",
+   "category": "ci",
+   "evaluator": "github_actions",
+   "config": {
+    "repo": "robom-labs/runningbom"
+   },
+   "severityIfFail": "error",
+   "failureClass": "automation",
+   "what": "러닝봄 최신 main CI 결과",
+   "userImpact": "CI 실패 상태에서는 다음 배포가 위험합니다.",
+   "recommendedAction": "실패 로그를 확인해 수정 후 재실행합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:open-pr-age",
+   "target": "runningbom",
+   "category": "github",
+   "evaluator": "github_prs",
+   "config": {
+    "repo": "robom-labs/runningbom",
+    "warnDays": 14,
+    "errorDays": 30
+   },
+   "severityIfFail": "warning",
+   "failureClass": "automation",
+   "what": "러닝봄 열린 PR 정체(14일 경고·30일 오류)",
+   "userImpact": "오래 열린 변경은 작업 흐름 정체 신호입니다.",
+   "recommendedAction": "리뷰 후 병합하거나 닫아 정리합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:privacy-url",
+   "target": "runningbom",
+   "category": "security",
+   "evaluator": "http_status",
+   "config": {
+    "url": "https://robom.kr/privacy/runningbom",
+    "expectStatus": [
+     200
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "security",
+   "what": "개인정보처리방침 URL 200",
+   "userImpact": "스토어 심사·신뢰에 필수인 문서가 끊기면 안 됩니다.",
+   "recommendedAction": "robom.kr 개인정보 페이지를 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:install-url",
+   "target": "runningbom",
+   "category": "production",
+   "evaluator": "http_status",
+   "config": {
+    "url": "https://robom.kr/get/runningbom",
+    "expectStatus": [
+     200
+    ],
+    "finalHostSuffixes": [
+     "robom.kr"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "availability",
+   "what": "고정 설치 URL(robom.kr/get)이 200이고 외부로 강제 이동하지 않음",
+   "userImpact": "설치 안내 링크가 죽으면 신규 사용자를 잃습니다.",
+   "recommendedAction": "사이트 설치 페이지를 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 1,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:secret-scan",
+   "target": "runningbom",
+   "category": "security",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "baseUrl": "https://robom-labs.github.io/runningbom/",
+    "forbiddenMarkers": [
+     "-----BEGIN PRIVATE KEY",
+     "service_role",
+     "SUPABASE_SERVICE",
+     "AKIA",
+     "sk-proj-",
+     "sk-ant-",
+     "ghp_",
+     "KakaoAK "
+    ]
+   },
+   "severityIfFail": "critical",
+   "failureClass": "security",
+   "what": "공개 번들에 secret 패턴 0건",
+   "userImpact": "secret이 노출되면 즉시 폐기·교체가 필요합니다.",
+   "recommendedAction": "번들에서 secret을 제거하고 키를 교체합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:mixed-content",
+   "target": "runningbom",
+   "category": "security",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "negativeMarkers": [
+     "src=\"http://",
+     "src='http://"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "HTTPS 페이지에 http:// 활성 콘텐츠 없음",
+   "userImpact": "혼합 콘텐츠는 브라우저가 차단해 기능이 깨집니다.",
+   "recommendedAction": "자산 URL을 https로 바꿉니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:unsafe-scheme",
+   "target": "runningbom",
+   "category": "security",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "negativeMarkers": [
+     "href=\"javascript:",
+     "href='javascript:"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "위험 scheme 링크 없음",
+   "userImpact": "javascript: 링크는 보안 위험입니다.",
+   "recommendedAction": "해당 링크를 제거합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:analytics-off",
+   "target": "runningbom",
+   "category": "security",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "baseUrl": "https://robom-labs.github.io/runningbom/",
+    "forbiddenMarkers": [
+     "googletagmanager.com",
+     "google-analytics.com",
+     "adsbygoogle",
+     "doubleclick.net"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "광고·추적 스크립트 기본 OFF 계약",
+   "userImpact": "회장 승인 없는 광고·추적은 회사 원칙 위반입니다.",
+   "recommendedAction": "동의 없는 추적 코드를 제거합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:page-title",
+   "target": "runningbom",
+   "category": "user_surface",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "markers": [
+     "<title"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "user_flow",
+   "what": "페이지 title 존재",
+   "userImpact": "탭·검색에서 앱 이름이 비어 보입니다.",
+   "recommendedAction": "title을 채웁니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "deep",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 45000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network",
+    "browser"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:browser-smoke",
+   "target": "runningbom",
+   "category": "user_surface",
+   "evaluator": "browser_smoke",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "viewports": [
+     {
+      "width": 360,
+      "height": 800
+     },
+     {
+      "width": 390,
+      "height": 844
+     }
+    ],
+    "maxConsoleErrors": 0,
+    "checkOverflow": true
+   },
+   "severityIfFail": "warning",
+   "failureClass": "user_flow",
+   "what": "러닝봄 360·390 모바일 화면 smoke(콘솔 오류 0·가로 넘침 0)",
+   "userImpact": "휴대폰에서 화면이 깨지거나 스크립트 오류가 날 수 있습니다.",
+   "recommendedAction": "콘솔 오류·넘치는 요소를 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 1,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:races-json",
+   "target": "runningbom",
+   "category": "data",
+   "evaluator": "http_json_contract",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/races.json",
+    "urlCandidates": [
+     "https://robom-labs.github.io/runningbom/races.json",
+     "https://robom-labs.github.io/runningbom/data/races.json",
+     "https://robom-labs.github.io/runningbom/assets/races.json"
+    ],
+    "contentTypeIncludes": "json"
+   },
+   "severityIfFail": "critical",
+   "failureClass": "availability",
+   "what": "races.json 200·JSON parse",
+   "userImpact": "대회 데이터가 없으면 앱이 빈 목록입니다.",
+   "recommendedAction": "데이터 파일 배포를 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:races-data-version",
+   "target": "runningbom",
+   "category": "data",
+   "evaluator": "http_json_contract",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/races.json",
+    "urlCandidates": [
+     "https://robom-labs.github.io/runningbom/races.json",
+     "https://robom-labs.github.io/runningbom/data/races.json",
+     "https://robom-labs.github.io/runningbom/assets/races.json"
+    ],
+    "assertions": [
+     {
+      "path": "dataVersion",
+      "op": "eq",
+      "value": "2026.07.16-race-data-11",
+      "label": "registry data_version parity"
+     }
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "parity",
+   "what": "races.json dataVersion == registry(2026.07.16-race-data-11)",
+   "userImpact": "데이터 장부가 어긋나면 갱신 판단이 틀립니다.",
+   "recommendedAction": "registry data_version을 갱신합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:races-deep",
+   "target": "runningbom",
+   "category": "data",
+   "evaluator": "app_data_validator",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/races.json",
+    "urlCandidates": [
+     "https://robom-labs.github.io/runningbom/races.json",
+     "https://robom-labs.github.io/runningbom/data/races.json",
+     "https://robom-labs.github.io/runningbom/assets/races.json"
+    ],
+    "validator": "runningbom_races"
+   },
+   "severityIfFail": "error",
+   "failureClass": "schema",
+   "what": "대회 데이터 심층 계약(필수 필드·중복 0·날짜 parse·접수 순서·상태-날짜 모순·미래 접수 존재·종료 비율)",
+   "userImpact": "데이터가 모순이면 접수 알림·D-day가 틀립니다.",
+   "recommendedAction": "데이터 검증 스크립트로 원본을 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:races-freshness",
+   "target": "runningbom",
+   "category": "data",
+   "evaluator": "data_freshness",
+   "config": {
+    "value": "2026-07-12T00:00:00+09:00",
+    "maxHours": 168
+   },
+   "severityIfFail": "warning",
+   "failureClass": "freshness",
+   "what": "대회 데이터 나이 ≤ 168시간",
+   "userImpact": "갱신이 늦으면 새 대회를 놓칩니다.",
+   "recommendedAction": "대회 데이터를 수집·갱신합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:asset-version-parity",
+   "target": "runningbom",
+   "category": "version",
+   "evaluator": "asset_version_parity",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "baseUrl": "https://robom-labs.github.io/runningbom/"
+   },
+   "severityIfFail": "warning",
+   "failureClass": "parity",
+   "what": "HTML의 캐시버스트 버전과 SW 캐시 버전 정합",
+   "userImpact": "어긋나면 업데이트가 반영되지 않습니다.",
+   "recommendedAction": "ASSET_VERSION을 함께 올립니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 30000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:official-link-sample",
+   "target": "runningbom",
+   "category": "data",
+   "evaluator": "app_data_validator",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/races.json",
+    "urlCandidates": [
+     "https://robom-labs.github.io/runningbom/races.json",
+     "https://robom-labs.github.io/runningbom/data/races.json",
+     "https://robom-labs.github.io/runningbom/assets/races.json"
+    ],
+    "validator": "runningbom_link_sample"
+   },
+   "severityIfFail": "info",
+   "failureClass": "availability",
+   "what": "공식 접수 링크 회전 표본 점검(하루 1개 결정론 선택·403은 정책으로 구분)",
+   "userImpact": "죽은 공식 링크는 접수 기회를 잃게 합니다.",
+   "recommendedAction": "해당 대회의 공식 URL을 갱신합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:no-fake-alarm-static",
+   "target": "runningbom",
+   "category": "notification",
+   "evaluator": "repo_text_contract",
+   "config": {
+    "repo": "robom-labs/runningbom",
+    "pathCandidates": [
+     "app.js",
+     "src/app.js",
+     "scripts/validate-static.mjs"
+    ],
+    "mustContainAny": [
+     "confirmed",
+     "exact"
+    ]
+   },
+   "severityIfFail": "info",
+   "failureClass": "notification",
+   "what": "정각 미확정 대회에 임의 시각 알림을 만들지 않는 로직 존재(읽기 전용 감사)",
+   "userImpact": "틀린 시각 알림은 신뢰를 깨뜨립니다.",
+   "recommendedAction": "exact time 확인 로직을 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "deep",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 45000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network",
+    "browser"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:runningbom:filters-smoke",
+   "target": "runningbom",
+   "category": "user_surface",
+   "evaluator": "browser_smoke",
+   "config": {
+    "url": "https://robom-labs.github.io/runningbom/",
+    "viewports": [
+     {
+      "width": 320,
+      "height": 700
+     },
+     {
+      "width": 390,
+      "height": 844
+     }
+    ],
+    "maxConsoleErrors": 0,
+    "checkOverflow": true,
+    "bodyMinTextLength": 40
+   },
+   "severityIfFail": "warning",
+   "failureClass": "user_flow",
+   "what": "320·390 폭에서 필터·카드·하단 탭 넘침 0·콘솔 오류 0",
+   "userImpact": "작은 화면에서 조작이 불가능해집니다.",
+   "recommendedAction": "레이아웃을 수정합니다."
+  }
+ ]
+}

@@ -1,0 +1,1042 @@
+{
+ "contract_set": {
+  "schema_version": "2.2.0",
+  "target": "notebom",
+  "generated_from": "scripts/control-center/lib/contract-catalog.mjs",
+  "note": "정본은 카탈로그 모듈. 이 파일은 machine-readable 산출물이며 직접 수정하지 않는다(build-health-contracts.mjs 재실행).",
+  "rules_count": 34
+ },
+ "rules": [
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 1,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:production-home",
+   "target": "notebom",
+   "category": "production",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "minBytes": 500,
+    "negativeMarkers": [
+     "Application Error",
+     "DEPLOYMENT_NOT_FOUND",
+     "This page could not be found",
+     "There isn't a GitHub Pages site here"
+    ]
+   },
+   "severityIfFail": "critical",
+   "failureClass": "availability",
+   "what": "노트봄 운영 첫 화면이 실제로 열리는지(200·HTML·빈 화면 아님·오류 페이지 아님)",
+   "userImpact": "노트봄을(를) 열어도 화면이 뜨지 않을 수 있습니다.",
+   "recommendedAction": "운영 배포 상태를 확인하고 마지막 정상 배포로 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:critical-assets",
+   "target": "notebom",
+   "category": "production",
+   "evaluator": "surface_assets",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/"
+   },
+   "severityIfFail": "critical",
+   "failureClass": "availability",
+   "what": "노트봄 핵심 CSS·JS 자산이 모두 200으로 응답",
+   "userImpact": "핵심 파일이 깨지면 화면이 하얗게 나오거나 기능이 죽습니다.",
+   "recommendedAction": "배포 산출물·경로를 확인하고 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:response-time",
+   "target": "notebom",
+   "category": "production",
+   "evaluator": "http_timing",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "warnMs": 8000
+   },
+   "severityIfFail": "warning",
+   "failureClass": "availability",
+   "what": "노트봄 첫 응답 시간",
+   "userImpact": "응답이 느리면 사용자가 이탈합니다.",
+   "recommendedAction": "호스팅·자산 크기를 점검합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:tls",
+   "target": "notebom",
+   "category": "production",
+   "evaluator": "tls_certificate",
+   "config": {
+    "host": "robom-labs.github.io"
+   },
+   "severityIfFail": "error",
+   "failureClass": "transport",
+   "what": "노트봄 TLS 인증서 잔여일(21일 경고·10일 위험)",
+   "userImpact": "인증서가 만료되면 접속 자체가 차단됩니다.",
+   "recommendedAction": "인증서 자동 갱신 상태를 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "cheap",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:dns",
+   "target": "notebom",
+   "category": "production",
+   "evaluator": "dns_resolution",
+   "config": {
+    "hosts": [
+     "robom-labs.github.io"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "transport",
+   "what": "노트봄 도메인 DNS 해석",
+   "userImpact": "DNS 실패 시 접속 불가입니다.",
+   "recommendedAction": "도메인 설정을 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:manifest",
+   "target": "notebom",
+   "category": "pwa",
+   "evaluator": "manifest_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/notebom/"
+   },
+   "severityIfFail": "error",
+   "failureClass": "schema",
+   "what": "노트봄 PWA manifest JSON·필수 필드(name·start_url·icons)",
+   "userImpact": "manifest가 깨지면 홈 화면 설치가 실패합니다.",
+   "recommendedAction": "manifest.webmanifest를 수정해 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:manifest-icons",
+   "target": "notebom",
+   "category": "pwa",
+   "evaluator": "manifest_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "iconCheck": true
+   },
+   "severityIfFail": "error",
+   "failureClass": "availability",
+   "what": "노트봄 manifest 아이콘 자산 200",
+   "userImpact": "아이콘이 깨지면 설치 아이콘이 표시되지 않습니다.",
+   "recommendedAction": "아이콘 파일 경로를 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:service-worker",
+   "target": "notebom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "syntax": true,
+    "mustContainAny": [
+     "cache",
+     "workbox"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "availability",
+   "what": "노트봄 service worker 200·문법·캐시 동작 존재",
+   "userImpact": "SW가 깨지면 오프라인·업데이트가 실패합니다.",
+   "recommendedAction": "sw.js를 수정해 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:sw-cache-isolation",
+   "target": "notebom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "mustContainAny": [
+     "notebom"
+    ],
+    "mustNotContainAny": [
+     "outbom-",
+     "homebom-",
+     "runningbom-",
+     "calendarbom-",
+     "certbom-"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "storage",
+   "what": "노트봄 SW 캐시 접두사가 자기 앱 소유이고 다른 앱 캐시를 건드리지 않음",
+   "userImpact": "다른 앱 캐시를 지우면 가족 앱들이 함께 고장납니다.",
+   "recommendedAction": "캐시 이름 접두사를 앱 전용으로 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:offline-shell",
+   "target": "notebom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "mustContainAny": [
+     "index.html",
+     "./"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "availability",
+   "what": "노트봄 오프라인 셸 프리캐시 선언",
+   "userImpact": "오프라인에서 앱이 아예 열리지 않을 수 있습니다.",
+   "recommendedAction": "SW 프리캐시 목록에 앱 셸을 포함합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:version-registry-main",
+   "target": "notebom",
+   "category": "version",
+   "evaluator": "version_parity",
+   "config": {
+    "rawUrl": "https://raw.githubusercontent.com/robom-labs/notebom/main/package.json",
+    "expected": "0.3.3"
+   },
+   "severityIfFail": "error",
+   "failureClass": "parity",
+   "what": "registry 0.3.3 == 앱 main package.json",
+   "userImpact": "버전 장부가 어긋나면 배포 판단이 틀립니다.",
+   "recommendedAction": "registry 또는 앱 버전을 정합화합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:version-production",
+   "target": "notebom",
+   "category": "version",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "markersAny": [
+     "0.3.3"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "parity",
+   "what": "운영 자산에 버전 0.3.3 marker 존재",
+   "userImpact": "운영에 오래된 버전이 남아 있으면 사용자에게 구버전이 보입니다.",
+   "recommendedAction": "배포 전파를 확인하고 재배포합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:deployed-sha",
+   "target": "notebom",
+   "category": "version",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "markersAny": [
+     "7f3a848"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "parity",
+   "what": "운영 자산에 registry deployed SHA marker 존재",
+   "userImpact": "장부의 배포 기록과 실제 운영이 다를 수 있습니다.",
+   "recommendedAction": "registry last_deployed_sha를 실제 배포와 맞춥니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:registry-freshness",
+   "target": "notebom",
+   "category": "version",
+   "evaluator": "data_freshness",
+   "config": {
+    "value": "2026-07-19T08:28:36+09:00",
+    "maxHours": 720
+   },
+   "severityIfFail": "warning",
+   "failureClass": "freshness",
+   "what": "registry last_verified_at 나이",
+   "userImpact": "장부 확인이 오래되면 상태 신뢰가 떨어집니다.",
+   "recommendedAction": "운영 검증 후 registry를 갱신합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:ci-latest",
+   "target": "notebom",
+   "category": "ci",
+   "evaluator": "github_actions",
+   "config": {
+    "repo": "robom-labs/notebom"
+   },
+   "severityIfFail": "error",
+   "failureClass": "automation",
+   "what": "노트봄 최신 main CI 결과",
+   "userImpact": "CI 실패 상태에서는 다음 배포가 위험합니다.",
+   "recommendedAction": "실패 로그를 확인해 수정 후 재실행합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:open-pr-age",
+   "target": "notebom",
+   "category": "github",
+   "evaluator": "github_prs",
+   "config": {
+    "repo": "robom-labs/notebom",
+    "warnDays": 14,
+    "errorDays": 30
+   },
+   "severityIfFail": "warning",
+   "failureClass": "automation",
+   "what": "노트봄 열린 PR 정체(14일 경고·30일 오류)",
+   "userImpact": "오래 열린 변경은 작업 흐름 정체 신호입니다.",
+   "recommendedAction": "리뷰 후 병합하거나 닫아 정리합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:privacy-url",
+   "target": "notebom",
+   "category": "security",
+   "evaluator": "http_status",
+   "config": {
+    "url": "https://robom.kr/privacy/notebom",
+    "expectStatus": [
+     200
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "security",
+   "what": "개인정보처리방침 URL 200",
+   "userImpact": "스토어 심사·신뢰에 필수인 문서가 끊기면 안 됩니다.",
+   "recommendedAction": "robom.kr 개인정보 페이지를 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:install-url",
+   "target": "notebom",
+   "category": "production",
+   "evaluator": "http_status",
+   "config": {
+    "url": "https://robom.kr/get/notebom",
+    "expectStatus": [
+     200
+    ],
+    "finalHostSuffixes": [
+     "robom.kr"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "availability",
+   "what": "고정 설치 URL(robom.kr/get)이 200이고 외부로 강제 이동하지 않음",
+   "userImpact": "설치 안내 링크가 죽으면 신규 사용자를 잃습니다.",
+   "recommendedAction": "사이트 설치 페이지를 복구합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 1,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:secret-scan",
+   "target": "notebom",
+   "category": "security",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "forbiddenMarkers": [
+     "-----BEGIN PRIVATE KEY",
+     "service_role",
+     "SUPABASE_SERVICE",
+     "AKIA",
+     "sk-proj-",
+     "sk-ant-",
+     "ghp_",
+     "KakaoAK "
+    ]
+   },
+   "severityIfFail": "critical",
+   "failureClass": "security",
+   "what": "공개 번들에 secret 패턴 0건",
+   "userImpact": "secret이 노출되면 즉시 폐기·교체가 필요합니다.",
+   "recommendedAction": "번들에서 secret을 제거하고 키를 교체합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:mixed-content",
+   "target": "notebom",
+   "category": "security",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "negativeMarkers": [
+     "src=\"http://",
+     "src='http://"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "HTTPS 페이지에 http:// 활성 콘텐츠 없음",
+   "userImpact": "혼합 콘텐츠는 브라우저가 차단해 기능이 깨집니다.",
+   "recommendedAction": "자산 URL을 https로 바꿉니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:unsafe-scheme",
+   "target": "notebom",
+   "category": "security",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "negativeMarkers": [
+     "href=\"javascript:",
+     "href='javascript:"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "위험 scheme 링크 없음",
+   "userImpact": "javascript: 링크는 보안 위험입니다.",
+   "recommendedAction": "해당 링크를 제거합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:analytics-off",
+   "target": "notebom",
+   "category": "security",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "forbiddenMarkers": [
+     "googletagmanager.com",
+     "google-analytics.com",
+     "adsbygoogle",
+     "doubleclick.net"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "security",
+   "what": "광고·추적 스크립트 기본 OFF 계약",
+   "userImpact": "회장 승인 없는 광고·추적은 회사 원칙 위반입니다.",
+   "recommendedAction": "동의 없는 추적 코드를 제거합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:page-title",
+   "target": "notebom",
+   "category": "user_surface",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "markers": [
+     "<title"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "user_flow",
+   "what": "페이지 title 존재",
+   "userImpact": "탭·검색에서 앱 이름이 비어 보입니다.",
+   "recommendedAction": "title을 채웁니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "deep",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 45000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network",
+    "browser"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:browser-smoke",
+   "target": "notebom",
+   "category": "user_surface",
+   "evaluator": "browser_smoke",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "viewports": [
+     {
+      "width": 360,
+      "height": 800
+     },
+     {
+      "width": 390,
+      "height": 844
+     }
+    ],
+    "maxConsoleErrors": 0,
+    "checkOverflow": true
+   },
+   "severityIfFail": "warning",
+   "failureClass": "user_flow",
+   "what": "노트봄 360·390 모바일 화면 smoke(콘솔 오류 0·가로 넘침 0)",
+   "userImpact": "휴대폰에서 화면이 깨지거나 스크립트 오류가 날 수 있습니다.",
+   "recommendedAction": "콘솔 오류·넘치는 요소를 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": true,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:no-external-model-cdn",
+   "target": "notebom",
+   "category": "security",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "forbiddenMarkers": [
+     "huggingface.co",
+     "cdn.jsdelivr.net",
+     "unpkg.com"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "security",
+   "what": "전사 모델을 외부 CDN에서 받지 않음(same-origin 계약)",
+   "userImpact": "외부 CDN 의존은 프라이버시·가용성 위험입니다.",
+   "recommendedAction": "모델 자산을 same-origin으로 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:model-not-precached",
+   "target": "notebom",
+   "category": "pwa",
+   "evaluator": "service_worker_contract",
+   "config": {
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "mustNotContainAny": [
+     ".onnx"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "availability",
+   "what": "대형 모델이 SW 초기 프리캐시에 없음",
+   "userImpact": "초기 설치가 수백 MB가 되면 안 됩니다.",
+   "recommendedAction": "모델은 지연 다운로드로 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:recording-capabilities",
+   "target": "notebom",
+   "category": "production",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "markersAll": [
+     "MediaRecorder",
+     "indexedDB"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "schema",
+   "what": "녹음·저장 핵심 capability 코드(MediaRecorder·IndexedDB)가 번들에 존재",
+   "userImpact": "핵심 코드가 빠지면 녹음 자체가 불가합니다.",
+   "recommendedAction": "빌드 구성을 확인합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:checksum-integrity-code",
+   "target": "notebom",
+   "category": "storage",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "markersAny": [
+     "SHA-256",
+     "sha-256",
+     "digest"
+    ]
+   },
+   "severityIfFail": "warning",
+   "failureClass": "integrity",
+   "what": "chunk checksum(SHA-256) 검증 코드 존재",
+   "userImpact": "checksum 없이는 손상 녹음을 정상으로 재생할 위험이 있습니다.",
+   "recommendedAction": "무결성 검증을 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:no-upload-endpoint",
+   "target": "notebom",
+   "category": "security",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "forbiddenMarkers": [
+     "/upload-audio",
+     "audio/upload"
+    ]
+   },
+   "severityIfFail": "error",
+   "failureClass": "security",
+   "what": "원음 업로드 endpoint 없음(로컬 전용 계약)",
+   "userImpact": "원음이 서버로 가면 프라이버시 약속 위반입니다.",
+   "recommendedAction": "로컬 전용 구조를 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:privacy-link-page",
+   "target": "notebom",
+   "category": "security",
+   "evaluator": "http_html",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "markers": [
+     "privacy"
+    ]
+   },
+   "severityIfFail": "info",
+   "failureClass": "security",
+   "what": "개인정보 링크가 첫 화면에 연결",
+   "userImpact": "프라이버시 안내 접근성이 떨어집니다.",
+   "recommendedAction": "푸터에 개인정보 링크를 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:worker-wasm-refs",
+   "target": "notebom",
+   "category": "production",
+   "evaluator": "surface_marker",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "baseUrl": "https://robom-labs.github.io/notebom/",
+    "markersAny": [
+     "Worker",
+     "worker"
+    ]
+   },
+   "severityIfFail": "info",
+   "failureClass": "availability",
+   "what": "전사 Web Worker 구조 존재",
+   "userImpact": "메인 스레드 전사는 UI를 얼립니다.",
+   "recommendedAction": "Worker 분리를 유지합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "deep",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 45000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network",
+    "browser"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": false,
+   "id": "c:notebom:boot-smoke",
+   "target": "notebom",
+   "category": "user_surface",
+   "evaluator": "browser_smoke",
+   "config": {
+    "url": "https://robom-labs.github.io/notebom/",
+    "viewports": [
+     {
+      "width": 360,
+      "height": 800
+     },
+     {
+      "width": 390,
+      "height": 844
+     }
+    ],
+    "maxConsoleErrors": 0,
+    "checkOverflow": true,
+    "bodyMinTextLength": 20
+   },
+   "severityIfFail": "warning",
+   "failureClass": "user_flow",
+   "what": "노트봄 360·390 smoke(렌더·콘솔 오류 0·넘침 0)",
+   "userImpact": "부팅이 깨지면 녹음 접근이 불가합니다.",
+   "recommendedAction": "부팅 오류를 수정합니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": true,
+   "id": "c:notebom:user-recording-health",
+   "target": "notebom",
+   "category": "storage",
+   "evaluator": "need_new_source",
+   "config": {},
+   "severityIfFail": "info",
+   "failureClass": "observability",
+   "sourceNeeded": "노트봄이 사용자 동의 후 로컬로 출력하는 비식별 진단 JSON(interrupted 수·checksum 실패 수·저장공간 버킷·마지막 백업 나이)",
+   "whyNeeded": "HQ는 다른 origin의 IndexedDB·마이크 상태를 직접 읽을 수 없음(§18.1)",
+   "privacyRisk": "원음·전사문·노트 제목은 절대 포함 금지 — 숫자만",
+   "freeImplementationOption": "설정에 '진단 데이터 보내기' 옵트인(localhost HQ로 숫자만 전달)",
+   "fallbackStatus": "UNAVAILABLE",
+   "what": "실사용자 녹음 데이터 건강(중단 복구·checksum 실패·백업 나이)",
+   "userImpact": "사용자 기기의 녹음 손상을 원격에서 알 수 없습니다.",
+   "recommendedAction": "옵트인 진단 브리지를 구현하면 자동 점검됩니다."
+  },
+  {
+   "schemaVersion": "2.2.0",
+   "runTier": "standard",
+   "required": false,
+   "enabled": true,
+   "timeoutMs": 20000,
+   "consecutiveFailures": 2,
+   "recoverySuccesses": 2,
+   "requiredCapabilities": [
+    "network"
+   ],
+   "sourceUnavailableStatus": "UNAVAILABLE",
+   "needNewSource": true,
+   "id": "c:notebom:native-session-planned",
+   "target": "notebom",
+   "category": "production",
+   "evaluator": "need_new_source",
+   "config": {},
+   "severityIfFail": "info",
+   "failureClass": "observability",
+   "sourceNeeded": "native(Capacitor) 녹음 세션 journal·권한 상태 정본",
+   "whyNeeded": "native 기반이 main에 준비되기 전에는 Production 지원으로 표시하지 않음(§17.2 planned)",
+   "privacyRisk": "세션 id·상태만 — 원음 금지",
+   "freeImplementationOption": "native 구현 시 session journal 스키마를 계약에 연결",
+   "fallbackStatus": "UNAVAILABLE",
+   "what": "native 녹음 세션 계약(백그라운드 녹음·process 재생성 복구)",
+   "userImpact": "native 출시 전 과잉 표시를 막습니다.",
+   "recommendedAction": "native 준비 시 계약을 활성화합니다."
+  }
+ ]
+}
