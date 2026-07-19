@@ -5,7 +5,7 @@ apps:
     name: 야외봄
     english_name: OutBom
     repo: robom-labs/outbom
-    version: 0.25.5
+    version: 0.25.6
     data_version: runtime-weather-v1
     version_source: https://raw.githubusercontent.com/robom-labs/outbom/main/package.json
     web_url: https://robom-labs.github.io/outbom/
@@ -106,7 +106,7 @@ apps:
     name: 캘린더봄
     english_name: CalendarBom
     repo: robom-labs/calendarbom
-    version: 0.7.1
+    version: 0.7.2
     data_version: local-schema-v3
     version_source: https://raw.githubusercontent.com/robom-labs/calendarbom/main/package.json
     web_url: https://robom-labs.github.io/calendarbom/
@@ -138,7 +138,7 @@ apps:
     name: 자격증봄
     english_name: CertBom
     repo: robom-labs/certbom
-    version: 0.7.3
+    version: 0.7.4
     data_version: 2026.07.16-v3
     version_source: https://raw.githubusercontent.com/robom-labs/certbom/main/package.json
     web_url: https://certbom.vercel.app/
@@ -170,7 +170,7 @@ apps:
     name: 노트봄
     english_name: NoteBom
     repo: robom-labs/notebom
-    version: 0.3.3
+    version: 0.3.4
     data_version: local-schema-v1
     version_source: https://raw.githubusercontent.com/robom-labs/notebom/main/package.json
     web_url: https://robom-labs.github.io/notebom/
