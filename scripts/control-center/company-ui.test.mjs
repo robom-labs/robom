@@ -249,6 +249,10 @@ test("완전 자동: HQ가 codex-runner를 관리하고 하루 2회(6시·18시)
   assert.match(main, /function normalizeAutoStart/);
   assert.match(main, /setLoginItemSettings\(\{ openAtLogin: false/);
   assert.match(main, /kr\.robom\.company-os/);
+  // v2.7.0: "끄면 그냥 꺼진다" — 매 실행마다 레거시 자동시작 제거, 창 닫으면 완전 종료(트레이 상주 폐지)
+  assert.match(main, /function killLegacyAutostart/);
+  assert.match(main, /window-all-closed[\s\S]*app\.quit\(\)/);
+  assert.doesNotMatch(main, /창만 닫고 감시는 트레이에서 계속/); // 트레이 상주(닫아도 계속 실행) 폐지
   // UI가 자동 관리·점검 주기를 정직하게 표시(주기는 hq-status의 reviewEveryMinutes로 동적 표기)
   assert.match(app, /자동으로 다시 켜는 중|자동 실행 중|자동 관리/);
   assert.match(app, /function reviewLabel/);

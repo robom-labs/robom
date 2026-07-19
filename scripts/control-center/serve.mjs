@@ -981,6 +981,12 @@ export async function startControlCenter({ port = DEFAULT_PORT, openBrowser = tr
       try {
         const supervisor = startRunnerSupervisor({ runtimeDir: DEFAULT_COMPANY_RUNTIME_DIR, snapDir: SNAP_DIR });
         console.log(`[robom-hq] codex-runner 자동 관리 활성${supervisor.repoRoot ? ` · 작업 저장소 ${supervisor.repoRoot}` : " (작업 저장소 미발견 — 요청은 대기열에 안전 보관)"}`);
+        // v2.7.0: 앱이 종료되면 자식 러너도 반드시 함께 종료한다(고아 프로세스로 남아 계속 돌지 않게).
+        let stopped = false;
+        const stopRunner = () => { if (stopped) return; stopped = true; try { supervisor.stop(); } catch { /* 이미 종료 */ } };
+        process.once("exit", stopRunner);
+        process.once("SIGTERM", () => { stopRunner(); process.exit(0); });
+        process.once("SIGINT", () => { stopRunner(); process.exit(0); });
       } catch (error) {
         console.error("[robom-hq] 러너 자동 관리 시작 실패", error);
       }

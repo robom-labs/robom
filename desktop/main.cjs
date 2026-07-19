@@ -67,31 +67,29 @@ function prepareDataDirs() {
   return { runtimeDir, snapDir, dataRoot };
 }
 
-// 자동 시작은 기본 OFF — 회장이 트레이에서 직접 켜야만 부팅 시 실행된다.
-// 과거 버전이 (1) Electron 로그인 항목을 숨김 ON으로 강제했고 (2) 종료해도 즉시
-// 되살리는 KeepAlive LaunchAgent(kr.robom.company-os)를 설치할 수 있었다. 이 둘 때문에
-// "꺼도 자꾸 자동 실행"되는 문제가 있었으므로, 새 버전 첫 실행 때 한 번 둘 다 해제한다.
-// 표식 이후에는 회장의 트레이 선택만 존중한다(다시 자동으로 켜지 않는다).
+// 종료해도 되살리는 KeepAlive LaunchAgent(kr.robom.company-os)는 "꺼도 자꾸 켜지는" 진짜 원인이다.
+// v2.7.0: 1회가 아니라 앱을 켤 때마다 무조건 제거한다(구버전에서 이미 깔린 것도 확실히 정리).
+function killLegacyAutostart() {
+  if (process.platform !== "darwin") return;
+  try {
+    const label = "kr.robom.company-os";
+    const plistPath = join(app.getPath("home"), "Library", "LaunchAgents", `${label}.plist`);
+    spawnSync("launchctl", ["bootout", `gui/${process.getuid()}/${label}`], { encoding: "utf8" });
+    spawnSync("launchctl", ["disable", `gui/${process.getuid()}/${label}`], { encoding: "utf8" });
+    if (existsSync(plistPath)) rmSync(plistPath, { force: true });
+  } catch (error) { console.error("[robom-hq] 레거시 자동시작 LaunchAgent 제거 실패", error); }
+}
+
+// 자동 시작(부팅 시 로그인 항목)은 기본 OFF. 회장이 트레이에서 직접 켠 경우에만(마커) 존중한다.
+// 마커가 없으면 매 실행마다 로그인 항목을 꺼서 "몰래 다시 켜짐"을 원천 차단한다.
 function normalizeAutoStart(dataRoot) {
   try {
-    const marker = join(dataRoot, "autostart-off-v243");
-    if (existsSync(marker)) return;
-    // (1) Electron 로그인 항목 해제 — 부팅 시 몰래 뜨던 자동 실행 중단
-    if (process.platform === "darwin" || process.platform === "win32") {
+    killLegacyAutostart(); // 매 실행마다 되살림 엔진 제거
+    if (process.platform !== "darwin" && process.platform !== "win32") return;
+    const optedIn = existsSync(join(dataRoot, "autostart-user-enabled"));
+    if (!optedIn && app.getLoginItemSettings().openAtLogin) {
       app.setLoginItemSettings({ openAtLogin: false, openAsHidden: false });
     }
-    // (2) 예전에 설치됐을 수 있는 KeepAlive LaunchAgent 제거 — 종료해도 되살아나던 진짜 원인
-    if (process.platform === "darwin") {
-      try {
-        const label = "kr.robom.company-os";
-        const plistPath = join(app.getPath("home"), "Library", "LaunchAgents", `${label}.plist`);
-        spawnSync("launchctl", ["bootout", `gui/${process.getuid()}/${label}`], { encoding: "utf8" });
-        if (existsSync(plistPath)) rmSync(plistPath, { force: true });
-      } catch (agentError) {
-        console.error("[robom-hq] 레거시 자동시작 LaunchAgent 제거 실패", agentError);
-      }
-    }
-    writeFileSync(marker, new Date().toISOString());
   } catch (error) {
     console.error("[robom-hq] 자동 시작 정규화 실패", error);
   }
@@ -198,13 +196,8 @@ function createWindow() {
   // 화면 자체가 곧 document.title을 버전 포함 문구로 갱신하지만(app.js loadVersion),
   // 로딩 중 잠깐 보이는 제목도 실제 버전으로 정확히 표시한다.
   mainWindow.setTitle(windowTitle());
-  mainWindow.on("close", (event) => {
-    if (!quitting) { // 창만 닫고 감시는 트레이에서 계속
-      event.preventDefault();
-      mainWindow.hide();
-      if (process.platform === "darwin") app.dock?.hide();
-    }
-  });
+  // v2.7.0: 창을 닫으면 앱을 완전히 종료한다("끄면 그냥 꺼진다"). 트레이로 숨겨 계속 도는 동작 폐지.
+  mainWindow.on("close", () => { quitting = true; app.quit(); });
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (isAllowedExternalUrl(url)) shell.openExternal(url);
     return { action: "deny" };
@@ -236,10 +229,19 @@ function buildTray() {
       label: "부팅 시 자동 시작 (기본 꺼짐)",
       type: "checkbox",
       checked: process.platform === "darwin" || process.platform === "win32" ? app.getLoginItemSettings().openAtLogin : false,
-      click: (item) => { app.setLoginItemSettings({ openAtLogin: item.checked, openAsHidden: false }); if (RUNTIME_DIR) writeDesktopStatus(RUNTIME_DIR); },
+      click: (item) => {
+        // 회장이 명시적으로 켠 경우에만 마커를 남겨, 다음 실행에서 자동으로 끄지 않는다.
+        try {
+          const marker = join(app.getPath("userData"), "autostart-user-enabled");
+          if (item.checked) writeFileSync(marker, new Date().toISOString());
+          else if (existsSync(marker)) rmSync(marker, { force: true });
+        } catch { /* 마커 실패 무시 */ }
+        app.setLoginItemSettings({ openAtLogin: item.checked, openAsHidden: false });
+        if (RUNTIME_DIR) writeDesktopStatus(RUNTIME_DIR);
+      },
     },
     { type: "separator" },
-    { label: "완전 종료 (다시 안 켜짐)", click: () => { quitting = true; app.quit(); } },
+    { label: "완전 종료", click: () => { quitting = true; app.quit(); } },
   ]);
   tray.setContextMenu(menu);
   tray.on("click", showWindow);
@@ -268,5 +270,7 @@ if (!gotLock) {
     app.on("activate", showWindow);
   });
   app.on("before-quit", () => { quitting = true; });
-  app.on("window-all-closed", () => { /* 트레이 상주: 종료하지 않음 */ });
+  // v2.7.0: "끄면 그냥 꺼진다" — 창을 닫으면(모든 창이 닫히면) 앱을 완전히 종료한다.
+  // 예전의 '트레이 상주(닫아도 계속 실행)'가 회장이 껐는데도 켜져 있는 것처럼 느껴지게 했다.
+  app.on("window-all-closed", () => { quitting = true; app.quit(); });
 }
