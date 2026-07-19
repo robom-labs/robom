@@ -28,7 +28,13 @@
 
 ## 정직한 미완(다음 단계 — 프롬프트의 거짓 성과 금지 원칙 준수)
 
-- **계약 500개**: 현재 337개(실측 가능한 고유 계약만; 문구만 바꾼 중복 금지). **야외봄 신호 오픈 완료**(2026-07-19): registry에 실제 날씨 소스(Open-Meteo 서울 좌표, 공개·무키) 선언 → forecast-probe(need_new_source) 1개를 실측 심층 계약 6개(200·JSON, 48시간+, 기온 전수 유효, 핵심 기상필드 존재, 일출·일몰 parse, 타임존)로 전환. need_new_source 7→6. 앱의 실제 lib/weather.ts 쿼리와 동일 스키마(assertion 경로 검증), 라이브 PASS는 회장 맥에서(샌드박스는 외부 호스트 차단).
-- **남은 앱 신호(하루 한 앱, 노트봄 제외)**: 청약봄 collection-stats(Supabase 함수에 통계 헤더), 자격증봄 source-hash(수집 workflow에 sha256 기록), 캘린더봄 user-storage-health(설정에 진단 옵트인 버튼·개인정보 신중) — 각 앱 원본 저장소 코드 작업이라 순차 진행. 노트봄 2개는 '절대 수정 금지' 규칙으로 열지 않음.
+- **계약 356개**(273 → 356, 실측 가능한 고유 계약만; 문구만 바꾼 중복 금지). **5개 앱 진단 신호 전부 오픈 완료**(2026-07-19, 회장 지시 "원칙 수정·다 열어라·모든 권한"). 각 앱 원본 저장소를 세션에 붙여 **실제 데이터 소스·스키마를 확인한 뒤** 그에 맞는 실측 계약을 추가(가짜·추측 금지):
+  - **야외봄**: Open-Meteo(서울 좌표, 공개·무키) → forecast 6종(200·JSON, 48시간+, 기온 전수 유효, 핵심 기상필드, 일출·일몰, 타임존). lib/weather.ts 쿼리와 동일.
+  - **청약봄**: Supabase notices(공개 URL) → 공고 6종(housingCategory=아파트 상수, applyHome 공식 URL 고정, type 존재, modelDataStatus enum, lastVerifiedAt parse, events 배열). 서버 normalize() 보장 필드만 + 빈 배열 공허참 안전.
+  - **러닝봄**: races.json(사이트 루트, top-level 객체) → 8종(featuredRaces·scheduleFeed 비어있지 않음·이름·날짜 parse·status enum·접수 URL 유효). URL http/https 혼용이라 https 단정 금지→url_valid. 기존 races-data-version 필드 경로 버그(dataVersion→version) 수정.
+  - **자격증봄**: ops/source-registry/sources.json(raw GitHub) → 4종(schemaVersion≥2·dataVersion·출처 8곳·id 중복0·공식/접수 URL https·확인시각). 실제 파일 한글 키 스키마 확인. (런타임 데이터는 번들 내장이라 별도 API 없음 — 정직히 파일 점검)
+  - **캘린더봄**: 서버 데이터 없음(클라이언트 전용) → 저장 키 6개 불변 계약(critical, 사용자 데이터 유실 방지) + 백업/ICS 내보내기·가져오기 UI 존재. 앱 스스로 선언한 '저장 키 불변' 원칙 기반.
+  - 라이브 PASS는 회장 맥에서(샌드박스는 외부 호스트 403 차단). 엔진 구조 검증: 신규 계약 전수 코드 예외 0.
+- **남은 need_new_source 6개(정직)**: 청약봄 collection-stats(Supabase 함수에 통계 헤더 추가 필요), 자격증봄 source-hash(수집 workflow가 sha256 기록), 캘린더봄 user-storage-health(설정 옵트인 — **개인정보라 회장 확인 경계**, 자동 미구현), robom-hq login-item(desktop API), 노트봄 2개('절대 수정 금지'). 이들은 각 앱 인프라 추가/개인정보 동의가 필요한 항목이라 허수로 채우지 않고 정직하게 남김.
 - **오피스 80명 전원 데스크 배치**: 현재 층별 핵심 데스크 + 가족·생활 인원 구동. 80명을 11개 층 좌석에 충돌 없이 전수 배치(seatsByFloor 확장)는 다음 단계.
 - **CompanyKernel SSE·ExecutorBroker**: 현재 6초 폴링 + Codex 단일 러너. 실행기 미연결은 정직하게 '자동 수정 대기'로 표기(연결 시 즉시 '수정 중'). 이벤트 버스(SSE)·다중 실행기 어댑터는 다음 단계.

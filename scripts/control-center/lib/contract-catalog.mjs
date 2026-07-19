@@ -278,6 +278,25 @@ function homebomContracts(app) {
         freeImplementationOption: "Supabase 함수에 통계 헤더(x-collection-stats) 추가",
         fallbackStatus: "UNAVAILABLE",
         what: "수집 통계(fetched≥published, 불가능 통계 금지, 0건 삭제 보호) 심층 검증", userImpact: "수집 이상을 통계로 조기 감지하지 못합니다.", recommendedAction: "read-only 통계 신호를 추가하면 자동 점검됩니다." }),
+    // ── 공고 응답 심층 실측(서버 normalize()가 보장하는 필드만 — 빈 배열이면 every는 공허참으로 통과) ──
+    s("notices-housing-category", "data", "http_json_contract", { url: probe, itemsPathCandidates: itemPaths, assertions: [
+      { path: "", op: "eq", quantifier: "every", itemPath: "housingCategory", value: "아파트", label: "주택구분=아파트" }] },
+      { severityIfFail: "error", failureClass: "schema", what: "모든 공고 housingCategory=아파트(서버 보장 상수)", userImpact: "구분이 어긋나면 잘못된 공고가 섞입니다.", recommendedAction: "정규화 로직을 확인합니다." }),
+    s("notices-applyhome-url", "data", "http_json_contract", { url: probe, itemsPathCandidates: itemPaths, assertions: [
+      { path: "", op: "eq", quantifier: "every", itemPath: "applyHomeUrl", value: "https://www.applyhome.co.kr", label: "청약홈 공식 URL" }] },
+      { severityIfFail: "error", failureClass: "integrity", what: "모든 공고의 청약홈 신청 URL이 공식 주소로 고정", userImpact: "신청 링크가 바뀌면 사용자가 엉뚱한 곳으로 갑니다.", recommendedAction: "applyHomeUrl 상수를 확인합니다." }),
+    s("notices-type-present", "data", "http_json_contract", { url: probe, itemsPathCandidates: itemPaths, assertions: [
+      { path: "", op: "nonempty_string", quantifier: "every", itemPath: "type", label: "공급 유형" }] },
+      { severityIfFail: "error", failureClass: "schema", what: "모든 공고에 공급 유형(일반공급·무순위 등) 존재", userImpact: "유형이 비면 필터·표시가 깨집니다.", recommendedAction: "type 매핑을 확인합니다." }),
+    s("notices-model-status", "data", "http_json_contract", { url: probe, itemsPathCandidates: itemPaths, assertions: [
+      { path: "", op: "one_of", quantifier: "every", itemPath: "modelDataStatus", value: ["collected", "not-collected", "retrying"], label: "모델 수집 상태" }] },
+      { severityIfFail: "warning", failureClass: "schema", what: "모델(평형·가격) 수집 상태가 정의된 3값 안", userImpact: "상태값이 깨지면 가격 표시 판단이 틀립니다.", recommendedAction: "modelDataStatus enum을 확인합니다." }),
+    s("notices-lastverified", "data", "http_json_contract", { url: probe, itemsPathCandidates: itemPaths, assertions: [
+      { path: "", op: "date_valid", quantifier: "every", itemPath: "lastVerifiedAt", label: "검증 시각" }] },
+      { severityIfFail: "warning", failureClass: "freshness", what: "모든 공고 lastVerifiedAt parse 가능(신선도 판정 기반)", userImpact: "검증 시각이 깨지면 최신 여부를 알 수 없습니다.", recommendedAction: "수집기 기록을 확인합니다." }),
+    s("notices-events-array", "data", "http_json_contract", { url: probe, itemsPathCandidates: itemPaths, assertions: [
+      { path: "", op: "is_array", quantifier: "every", itemPath: "events", label: "일정 이벤트 배열" }] },
+      { severityIfFail: "error", failureClass: "schema", what: "모든 공고에 일정(접수·발표·계약) 이벤트 배열 존재", userImpact: "이벤트가 없으면 마감·발표 알림이 불가합니다.", recommendedAction: "이벤트 생성 로직을 확인합니다." }),
     s("filters-smoke", "user_surface", "browser_smoke", { url: app.web_url, viewports: [{ width: 390, height: 844 }], maxConsoleErrors: 0, checkOverflow: true, bodyMinTextLength: 40 },
       { runTier: "deep", severityIfFail: "warning", failureClass: "user_flow", requiredCapabilities: ["network", "browser"], timeoutMs: 45_000,
         what: "청약봄 목록 화면 smoke(렌더·콘솔 오류 0·넘침 0)", userImpact: "필터·목록이 깨지면 공고 확인이 불가능합니다.", recommendedAction: "콘솔 오류를 수정합니다." }),
@@ -295,8 +314,8 @@ function runningbomContracts(app) {
       { required: true, severityIfFail: "critical", failureClass: "availability", consecutiveFailures: 1,
         what: "races.json 200·JSON parse", userImpact: "대회 데이터가 없으면 앱이 빈 목록입니다.", recommendedAction: "데이터 파일 배포를 확인합니다." }),
     s("races-data-version", "data", "http_json_contract", { url: races, urlCandidates: racesCandidates, assertions: [
-      { path: "dataVersion", op: "eq", value: app.data_version, label: "registry data_version parity" }] },
-      { severityIfFail: "error", failureClass: "parity", what: `races.json dataVersion == registry(${app.data_version})`, userImpact: "데이터 장부가 어긋나면 갱신 판단이 틀립니다.", recommendedAction: "registry data_version을 갱신합니다." }),
+      { path: "version", op: "eq", value: app.data_version, label: "registry data_version parity" }] },
+      { severityIfFail: "warning", failureClass: "parity", what: `races.json version == registry(${app.data_version})`, userImpact: "데이터 장부가 어긋나면 갱신 판단이 틀립니다.", recommendedAction: "registry data_version 또는 races.json version을 정합화합니다." }),
     s("races-deep", "data", "app_data_validator", { url: races, urlCandidates: racesCandidates, validator: "runningbom_races" },
       { severityIfFail: "error", failureClass: "schema",
         what: "대회 데이터 심층 계약(필수 필드·중복 0·날짜 parse·접수 순서·상태-날짜 모순·미래 접수 존재·종료 비율)",
@@ -310,6 +329,31 @@ function runningbomContracts(app) {
         what: "공식 접수 링크 회전 표본 점검(하루 1개 결정론 선택·403은 정책으로 구분)", userImpact: "죽은 공식 링크는 접수 기회를 잃게 합니다.", recommendedAction: "해당 대회의 공식 URL을 갱신합니다." }),
     s("no-fake-alarm-static", "notification", "repo_text_contract", { repo: app.repo, pathCandidates: ["app.js", "src/app.js", "scripts/validate-static.mjs"], mustContainAny: ["confirmed", "exact"] },
       { severityIfFail: "info", failureClass: "notification", what: "정각 미확정 대회에 임의 시각 알림을 만들지 않는 로직 존재(읽기 전용 감사)", userImpact: "틀린 시각 알림은 신뢰를 깨뜨립니다.", recommendedAction: "exact time 확인 로직을 유지합니다." }),
+    // ── races.json 심층 실측(top-level 객체: featuredRaces·scheduleFeed. URL은 http/https 혼용이라 url_valid만) ──
+    s("featured-nonempty", "data", "http_json_contract", { url: races, urlCandidates: racesCandidates, assertions: [
+      { path: "featuredRaces", op: "length_gte", value: 1, label: "대표 대회 수" }] },
+      { severityIfFail: "error", failureClass: "availability", what: "대표 대회(featuredRaces) 최소 1건", userImpact: "대표 대회가 비면 첫 화면이 허전합니다.", recommendedAction: "데이터 수집을 확인합니다." }),
+    s("featured-fields", "data", "http_json_contract", { url: races, urlCandidates: racesCandidates, assertions: [
+      { path: "featuredRaces", op: "nonempty_string", quantifier: "every", itemPath: "name", label: "대회명" },
+      { path: "featuredRaces", op: "date_valid", quantifier: "every", itemPath: "raceDate", label: "대회일 parse" }] },
+      { severityIfFail: "error", failureClass: "schema", what: "대표 대회 전수 대회명·대회일(ISO) 유효", userImpact: "이름·날짜가 깨지면 D-day·정렬이 틀립니다.", recommendedAction: "데이터 스키마를 확인합니다." }),
+    s("featured-status", "data", "http_json_contract", { url: races, urlCandidates: racesCandidates, assertions: [
+      { path: "featuredRaces", op: "one_of", quantifier: "every", itemPath: "status", value: ["open", "sold_out", "scheduled", "closed"], label: "접수 상태" }] },
+      { severityIfFail: "warning", failureClass: "schema", what: "대표 대회 접수 상태가 정의된 값(open·sold_out·scheduled·closed)", userImpact: "상태가 깨지면 접수 버튼이 잘못 표시됩니다.", recommendedAction: "status enum을 확인합니다." }),
+    s("featured-reg-url", "data", "http_json_contract", { url: races, urlCandidates: racesCandidates, assertions: [
+      { path: "featuredRaces", op: "url_valid", quantifier: "every", itemPath: "registrationUrl", label: "접수 URL" }] },
+      { severityIfFail: "warning", failureClass: "availability", what: "대표 대회 접수 URL이 유효한 링크(http/https)", userImpact: "죽은 접수 링크는 참가 기회를 잃게 합니다.", recommendedAction: "접수 URL을 갱신합니다." }),
+    s("feed-nonempty", "data", "http_json_contract", { url: races, urlCandidates: racesCandidates, assertions: [
+      { path: "scheduleFeed", op: "length_gte", value: 1, label: "일정 피드 수" }] },
+      { severityIfFail: "error", failureClass: "availability", what: "대회 일정 피드(scheduleFeed) 최소 1건", userImpact: "일정이 비면 달력이 텅 빕니다.", recommendedAction: "일정 수집을 확인합니다." }),
+    s("feed-fields", "data", "http_json_contract", { url: races, urlCandidates: racesCandidates, assertions: [
+      { path: "scheduleFeed", op: "nonempty_string", quantifier: "every", itemPath: "name", label: "대회명" },
+      { path: "scheduleFeed", op: "date_valid", quantifier: "every", itemPath: "date", label: "일자 parse" },
+      { path: "scheduleFeed", op: "one_of", quantifier: "every", itemPath: "status", value: ["open", "scheduled", "closed"], label: "상태" }] },
+      { severityIfFail: "error", failureClass: "schema", what: "일정 피드 전수 대회명·일자·상태 유효", userImpact: "필드가 깨지면 일정·필터가 무너집니다.", recommendedAction: "데이터 스키마를 확인합니다." }),
+    s("data-version-string", "data", "http_json_contract", { url: races, urlCandidates: racesCandidates, assertions: [
+      { path: "version", op: "nonempty_string", label: "데이터 버전" }] },
+      { severityIfFail: "info", failureClass: "observability", what: "races.json에 데이터 버전 문자열 존재", userImpact: "버전이 없으면 갱신 추적이 어렵습니다.", recommendedAction: "version 필드를 유지합니다." }),
     s("filters-smoke", "user_surface", "browser_smoke", { url: app.web_url, viewports: [{ width: 320, height: 700 }, { width: 390, height: 844 }], maxConsoleErrors: 0, checkOverflow: true, bodyMinTextLength: 40 },
       { runTier: "deep", severityIfFail: "warning", failureClass: "user_flow", requiredCapabilities: ["network", "browser"], timeoutMs: 45_000,
         what: "320·390 폭에서 필터·카드·하단 탭 넘침 0·콘솔 오류 0", userImpact: "작은 화면에서 조작이 불가능해집니다.", recommendedAction: "레이아웃을 수정합니다." }),
@@ -320,6 +364,11 @@ function runningbomContracts(app) {
 function calendarbomContracts(app) {
   const id = "calendarbom"; const s = (cid, ...rest) => C(`c:${id}:${cid}`, id, ...rest);
   return [
+    // ── 저장 키 불변 계약(앱 스스로 선언한 '저장 키 불변' 원칙 — 무민리파이 배포라 번들에 리터럴 그대로 존재) ──
+    s("storage-keys-full", "storage", "surface_marker", { url: app.healthcheck_url, baseUrl: app.web_url, markersAll: ["calendarbom:events:v1", "calendarbom:data:v2", "calendarbom:recovery:v2", "calendarbom:lkg", "calendarbom:migrated", "calendarbom:draft:v2"] },
+      { required: true, severityIfFail: "critical", failureClass: "storage", consecutiveFailures: 1, what: "6개 저장 키(events:v1·data:v2·recovery:v2·lkg·migrated·draft:v2) 전부 번들에 보존", userImpact: "저장 키가 하나라도 바뀌면 기존 사용자 일정이 사라져 보입니다.", recommendedAction: "저장 키 리터럴을 마이그레이션 없이 바꾸지 않습니다." }),
+    s("backup-import-ui", "user_surface", "surface_marker", { url: app.healthcheck_url, baseUrl: app.web_url, markersAll: ["exportJsonButton", "exportIcsButton", "importButton"] },
+      { severityIfFail: "warning", failureClass: "storage", what: "백업(JSON)·달력(ICS) 내보내기·가져오기 버튼 존재", userImpact: "백업/가져오기가 빠지면 기기 교체 때 일정을 잃습니다.", recommendedAction: "내보내기·가져오기 UI를 유지합니다." }),
     s("storage-keys-preserved", "storage", "surface_marker", { url: app.healthcheck_url, baseUrl: app.web_url, markersAll: ["calendarbom:events:v1", "calendarbom:data:v2"] },
       { required: true, severityIfFail: "critical", failureClass: "storage", consecutiveFailures: 1,
         what: "기존 저장 키 문자열(calendarbom:events:v1·data:v2)이 번들에 보존", userImpact: "키가 바뀌면 기존 사용자 일정이 사라져 보입니다.", recommendedAction: "마이그레이션 없이 키를 바꾸지 않습니다." }),
@@ -359,14 +408,33 @@ function calendarbomContracts(app) {
 function certbomContracts(app) {
   const id = "certbom"; const s = (cid, ...rest) => C(`c:${id}:${cid}`, id, ...rest);
   const registryCandidates = [
-    "apps/web/public/data/source-registry.json", "apps/web/src/data/source-registry.json",
+    "ops/source-registry/sources.json", "apps/web/public/data/source-registry.json", "apps/web/src/data/source-registry.json",
     "ops/source-registry.json", "ops/sources/source-registry.json", "packages/data/source-registry.json",
   ];
+  const rawSources = `https://raw.githubusercontent.com/${app.repo}/main/ops/source-registry/sources.json`; // 실제 정본 파일(공개)
   return [
     s("source-registry", "data", "repo_json_contract", { repo: app.repo, pathCandidates: registryCandidates, validator: "certbom_sources" },
       { severityIfFail: "error", failureClass: "integrity",
         what: "공식 출처 registry 심층 계약(schemaVersion·dataVersion·sourceId 중복 0·owner·officialUrl HTTPS·parserVersion·lastVerifiedAt·staleAfterHours)",
         userImpact: "출처 장부가 깨지면 수집 전체의 신뢰가 무너집니다.", recommendedAction: "source registry를 스키마에 맞게 수정합니다." }),
+    // ── 공식 출처 정본(sources.json) 실측 심층 계약 — 실제 파일 스키마(schemaVersion 2·8개 출처·한글 키) 기준 ──
+    s("sources-schema", "data", "http_json_contract", { url: rawSources, assertions: [
+      { path: "schemaVersion", op: "gte", value: 2, label: "스키마 버전" },
+      { path: "dataVersion", op: "nonempty_string", label: "데이터 버전" },
+      { path: "lastReviewedAt", op: "date_valid", label: "마지막 검토 시각" },
+      { path: "sources", op: "length_gte", value: 8, label: "공식 출처 수" }] },
+      { severityIfFail: "error", failureClass: "integrity", timeoutMs: 25_000, what: "출처 정본 schemaVersion≥2·dataVersion·검토 시각·출처 8곳", userImpact: "출처 장부가 깨지면 시험 일정 신뢰가 무너집니다.", recommendedAction: "sources.json 스키마를 확인합니다." }),
+    s("sources-ids-unique", "data", "http_json_contract", { url: rawSources, itemsPathCandidates: ["sources"], assertions: [
+      { path: "", op: "unique", value: "sourceId", label: "출처 id 중복" },
+      { path: "", op: "nonempty_string", quantifier: "every", itemPath: "sourceId", label: "출처 id" }] },
+      { severityIfFail: "error", failureClass: "integrity", timeoutMs: 25_000, what: "출처 sourceId 전수 존재·중복 0", userImpact: "출처 id가 겹치면 일정 연결이 뒤섞입니다.", recommendedAction: "sourceId를 정리합니다." }),
+    s("sources-official-https", "data", "http_json_contract", { url: rawSources, itemsPathCandidates: ["sources"], assertions: [
+      { path: "", op: "url_https", quantifier: "every", itemPath: "officialUrl", label: "공식 URL https" },
+      { path: "", op: "url_https", quantifier: "every", itemPath: "applicationUrl", label: "접수 URL https" }] },
+      { severityIfFail: "error", failureClass: "security", timeoutMs: 25_000, what: "모든 출처의 공식·접수 URL이 https", userImpact: "http 링크는 보안 경고·차단을 유발합니다.", recommendedAction: "출처 URL을 https로 유지합니다." }),
+    s("sources-verified", "data", "http_json_contract", { url: rawSources, itemsPathCandidates: ["sources"], assertions: [
+      { path: "", op: "date_valid", quantifier: "every", itemPath: "lastVerifiedAt", label: "확인 시각" }] },
+      { severityIfFail: "warning", failureClass: "freshness", timeoutMs: 25_000, what: "모든 출처 lastVerifiedAt parse 가능", userImpact: "확인 시각이 깨지면 신선도 판정이 틀립니다.", recommendedAction: "출처 확인 시각을 정규화합니다." }),
     s("source-workflow", "data", "github_actions", { repo: app.repo, workflowFile: "source-operations.yml", maxAgeHours: 36 },
       { required: true, severityIfFail: "error", failureClass: "automation",
         what: "공식 출처 수집 workflow 최근 36시간 내 성공", userImpact: "수집이 멈추면 시험 일정이 오래됩니다.", recommendedAction: "workflow 실패 로그를 확인해 복구합니다." }),
