@@ -171,6 +171,22 @@ export function findLoopByTask(taskId, { runtimeDir = DEFAULT_COMPANY_RUNTIME_DI
   return Object.values(loops).find((l) => l.taskId === taskId) || null;
 }
 
+// §12 장기 운영: 닫힌 Loop(CLOSED/FAILED_SAFE)가 무한히 쌓이지 않도록 오래된 것을 정리한다.
+// 활성 Loop는 절대 지우지 않는다. 학습·감사 이력은 events.jsonl에 남으므로 요약 맵만 가볍게 유지한다.
+export function pruneClosedLoops(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, { now = new Date(), keepDays = 30 } = {}) {
+  const loops = readLoops(runtimeDir);
+  const cutoff = now.getTime() - keepDays * 86400_000;
+  let pruned = 0;
+  for (const [id, l] of Object.entries(loops)) {
+    if (TERMINAL_STATES.has(l.state)) {
+      const closedMs = Date.parse(l.closedAt || l.updatedAt || "");
+      if (Number.isFinite(closedMs) && closedMs < cutoff) { delete loops[id]; pruned += 1; }
+    }
+  }
+  if (pruned) writeLoops(runtimeDir, loops);
+  return { pruned };
+}
+
 // §14 Meta Loop — Loop 시스템 자체를 점검한다. 멈춘 Loop·재시도 폭주·담당/검증자 누락을 결정론으로 찾아
 // 회장에게 "회사가 스스로 자기 운영도 감시한다"를 정직하게 보여준다. 이 자체는 부작용이 없다(읽기·플래그만).
 export function metaAudit(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, { now = new Date(), stuckHours = 24, maxIteration = 5 } = {}) {

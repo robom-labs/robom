@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   createLoop, transitionLoop, openIteration, readLoops, summarizeLoops,
-  deriveAcceptanceCriteria, findLoopByContract, isActive, LOOP_STATES, metaAudit,
+  deriveAcceptanceCriteria, findLoopByContract, isActive, LOOP_STATES, metaAudit, pruneClosedLoops,
 } from "./loop-engine.mjs";
 
 function tmp() { return mkdtempSync(join(tmpdir(), "loop-test-")); }
@@ -81,6 +81,24 @@ test("summarizeLoops는 활성/종료를 나눠 센다", () => {
   assert.equal(s.active, 1);
   assert.equal(s.closed, 1);
   assert.ok(s.activeLoops.length === 1);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("pruneClosedLoops는 오래된 종료 Loop만 지우고 활성은 보존한다", () => {
+  const dir = tmp();
+  const old = new Date("2026-06-01T00:00:00Z");
+  const nowD = new Date("2026-07-20T00:00:00Z");
+  const a = createLoop({ objective: "옛종료", contractId: "co", fixClass: "codex" }, { runtimeDir: dir, now: old });
+  transitionLoop(a.loopId, "CLOSED", { runtimeDir: dir, now: old }); // 49일 전 종료
+  const b = createLoop({ objective: "활성", contractId: "cb", fixClass: "codex" }, { runtimeDir: dir, now: nowD });
+  const recent = createLoop({ objective: "최근종료", contractId: "cr", fixClass: "codex" }, { runtimeDir: dir, now: nowD });
+  transitionLoop(recent.loopId, "CLOSED", { runtimeDir: dir, now: nowD }); // 방금 종료
+  const res = pruneClosedLoops(dir, { now: nowD, keepDays: 30 });
+  const remaining = readLoops(dir);
+  assert.equal(res.pruned, 1);
+  assert.ok(!remaining[a.loopId]);       // 49일 전 종료 → 정리됨
+  assert.ok(remaining[b.loopId]);        // 활성 → 보존
+  assert.ok(remaining[recent.loopId]);   // 최근 종료 → 보존
   rmSync(dir, { recursive: true, force: true });
 });
 

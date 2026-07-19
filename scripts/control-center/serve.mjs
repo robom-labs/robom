@@ -24,7 +24,7 @@ import { tryActivatePlaywrightDriver } from "./lib/browser-driver.mjs";
 import { readMobileAccess, writeMobileAccess, connectUrls, DEFAULT_MOBILE_PORT } from "./lib/mobile-access.mjs";
 import { readAuthority, writeAuthority, isDelegable, currentShift, COMPANY_MODES, COMPANY_MODE_LABELS, APPROVAL_MODES } from "./lib/company-authority.mjs";
 import { classifyFix, classifyIncidents, resolutionLine } from "./lib/incident-fix.mjs";
-import { createLoop, transitionLoop, openIteration, findLoopByContract, findLoopByTask, summarizeLoops } from "./lib/loop-engine.mjs";
+import { createLoop, transitionLoop, openIteration, findLoopByContract, findLoopByTask, summarizeLoops, pruneClosedLoops } from "./lib/loop-engine.mjs";
 import { loadRoster, computeWorkforce, orgTree, currentShiftId } from "./lib/workforce.mjs";
 import { startRunnerSupervisor } from "./lib/runner-supervisor.mjs";
 import { REPO_ROOT } from "./lib/sources.mjs";
@@ -489,6 +489,8 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
     }
   } catch { /* 백업 점검 실패 무시 */ }
   if (healthSummary) { healthSummary.backupAgeHours = Number.isFinite(backupAgeH) ? Math.round(backupAgeH) : null; healthSummary.autoBackedUp = autoBackedUp; }
+  // §12 장기 운영: 30일 지난 종료 Loop 정리(파일 무한 증가 방지). 활성 Loop는 건드리지 않는다.
+  try { pruneClosedLoops(DEFAULT_COMPANY_RUNTIME_DIR, { now, keepDays: 30 }); } catch { /* 정리 실패 무시 */ }
   try {
     mkdirSync(DEFAULT_COMPANY_RUNTIME_DIR, { recursive: true, mode: 0o700 });
     writeFileSync(REVIEW_MARKER, JSON.stringify({ at: new Date().toISOString(), created: created.length, delegated, health: healthSummary }), { mode: 0o600 });
