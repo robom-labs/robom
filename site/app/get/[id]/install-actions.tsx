@@ -47,7 +47,7 @@ export function InstallActions({ app }: { app: InstallApp }) {
       {primaryStore === "app-store" && <a className="store-action primary" href={app.appStoreUrl} target="_blank" rel="noopener noreferrer" onClick={() => familyAnalytics.track({ event_name: "store_badge_clicked", app_id: app.id, surface: "install-landing", properties: { store: "app-store" } })}>App Store에서 설치</a>}
 
       {!primaryStore && <a className="store-action primary" href={app.pwaInstallUrl} target="_blank" rel="noopener noreferrer" onClick={() => familyAnalytics.track({ event_name: "pwa_install_cta_clicked", app_id: app.id, surface: "install-landing" })}>{platform === "ios" ? `Safari에서 ${app.name} 열기` : `${app.name} 열고 설치`}</a>}
-      {!playLive && !appStoreLive && <p className="store-status">Google Play·App Store 앱은 출시 준비 중입니다. 지금은 검증된 PWA를 설치하거나 웹으로 사용할 수 있어요.</p>}
+      {!playLive && !appStoreLive && <p className="store-status">Google Play·App Store 앱은 출시 준비 중입니다. 지금은 검증된 PWA(홈 화면 앱)로 설치해 앱처럼 사용해요.</p>}
 
       {!primaryStore && <button className="install-guide-toggle" type="button" aria-expanded={showGuide || platform === "ios"} onClick={() => setShowGuide((value) => !value)}>홈 화면 설치 방법</button>}
       {(showGuide || (platform === "ios" && !appStoreLive)) && (
@@ -59,7 +59,7 @@ export function InstallActions({ app }: { app: InstallApp }) {
       <div className="install-secondary-actions">
         {playLive && primaryStore !== "play" && <a href={app.googlePlayUrl} target="_blank" rel="noopener noreferrer">Google Play</a>}
         {appStoreLive && primaryStore !== "app-store" && <a href={app.appStoreUrl} target="_blank" rel="noopener noreferrer">App Store</a>}
-        <a href={app.webUrl} target="_blank" rel="noopener noreferrer" onClick={() => familyAnalytics.track({ event_name: "web_trial_clicked", app_id: app.id, surface: "install-landing" })}>웹으로 계속 사용</a>
+        <a href={`/apps/${app.id}#app-preview`} onClick={() => familyAnalytics.track({ event_name: "preview_clicked", app_id: app.id, surface: "install-landing" })}>화면 미리보기</a>
       </div>
     </div>
   );

@@ -68,7 +68,10 @@ test("등록된 앱 소개와 안정 설치 경로를 모두 서버 렌더링한
     const appHtml = await appResponse.text();
     assert.match(appHtml, new RegExp(name));
     assert.match(appHtml, new RegExp(`href="https://robom.kr/get/${id}"|href="/get/${id}"`));
-    assert.match(appHtml, /웹으로 먼저 체험/);
+    // 웹 체험 링크는 제거 — 보기 전용 미리보기 + QR 설치만 제공한다
+    assert.match(appHtml, /화면 미리보기/);
+    assert.match(appHtml, /id="app-preview"/);
+    assert.doesNotMatch(appHtml, /웹으로 먼저 체험|웹 체험/);
     const appNodes = jsonLdNodes(appHtml);
     assert.equal(appNodes.filter((node) => node["@type"] === "SoftwareApplication").length, 1);
     assert.equal(appNodes.filter((node) => node["@type"] === "BreadcrumbList").length, 1);
@@ -80,7 +83,8 @@ test("등록된 앱 소개와 안정 설치 경로를 모두 서버 렌더링한
     assert.match(installHtml, new RegExp(`https://robom.kr/get/${id}`));
     assert.match(installHtml, new RegExp(`/install/qr/${id}\\.svg`));
     assert.match(installHtml, /Google Play·App Store 앱은 출시 준비 중/);
-    assert.match(installHtml, /웹으로 계속 사용/);
+    assert.match(installHtml, /화면 미리보기/);
+    assert.doesNotMatch(installHtml, /웹으로 계속 사용/);
     const installNodes = jsonLdNodes(installHtml);
     const software = installNodes.find((node) => node["@type"] === "SoftwareApplication");
     assert.equal(installNodes.filter((node) => node["@type"] === "SoftwareApplication").length, 1);

@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const app = getFamilyApp((await params).id);
   return app ? {
     title: { absolute: `${app.name} 설치 | 로봄` },
-    description: `${app.name}을 휴대폰에 설치하거나 웹으로 사용하는 공식 안정 경로입니다.`,
+    description: `${app.name}을 휴대폰에 앱으로 설치하는 공식 안정 경로입니다.`,
     alternates: { canonical: app.installPath },
     openGraph: { title: `${app.name} 설치 | 로봄`, description: app.description, url: app.installPath, siteName: "로봄", locale: "ko_KR", type: "website" },
   } : {};
@@ -48,7 +48,7 @@ export default async function InstallLanding({ params }: { params: Promise<{ id:
             <small>QR 목적지는 스토어 출시 뒤에도 바뀌지 않습니다.</small>
           </aside>
         </div>
-        <section className="install-trust" aria-labelledby="install-trust-title"><h2 id="install-trust-title">설치 전에 확인하세요.</h2><div><article><b>공식 안정 주소</b><p>QR은 항상 robom.kr의 앱별 설치 경로를 가리킵니다.</p></article><article><b>웹 사용 보장</b><p>스토어 출시 전이나 설치가 어려울 때도 웹으로 계속 사용할 수 있습니다.</p></article><article><b>선택권 유지</b><p>강제 리다이렉트 없이 사용자가 목적지를 확인하고 선택합니다.</p></article></div></section>
+        <section className="install-trust" aria-labelledby="install-trust-title"><h2 id="install-trust-title">설치 전에 확인하세요.</h2><div><article><b>공식 안정 주소</b><p>QR은 항상 robom.kr의 앱별 설치 경로를 가리킵니다.</p></article><article><b>미리보기 제공</b><p>설치 전 앱 소개 페이지에서 실제 화면을 미리 볼 수 있습니다. 사용은 설치 후 앱에서 해요.</p></article><article><b>선택권 유지</b><p>강제 리다이렉트 없이 사용자가 목적지를 확인하고 선택합니다.</p></article></div></section>
         <section className="family-menu" aria-labelledby="install-family-title"><div><p>다른 로봄 앱</p><h2 id="install-family-title">다른 순간도 휴대폰에서 챙겨보세요.</h2></div><div>{otherApps.map((item) => <Link href={item.installPath} prefetch={false} key={item.id}><AppGlyph app={item} /><span><Wordmark app={item} /><small>{item.mobileValue}</small></span><b>설치 →</b></Link>)}</div></section>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(installLandingStructuredData(app)) }} />
       </section>

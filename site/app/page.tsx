@@ -41,11 +41,11 @@ export default function Home() {
               <article className={`quick-install-card ${app.tone}`} key={app.id}>
                 <div className="quick-app-name"><AppGlyph app={app} /><Wordmark app={app} /></div>
                 <p>{app.mobileValue}</p>
-                <div><Link href={app.installPath} prefetch={false}>설치·휴대폰 사용 <span aria-hidden="true">→</span></Link><a href={app.webUrl} target="_blank" rel="noopener noreferrer">웹 체험</a></div>
+                <div><Link href={app.installPath} prefetch={false}>설치·휴대폰 사용 <span aria-hidden="true">→</span></Link><Link href={`/apps/${app.id}`} prefetch={false}>미리보기</Link></div>
               </article>
             ))}
           </div>
-          <p className="trust-copy">등록된 {familyApps.length}개 앱 모두 운영 중이며, 설치 QR은 바뀌지 않는 robom.kr/get 주소를 사용합니다. 스토어 출시 전에는 PWA 설치와 웹 사용을 안내합니다.</p>
+          <p className="trust-copy">등록된 {familyApps.length}개 앱 모두 운영 중이며, 설치 QR은 바뀌지 않는 robom.kr/get 주소를 사용합니다. 앱은 QR로 휴대폰에 설치해 사용하고, 소개 페이지에서 화면을 미리 볼 수 있습니다.</p>
         </section>
 
         <section className="apps-section" id="apps" aria-labelledby="apps-title">

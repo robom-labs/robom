@@ -10,7 +10,7 @@ export function PwaRegistration() {
     const baseUrl = manifest?.href ? new URL(".", manifest.href) : new URL("/", window.location.href);
     const swUrl = new URL("sw.js", baseUrl);
     navigator.serviceWorker.register(swUrl, { scope: baseUrl.pathname }).catch(() => {
-      // 설치 기능 실패가 앱 선택과 웹 체험을 막지 않도록 조용히 폴백한다.
+      // 설치 기능 실패가 앱 선택과 미리보기를 막지 않도록 조용히 폴백한다.
     });
   }, []);
 
