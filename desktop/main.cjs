@@ -88,8 +88,8 @@ async function apiPost(path, body) {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1120,
-    height: 760,
+    width: 1280,
+    height: 860,
     minWidth: 360,
     minHeight: 560,
     title: "ROBOM HQ",

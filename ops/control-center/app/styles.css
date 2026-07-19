@@ -508,7 +508,7 @@ button{font-family:inherit;cursor:pointer;color:inherit;background:none;border:0
   .rec-group>b{display:none}
   .rec-link{width:auto;padding:8px 12px}
   .matrix th:nth-child(n+4),.matrix td:nth-child(n+4){display:none}
-  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(6,1fr);gap:2px;
     padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#fbf6ec,#f4eede);border-top:1px solid var(--line2);box-shadow:0 -4px 20px rgba(74,60,32,.08)}
   .tab{display:grid;place-items:center;gap:2px;padding:6px 0;color:var(--mut);font-size:11px;font-weight:700;border-radius:11px;min-height:52px}
   .tab svg{width:20px;height:20px}
@@ -529,3 +529,17 @@ button{font-family:inherit;cursor:pointer;color:inherit;background:none;border:0
 @keyframes ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.2);opacity:0}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.05ms!important}}
+
+/* ── 회사 화면: 조직도 (v2.0.0) ── */
+.org-tree{display:flex;flex-direction:column;gap:7px}
+.org-node{display:flex;align-items:center;gap:10px;background:var(--s1);border:1px solid var(--line);border-radius:11px;padding:10px 14px}
+.org-node b{font-size:13.5px;color:var(--ink);flex:0 0 auto}
+.org-node span{font-size:12px;color:var(--mut);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.org-node.lv0{background:var(--gold-soft);border-color:var(--gold-bd)}
+.org-node.lv1{margin-left:16px;border-color:var(--gold-bd)}
+.org-node.lv2{margin-left:32px}
+.org-divs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:7px 0 0 16px}
+.org-node.lv3{flex-direction:column;align-items:flex-start;gap:4px}
+.org-node.lv3 span{white-space:normal}
+.org-node.standby{opacity:.65}
+@media (max-width:820px){.org-divs{grid-template-columns:1fr}.org-node.lv1,.org-node.lv2,.org-divs{margin-left:8px}}

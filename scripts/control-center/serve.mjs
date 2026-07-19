@@ -17,6 +17,7 @@ import {
 } from "./lib/task-queue.mjs";
 import { generateProposals } from "./lib/propose-improvements.mjs";
 import { runHealthEngine } from "./lib/health-engine.mjs";
+import { readAuthority, writeAuthority, isDelegable, currentShift, COMPANY_MODES, APPROVAL_MODES } from "./lib/company-authority.mjs";
 import { startRunnerSupervisor } from "./lib/runner-supervisor.mjs";
 import { REPO_ROOT } from "./lib/sources.mjs";
 
@@ -192,15 +193,17 @@ function seoulDate(now = new Date()) {
 // 감시기가 10분마다 호출하며, 마지막 점검 이후 everyMinutes가 지났을 때만 실행한다(마커로 관리).
 async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNAP_DIR, force = false, now = new Date() } = {}) {
   if (!AUTO_REVIEW && !force) return { skipped: "disabled" };
-  const everyMinutes = readReviewEveryMinutes();
-  if (!force && everyMinutes <= 0) return { skipped: "off" };
+  // v2.0.0: 회사 모드가 정본. RUNNING·MONITOR_ONLY = 상시 관제(감시기 주기마다), PAUSED = 중지.
+  const authority = readAuthority();
+  if (!force && authority.mode === "PAUSED") return { skipped: "company-paused" };
   if (!force) {
+    // 감시기 겹침(시작 직후 reviewSoon + interval) 중복 방지 최소 간격
     try {
       if (existsSync(REVIEW_MARKER)) {
         const last = JSON.parse(readFileSync(REVIEW_MARKER, "utf8"));
-        const lastAt = Date.parse(last.at || last.checkedAt || "");
-        if (Number.isFinite(lastAt) && (now.getTime() - lastAt) < everyMinutes * 60_000) {
-          return { skipped: "not-due", nextInMs: everyMinutes * 60_000 - (now.getTime() - lastAt) };
+        const lastAt = Date.parse(last.at || "");
+        if (Number.isFinite(lastAt) && (now.getTime() - lastAt) < (WATCHDOG_MINUTES - 1) * 60_000) {
+          return { skipped: "not-due" };
         }
       }
     } catch { /* 마커 손상 시 진행 */ }
@@ -245,11 +248,32 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
       created.push(rec.id); existingKeys.add(p.key);
     } catch { /* 개별 실패는 건너뛴다 */ }
   }
+  // 수석부회장 전결: RUNNING + 위임 모드에서 위임 가능한 시스템 상신만 자동 승인 → 업무 등록·대기열
+  let delegated = 0;
+  if (authority.mode === "RUNNING" && authority.approvalMode === "VICE_CHAIR_DELEGATED") {
+    try {
+      const st2 = await store.getState();
+      const pendings = (st2.records.approvals || []).filter((a) => (!a.status || a.status === "pending") && isDelegable(a));
+      for (const approval of pendings) {
+        try {
+          await store.updateStatus("approvals", approval.id, { status: "approved", approvedBy: "executive-vice-chair", comment: "수석부회장 전결" });
+          const task = await store.createRecord("tasks", {
+            title: approval.title, appId: approval.appId || "", problem: approval.body || "",
+            desiredOutcome: approval.recommendation || "", priority: approval.priority || "normal",
+            autonomy: "implement_and_review", status: "queued",
+          });
+          try { enqueueTask(task, { snapshot: readSnapshotValue(snapDir) }); }
+          catch { await store.updateStatus("tasks", task.id, { status: "blocked" }); }
+          delegated += 1;
+        } catch { /* 개별 전결 실패는 건너뛴다 */ }
+      }
+    } catch (error) { console.error("[robom-hq] 전결 처리 실패", error?.message); }
+  }
   try {
     mkdirSync(DEFAULT_COMPANY_RUNTIME_DIR, { recursive: true, mode: 0o700 });
-    writeFileSync(REVIEW_MARKER, JSON.stringify({ at: new Date().toISOString(), everyMinutes: readReviewEveryMinutes(), created: created.length, health: healthSummary }), { mode: 0o600 });
+    writeFileSync(REVIEW_MARKER, JSON.stringify({ at: new Date().toISOString(), created: created.length, delegated, health: healthSummary }), { mode: 0o600 });
   } catch { /* 마커 기록 실패 무시 */ }
-  return { created: created.length, health: healthSummary };
+  return { created: created.length, delegated, health: healthSummary };
 }
 // 최근 health 요약(hq-status 노출용)
 function readHealthSummary() {
@@ -273,11 +297,44 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir) {
     recoverStaleLeases();
     const summary = queueSummary();
     if (summary.runner) summary.runner.managed = MANAGE_RUNNER; // 러너 자동 관리 여부는 서버가 정본
-    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED ? "token" : "local-only", reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary() });
+    const authority = readAuthority();
+    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED ? "token" : "local-only", reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary(), company: { mode: authority.mode, approvalMode: authority.approvalMode, delegatedAt: authority.delegatedAt, shift: currentShift() } });
     return;
   }
 
-  // 자동 점검 주기 설정: 회장이 프로그램에서 직접 조절(적용 즉시 반영)
+  // 회사 가동 모드(RUNNING/MONITOR_ONLY/PAUSED) — 적용 즉시, 감사 기록
+  if (path === "/api/company-mode") {
+    if (req.method === "GET") { sendJson(res, 200, { ok: true, ...readAuthority(), shift: currentShift() }); return; }
+    if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "GET, POST" }); return; }
+    const body = await readJsonBody(req, maxBodyBytes);
+    if (!COMPANY_MODES.includes(body.mode)) throw new HttpError("mode는 RUNNING·MONITOR_ONLY·PAUSED만 허용합니다.", 400, "INVALID_MODE");
+    sendJson(res, 200, { ok: true, ...writeAuthority({ mode: body.mode }) });
+    return;
+  }
+  // 수석부회장 전결 위임/해제 — 위임 가능 안건만 자동 승인(비위임은 회장 전용 유지)
+  if (path === "/api/delegation") {
+    if (req.method === "GET") { sendJson(res, 200, { ok: true, ...readAuthority() }); return; }
+    if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "GET, POST" }); return; }
+    const body = await readJsonBody(req, maxBodyBytes);
+    if (!APPROVAL_MODES.includes(body.approvalMode)) throw new HttpError("approvalMode가 올바르지 않습니다.", 400, "INVALID_APPROVAL_MODE");
+    const next = writeAuthority({ approvalMode: body.approvalMode });
+    if (next.approvalMode === "VICE_CHAIR_DELEGATED" && next.mode === "RUNNING") {
+      runDailyReviewIfDue({ force: true }).catch(() => {}); // 위임 즉시 대기 안건 전결 처리
+    }
+    sendJson(res, 200, { ok: true, ...next });
+    return;
+  }
+  // 조직 정본(조직도·팀·시설) — ops/organization/organization.json
+  if (path === "/api/organization") {
+    if (req.method !== "GET") { sendText(res, 405, "method not allowed", { Allow: "GET" }); return; }
+    try {
+      const org = JSON.parse(readFileSync(join(REPO_ROOT, "ops/organization/organization.json"), "utf8"));
+      sendJson(res, 200, { ok: true, ...org });
+    } catch { sendJson(res, 200, { ok: false, message: "조직 정본을 읽지 못했습니다." }); }
+    return;
+  }
+
+  // 자동 점검 주기 설정(레거시 호환 — v2.0.0부터 회사 모드가 정본)
   if (path === "/api/review-schedule") {
     if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "POST" }); return; }
     const body = await readJsonBody(req, maxBodyBytes);

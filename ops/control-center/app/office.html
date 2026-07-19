@@ -6,23 +6,23 @@
 <style>
 :root{--mono:ui-monospace,"SF Mono","Roboto Mono",Menlo,monospace}
 *{margin:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;background:#070b16;font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;color:#e9eef7}
+html,body{height:100%;overflow:hidden;background:linear-gradient(180deg,#f3ecdd,#e9e1cf);font-family:"Pretendard Variable",Pretendard,-apple-system,sans-serif;color:#2a2519}
 #game{display:block;cursor:grab;touch-action:none}#game:active{cursor:grabbing}
 .hud{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;pointer-events:none;z-index:5}
 .brand{display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1c4f74,#0b2438);display:grid;place-items:center;box-shadow:0 0 18px rgba(53,227,155,.35)}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#f6ecd2,#e9d7a8);display:grid;place-items:center;box-shadow:0 0 18px rgba(53,227,155,.35)}
 .logo b{color:#35e39b;font-family:var(--mono);font-size:15px}
 .brand .t b{font-family:var(--mono);letter-spacing:.14em;font-size:14px}.brand .t small{display:block;color:#7f93b4;font-size:9.5px}
 .mode{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.1em;padding:3px 7px;border-radius:6px;border:1px solid rgba(255,255,255,.16);color:#35e39b}
 .mode.warn{color:#ffcf4d}
 .kpis{display:flex;gap:8px}
-.kpi{min-width:74px;padding:6px 11px;border-radius:11px;background:linear-gradient(180deg,rgba(18,28,48,.85),rgba(9,14,26,.85));border:1px solid rgba(255,255,255,.09);position:relative;backdrop-filter:blur(6px)}
+.kpi{min-width:74px;padding:6px 11px;border-radius:11px;background:linear-gradient(180deg,rgba(255,253,246,.92),rgba(247,240,226,.92));border:1px solid rgba(150,120,60,.25);position:relative;backdrop-filter:blur(6px)}
 .kpi::before{content:"";position:absolute;left:9px;top:10px;width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 9px var(--c)}
 .kpi .l{padding-left:12px;font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;color:#7f93b4}.kpi .v{font-family:var(--mono);font-size:18px;font-weight:800;color:var(--c)}
 .top-right{display:flex;align-items:center;gap:8px;pointer-events:auto}
-.back{display:inline-grid;place-items:center;min-height:44px;padding:0 13px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(18,28,48,.9);color:#dbe7fb;text-decoration:none;font-size:12px;font-weight:800}
+.back{display:inline-grid;place-items:center;min-height:44px;padding:0 13px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,253,246,.95);color:#544d3d;text-decoration:none;font-size:12px;font-weight:800}
 .clock{font-family:var(--mono);font-size:12px;color:#a7bad6}
-.fit{width:34px;height:34px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(18,28,48,.85);color:#a7bad6;font-size:15px;cursor:pointer}
+.fit{width:34px;height:34px;border-radius:9px;border:1px solid rgba(150,120,60,.3);background:rgba(255,253,246,.9);color:#755718;font-size:15px;cursor:pointer}
 .demo-toggle{min-height:34px;padding:0 11px;border-radius:9px;border:1px solid rgba(53,227,155,.3);background:rgba(53,227,155,.1);color:#8ce8c2;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}.demo-toggle[aria-pressed="true"]{background:#35e39b;color:#07140f;border-color:#35e39b}
 .meetban{position:fixed;left:50%;top:60px;transform:translateX(-50%);display:none;align-items:center;gap:8px;padding:7px 15px;border-radius:999px;background:rgba(168,121,255,.16);border:1px solid rgba(168,121,255,.4);font-family:var(--mono);font-size:12px;color:#d0bcff;z-index:5;box-shadow:0 8px 24px -8px rgba(168,121,255,.5)}
 .meetban i{width:8px;height:8px;border-radius:50%;background:#a879ff;box-shadow:0 0 10px #a879ff;animation:pl 1.4s infinite}
@@ -48,6 +48,8 @@ html,body{height:100%;overflow:hidden;background:#070b16;font-family:"Pretendard
 </div>
 <nav class="floors" id="floorNav" aria-label="오피스 층 선택"><strong>층별 오피스</strong></nav>
 <div class="meetban" id="meetban"><i></i><span id="meettopic">회의 중</span></div>
+<div class="newsbar" aria-live="polite"><b>ROBOM 사내 소식</b><span id="ticker">회사 상태를 불러오는 중입니다</span></div>
+<style>.newsbar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;align-items:center;gap:12px;padding:9px 16px;background:linear-gradient(180deg,rgba(255,253,246,.96),rgba(244,234,208,.96));border-top:1px solid rgba(150,120,60,.3);font-size:12.5px;color:#544d3d;box-shadow:0 -4px 18px rgba(90,70,30,.08)}.newsbar b{flex:0 0 auto;font-family:"Nanum Myeongjo",serif;font-size:12px;letter-spacing:2px;color:#8f6d22}.newsbar span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}@media(max-width:720px){.newsbar b{display:none}}</style>
 <div class="legend">
   <span><i style="background:#35e39b"></i>일하는 중</span><span><i style="background:#a879ff"></i>회의</span>
   <span><i style="background:#d7a957"></i>방문 연출</span><span><i style="background:#ff5d6c"></i>확인 필요</span>

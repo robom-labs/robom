@@ -49,7 +49,7 @@ const COMMON_FIELDS = [
 const COLLECTION_FIELDS = Object.freeze({
   meetings: new Set([...COMMON_FIELDS, "agenda", "participants", "scheduledAt", "outcome"]),
   decisions: new Set([...COMMON_FIELDS, "recommendation", "rationale", "options", "decidedAt"]),
-  approvals: new Set([...COMMON_FIELDS, "requestedBy", "recommendation", "impact", "reversible", "decidedAt", "proposalKey"]),
+  approvals: new Set([...COMMON_FIELDS, "requestedBy", "recommendation", "impact", "reversible", "decidedAt", "proposalKey", "approvedBy"]),
   requests: new Set([...COMMON_FIELDS, "requestedBy", "desiredOutcome", "urgency"]),
   reviews: new Set([...COMMON_FIELDS, "target", "url", "viewport", "finding", "severity"]),
   tasks: new Set([...COMMON_FIELDS, "assignedTo", "targetRepo", "acceptanceCriteria", "startedAt", "completedAt", "problem", "desiredOutcome", "mustPreserve", "autonomy", "attachments"]),
@@ -197,7 +197,7 @@ function normalizeStatusPatch(collection, payload) {
   ensurePlainObject(payload);
   const keys = Object.keys(payload);
   const allowed = collection === "approvals"
-    ? new Set(["status", "comment", "signatureRecorded"])
+    ? new Set(["status", "comment", "signatureRecorded", "approvedBy"])
     : new Set(["status"]);
   if (!keys.length || !keys.includes("status") || keys.some((key) => !allowed.has(key))) {
     throw new CompanyStoreError(
@@ -222,6 +222,12 @@ function normalizeStatusPatch(collection, payload) {
       throw new CompanyStoreError("signatureRecorded는 boolean이어야 합니다.", { code: "INVALID_FIELD" });
     }
     changes.signatureRecorded = payload.signatureRecorded;
+  }
+  if (Object.hasOwn(payload, "approvedBy")) { // 전결 승인자 기록(예: executive-vice-chair)
+    if (typeof payload.approvedBy !== "string" || payload.approvedBy.length > 60) {
+      throw new CompanyStoreError("approvedBy는 짧은 문자열이어야 합니다.", { code: "INVALID_FIELD" });
+    }
+    changes.approvedBy = payload.approvedBy;
   }
   assertNoSensitiveContent(changes);
   return changes;

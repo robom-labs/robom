@@ -43,6 +43,7 @@ const NAV = [
   { id: "today", name: "오늘", icon: "today", hash: "#/today" },
   { id: "apps", name: "앱", icon: "apps", hash: "#/apps" },
   { id: "tasks", name: "업무", icon: "tasks", hash: "#/tasks" },
+  { id: "company", name: "회사", icon: "office", hash: "#/company" },
   { id: "automation", name: "자동화", icon: "bolt", hash: "#/automation" },
   { id: "records", name: "기록", icon: "archive", hash: "#/records/approvals" },
 ];
@@ -72,7 +73,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="1.9.1"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="2.0.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -110,7 +111,7 @@ function parseHash(){
   const [a,b]=h.split("/");
   if(a==="apps"&&b)return {screen:"app",param:decodeURIComponent(b)};
   if(a==="records")return {screen:"records",param:REC_IDS.includes(b)?b:"approvals"};
-  if(["today","apps","tasks","automation"].includes(a))return {screen:a};
+  if(["today","apps","tasks","automation","company"].includes(a))return {screen:a};
   return {screen:"today"};
 }
 function go(hash){if(location.hash===hash)route();else location.hash=hash;}
@@ -149,7 +150,9 @@ function updateChrome(){
   hb.className="cb-health "+h.cls;$("#cbHealthText").textContent=h.text;
   $("#appSignals").innerHTML=familyApps().map(a=>{const c=appRunning(a.id)?"busy":({ok:"ok",warn:"warn",down:"bad"}[a.health]||"");return `<a class="sig ${c}" href="#/apps/${attr(a.id)}" title="${attr(a.name)} · ${esc((HEALTH[a.health]||HEALTH.unknown)[0])}"><i></i><b>${esc(a.name.replace(/봄$/,""))}</b></a>`;}).join("");
   const live=LOCAL.mode==="live"&&!preview,bd=$("#modeBadge");
-  bd.textContent=preview?"PREVIEW":(live?"LIVE":"휴대용");bd.className="mode-badge "+(live?"live":"warn");
+  const cm=HQ?.company;
+  const badgeText=preview?"PREVIEW":!live?"휴대용":cm?.approvalMode==="VICE_CHAIR_DELEGATED"?"전결":cm?.mode==="PAUSED"?"정지":cm?.mode==="MONITOR_ONLY"?"관제":"LIVE";
+  bd.textContent=badgeText;bd.className="mode-badge "+(live?(cm?.mode==="PAUSED"?"warn":"live"):"warn");
   buildNav();
 }
 function buildNav(){
@@ -276,7 +279,7 @@ function decreeCard(r){
   const auto=r.requestedBy==="auto-review";
   const st=r.status||"pending";
   const decided=["approved","held","rejected"].includes(st);
-  const sign=st==="approved"?'<div class="seal" aria-label="승인 도장">승인</div>'
+  const sign=st==="approved"?(r.approvedBy==="executive-vice-chair"?'<div class="seal" aria-label="전결 도장">전결</div>':'<div class="seal" aria-label="승인 도장">승인</div>')
     :st==="held"?'<div class="seal hold" aria-label="보류 도장">보류</div>'
     :st==="rejected"?'<div class="seal reject" aria-label="반려 도장">반려</div>'
     :'<div class="sign-slot" aria-label="결재 대기"><span>결재<br/>대기</span></div>';
@@ -364,6 +367,57 @@ function renderAutomation(){
   ${panel("연결 방법 (맥에서 딱 한 번)",`<ol class="number-list"><li>맥 터미널에서 한 번만: <code>codex login</code> — 구독 계정 로그인 (API 키 금지)</li><li>끝. ROBOM HQ가 실행기를 자동으로 켜고 감시합니다 — 이 앱을 켜 두기만 하면 승인한 작업이 자동 처리됩니다.</li></ol><p class="fine">${HQ?.runner?.managed?"실행기 자동 관리가 켜져 있습니다. ":""}로그인 전에는 미연결로 정직하게 표시하며, 요청은 대기열에 안전 보관됩니다. 실제 코드 수정에는 맥에 로봄 저장소 클론이 필요하며, HQ가 <code>~/robom-labs/robom</code> 등을 자동으로 찾습니다.</p>`)}`;
 }
 
+/* ── 회사: 가동·전결·조직도·팀 현황·시설 (v2.0.0) ── */
+let ORG=null,ORG_LOADING=false;
+function loadOrg(){ // 1회만 불러오고, 도착했을 때 회사 화면이면 한 번만 다시 그린다(무한 재렌더 금지)
+  if(ORG||ORG_LOADING||preview)return;
+  ORG_LOADING=true;
+  fetchJson("/api/organization").then(o=>{ORG=o;if(CURRENT==="company")renderScreen();}).catch(()=>{ORG={ok:false};});
+}
+function renderCompany(){
+  const c=HQ?.company||{};
+  const running=c.mode==="RUNNING",monitor=c.mode==="MONITOR_ONLY";
+  const delegated=c.approvalMode==="VICE_CHAIR_DELEGATED";
+  const shift=c.shift?.label||"";
+  const health=HQ?.health;
+  const divisions=ORG?.divisions||[];
+  const cellName=(id)=>({production:"운영 응답",network:"네트워크",self:"HQ 자체",ci:"자동 검사",github:"코드 흐름",roadmap:"다음 개선"})[id]||id;
+  const divStatus=(d)=>{ if(d.standby)return tonePill("neutral","STANDBY · 업무 대기");
+    if(!health)return tonePill("neutral","확인 중");
+    return tonePill(running?"good":monitor?"accent":"neutral",running?"상시 관제 중":monitor?"관제만":"정지"); };
+  loadOrg();
+  return `${title("COMPANY","회사","24시간 살아있는 로봄 본사 — 가동·전결·조직·시설을 한곳에서.",`<a class="button ghost" href="./office.html">${icon("office")}오피스 관람</a>`)}
+  <div class="grid main-side">
+    <div>
+      ${panel("회사 가동",`<div class="simple-list">
+        <div><b>현재 상태</b>${tonePill(running?"good":monitor?"accent":"warn",running?"가동 중 (상시 관제·자동 복구·전결)":monitor?"관제만 (점검·기안만, 수정 없음)":"일시정지")}</div>
+        <div><b>현재 교대조</b>${tonePill("accent",shift||"—")}</div>
+      </div>
+      <div class="today-actions" style="margin-top:12px">
+        ${button("회사 가동","set-company-mode","primary",'data-mode="RUNNING"',"play")}
+        ${button("관제만","set-company-mode","secondary",'data-mode="MONITOR_ONLY"',"search")}
+        ${button("안전하게 일시정지","set-company-mode","danger",'data-mode="PAUSED"',"pause")}
+      </div>`)}
+      ${panel("수석부회장 전결",`<p class="fine" style="margin:0 0 11px">위임하면 회장님 부재 중에도 <b>시스템이 올린 위임 가능 안건만</b> 수석부회장 윤서가 자동 재가해 바로 처리합니다. 결제·계약·홍보·개인정보·비밀값·삭제 같은 안건은 위임돼도 <b>회장 전용</b>으로 남습니다.</p>
+      <div class="simple-list"><div><b>결재 모드</b>${tonePill(delegated?"gold":"good",delegated?"수석부회장 전결 위임 중":"회장 직접결재")}</div></div>
+      <div class="today-actions" style="margin-top:12px">${delegated?button("전결 즉시 해제","set-delegation","danger",'data-approval="CHAIRMAN_DIRECT"'):button("수석부회장 전결 위임","set-delegation","gold",'data-approval="VICE_CHAIR_DELEGATED"',"check")}</div>`)}
+      ${panel("조직도",ORG?`<div class="org-tree">
+        ${ (ORG.executives||[]).map(e=>`<div class="org-node lv${e.reportsTo===null?0:e.reportsTo==="chairman"?1:2}"><b>${esc(e.displayName)}</b><span>${esc(e.title)}</span>${e.id==="executive-vice-chair"&&delegated?tonePill("gold","전결 중"):""}</div>`).join("") }
+        <div class="org-divs">${divisions.map(d=>`<div class="org-node lv3 ${d.standby?"standby":""}"><b>${esc(d.name)}</b><span>${esc(d.duty)}</span>${divStatus(d)}</div>`).join("")}</div>
+        <p class="fine">제품셀 ${ (ORG.productCells||[]).length }개 · 복지 담당 ${ (ORG.welfareStaff||[]).length }명(생활 연출 — 업무 성과에 미포함)</p>`:empty("조직 정본을 불러오는 중입니다."))}
+    </div>
+    <div>
+      ${panel("팀 현황 — 실제 점검 근거",health?`<div class="simple-list">
+        <div><b>운영관제본부 · 운영 응답/네트워크</b>${tonePill(health.fail?"bad":"good",health.fail?`장애 ${health.fail}`:"이상 없음")}</div>
+        <div><b>기술개발·품질본부 · CI/코드 흐름</b>${tonePill(health.degraded?"warn":"good",health.degraded?`확인 ${health.degraded}`:"통과")}</div>
+        <div><b>전사 열린 사건</b>${tonePill(health.openIncidents?"warn":"good",String(health.openIncidents??0))}</div>
+        <div><b>점검 불가(신호 부족)</b>${tonePill("neutral",String(health.unavailable??0))}</div>
+      </div><p class="fine">마지막 점검 ${ago(health.runAt)} · 같은 문제는 반복 상신하지 않고, 회복되면 자동으로 닫힙니다.</p>`:empty("아직 점검 결과가 없습니다."))}
+      ${panel("복지시설 (생활 연출)",ORG?`<div class="simple-list">${(ORG.facilities||[]).map(f=>`<div><b>${esc(f.name)}</b><span class="status neutral">${esc(f.floor)}</span></div>`).join("")}</div><p class="fine">시설과 생활 모습은 회사 세계관 연출이며 실제 업무 성과와 분리 집계됩니다.</p>`:"")}
+    </div>
+  </div>`;
+}
+
 /* ── 기록: 그룹형 서브내비 ── */
 function renderRecords(){
   const appr=pendingApprovals().length;
@@ -402,9 +456,7 @@ function recBody(){
       <article><div><h3>프로그램 버전</h3><p>ROBOM HQ v${esc(APP_VERSION)} — 상단 금색 버전 칩과 동일하면 최신 설치본입니다.</p></div>${tonePill("gold",`v${APP_VERSION}`)}</article>
       <article><div><h3>휴대폰 연결</h3><p>${HQ?.remote==="token"?"토큰 인증으로 사설망 접속 허용됨":"이 컴퓨터 전용(127.0.0.1) — docs/hq/REMOTE-ACCESS.md"}</p></div>${tonePill(HQ?.remote==="token"?"accent":"good",HQ?.remote==="token"?"원격 허용":"비공개")}</article>
       <article><div><h3>추가 운영비</h3><p>유료 API·상시 유료 서버 없이 로컬 Node.js와 GitHub 무료 범위만 사용.</p></div>${tonePill("good","0원")}</article>
-      <article class="col"><div style="width:100%"><h3>자동 점검 주기</h3><p>얼마나 자주 6개 앱을 점검할지 정합니다. 점검은 무료라 자주 해도 부담 없어요(최소 ${HQ?.reviewMinMinutes||10}분).</p>
-        <div class="sched-row">${reviewIntervalSelect()}${button("적용","apply-review-schedule","gold")}<span class="sched-now">${tonePill(HQ?.reviewEveryMinutes>0?"accent":"neutral",reviewMinutesLabel(HQ?.reviewEveryMinutes))}</span></div>
-      </div></article>
+      <article><div><h3>회사 가동 (24시간 상시 관제)</h3><p>정해진 시각·횟수 대신, 회사가 켜져 있는 동안 계속 신호를 읽고 점검합니다. 가동·관제만·일시정지와 수석부회장 전결은 '회사' 화면에서 조절합니다.</p></div><a class="button gold" href="#/company">회사 화면</a></article>
       <article><div><h3>회장이 직접 할 일</h3><p>${(SNAP.operations?.humanTasks||[]).slice(0,3).map(esc).join(" · ")||"현재 없음"}</p></div></article>
       <article><div><h3>부가기능 · 로봄 오피스</h3><p>살아있는 6층 오피스(실제 이벤트 연동)</p></div><a class="button ghost" href="./office.html">오피스 보기</a></article>
     </div>`;
@@ -446,7 +498,7 @@ function connectionMarkup(){const c=SNAP.connections||{};return `<div class="con
 function recordList(collection,opt={}){const items=opt.items||records(collection);return items.length?`<div class="record-list">${items.map(r=>`<article><header><div><span>${esc(appName(r.appId))} · ${fmt(r.createdAt)}</span><h3>${esc(r.title||COLLECTION_LABEL[collection]||"기록")}</h3></div>${statusPill(r.status||"open")}</header>${r.body?`<p>${esc(r.body)}</p>`:""}</article>`).join("")}</div>`:empty(opt.emptyTitle||`저장된 ${COLLECTION_LABEL[collection]||"기록"}이 없습니다.`);}
 function renderNotReady(){return `${title("ROBOM HQ","로봄 본부","실제 연결 상태를 기준으로 표시합니다.")}${empty("표시할 정보가 없습니다.")}`;}
 
-const RENDER={today:renderToday,apps:renderApps,app:renderAppDetail,tasks:renderTasks,automation:renderAutomation,records:renderRecords};
+const RENDER={today:renderToday,apps:renderApps,app:renderAppDetail,tasks:renderTasks,company:renderCompany,automation:renderAutomation,records:renderRecords};
 
 /* ── 토스트 ── */
 function showToast(m,tone=""){const t=$("#toast");t.textContent=m;t.className=`toast show ${tone}`;clearTimeout(showToast.t);showToast.t=setTimeout(()=>t.classList.remove("show"),2600);}
@@ -551,6 +603,8 @@ document.addEventListener("click",async e=>{
     else if(a==="save-memo")await saveMemo();
     else if(a==="delete-memo")await deleteMemo(action.dataset.id);
     else if(a==="apply-review-schedule")await saveReviewSchedule();
+    else if(a==="set-company-mode"){const data=await fetchJson("/api/company-mode",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:action.dataset.mode})});try{HQ=await fetchJson("/api/hq-status");}catch{}showToast({RUNNING:"회사를 가동했습니다 — 상시 관제·자동 복구·전결이 켜집니다.",MONITOR_ONLY:"관제만 모드 — 점검·기안만 하고 수정은 하지 않습니다.",PAUSED:"회사를 안전하게 일시정지했습니다."}[data.mode]||"반영했습니다.","good");updateChrome();renderScreen();}
+    else if(a==="set-delegation"){const data=await fetchJson("/api/delegation",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({approvalMode:action.dataset.approval})});try{HQ=await fetchJson("/api/hq-status");}catch{}showToast(data.approvalMode==="VICE_CHAIR_DELEGATED"?"수석부회장 전결을 위임했습니다 — 위임 가능 안건은 자동 재가됩니다.":"전결을 해제했습니다 — 새 안건은 회장 직접결재입니다.","good");updateChrome();renderScreen();}
     else if(a==="patch-record")await patchRecord(action.dataset.collection,action.dataset.id,action.dataset.status);
     else if(a==="approve-proposal")await approveProposal(action.dataset.id);
     else if(a==="pause-all")await setControl({paused:true},"모든 자동작업을 일시정지했습니다.");

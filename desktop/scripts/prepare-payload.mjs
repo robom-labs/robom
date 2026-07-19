@@ -26,6 +26,7 @@ const copies = [
   ["ops/control-center/agents.yml", "ops/control-center/agents.yml"],
   ["ops/control-center/apps-extra.yml", "ops/control-center/apps-extra.yml"],
   ["ops/registry/apps.yml", "ops/registry/apps.yml"],
+  ["ops/organization", "ops/organization"],
   // 운영 장부(회장 할 일·로드맵·상태)
   ["ops/state", "ops/state"],
   ["ops/HUMAN-TASKS.md", "ops/HUMAN-TASKS.md"],
