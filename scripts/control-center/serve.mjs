@@ -364,6 +364,10 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
     const passContracts = new Set(healthResults.filter((r) => r.status === "PASS").map((r) => r.contractId));
     const stillFailing = new Set(healthResults.filter((r) => r.confirmed).map((r) => r.contractId));
     const st4 = await store.getState();
+    // 회장이 '확인 완료'한 작업(성장 Loop 등, 원래 계약이 health 대상이 아닌 경우)의 Loop를 닫는다.
+    for (const task of (st4.records.tasks || []).filter((t) => t.status === "completed" && t.loopId)) {
+      try { const loop = findLoopByTask(task.id); if (loop && loop.state !== "CLOSED") transitionLoop(loop.loopId, "CLOSED", { now, note: "회장 확인 완료" }); } catch { /* skip */ }
+    }
     const reviewTasks = (st4.records.tasks || []).filter((t) => t.status === "in_review" && t.originContract);
     for (const task of reviewTasks) {
       if (passContracts.has(task.originContract)) {
@@ -386,10 +390,19 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
   for (const p of growth) {
     if (existingKeys.has(p.key)) continue;
     try {
+      const fixClass = classifyFix({ failureClass: /:security$/.test(p.key) ? "security" : "", text: `${p.title} ${p.body} ${p.recommendation}`, requestedBy: "auto-review" });
       const rec = await store.createRecord("approvals", {
         title: p.title, appId: p.appId, body: p.body, recommendation: p.recommendation,
-        priority: p.priority, requestedBy: "auto-review", proposalKey: p.key, status: "pending",
+        priority: p.priority, requestedBy: "auto-review", proposalKey: p.key, fixClass, status: "pending",
       });
+      // §13 성장 Loop — 개선 제안도 목표·합격기준을 갖춘 닫힌 Loop로 만든다(단순 backlog로 남기지 않음).
+      try {
+        const loop = createLoop({
+          objective: p.title, contractId: p.key, fixClass, appId: p.appId, userImpact: p.body,
+          loopType: /:security$/.test(p.key) ? "security" : "product_growth", approvalId: rec.id, nextAction: "회장 승인 대기",
+        }, { now });
+        await store.updateStatus("approvals", rec.id, { loopId: loop.loopId });
+      } catch { /* loop 생성 실패는 결재를 막지 않는다 */ }
       created.push(rec.id); existingKeys.add(p.key);
     } catch { /* 개별 실패는 건너뛴다 */ }
   }
