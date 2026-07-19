@@ -152,3 +152,11 @@ test("기본 자동 업무 연출 없이 명시적인 전원 시연과 상호작
   assert.match(officeJs, /\/api\/company-state/);
   assert.match(officeJs, /function renderZonePanel/);
 });
+
+test("관람 카메라(자동 투어)와 화면 미표시 시 렌더 정지(최적화)를 제공한다", () => {
+  assert.match(officeHtml, /id="tourBtn"/);
+  assert.match(officeJs, /function setTourMode/);
+  assert.match(officeJs, /if\(document\.hidden\)/); // 안 보이면 그리지 않음
+  assert.match(officeJs, /let FURN=null/); // 정적 비품 depth 캐시(매 프레임 재할당 방지)
+  assert.match(officeJs, /TOUR\.on/);
+});

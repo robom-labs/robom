@@ -1,26 +1,33 @@
-# v2.3.0 _ 마지막 검증 기록
+# v2.4.0 _ 마지막 검증 기록
 
 - 검증 시각: 2026-07-19 (KST) · 검증 환경: Linux 컨테이너(Node 22) + Playwright Chromium
 - 참고: 컨테이너는 외부 운영 호스트가 프록시로 차단돼 앱 계약이 다수 FAIL/막힘으로 나타난다(엔진이 정직 보고함을 실증). 회장 맥에서는 실측된다.
 
 | 항목 | 상태 | 근거 |
 |---|---|---|
-| control-center 테스트 104종 | PASS | node --test 전체 통과(workforce 8·office 11 갱신 포함) |
-| 80명 정본 roster(id 고유·보고선/대직 유효·순환 0) | PASS | workforce.test + wf 자체 점검 계약 |
-| 계약 소유권 배정(owner 지정·구현≠검증 분리) | PASS | assignOwnership 속성 테스트 + c:robom-company:workforce-owner-coverage |
-| 직원 업무 상태 도출(계약 판정 근거·랜덤 아님·결정론) | PASS | computeWorkforce 단위(같은 입력→같은 출력) + FAIL 소유자 막힘 |
-| 회사 가동 모드 6종(RUNNING/MONITOR_ONLY/DRAINING/PAUSED/SAFE_MODE/EMERGENCY_STOP) | PASS | company-authority + 회사 화면 고급 제어 |
-| /api/workforce·/api/org-chart·hq-status.workforce | PASS | 라이브(80명·계약 250 배정·onDuty 25·막힘 18) |
-| 회사 미션컨트롤 화면(인력 현황판·본부별 근무/계약/막힘·조직도·복지시설) | PASS | Playwright company23.png · 넘침 0 · 콘솔 오류 0 |
-| 오피스 B4(실내 수영장·키즈 도서관·가족 라운지·커뮤니티홀) 렌더 | PASS | Playwright office23-b4.png |
-| 오피스 인력 연동(캐릭터 밑 현재 업무 라벨·클릭 상세·업무 상태 8종·가족 생활 연출) | PASS | office23 스크린샷 · 콘솔 오류 0 |
-| 공식 로봄 로고(오피스 HUD icon.svg) | PASS | c:robom-company:office-logo |
-| 계약 273개(기존 257 보존 + 인력·오피스 자체 점검 16) | PASS | build-health-contracts · 진단률 정의 100% |
-| 거짓 성과 금지(복지=생활 연출 비집계·홍보 STANDBY·인원≠실행기·'수정 중'=실제 실행기만) | PASS | workforce.test + 자체 점검 계약 |
-| 버전 삼중 2.3.0 + SW 캐시 v6.3.0 | PASS | version-triad |
+| control-center 테스트 111종 | PASS | node --test 전체 통과(workforce 12·office 12 갱신 포함) |
+| 24시간 무교대·전원 배정 — 가동 중 근무자(복지·홍보·회장 제외) OFF_DUTY 0 + 전원 담당 계약 | PASS | workforce.test + c:robom-company:wf-full-coverage·wf-24h (라이브 미배정 0명) |
+| 부하분산 소유권 — 계약을 역량 있는 최소부하 직원에게 배분(전원 커버리지 보장 이관 포함) | PASS | buildAssignment · 근무 69명 전원 계약 보유 |
+| 시간 회전 점검 연출(30초 버킷) — 담당 계약을 돌아가며 점검(엔진 전수 평가와 일치, 랜덤 아님) | PASS | computeWorkforce 결정론 + 오피스 라이브 |
+| 막힘 구분 — 자동 수정 대기(Codex 큐) vs 사람 확인 필요(비밀키·보안·데이터소스) | PASS | needsHuman + contractsAutoFixing/contractsNeedHuman + 회사·업무 화면 안내 |
+| 2인자 = 리리(수석부회장)·회장 직속 | PASS | workforce.test + c:robom-company:wf-riri + 조직도 트리 |
+| 조직도 시각 트리(회장→리리→16본부 나란히) | PASS | Playwright v24-orgtree.png(황준필→리리·민서→본부 그리드) |
+| 회사 가동 시각 배너(● 가동 중·근무/점검/막힘·실행기 연결 표시) | PASS | Playwright v24-company.png · 콘솔 오류 0 |
+| 계약 332개(273 + PWA head 실측 + 회사 자체점검 27) | PASS | catalog 카운트 · company-ops 27/27 PASS |
+| 오피스 관람 카메라(자동 층 순회·잔잔한 팬) + 최적화(미표시 시 렌더 정지·정적 비품 depth 캐시) | PASS | Playwright v24-office-tour.png(5F→4F 자동 전환) · office.test |
+| 회사 가동 모드 6종 | PASS | company-authority + 회사 화면 고급 제어 |
+| 거짓 성과 금지(복지=생활 연출 비집계·홍보 STANDBY·인원≠실행기·'수정 중'=실제 실행기만·회장=총괄) | PASS | workforce.test + 자체 점검 계약 |
+| 버전 삼중 2.4.0 + SW 캐시 v6.4.0 | PASS | version-triad |
+
+## v2.3.0 → v2.4.0 핵심 변화
+
+- **전원이 진짜 일한다**: 이전엔 소수 리드에게만 계약이 몰려 대부분 "관제 대기"였다. 이제 근무 직원 69명 전원이 담당 계약을 갖고(부하분산+커버리지 보장), 24시간 무교대로 상시 점검한다. 회장 화면·오피스에서 미배정 0명.
+- **막힘이 뭘 하라는 건지 명확**: 막힌 계약은 자동으로 Codex 수정 대기열에 오르고(회장 조치 불필요), 비밀키·보안 같은 건만 '사람 확인 필요'로 분리해 '오늘→내가 확인할 일'로 안내. 회사·업무 화면에 자동/사람 레인 표시.
+- **가동 버튼이 눈에 보인다**: 누르면 상단에 ● "회사 가동 중 — 전 직원 24시간 근무" 배너 + 근무/점검/막힘·실행기 연결 상태.
+- **조직도가 위→아래 트리**: 회장(황준필) 맨 위, 바로 밑 2인자 리리, 그 아래 16본부 나란히.
 
 ## 정직한 미완(다음 단계 — 프롬프트의 거짓 성과 금지 원칙 준수)
 
-- 계약 500개 목표: 현재 273개. 나머지는 실측 가능한 고유 계약만 추가한다(문구만 바꾼 중복 금지 원칙). task/executor·CEO actionability·조직도 자체 점검을 단계적으로 확장.
-- CompanyKernel 이벤트 버스(SSE)·ExecutorBroker(Codex/ClaudeCode adapter): 현재 Codex 단일 러너 + 폴링. 실행기는 정직하게 NOT_CONNECTED 표기.
-- 오피스: 80명 전원 데스크 배치·오피스 관람 자동 카메라는 단계적 확장(현재 핵심 리드/셀 데스크 구동 + 가족·생활 인원 밀집).
+- **계약 500개**: 현재 332개(실측 가능한 고유 계약만; 문구만 바꾼 중복 금지). 나머지 ~170은 대부분 `need_new_source`(앱이 opt-in 진단 신호·데이터 소스를 노출해야 기계 검증 가능) — 앱 저장소 변경/회장 확인이 필요한 항목이라 허수로 채우지 않고 정직하게 남겨둔다. 앱별 진단 브리지가 붙는 대로 실측 계약으로 전환.
+- **오피스 80명 전원 데스크 배치**: 현재 층별 핵심 데스크 + 가족·생활 인원 구동. 80명을 11개 층 좌석에 충돌 없이 전수 배치(seatsByFloor 확장)는 다음 단계.
+- **CompanyKernel SSE·ExecutorBroker**: 현재 6초 폴링 + Codex 단일 러너. 실행기 미연결은 정직하게 '자동 수정 대기'로 표기(연결 시 즉시 '수정 중'). 이벤트 버스(SSE)·다중 실행기 어댑터는 다음 단계.

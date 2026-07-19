@@ -73,7 +73,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="2.3.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="2.4.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -347,6 +347,7 @@ function renderTasks(){
   const list=records("tasks");
   return `${title("WORK","업무","말하듯 요청하면 Codex 대기열에 자동 등록됩니다.",button("새 수정 요청","new-task","primary","","plus"))}
   <div class="kpi-row">${kpi(HQ?HQ.pending??0:openCount("tasks"),"대기",HQ?.pending?"accent":"")}${kpi(HQ?.running??"—","작업 중",HQ?.running?"accent":"")}${kpi(list.filter(t=>["in_review","approval_pending"].includes(t.status)).length,"확인 필요","warn")}${kpi(list.filter(t=>t.status==="blocked").length,"막힘",list.some(t=>t.status==="blocked")?"bad":"")}</div>
+  ${list.some(t=>t.status==="blocked")?`<div class="run-banner off" style="margin-top:4px"><span class="dot"></span><b>‘막힘’ 업무는 이렇게 처리됩니다</b><span class="rb-sub">코덱스 실행기가 붙으면 <b>자동으로 다시 시도</b>합니다 — 회장님이 누를 것 없음.<br>비밀키·권한·결제 같은 건만 회장 확인이 필요하고, 그건 <a href="#/today">‘오늘 → 내가 확인할 일’</a>에 뜹니다.</span></div>`:""}
   ${list.length?`<div class="record-list">${list.map(taskRow).join("")}</div>`:empty("등록된 업무가 없습니다.","'새 수정 요청'을 눌러 어떤 앱의 무엇이 불편한지 말하듯 적어 주세요. 사진도 붙일 수 있어요.")}`;
 }
 
@@ -416,6 +417,7 @@ function renderCompany(){
     return tonePill(running?"good":monitor?"accent":"neutral",running?"상시 관제 중":monitor?"관제만":"정지"); };
   loadOrg();
   return `${title("COMPANY","회사","24시간 살아있는 로봄 본사 — 80명 인력·계약 소유·가동·전결·시설을 한곳에서.",`<a class="button ghost" href="./office.html">${icon("office")}오피스 관람</a>`)}
+  ${(()=>{const st=running?"on":monitor?"mon":"off";const head=running?"회사 가동 중 — 전 직원 24시간 근무":monitor?"관제만 모드 — 점검·기안만":c.mode==="EMERGENCY_STOP"?"긴급 정지 — 읽기 전용":"회사 일시정지";const sub=wf?`근무 <b>${wf.summary.onDuty}</b>명 · 점검 <b>${wf.summary.checking}</b> · 막힘 <b>${wf.summary.blocked}</b><br>계약 ${wf.contractsAssigned??"—"}개 배정 · 실행기 ${wf.executorConnected?"연결됨":"미연결(수정은 대기)"}`:"버튼을 누르면 전 직원이 담당 계약을 점검하기 시작합니다.";return `<div class="run-banner ${st}"><span class="dot"></span><b>${head}</b><span class="rb-sub">${sub}</span></div>`;})()}
   <div class="grid main-side">
     <div>
       ${panel("회사 가동",`<div class="simple-list">
@@ -436,15 +438,30 @@ function renderCompany(){
       </div></details>`)}
       ${wf?panel(`인력 현황 · 80명 (계약 ${wf.contractsAssigned??"—"}개 배정)`,`
         <div class="kpi-row" style="margin-bottom:9px">${kpi(wf.summary.onDuty,"근무 중","good")}${kpi(wf.summary.checking,"점검 중",wf.summary.checking?"accent":"")}${kpi(wf.summary.repairing+wf.summary.deploying,"수정 중",wf.summary.repairing?"accent":"")}${kpi(wf.summary.verifying,"검증 중")}${kpi(wf.summary.blocked,"막힘",wf.summary.blocked?"bad":"")}</div>
+        ${(wf.contractsFailing||wf.contractsAutoFixing||wf.contractsNeedHuman)?`<div class="fix-lanes">
+          <div class="fix-lane auto"><div class="fl-n">${wf.contractsAutoFixing??0}</div><div class="fl-t">🤖 자동 수정 진행/대기<br>${wf.executorConnected?"코덱스가 고치는 중":"코덱스 연결되면 자동 시작 — 회장님 조치 불필요"}</div></div>
+          <div class="fix-lane human"><div class="fl-n">${wf.contractsNeedHuman??0}</div><div class="fl-t">✋ 사람 확인 필요<br>${(wf.contractsNeedHuman??0)?"'오늘' 화면 → 내가 확인할 일에서 처리":"지금은 없음"}</div></div>
+        </div><p class="fine" style="margin:2px 0 8px">막힌 계약은 자동으로 <b>코덱스 수정 대기열</b>에 올라갑니다. 비밀키·개인정보 같은 건만 회장님 확인을 기다립니다 — 나머지는 알아서 고쳐집니다.</p>`:`<p class="fine" style="margin-top:0">막힌 계약이 없습니다 — 전 계약 정상.</p>`}
         <div class="simple-list">${(wf.byDivision||[]).filter(d=>d.total).slice(0,14).map(d=>`<div><b>${esc(d.divisionName||d.division)}</b>${tonePill(d.blocked?"bad":d.checking?"accent":"good",`${d.onDuty}/${d.total}명 근무 · 계약 ${d.ownedContracts}${d.blocked?` · 막힘 ${d.blocked}`:""}`)}</div>`).join("")}</div>
         <p class="fine">각 직원이 맡은 계약을 점검·검증하는 모습은 <a href="./office.html">오피스 관람</a>에서 캐릭터를 눌러 확인합니다. 인원 수는 실제 실행기(코덱스) 수와 다릅니다 — '수정 중'은 실제 실행기 작업만 집계합니다.</p>`):""}
-      ${panel("수석부회장 전결",`<p class="fine" style="margin:0 0 11px">위임하면 회장님 부재 중에도 <b>시스템이 올린 위임 가능 안건만</b> 수석부회장 윤서가 자동 재가해 바로 처리합니다. 결제·계약·홍보·개인정보·비밀값·삭제 같은 안건은 위임돼도 <b>회장 전용</b>으로 남습니다.</p>
+      ${panel("수석부회장 전결",`<p class="fine" style="margin:0 0 11px">위임하면 회장님 부재 중에도 <b>시스템이 올린 위임 가능 안건만</b> 수석부회장 리리가 자동 재가해 바로 처리합니다. 결제·계약·홍보·개인정보·비밀값·삭제 같은 안건은 위임돼도 <b>회장 전용</b>으로 남습니다.</p>
       <div class="simple-list"><div><b>결재 모드</b>${tonePill(delegated?"gold":"good",delegated?"수석부회장 전결 위임 중":"회장 직접결재")}</div></div>
       <div class="today-actions" style="margin-top:12px">${delegated?button("전결 즉시 해제","set-delegation","danger",'data-approval="CHAIRMAN_DIRECT"'):button("수석부회장 전결 위임","set-delegation","gold",'data-approval="VICE_CHAIR_DELEGATED"',"check")}</div>`)}
-      ${panel("조직도",ORG?`<div class="org-tree">
-        ${ (ORG.executives||[]).map(e=>`<div class="org-node lv${e.reportsTo===null?0:e.reportsTo==="chairman"?1:2}"><b>${esc(e.displayName)}</b><span>${esc(e.title)}</span>${e.id==="executive-vice-chair"&&delegated?tonePill("gold","전결 중"):""}</div>`).join("") }
-        <div class="org-divs">${divisions.map(d=>`<div class="org-node lv3 ${d.standby?"standby":""}"><b>${esc(d.name)}</b><span>${esc(d.duty)}</span>${divStatus(d)}</div>`).join("")}</div>
-        <p class="fine">제품셀 ${ (ORG.productCells||[]).length }개 · 복지 담당 ${ (ORG.welfareStaff||[]).length }명(생활 연출 — 업무 성과에 미포함)</p>`:empty("조직 정본을 불러오는 중입니다."))}
+      ${panel("조직도 — 회장부터 아래로",ORG?(()=>{
+        const exec=ORG.executives||[];
+        const chair=exec.find(e=>e.reportsTo===null)||{displayName:"황준필",title:"회장"};
+        const directs=exec.filter(e=>e.reportsTo==="chairman");
+        const ocard=(cls,name,title,extra="")=>`<div class="oc-card ${cls}"><b>${esc(name)}</b><small>${esc(title)}</small>${extra}</div>`;
+        return `<div class="org-chart">
+          <div class="org-tier">${ocard("chair",chair.displayName,chair.title)}</div>
+          <div class="oc-link"></div>
+          <div class="org-tier">${directs.map(e=>ocard(e.id==="executive-vice-chair"?"vc":"",e.displayName,e.title,e.id==="executive-vice-chair"&&delegated?tonePill("gold","전결 중"):"")).join("")||ocard("vc","리리","수석부회장")}</div>
+          <div class="oc-link"></div>
+          <div class="oc-caption">↓ 수석부회장 리리 산하 ${divisions.length}개 본부</div>
+          <div class="org-tier wrap">${divisions.map(d=>`<div class="oc-card div ${d.standby?"standby":""}"><b>${esc(d.name)}</b><small>${esc(d.duty||"")}</small>${divStatus(d)}</div>`).join("")}</div>
+        </div>
+        <p class="fine" style="margin-top:9px">회장(황준필) 바로 아래 2인자는 <b>수석부회장 리리</b> — 회장 부재 시 위임 안건을 전결합니다. 그 아래 ${divisions.length}개 본부가 나란히 운영됩니다. 제품셀 ${(ORG.productCells||[]).length}개 · 복지 ${(ORG.welfareStaff||[]).length}명(생활 연출).</p>`;
+      })():empty("조직 정본을 불러오는 중입니다."))}
     </div>
     <div>
       ${panel("팀 현황 — 실제 점검 근거",health?`<div class="simple-list">

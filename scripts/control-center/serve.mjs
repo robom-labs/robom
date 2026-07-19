@@ -353,7 +353,9 @@ function readWorkforce(tasks = []) {
   try {
     const report = readContractReport();
     const authority = readAuthority();
-    return computeWorkforce({ report, tasks, authority, now: new Date() });
+    let executorConnected = false;
+    try { const rs = readRunnerStatus(); executorConnected = rs && ["running", "working", "busy", "processing"].includes(String(rs.state)); } catch { /* 러너 상태 없음 → 미연결 */ }
+    return computeWorkforce({ report, tasks, authority, now: new Date(), executorConnected });
   } catch (error) {
     return { companyMode: "RUNNING", staff: [], summary: { total: 0 }, byDivision: [], error: String(error?.message || error).slice(0, 80) };
   }
@@ -385,8 +387,8 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
     const summary = queueSummary();
     if (summary.runner) summary.runner.managed = MANAGE_RUNNER; // 러너 자동 관리 여부는 서버가 정본
     const authority = readAuthority();
-    let wf = null; try { wf = computeWorkforce({ report: readContractReport(), tasks: [], authority, now: new Date() }); } catch { /* 인력 계산 실패 무시 */ }
-    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED || mobileEnabled() ? "token" : "local-only", mobile: mobileEnabled(), reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary(), company: { mode: authority.mode, modeLabel: COMPANY_MODE_LABELS[authority.mode] || authority.mode, approvalMode: authority.approvalMode, delegatedAt: authority.delegatedAt, shift: currentShift() }, workforce: wf ? { summary: wf.summary, contractsAssigned: wf.contractsAssigned, byDivision: wf.byDivision } : null });
+    let wf = null; try { let ec = false; try { const rs = summary.runner; ec = rs && ["running", "working", "busy", "processing"].includes(String(rs.state)); } catch { /* noop */ } wf = computeWorkforce({ report: readContractReport(), tasks: [], authority, now: new Date(), executorConnected: ec }); } catch { /* 인력 계산 실패 무시 */ }
+    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED || mobileEnabled() ? "token" : "local-only", mobile: mobileEnabled(), reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary(), company: { mode: authority.mode, modeLabel: COMPANY_MODE_LABELS[authority.mode] || authority.mode, approvalMode: authority.approvalMode, delegatedAt: authority.delegatedAt, shift: currentShift() }, workforce: wf ? { summary: wf.summary, running: wf.running, contractsAssigned: wf.contractsAssigned, contractsFailing: wf.contractsFailing, contractsAutoFixing: wf.contractsAutoFixing, contractsNeedHuman: wf.contractsNeedHuman, executorConnected: wf.executorConnected, byDivision: wf.byDivision } : null });
     return;
   }
 

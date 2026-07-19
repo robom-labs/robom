@@ -136,6 +136,23 @@ function commonAppContracts(app) {
     }, { runTier: "deep", severityIfFail: "warning", failureClass: "user_flow", requiredCapabilities: ["network", "browser"], timeoutMs: 45_000,
       what: `${name} 360·390 모바일 화면 smoke(콘솔 오류 0·가로 넘침 0)`, userImpact: "휴대폰에서 화면이 깨지거나 스크립트 오류가 날 수 있습니다.",
       recommendedAction: "콘솔 오류·넘치는 요소를 수정합니다." }),
+    // ── PWA 표준 head 계약(실측: 운영 HTML/자산에 실제 존재해야 함) ──
+    C(`c:${id}:viewport-meta`, id, "user_surface", "http_html", { url: app.healthcheck_url, markers: ["viewport"] },
+      { runTier: "cheap", severityIfFail: "warning", failureClass: "user_flow", what: `${name} viewport meta 존재(모바일 배율)`, userImpact: "viewport가 없으면 휴대폰에서 글씨가 깨알처럼 작게 보입니다.", recommendedAction: "index.html head에 viewport meta를 넣습니다." }),
+    C(`c:${id}:charset-meta`, id, "production", "http_html", { url: app.healthcheck_url, markers: ["charset"] },
+      { runTier: "cheap", severityIfFail: "warning", failureClass: "schema", what: `${name} charset 선언 존재`, userImpact: "charset이 없으면 한글이 깨져 보일 수 있습니다.", recommendedAction: "head에 <meta charset>을 넣습니다." }),
+    C(`c:${id}:lang-attr`, id, "user_surface", "http_html", { url: app.healthcheck_url, markers: ["<html lang"] },
+      { runTier: "cheap", severityIfFail: "info", failureClass: "schema", what: `${name} html lang 속성 존재(접근성·번역)`, userImpact: "lang이 없으면 스크린리더·번역 품질이 떨어집니다.", recommendedAction: "<html lang=\"ko\">를 지정합니다." }),
+    C(`c:${id}:theme-color`, id, "pwa", "surface_marker", { url: app.healthcheck_url, baseUrl: app.web_url, markersAny: ["theme-color"] },
+      { runTier: "cheap", severityIfFail: "info", failureClass: "schema", what: `${name} theme-color 지정(설치 시 상단바 색)`, userImpact: "theme-color가 없으면 설치 앱 상단 색이 기본값이 됩니다.", recommendedAction: "theme-color meta를 넣습니다." }),
+    C(`c:${id}:apple-touch-icon`, id, "pwa", "surface_marker", { url: app.healthcheck_url, baseUrl: app.web_url, markersAny: ["apple-touch-icon"] },
+      { runTier: "cheap", severityIfFail: "info", failureClass: "availability", what: `${name} apple-touch-icon 선언(아이폰 홈 아이콘)`, userImpact: "없으면 아이폰 홈 화면 아이콘이 흐리게 나옵니다.", recommendedAction: "apple-touch-icon link를 넣습니다." }),
+    C(`c:${id}:manifest-link`, id, "pwa", "http_html", { url: app.healthcheck_url, markers: ["manifest"] },
+      { runTier: "cheap", severityIfFail: "warning", failureClass: "availability", what: `${name} manifest link가 첫 HTML에 연결`, userImpact: "manifest 링크가 없으면 설치 배너가 뜨지 않습니다.", recommendedAction: "head에 manifest link를 넣습니다." }),
+    C(`c:${id}:noindex-guard`, id, "seo", "http_html", { url: app.healthcheck_url, negativeMarkers: ['content="noindex', "content='noindex"] },
+      { runTier: "cheap", severityIfFail: "warning", failureClass: "schema", what: `${name} 운영에 noindex가 실수로 남지 않음`, userImpact: "noindex가 남으면 검색에서 앱이 통째로 사라집니다.", recommendedAction: "운영 배포에서 noindex meta를 제거합니다." }),
+    C(`c:${id}:title-nonempty`, id, "seo", "http_html", { url: app.healthcheck_url, markers: [`<title`] },
+      { runTier: "cheap", severityIfFail: "info", failureClass: "user_flow", what: `${name} 첫 HTML title 존재`, userImpact: "title이 비면 검색·탭에 이름이 안 보입니다.", recommendedAction: "정적 title을 채웁니다." }),
   );
   if (app.data_probe_url) {
     add(C(`c:${id}:data-probe-heartbeat`, id, "data", "http_json_contract", {
@@ -505,6 +522,17 @@ function companyOpsContracts() {
     s("office-family-actors", "office-family-actors", { severityIfFail: "info", failureClass: "schema", ...D("생활 연출 인원(가족·방문) ≥ 5", "인원이 적으면 회사가 비어 보입니다.", "생활 연출 인원을 보강합니다.") }),
     s("office-staff-parity", "office-staff-parity", { severityIfFail: "info", failureClass: "parity", ...D("오피스 데스크 == 조직 정본 정합", "정본과 다르면 혼란을 줍니다.", "데스크 id를 정본과 맞춥니다.") }),
     s("office-logo", "office-logo", { severityIfFail: "warning", failureClass: "schema", ...D("오피스 공식 로봄 로고 사용", "임시 로고는 브랜드를 해칩니다.", "공식 로고를 적용합니다.") }),
+    s("workforce-full-coverage", "wf-full-coverage", { required: true, severityIfFail: "error", failureClass: "automation", ...D("가동 시 근무 직원 전원(복지·홍보 제외)에게 담당 계약 배정(부하분산)", "일 없는 직원이 생기면 '전원 가동'이 거짓이 됩니다.", "배정 알고리즘을 확인합니다.") }),
+    s("workforce-24h", "wf-24h", { severityIfFail: "info", failureClass: "automation", ...D("24시간 무교대 — 가동 중 OFF_DUTY 0(전원 근무)", "누군가 비번이면 24시간 가동이 아닙니다.", "근무 판정 로직을 확인합니다.") }),
+    s("workforce-riri", "wf-riri", { severityIfFail: "info", failureClass: "schema", ...D("회장 직속 2인자=리리(수석부회장)·회장 보고", "지휘 2인자 정본이 흔들리면 안 됩니다.", "수석부회장 정본을 확인합니다.") }),
+    s("workforce-divisions", "wf-divisions", { severityIfFail: "warning", failureClass: "schema", ...D("본부 16개·복지 7명 정본 유지", "본부·복지 구성이 깨지면 조직 화면이 비어 보입니다.", "정본을 확인합니다.") }),
+    s("workforce-deputy-distinct", "wf-deputy-distinct", { severityIfFail: "info", failureClass: "integrity", ...D("대직자 != 본인", "본인이 본인 대직이면 인계가 무의미합니다.", "대직 지정을 고칩니다.") }),
+    s("workforce-career-ladder", "wf-career-ladder", { severityIfFail: "info", failureClass: "schema", ...D("승진 사다리 정본(≥10단계) 존재", "승진 체계가 없으면 인사 판단이 흐려집니다.", "careerLadder 정본을 유지합니다.") }),
+    s("office-floors-11", "office-floors-11", { severityIfFail: "info", failureClass: "schema", ...D("오피스 11개 층(회장층~B4~옥상) 유지", "층이 줄면 탐험 경험이 빈약해집니다.", "office-map 층 정본을 확인합니다.") }),
+    s("office-desk-unique", "office-desk-unique", { severityIfFail: "warning", failureClass: "integrity", ...D("오피스 데스크 id 중복 0", "데스크 중복은 캐릭터 배치를 뒤섞습니다.", "데스크 id를 정리합니다.") }),
+    s("contracts-min-per-app", "contracts-min-per-app", { severityIfFail: "warning", failureClass: "parity", ...D("앱마다 최소 계약 수 충족(무점검 앱 0)", "점검이 얕은 앱은 장애를 늦게 발견합니다.", "부족한 앱에 계약을 보강합니다.") }),
+    s("contracts-total", "contracts-total", { severityIfFail: "info", failureClass: "observability", ...D("전체 계약 수 하한 유지(회귀 감지)", "계약이 갑자기 줄면 커버리지 후퇴입니다.", "카탈로그 회귀를 확인합니다.") }),
+    s("owner-verifier-split", "owner-verifier-split", { required: true, severityIfFail: "error", failureClass: "integrity", ...D("표본 계약 전수에서 구현자≠검증자 분리", "구현자가 자기 일을 검증하면 견제가 사라집니다.", "소유권 규칙을 확인합니다.") }),
   ];
 }
 

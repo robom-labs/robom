@@ -2,7 +2,7 @@
   "_doc": "로봄 24/7 회사 조직 정본(v2.0.0). id는 안정 키. 표시 이름·직책은 여기서 수정한다. 실제 실행기(executor) 수와 직원 수는 다르며, 실제 업무 표시는 run·task·health 근거로만 한다.",
   "executives": [
     { "id": "chairman", "displayName": "황준필", "title": "회장", "authority": "owner", "reportsTo": null },
-    { "id": "executive-vice-chair", "displayName": "윤서", "title": "수석부회장 겸 대표이사·COO", "authority": "delegated-approver", "reportsTo": "chairman" },
+    { "id": "executive-vice-chair", "displayName": "리리", "title": "수석부회장 겸 대표이사·COO", "authority": "delegated-approver", "reportsTo": "chairman" },
     { "id": "internal-audit-director", "displayName": "민서", "title": "회장 직속 내부감사실장", "authority": "independent-audit", "reportsTo": "chairman" },
     { "id": "ceo-orchestrator", "displayName": "서아", "title": "비서실장·Chief of Staff", "authority": "chief-of-staff", "reportsTo": "executive-vice-chair" },
     { "id": "sec-arin", "displayName": "세아", "title": "회장 전담비서", "reportsTo": "ceo-orchestrator" },

@@ -300,7 +300,7 @@
   "cert": "자격증봄",
   "cal": "캘린더봄",
   "note": "노트봄",
-  "executive-vice-chair": "윤서 수석부회장",
+  "executive-vice-chair": "리리 수석부회장",
   "internal-audit-director": "민서 감사실장",
   "cafeteria-manager": "정옥 식당총괄",
   "chef-lead": "도윤 셰프",
@@ -1317,7 +1317,7 @@
    "color": "#c8a04a",
    "label": "🏛️ 수석부회장 집무실",
    "code": "VICE CHAIR OFFICE",
-   "owner": "수석부회장 윤서",
+   "owner": "수석부회장 리리",
    "purpose": "전결 검토·24시간 운영 총괄",
    "walls": true,
    "door": [

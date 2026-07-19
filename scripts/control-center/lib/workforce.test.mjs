@@ -91,3 +91,36 @@ test("교대조 계산 — 서울 시각 기준", () => {
   assert.equal(currentShiftId(new Date("2026-07-19T09:00:00Z")), "EVENING"); // 서울 18시
   assert.equal(currentShiftId(new Date("2026-07-19T16:00:00Z")), "NIGHT"); // 서울 01시
 });
+
+test("24시간 무교대·전원 배정 — 가동 중 근무자(복지·홍보·회장 제외) OFF_DUTY 0 + 전원 담당 계약", () => {
+  const registryApps = readApps(REPO_ROOT).filter((a) => a.registered);
+  const contracts = buildContractCatalog({ registryApps, siteVersion: "0.0.0" }).filter((c) => !c.needNewSource);
+  const results = contracts.map((c) => ({ contractId: c.id, target: c.target, category: c.category, status: "PASS", what: c.what }));
+  const out = computeWorkforce({ report: { runAt: new Date().toISOString(), results }, tasks: [], authority: { mode: "RUNNING" }, now: new Date("2026-07-19T16:00:00Z") }); // 서울 01시(심야)라도 근무
+  const working = out.staff.filter((s) => !s.welfare && !s.standby && s.id !== "chairman");
+  assert.ok(working.length >= 60, "근무 대상 다수");
+  assert.equal(working.filter((s) => s.state === "OFF_DUTY").length, 0, "무교대 — 비번 0");
+  assert.equal(working.filter((s) => s.ownedCount === 0).length, 0, "전원 담당 계약 보유");
+  // 회장은 총괄(실무 계약 미소유)
+  const chair = out.staff.find((s) => s.id === "chairman");
+  assert.equal(chair.ownedCount, 0);
+  assert.match(chair.currentWork, /총괄/);
+});
+
+test("2인자 = 리리(수석부회장) · 회장 직속", () => {
+  const vc = roster.staff.find((s) => s.id === "executive-vice-chair");
+  assert.equal(vc.name, "리리");
+  assert.equal(vc.reportsTo, "chairman");
+  const t = orgTree();
+  assert.ok(t.children.some((c) => c.id === "executive-vice-chair" && c.name === "리리"));
+});
+
+test("막힘 계약 자동수정/사람확인 구분 — 비밀키는 사람 확인, 나머지는 자동", () => {
+  const report = { runAt: new Date().toISOString(), results: [
+    { contractId: "c:outbom:secret-scan", target: "outbom", category: "security", status: "FAIL", what: "secret", needNewSource: false },
+    { contractId: "c:outbom:production-home", target: "outbom", category: "production", status: "FAIL", what: "운영 첫 화면", needNewSource: false },
+  ] };
+  const out = computeWorkforce({ report, tasks: [], authority: { mode: "RUNNING" }, now: new Date("2026-07-19T04:00:00Z"), executorConnected: false });
+  assert.ok(out.contractsNeedHuman >= 1, "비밀키는 사람 확인 필요");
+  assert.ok(out.contractsAutoFixing >= 1, "운영 장애는 자동 수정 대기");
+});

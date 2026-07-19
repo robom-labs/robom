@@ -10,7 +10,9 @@ import vm from "node:vm";
 import { DEFAULT_COMPANY_RUNTIME_DIR } from "./company-store.mjs";
 import { runAssertions, resolvePath } from "./contract-assert.mjs";
 import { getBrowserDriver } from "./browser-driver.mjs";
-import { loadRoster, orgTree, assignOwnership } from "./workforce.mjs";
+import { loadRoster, orgTree, assignOwnership, computeWorkforce } from "./workforce.mjs";
+import { buildContractCatalog, MIN_CONTRACTS } from "./contract-catalog.mjs";
+import { readApps } from "./sources.mjs";
 
 export const C_STATUS = Object.freeze({ PASS: "PASS", DEGRADED: "DEGRADED", FAIL: "FAIL", UNAVAILABLE: "UNAVAILABLE", BLOCKED_EXTERNAL: "BLOCKED_EXTERNAL", SKIPPED: "SKIPPED" });
 const SECRET_SCRUB = /(-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----|sk-[A-Za-z0-9_-]{12,}|ghp_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{12,}|Bearer\s+[A-Za-z0-9._-]{16,}|eyJ[A-Za-z0-9._-]{40,})/g;
@@ -804,8 +806,46 @@ function evalHqRuntime(c, ctx, env) {
       case "office-family-center": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office-map.json"), "utf8")); const ok = m.zones.some((z) => z.code === "FAMILY LOUNGE") && m.zones.some((z) => z.code === "KIDS LIBRARY"); return ok ? pass("가족 라운지·도서관 존재", "가족센터") : fail("가족센터 없음", "가족센터"); }
       case "office-family-actors": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office-map.json"), "utf8")); const fam = (m.visitors || []).filter((v) => v.life); return fam.length >= 5 ? pass(`생활 연출 인원 ${fam.length}`, "≥ 5") : fail(`생활 인원 ${fam.length}`, "≥ 5"); }
       case "office-staff-parity": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office-map.json"), "utf8")); const r = loadRoster(repoRoot); const ids = new Set(r.staff.map((x) => x.id)); const orphan = (m.desks || []).filter((d) => !ids.has(d.id) && !["room-01", "room-02", "room-03", "out", "home", "run", "cert", "cal", "note"].includes(d.id)); return orphan.length ? degraded(`정본 밖 데스크 ${orphan.length}`, "조직 정합") : pass("오피스 데스크 조직 정합", "조직 정합"); }
-      case "office-logo": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office.html"), "utf8")); return m.includes("./icon.svg") ? pass("공식 로고 사용", "robom 로고") : fail("임시 로고", "robom 로고"); }
+      case "office-logo": { const m = readFileSync(join(repoRoot, "ops/control-center/app/office.html"), "utf8"); return m.includes("./icon.svg") ? pass("공식 로고 사용", "robom 로고") : fail("임시 로고", "robom 로고"); }
       case "wf-mode-6": { return pass("가동 모드 6종", "6종"); }
+      case "wf-full-coverage": {
+        const apps = readApps(repoRoot).filter((a) => a.registered !== false);
+        const cs = buildContractCatalog({ registryApps: apps, siteVersion: "0.0.0" }).filter((x) => !x.needNewSource);
+        const results = cs.map((x) => ({ contractId: x.id, target: x.target, category: x.category, status: "PASS", what: x.what }));
+        const wf = computeWorkforce({ report: { runAt: new Date().toISOString(), results }, tasks: [], authority: { mode: "RUNNING" } });
+        const working = wf.staff.filter((s) => !s.welfare && !s.standby && s.id !== "chairman");
+        const idle = working.filter((s) => s.ownedCount === 0);
+        return idle.length ? fail(`미배정 근무자 ${idle.length}명`, "근무 전원 배정") : pass(`근무 ${working.length}명 전원 담당 계약 보유`, "근무 전원 배정");
+      }
+      case "wf-24h": {
+        const wf = computeWorkforce({ report: { runAt: new Date().toISOString(), results: [] }, tasks: [], authority: { mode: "RUNNING" } });
+        const off = wf.staff.filter((s) => s.state === "OFF_DUTY");
+        return off.length ? fail(`비번 ${off.length}명`, "OFF_DUTY 0(무교대)") : pass("가동 중 전원 근무(무교대)", "OFF_DUTY 0");
+      }
+      case "wf-riri": { const r = loadRoster(repoRoot); const v = r.staff.find((x) => x.id === "executive-vice-chair"); return v && v.name === "리리" && v.reportsTo === "chairman" ? pass("리리(수석부회장)·회장 직속", "2인자=리리") : fail(`${v?.name || "없음"}`, "2인자=리리"); }
+      case "wf-divisions": { const r = loadRoster(repoRoot); const divs = (r.divisions || []).length; const welfare = r.staff.filter((x) => x.welfare).length; return divs >= 16 && welfare === 7 ? pass(`본부 ${divs}·복지 ${welfare}`, "16본부·복지7") : fail(`본부 ${divs}·복지 ${welfare}`, "16본부·복지7"); }
+      case "wf-deputy-distinct": { const r = loadRoster(repoRoot); const bad = r.staff.filter((x) => x.deputy && x.deputy === x.id); return bad.length ? fail(`자기 대직 ${bad.length}`, "0") : pass("대직 != 본인", "0"); }
+      case "wf-career-ladder": { const r = loadRoster(repoRoot); const n = (r.careerLadder || []).length; return n >= 10 ? pass(`승진 ${n}단계`, "≥10") : degraded(`승진 ${n}단계`, "≥10"); }
+      case "office-floors-11": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office-map.json"), "utf8")); return (m.floors || []).length >= 11 ? pass(`${m.floors.length}개 층`, "≥11") : fail(`${(m.floors || []).length}개 층`, "≥11"); }
+      case "office-desk-unique": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office-map.json"), "utf8")); const ids = (m.desks || []).map((d) => d.id); const set = new Set(ids); return set.size === ids.length ? pass("데스크 id 고유", "중복 0") : fail(`중복 ${ids.length - set.size}`, "중복 0"); }
+      case "contracts-min-per-app": {
+        const apps = readApps(repoRoot).filter((a) => a.registered !== false);
+        const cs = buildContractCatalog({ registryApps: apps, siteVersion: "0.0.0" });
+        const bad = [];
+        for (const [appId, min] of Object.entries(MIN_CONTRACTS)) { const n = cs.filter((x) => x.target === appId).length; if (n < min) bad.push(`${appId} ${n}/${min}`); }
+        return bad.length ? fail(bad.join(", "), "앱별 하한 충족") : pass("앱별 최소 계약 충족", "앱별 하한 충족");
+      }
+      case "contracts-total": {
+        const apps = readApps(repoRoot).filter((a) => a.registered !== false);
+        const n = buildContractCatalog({ registryApps: apps, siteVersion: "0.0.0" }).length;
+        return n >= 300 ? pass(`전체 계약 ${n}`, "≥300") : degraded(`전체 계약 ${n}`, "≥300");
+      }
+      case "owner-verifier-split": {
+        const apps = readApps(repoRoot).filter((a) => a.registered !== false);
+        const cs = buildContractCatalog({ registryApps: apps, siteVersion: "0.0.0" }).filter((x) => !x.needNewSource).slice(0, 200);
+        const bad = cs.filter((x) => { const { owner, verifier } = assignOwnership({ id: x.id, target: x.target, category: x.category }); return owner === verifier; });
+        return bad.length ? fail(`구현=검증 ${bad.length}`, "전수 분리") : pass(`표본 ${cs.length} 전수 구현≠검증`, "전수 분리");
+      }
       case "runtime-permissions": {
         const mode = statSync(resolve(runtimeDir)).mode & 0o777;
         if (process.platform === "win32") return pass("Windows(POSIX 권한 비적용)", "700");
