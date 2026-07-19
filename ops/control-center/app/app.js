@@ -73,7 +73,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="2.17.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="2.18.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -364,7 +364,7 @@ function incidentRow(it,key){
 function incidentBoardPanel(){
   const b=HQ?.incidentBoard; if(!b)return "";
   const c=b.counts||{selfHeal:(b.selfHeal||[]).length,codex:(b.codex||[]).length,human:(b.human||[]).length};
-  const lane=(t,tone,sub,items,key)=>items.length?`<div class="lane-block" style="margin-top:12px"><div class="simple-list"><div><b>${t}</b>${tonePill(tone,items.length+"건")}</div></div><p class="fine">${esc(sub)}</p><div class="record-list">${items.slice(0,6).map(it=>incidentRow(it,key)).join("")}</div></div>`:"";
+  const lane=(t,tone,sub,items,key)=>items.length?`<div class="lane-block" style="margin-top:12px"><div class="simple-list"><div><b>${t}</b>${tonePill(tone,items.length+"건")}</div></div><p class="fine">${esc(sub)}</p><div class="record-list">${items.slice(0,6).map(it=>incidentRow(it,key)).join("")}</div>${items.length>6?`<p class="fine">…그 외 ${items.length-6}건 더 (숨기지 않고 모두 처리 중)</p>`:""}</div>`:"";
   const none=!(c.selfHeal||c.codex||c.human);
   const body=`
     <div class="kpi-row" style="margin-bottom:8px">${kpi(c.selfHeal,"컴퓨터 자동","good","","#/automation")}${kpi(c.codex,"Codex로 수정",c.codex?"warn":"","","#/records/approvals")}${kpi(c.human,"회장 확인 필수",c.human?"bad":"","","#/records/approvals")}</div>
@@ -395,7 +395,7 @@ function loopBoardPanel(){
     ${metaLine}
     <div class="kpi-row" style="margin-bottom:8px">${kpi(L.active,"진행 중 Loop",L.active?"accent":"good")}${kpi(L.closed,"완료","good")}${kpi(L.failedSafe,"안전 중단",L.failedSafe?"bad":"")}</div>
     <p class="fine">각 문제·개선을 ‘목표 → 합격 기준 → 담당 → 수정 → <b>원래 계약 재검증</b> → 종료’의 닫힌 Loop로 관리합니다. Codex가 끝났다고 바로 완료가 아니라, <b>원래 실패했던 계약이 다시 통과해야</b> Loop를 닫습니다. 실패하면 같은 수정 반복 대신 새 시도(iteration)로 접근을 바꿉니다.</p>
-    ${rows?`<div class="record-list">${rows}</div>`:empty("진행 중인 Loop가 없습니다.","문제·개선이 확정되면 여기에 목표·기준과 함께 Loop로 나타납니다.")}`);
+    ${rows?`<div class="record-list">${rows}</div>${L.active>12?`<p class="fine">…그 외 ${L.active-12}개 Loop 더 진행 중 (전부 관리 중, 숨기지 않음)</p>`:""}`:empty("진행 중인 Loop가 없습니다.","문제·개선이 확정되면 여기에 목표·기준과 함께 Loop로 나타납니다.")}`);
 }
 
 /* ── 실행기 설정: 회장이 Codex 모델·추론 강도를 고른다 (v2.5.0) ── */
