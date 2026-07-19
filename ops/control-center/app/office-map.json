@@ -232,6 +232,27 @@
    "common": true
   },
   {
+   "id": "B4",
+   "name": "수영장·도서관·가족센터",
+   "headline": "생활 연출 · 가족 복지",
+   "purpose": "실내 수영장·작은 도서관·키즈룸·가족 라운지. 직원과 가족이 함께 쓰는 생활 층입니다(업무 성과와 분리).",
+   "access": "전 직원·가족",
+   "teams": [
+    "복지운영"
+   ],
+   "zones": [
+    "POOL",
+    "FAMILY LOUNGE",
+    "KIDS LIBRARY",
+    "COMMUNITY HALL"
+   ],
+   "employees": [
+    "pool-manager",
+    "family-community-manager"
+   ],
+   "common": true
+  },
+  {
    "id": "ROOF",
    "name": "옥상정원",
    "headline": "생활 연출 · 휴식",
@@ -1527,6 +1548,192 @@
      "y": 8
     }
    ]
+  },
+  {
+   "x": 2,
+   "y": 3,
+   "w": 20,
+   "h": 14,
+   "color": "#49c6e5",
+   "label": "🏊 실내 수영장",
+   "code": "POOL",
+   "owner": "안전관리 태양",
+   "purpose": "수영장·안전요원·탈의실(생활 연출)",
+   "walls": false,
+   "door": [
+    11,
+    16
+   ],
+   "props": [
+    {
+     "type": "poolWater",
+     "x": 11,
+     "y": 9,
+     "w": 15,
+     "h": 9
+    },
+    {
+     "type": "lifeguardChair",
+     "x": 20,
+     "y": 5,
+     "solid": true
+    },
+    {
+     "type": "lockers",
+     "x": 3,
+     "y": 14,
+     "solid": true
+    },
+    {
+     "type": "plant",
+     "x": 4,
+     "y": 4
+    },
+    {
+     "type": "plant",
+     "x": 19,
+     "y": 15
+    }
+   ]
+  },
+  {
+   "x": 24,
+   "y": 3,
+   "w": 16,
+   "h": 8,
+   "color": "#8bd17c",
+   "label": "📚 키즈 도서관",
+   "code": "KIDS LIBRARY",
+   "owner": "가족센터 소미",
+   "purpose": "작은 도서관·키즈룸(생활 연출)",
+   "walls": false,
+   "door": [
+    27,
+    10
+   ],
+   "props": [
+    {
+     "type": "bookshelf",
+     "x": 25,
+     "y": 4,
+     "solid": true
+    },
+    {
+     "type": "bookshelf",
+     "x": 27,
+     "y": 4,
+     "solid": true
+    },
+    {
+     "type": "bookshelf",
+     "x": 29,
+     "y": 4,
+     "solid": true
+    },
+    {
+     "type": "bookStack",
+     "x": 36,
+     "y": 5
+    },
+    {
+     "type": "kidsPlay",
+     "x": 34,
+     "y": 8
+    },
+    {
+     "type": "plant",
+     "x": 39,
+     "y": 4
+    }
+   ]
+  },
+  {
+   "x": 24,
+   "y": 13,
+   "w": 16,
+   "h": 8,
+   "color": "#ffcf6a",
+   "label": "👨‍👩‍👧 가족 라운지",
+   "code": "FAMILY LOUNGE",
+   "owner": "가족센터 소미",
+   "purpose": "가족 라운지·행사(생활 연출)",
+   "walls": false,
+   "door": [
+    27,
+    20
+   ],
+   "props": [
+    {
+     "type": "loungeSofa",
+     "x": 27,
+     "y": 15,
+     "color": "#ffcf6a"
+    },
+    {
+     "type": "loungeSofa",
+     "x": 31,
+     "y": 15,
+     "color": "#f6c25a"
+    },
+    {
+     "type": "coffeeTable",
+     "x": 29,
+     "y": 17
+    },
+    {
+     "type": "vending",
+     "x": 38,
+     "y": 14
+    },
+    {
+     "type": "plant",
+     "x": 25,
+     "y": 19
+    }
+   ]
+  },
+  {
+   "x": 2,
+   "y": 19,
+   "w": 20,
+   "h": 10,
+   "color": "#b58bf0",
+   "label": "🎪 커뮤니티홀",
+   "code": "COMMUNITY HALL",
+   "owner": "가족센터 소미",
+   "purpose": "가족 행사·클래스(생활 연출)",
+   "walls": false,
+   "door": [
+    11,
+    19
+   ],
+   "props": [
+    {
+     "type": "projectorScreen",
+     "x": 3,
+     "y": 24
+    },
+    {
+     "type": "materialTable",
+     "x": 8,
+     "y": 24
+    },
+    {
+     "type": "materialTable",
+     "x": 14,
+     "y": 24
+    },
+    {
+     "type": "plant",
+     "x": 20,
+     "y": 20
+    },
+    {
+     "type": "plant",
+     "x": 3,
+     "y": 28
+    }
+   ]
   }
  ],
  "desks": [
@@ -1958,6 +2165,34 @@
     "outfit": "blouse",
     "accent": "#9fd9ec"
    }
+  },
+  {
+   "id": "pool-manager",
+   "x": 19,
+   "y": 6,
+   "team": "support",
+   "appearance": {
+    "gender": "male",
+    "hair": "short",
+    "hairColor": "#2c2620",
+    "skin": "#e6b48c",
+    "outfit": "jacket",
+    "accent": "#49c6e5"
+   }
+  },
+  {
+   "id": "family-community-manager",
+   "x": 33,
+   "y": 15,
+   "team": "support",
+   "appearance": {
+    "gender": "female",
+    "hair": "ponytail",
+    "hairColor": "#3a2a20",
+    "skin": "#f0cdaa",
+    "outfit": "cardigan",
+    "accent": "#ffcf6a"
+   }
   }
  ],
  "chair": {
@@ -2379,6 +2614,393 @@
     "outfit": "jacket",
     "accent": "#d7a957"
    }
+  },
+  {
+   "id": "fam-b4-1",
+   "floor": "B4",
+   "name": "직원 가족 · 아이",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     13,
+     8
+    ],
+    [
+     9,
+     10
+    ],
+    [
+     6,
+     12
+    ],
+    [
+     10,
+     14
+    ]
+   ],
+   "appearance": {
+    "gender": "male",
+    "hair": "short",
+    "hairColor": "#3a2a1e",
+    "skin": "#f2ccaa",
+    "outfit": "hoodie",
+    "accent": "#49c6e5",
+    "child": true
+   }
+  },
+  {
+   "id": "fam-b4-2",
+   "floor": "B4",
+   "name": "직원 가족 · 보호자",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     27,
+     15
+    ],
+    [
+     30,
+     17
+    ],
+    [
+     34,
+     16
+    ],
+    [
+     30,
+     14
+    ]
+   ],
+   "appearance": {
+    "gender": "female",
+    "hair": "long",
+    "hairColor": "#4a3223",
+    "skin": "#eec1a0",
+    "outfit": "blouse",
+    "accent": "#ffcf6a"
+   }
+  },
+  {
+   "id": "fam-b4-3",
+   "floor": "B4",
+   "name": "가족 · 어린이",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     34,
+     6
+    ],
+    [
+     30,
+     8
+    ],
+    [
+     26,
+     6
+    ],
+    [
+     31,
+     5
+    ]
+   ],
+   "appearance": {
+    "gender": "female",
+    "hair": "bob",
+    "hairColor": "#2e2018",
+    "skin": "#f4d0b0",
+    "outfit": "dress",
+    "accent": "#8bd17c",
+    "child": true
+   }
+  },
+  {
+   "id": "fam-b4-4",
+   "floor": "B4",
+   "name": "수영 이용 가족",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     7,
+     7
+    ],
+    [
+     10,
+     9
+    ],
+    [
+     14,
+     8
+    ],
+    [
+     8,
+     11
+    ]
+   ],
+   "appearance": {
+    "gender": "male",
+    "hair": "undercut",
+    "hairColor": "#241a12",
+    "skin": "#dca77e",
+    "outfit": "tshirt",
+    "accent": "#49c6e5"
+   }
+  },
+  {
+   "id": "fam-b4-5",
+   "floor": "B4",
+   "name": "커뮤니티 참석 가족",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     6,
+     22
+    ],
+    [
+     10,
+     24
+    ],
+    [
+     14,
+     24
+    ],
+    [
+     9,
+     26
+    ]
+   ],
+   "appearance": {
+    "gender": "female",
+    "hair": "waves",
+    "hairColor": "#4b302a",
+    "skin": "#efc19d",
+    "outfit": "cardigan",
+    "accent": "#b58bf0"
+   }
+  },
+  {
+   "id": "life-b2-1",
+   "floor": "B2",
+   "name": "점심 이용 직원",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     16,
+     8
+    ],
+    [
+     20,
+     10
+    ],
+    [
+     24,
+     9
+    ],
+    [
+     19,
+     12
+    ]
+   ],
+   "appearance": {
+    "gender": "male",
+    "hair": "short",
+    "hairColor": "#2a2018",
+    "skin": "#e6b48c",
+    "outfit": "hoodie",
+    "accent": "#8bd17c"
+   }
+  },
+  {
+   "id": "life-b2-2",
+   "floor": "B2",
+   "name": "카페 이용 직원",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     28,
+     14
+    ],
+    [
+     31,
+     16
+    ],
+    [
+     34,
+     15
+    ],
+    [
+     31,
+     16
+    ]
+   ],
+   "appearance": {
+    "gender": "female",
+    "hair": "ponytail",
+    "hairColor": "#3a2a20",
+    "skin": "#f0cdaa",
+    "outfit": "blouse",
+    "accent": "#ffd9a8"
+   }
+  },
+  {
+   "id": "life-b3-1",
+   "floor": "B3",
+   "name": "운동 이용 직원",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     6,
+     6
+    ],
+    [
+     10,
+     8
+    ],
+    [
+     14,
+     7
+    ],
+    [
+     9,
+     10
+    ]
+   ],
+   "appearance": {
+    "gender": "male",
+    "hair": "undercut",
+    "hairColor": "#241a12",
+    "skin": "#dca77e",
+    "outfit": "tshirt",
+    "accent": "#e0574a"
+   }
+  },
+  {
+   "id": "life-b3-2",
+   "floor": "B3",
+   "name": "가족 동반 이용",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     10,
+     12
+    ],
+    [
+     13,
+     10
+    ],
+    [
+     16,
+     12
+    ],
+    [
+     13,
+     10
+    ]
+   ],
+   "appearance": {
+    "gender": "female",
+    "hair": "long",
+    "hairColor": "#4a3223",
+    "skin": "#eec1a0",
+    "outfit": "cardigan",
+    "accent": "#39b98a"
+   }
+  },
+  {
+   "id": "life-1f-1",
+   "floor": "1F",
+   "name": "방문 고객",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     6,
+     20
+    ],
+    [
+     10,
+     22
+    ],
+    [
+     14,
+     21
+    ],
+    [
+     9,
+     24
+    ]
+   ],
+   "appearance": {
+    "gender": "male",
+    "hair": "sidepart",
+    "hairColor": "#2c2018",
+    "skin": "#e6b48c",
+    "outfit": "suit",
+    "accent": "#d7a957"
+   }
+  },
+  {
+   "id": "life-1f-2",
+   "floor": "1F",
+   "name": "면접 방문객",
+   "team": "guest",
+   "purpose": "가족·생활 연출",
+   "host": "가족센터",
+   "life": true,
+   "route": [
+    [
+     16,
+     20
+    ],
+    [
+     20,
+     22
+    ],
+    [
+     24,
+     21
+    ],
+    [
+     20,
+     22
+    ]
+   ],
+   "appearance": {
+    "gender": "female",
+    "hair": "bob",
+    "hairColor": "#3a2a20",
+    "skin": "#f0cdaa",
+    "outfit": "blazer",
+    "accent": "#9a6cf0"
+   }
   }
  ],
  "seatsByFloor": {
@@ -2641,6 +3263,62 @@
     [
      37,
      26
+    ]
+   ]
+  },
+  "B4": {
+   "lounge": [
+    [
+     4,
+     6
+    ],
+    [
+     5.4,
+     6
+    ],
+    [
+     6.8,
+     6
+    ],
+    [
+     4,
+     12
+    ],
+    [
+     6,
+     12
+    ]
+   ],
+   "cafe": [
+    [
+     25.6,
+     6.5
+    ],
+    [
+     27,
+     6.5
+    ],
+    [
+     28.4,
+     6.5
+    ],
+    [
+     35,
+     15
+    ],
+    [
+     37,
+     16
+    ]
+   ],
+   "cafeTables": [
+    [
+     27,
+     7.5
+    ],
+    [
+     36,
+     16
     ]
    ]
   }

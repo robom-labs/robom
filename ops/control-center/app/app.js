@@ -73,7 +73,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="2.2.1"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="2.3.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -408,24 +408,36 @@ function renderCompany(){
   const delegated=c.approvalMode==="VICE_CHAIR_DELEGATED";
   const shift=c.shift?.label||"";
   const health=HQ?.health;
+  const wf=HQ?.workforce;
   const divisions=ORG?.divisions||[];
   const cellName=(id)=>({production:"운영 응답",network:"네트워크",self:"HQ 자체",ci:"자동 검사",github:"코드 흐름",roadmap:"다음 개선"})[id]||id;
   const divStatus=(d)=>{ if(d.standby)return tonePill("neutral","STANDBY · 업무 대기");
     if(!health)return tonePill("neutral","확인 중");
     return tonePill(running?"good":monitor?"accent":"neutral",running?"상시 관제 중":monitor?"관제만":"정지"); };
   loadOrg();
-  return `${title("COMPANY","회사","24시간 살아있는 로봄 본사 — 가동·전결·조직·시설을 한곳에서.",`<a class="button ghost" href="./office.html">${icon("office")}오피스 관람</a>`)}
+  return `${title("COMPANY","회사","24시간 살아있는 로봄 본사 — 80명 인력·계약 소유·가동·전결·시설을 한곳에서.",`<a class="button ghost" href="./office.html">${icon("office")}오피스 관람</a>`)}
   <div class="grid main-side">
     <div>
       ${panel("회사 가동",`<div class="simple-list">
-        <div><b>현재 상태</b>${tonePill(running?"good":monitor?"accent":"warn",running?"가동 중 (상시 관제·자동 복구·전결)":monitor?"관제만 (점검·기안만, 수정 없음)":"일시정지")}</div>
+        <div><b>현재 상태</b>${tonePill(running?"good":monitor?"accent":"warn",c.modeLabel?`${c.modeLabel}${running?" (상시 관제·자동 복구·전결)":monitor?" (점검·기안만)":""}`:(running?"가동 중":monitor?"관제만":"일시정지"))}</div>
         <div><b>현재 교대조</b>${tonePill("accent",shift||"—")}</div>
+        ${wf?`<div><b>지금 근무 중</b>${tonePill(wf.summary.blocked?"warn":"good",`${wf.summary.onDuty}명 / 전체 ${wf.summary.total}명`)}</div>`:""}
       </div>
       <div class="today-actions" style="margin-top:12px">
         ${button("회사 가동","set-company-mode","primary",'data-mode="RUNNING"',"play")}
         ${button("관제만","set-company-mode","secondary",'data-mode="MONITOR_ONLY"',"search")}
         ${button("안전하게 일시정지","set-company-mode","danger",'data-mode="PAUSED"',"pause")}
-      </div>`)}
+      </div>
+      <details style="margin-top:10px"><summary class="fine" style="cursor:pointer">고급 가동 제어 (안전 복구·긴급 정지)</summary>
+      <div class="today-actions" style="margin-top:9px">
+        ${button("안전 복구 모드","set-company-mode","ghost",'data-mode="SAFE_MODE"',"shield")}
+        ${button("안전 마무리","set-company-mode","ghost",'data-mode="DRAINING"')}
+        ${button("긴급 정지","set-company-mode","danger",'data-mode="EMERGENCY_STOP"',"pause")}
+      </div></details>`)}
+      ${wf?panel(`인력 현황 · 80명 (계약 ${wf.contractsAssigned??"—"}개 배정)`,`
+        <div class="kpi-row" style="margin-bottom:9px">${kpi(wf.summary.onDuty,"근무 중","good")}${kpi(wf.summary.checking,"점검 중",wf.summary.checking?"accent":"")}${kpi(wf.summary.repairing+wf.summary.deploying,"수정 중",wf.summary.repairing?"accent":"")}${kpi(wf.summary.verifying,"검증 중")}${kpi(wf.summary.blocked,"막힘",wf.summary.blocked?"bad":"")}</div>
+        <div class="simple-list">${(wf.byDivision||[]).filter(d=>d.total).slice(0,14).map(d=>`<div><b>${esc(d.divisionName||d.division)}</b>${tonePill(d.blocked?"bad":d.checking?"accent":"good",`${d.onDuty}/${d.total}명 근무 · 계약 ${d.ownedContracts}${d.blocked?` · 막힘 ${d.blocked}`:""}`)}</div>`).join("")}</div>
+        <p class="fine">각 직원이 맡은 계약을 점검·검증하는 모습은 <a href="./office.html">오피스 관람</a>에서 캐릭터를 눌러 확인합니다. 인원 수는 실제 실행기(코덱스) 수와 다릅니다 — '수정 중'은 실제 실행기 작업만 집계합니다.</p>`):""}
       ${panel("수석부회장 전결",`<p class="fine" style="margin:0 0 11px">위임하면 회장님 부재 중에도 <b>시스템이 올린 위임 가능 안건만</b> 수석부회장 윤서가 자동 재가해 바로 처리합니다. 결제·계약·홍보·개인정보·비밀값·삭제 같은 안건은 위임돼도 <b>회장 전용</b>으로 남습니다.</p>
       <div class="simple-list"><div><b>결재 모드</b>${tonePill(delegated?"gold":"good",delegated?"수석부회장 전결 위임 중":"회장 직접결재")}</div></div>
       <div class="today-actions" style="margin-top:12px">${delegated?button("전결 즉시 해제","set-delegation","danger",'data-approval="CHAIRMAN_DIRECT"'):button("수석부회장 전결 위임","set-delegation","gold",'data-approval="VICE_CHAIR_DELEGATED"',"check")}</div>`)}

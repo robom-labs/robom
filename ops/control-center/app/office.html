@@ -10,8 +10,8 @@ html,body{height:100%;overflow:hidden;background:linear-gradient(180deg,#f3ecdd,
 #game{display:block;cursor:grab;touch-action:none}#game:active{cursor:grabbing}
 .hud{position:fixed;left:0;right:0;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;pointer-events:none;z-index:5}
 .brand{display:flex;align-items:center;gap:10px}
-.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#f6ecd2,#e9d7a8);display:grid;place-items:center;box-shadow:0 0 18px rgba(53,227,155,.35)}
-.logo b{color:#35e39b;font-family:var(--mono);font-size:15px}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#fff4df,#f0e2c2);display:grid;place-items:center;box-shadow:0 0 16px rgba(200,160,74,.35);overflow:hidden}
+.logo img{width:26px;height:26px;display:block}
 .brand .t b{font-family:var(--mono);letter-spacing:.14em;font-size:14px}.brand .t small{display:block;color:#7f93b4;font-size:9.5px}
 .mode{font-family:var(--mono);font-size:10px;font-weight:800;letter-spacing:.1em;padding:3px 7px;border-radius:6px;border:1px solid rgba(255,255,255,.16);color:#35e39b}
 .mode.warn{color:#ffcf4d}
@@ -37,12 +37,14 @@ html,body{height:100%;overflow:hidden;background:linear-gradient(180deg,#f3ecdd,
 </style></head><body>
 <canvas id="game"></canvas>
 <div class="hud">
-  <div class="brand"><span class="logo"><b>R</b></span><span class="t"><b>ROBOM HQ</b><small>로봄 본부 · 실시간 오피스</small></span></div>
+  <div class="brand"><span class="logo"><img src="./icon.svg" alt="ROBOM" width="26" height="26"></span><span class="t"><b>ROBOM HQ</b><small>로봄 본부 · 실시간 오피스</small></span></div>
   <div class="kpis">
-    <div class="kpi" style="--c:#35e39b"><div class="l">일하는중</div><div class="v" id="k-work">0</div></div>
-    <div class="kpi" style="--c:#a879ff"><div class="l">회의중</div><div class="v" id="k-meet">0</div></div>
-    <div class="kpi" style="--c:#d7a957"><div class="l">방문 연출</div><div class="v" id="k-visitor">0</div></div>
+    <div class="kpi" style="--c:#35e39b"><div class="l">근무 중</div><div class="v" id="k-work">0</div></div>
+    <div class="kpi" style="--c:#49c6e5"><div class="l">점검 중</div><div class="v" id="k-check">0</div></div>
+    <div class="kpi" style="--c:#3ba7ff"><div class="l">수정 중</div><div class="v" id="k-repair">0</div></div>
+    <div class="kpi" style="--c:#a879ff"><div class="l">회의 중</div><div class="v" id="k-meet">0</div></div>
     <div class="kpi" style="--c:#ff5d6c"><div class="l">막힘</div><div class="v" id="k-block">0</div></div>
+    <div class="kpi" style="--c:#d7a957"><div class="l">생활 연출</div><div class="v" id="k-visitor">0</div></div>
   </div>
   <div class="top-right"><a class="back" href="./index.html">경영 OS</a><button class="demo-toggle" id="demoBtn" type="button" aria-pressed="false">전원 업무 시연</button><span class="clock" id="clock">--:--:--</span><span class="mode" id="mode">AUTO</span><button class="fit" id="fitBtn" title="전체 보기">⤢</button></div>
 </div>

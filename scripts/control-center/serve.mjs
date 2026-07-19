@@ -22,7 +22,8 @@ import { buildContractCatalog, catalogCoverage } from "./lib/contract-catalog.mj
 import { readApps } from "./lib/sources.mjs";
 import { tryActivatePlaywrightDriver } from "./lib/browser-driver.mjs";
 import { readMobileAccess, writeMobileAccess, connectUrls, DEFAULT_MOBILE_PORT } from "./lib/mobile-access.mjs";
-import { readAuthority, writeAuthority, isDelegable, currentShift, COMPANY_MODES, APPROVAL_MODES } from "./lib/company-authority.mjs";
+import { readAuthority, writeAuthority, isDelegable, currentShift, COMPANY_MODES, COMPANY_MODE_LABELS, APPROVAL_MODES } from "./lib/company-authority.mjs";
+import { loadRoster, computeWorkforce, orgTree, currentShiftId } from "./lib/workforce.mjs";
 import { startRunnerSupervisor } from "./lib/runner-supervisor.mjs";
 import { REPO_ROOT } from "./lib/sources.mjs";
 
@@ -261,7 +262,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
   if (!AUTO_REVIEW && !force) return { skipped: "disabled" };
   // v2.0.0: 회사 모드가 정본. RUNNING·MONITOR_ONLY = 상시 관제(감시기 주기마다), PAUSED = 중지.
   const authority = readAuthority();
-  if (!force && authority.mode === "PAUSED") return { skipped: "company-paused" };
+  if (!force && ["PAUSED", "EMERGENCY_STOP"].includes(authority.mode)) return { skipped: `company-${authority.mode.toLowerCase()}` };
   if (!force) {
     // 감시기 겹침(시작 직후 reviewSoon + interval) 중복 방지 최소 간격
     try {
@@ -347,6 +348,16 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
   } catch { /* 마커 기록 실패 무시 */ }
   return { created: created.length, delegated, health: healthSummary };
 }
+// 인력 배치 도출 — 최근 계약 결과 + 큐 작업 + 회사 권한으로 80명 상태 계산(companyOperations)
+function readWorkforce(tasks = []) {
+  try {
+    const report = readContractReport();
+    const authority = readAuthority();
+    return computeWorkforce({ report, tasks, authority, now: new Date() });
+  } catch (error) {
+    return { companyMode: "RUNNING", staff: [], summary: { total: 0 }, byDivision: [], error: String(error?.message || error).slice(0, 80) };
+  }
+}
 // 최근 health 요약(hq-status 노출용) — 심층 계약 coverage(진단률) 포함
 function readHealthSummary() {
   try {
@@ -374,7 +385,8 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
     const summary = queueSummary();
     if (summary.runner) summary.runner.managed = MANAGE_RUNNER; // 러너 자동 관리 여부는 서버가 정본
     const authority = readAuthority();
-    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED || mobileEnabled() ? "token" : "local-only", mobile: mobileEnabled(), reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary(), company: { mode: authority.mode, approvalMode: authority.approvalMode, delegatedAt: authority.delegatedAt, shift: currentShift() } });
+    let wf = null; try { wf = computeWorkforce({ report: readContractReport(), tasks: [], authority, now: new Date() }); } catch { /* 인력 계산 실패 무시 */ }
+    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED || mobileEnabled() ? "token" : "local-only", mobile: mobileEnabled(), reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary(), company: { mode: authority.mode, modeLabel: COMPANY_MODE_LABELS[authority.mode] || authority.mode, approvalMode: authority.approvalMode, delegatedAt: authority.delegatedAt, shift: currentShift() }, workforce: wf ? { summary: wf.summary, contractsAssigned: wf.contractsAssigned, byDivision: wf.byDivision } : null });
     return;
   }
 
@@ -417,6 +429,23 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
       runDailyReviewIfDue({ force: true }).catch(() => {}); // 위임 즉시 대기 안건 전결 처리
     }
     sendJson(res, 200, { ok: true, ...next });
+    return;
+  }
+  // 인력 배치·직원별 업무 상태(80명) — 21B 우선순위로 도출(랜덤 금지)
+  if (path === "/api/workforce") {
+    if (req.method !== "GET") { sendText(res, 405, "method not allowed", { Allow: "GET" }); return; }
+    let tasks = [];
+    try { tasks = (await store.getState()).records?.tasks || []; } catch { /* 작업 없음 */ }
+    sendJson(res, 200, { ok: true, ...readWorkforce(tasks) });
+    return;
+  }
+  // 조직도 트리(공공기관형) + roster 정본
+  if (path === "/api/org-chart") {
+    if (req.method !== "GET") { sendText(res, 405, "method not allowed", { Allow: "GET" }); return; }
+    try {
+      const roster = loadRoster();
+      sendJson(res, 200, { ok: true, tree: orgTree(), divisions: roster.divisions, careerLadder: roster.careerLadder, staffCount: roster.staff.length });
+    } catch { sendJson(res, 200, { ok: false, message: "조직 정본을 읽지 못했습니다." }); }
     return;
   }
   // 심층 계약 진단(진단률 100%) — 최근 실행 결과 + 카탈로그 정의 집계

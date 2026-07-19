@@ -484,6 +484,30 @@ function hqContracts({ registryApps }) {
   ];
 }
 
+// ── 회사 운영·인력·오피스 자체 점검(18A) — target "robom-company" ──
+function companyOpsContracts() {
+  const id = "robom-company"; const s = (cid, check, extra) => C(`c:${id}:${cid}`, id, extra.category || "self", "hq_runtime", { check }, { runTier: "cheap", requiredCapabilities: ["filesystem"], ...extra });
+  const D = (what, ua, ra) => ({ what, userImpact: ua, recommendedAction: ra });
+  return [
+    s("workforce-roster", "wf-roster-count", { required: true, severityIfFail: "error", failureClass: "schema", ...D("80명 인력 정본 수 == 80", "인력 정본이 깨지면 조직 화면이 비어 보입니다.", "workforce.json을 복구합니다.") }),
+    s("workforce-unique-ids", "wf-unique-ids", { severityIfFail: "error", failureClass: "integrity", ...D("직원 id 중복 0(안정 키)", "id 중복은 상태·소유권을 뒤섞습니다.", "중복 id를 제거합니다.") }),
+    s("workforce-every-duty", "wf-every-duty", { severityIfFail: "warning", failureClass: "schema", ...D("모든 직원 1차 임무·소속 존재", "임무 없는 직원은 배정이 불가합니다.", "직무를 채웁니다.") }),
+    s("workforce-reports-valid", "wf-reports-valid", { severityIfFail: "error", failureClass: "integrity", ...D("모든 보고선(reports_to) 유효", "무효 보고선은 조직도를 깨뜨립니다.", "보고선을 수정합니다.") }),
+    s("workforce-deputy", "wf-deputy-coverage", { severityIfFail: "warning", failureClass: "automation", ...D("운영직 전원 대직자 지정", "대직 공백은 부재 시 인계를 막습니다.", "대직자를 지정합니다.") }),
+    s("workforce-no-cycle", "wf-no-cycle", { severityIfFail: "error", failureClass: "integrity", ...D("보고 계층 순환 0", "순환 계층은 지휘 체계를 무너뜨립니다.", "계층을 바로잡습니다.") }),
+    s("workforce-owner-coverage", "wf-owner-coverage", { required: true, severityIfFail: "error", failureClass: "integrity", ...D("계약 소유권 배정·구현≠검증 분리", "owner 없는 계약은 담당이 사라집니다.", "소유권 규칙을 확인합니다.") }),
+    s("workforce-welfare", "wf-welfare-not-executor", { severityIfFail: "info", failureClass: "observability", ...D("복지 직원=생활 연출(엔지니어링 미집계)", "복지를 업무로 집계하면 성과가 왜곡됩니다.", "복지 역할을 분리 유지합니다.") }),
+    s("workforce-growth-standby", "wf-growth-standby", { severityIfFail: "warning", failureClass: "security", ...D("홍보·성장본부 전원 STANDBY(외부 게시 0)", "홍보 자동 게시는 회사 원칙 위반입니다.", "STANDBY를 유지합니다.") }),
+    s("org-tree", "wf-org-tree", { severityIfFail: "warning", failureClass: "schema", ...D("조직도 트리 유효(회장 root·감사 직속)", "조직도가 깨지면 지휘 체계가 안 보입니다.", "조직 정본을 확인합니다.") }),
+    s("company-modes", "wf-mode-6", { severityIfFail: "info", failureClass: "automation", ...D("회사 가동 모드 6종 지원", "모드가 부족하면 안전 제어가 약해집니다.", "모드 정본을 확인합니다.") }),
+    s("office-b4-pool", "office-b4-pool", { severityIfFail: "warning", failureClass: "schema", ...D("오피스 B4 수영장 층 존재", "복지 세계관이 비면 회사가 허전합니다.", "office-map을 확인합니다.") }),
+    s("office-family-center", "office-family-center", { severityIfFail: "info", failureClass: "schema", ...D("가족 라운지·도서관 존재", "가족 시설이 없으면 생활 연출이 약합니다.", "가족센터 zone을 확인합니다.") }),
+    s("office-family-actors", "office-family-actors", { severityIfFail: "info", failureClass: "schema", ...D("생활 연출 인원(가족·방문) ≥ 5", "인원이 적으면 회사가 비어 보입니다.", "생활 연출 인원을 보강합니다.") }),
+    s("office-staff-parity", "office-staff-parity", { severityIfFail: "info", failureClass: "parity", ...D("오피스 데스크 == 조직 정본 정합", "정본과 다르면 혼란을 줍니다.", "데스크 id를 정본과 맞춥니다.") }),
+    s("office-logo", "office-logo", { severityIfFail: "warning", failureClass: "schema", ...D("오피스 공식 로봄 로고 사용", "임시 로고는 브랜드를 해칩니다.", "공식 로고를 적용합니다.") }),
+  ];
+}
+
 // ── 카탈로그 빌드 ──
 export function buildContractCatalog({ registryApps = [], siteVersion = "" } = {}) {
   const contracts = [
@@ -499,6 +523,7 @@ export function buildContractCatalog({ registryApps = [], siteVersion = "" } = {
   if (byId.notebom) contracts.push(...notebomContracts(byId.notebom));
   contracts.push(...siteContracts({ registryApps, siteVersion }));
   contracts.push(...hqContracts({ registryApps }));
+  contracts.push(...companyOpsContracts()); // 18A 회사 운영·인력·오피스 자체 점검
 
   const ids = new Set();
   for (const c of contracts) {

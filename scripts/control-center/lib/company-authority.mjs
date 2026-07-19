@@ -6,7 +6,11 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync, cop
 import { join, resolve } from "node:path";
 import { DEFAULT_COMPANY_RUNTIME_DIR } from "./company-store.mjs";
 
-export const COMPANY_MODES = Object.freeze(["RUNNING", "MONITOR_ONLY", "PAUSED"]);
+// v2.3.0: 회사 가동 상태 6종(PART 01 0.2). RUNNING·MONITOR_ONLY·DRAINING·PAUSED·SAFE_MODE·EMERGENCY_STOP.
+export const COMPANY_MODES = Object.freeze(["RUNNING", "MONITOR_ONLY", "DRAINING", "PAUSED", "SAFE_MODE", "EMERGENCY_STOP"]);
+export const COMPANY_MODE_LABELS = Object.freeze({
+  RUNNING: "가동 중", MONITOR_ONLY: "관제만", DRAINING: "안전 마무리", PAUSED: "일시정지", SAFE_MODE: "안전 복구", EMERGENCY_STOP: "긴급 정지",
+});
 export const APPROVAL_MODES = Object.freeze(["CHAIRMAN_DIRECT", "VICE_CHAIR_DELEGATED"]);
 const FILE = (dir) => join(resolve(dir), "company-authority.json");
 const AUDIT = (dir) => join(resolve(dir), "company-audit.jsonl");

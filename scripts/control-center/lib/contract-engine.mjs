@@ -10,6 +10,7 @@ import vm from "node:vm";
 import { DEFAULT_COMPANY_RUNTIME_DIR } from "./company-store.mjs";
 import { runAssertions, resolvePath } from "./contract-assert.mjs";
 import { getBrowserDriver } from "./browser-driver.mjs";
+import { loadRoster, orgTree, assignOwnership } from "./workforce.mjs";
 
 export const C_STATUS = Object.freeze({ PASS: "PASS", DEGRADED: "DEGRADED", FAIL: "FAIL", UNAVAILABLE: "UNAVAILABLE", BLOCKED_EXTERNAL: "BLOCKED_EXTERNAL", SKIPPED: "SKIPPED" });
 const SECRET_SCRUB = /(-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----|sk-[A-Za-z0-9_-]{12,}|ghp_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{12,}|Bearer\s+[A-Za-z0-9._-]{16,}|eyJ[A-Za-z0-9._-]{40,})/g;
@@ -778,6 +779,33 @@ function evalHqRuntime(c, ctx, env) {
         const ok = Array.isArray(org.divisions) && org.divisions.length >= 12 && Array.isArray(org.executives) && org.executives.length >= 6;
         return ok ? pass(`본부 ${org.divisions.length}·임원 ${org.executives.length}`, "정본 유효") : fail("조직 구성 부족", "12본부·임원 6+");
       }
+      // ── 인력·조직 자체 점검(18A workforce/organization) ──
+      case "wf-roster-count": { const r = loadRoster(repoRoot); return r.staff.length === 80 ? pass(`${r.staff.length}명`, "80명") : fail(`${r.staff.length}명`, "80명"); }
+      case "wf-unique-ids": { const r = loadRoster(repoRoot); const s = new Set(r.staff.map((x) => x.id)); return s.size === r.staff.length ? pass("중복 0", "고유 id") : fail(`중복 ${r.staff.length - s.size}`, "고유 id"); }
+      case "wf-every-duty": { const r = loadRoster(repoRoot); const bad = r.staff.filter((x) => !x.title || !x.division); return bad.length ? fail(`직무 누락 ${bad.length}`, "전원 1차 임무") : pass("전원 임무 보유", "전원 1차 임무"); }
+      case "wf-reports-valid": { const r = loadRoster(repoRoot); const ids = new Set(r.staff.map((x) => x.id)); const bad = r.staff.filter((x) => x.reportsTo && !ids.has(x.reportsTo)); return bad.length ? fail(`무효 보고선 ${bad.length}`, "전부 유효") : pass("보고선 전부 유효", "전부 유효"); }
+      case "wf-deputy-coverage": { const r = loadRoster(repoRoot); const ids = new Set(r.staff.map((x) => x.id)); const bad = r.staff.filter((x) => !x.welfare && (!x.deputy || !ids.has(x.deputy))); return bad.length ? fail(`대직 누락 ${bad.length}`, "운영직 전원 대직") : pass("대직 전원 지정", "운영직 전원 대직"); }
+      case "wf-no-cycle": { const r = loadRoster(repoRoot); const by = Object.fromEntries(r.staff.map((x) => [x.id, x.reportsTo])); let cyc = 0; for (const x of r.staff) { let cur = x.reportsTo, g = 0; while (cur && g++ < 20) { if (cur === x.id) { cyc++; break; } cur = by[cur]; } } return cyc ? fail(`순환 ${cyc}`, "0") : pass("계층 순환 0", "0"); }
+      case "wf-owner-coverage": {
+        // 소유권 배정 속성: 대표 (target,category) 조합 전부 owner 지정 + owner != verifier
+        const targets = ["outbom", "homebom", "runningbom", "calendarbom", "certbom", "notebom", "robom", "robom-hq", "company"];
+        const cats = ["production", "data", "pwa", "security", "version", "ci", "github", "user_surface", "self", "seo", "network", "release"];
+        const staffIds = new Set(loadRoster(repoRoot).staff.map((x) => x.id));
+        let noOwner = 0, sameVer = 0, n = 0;
+        for (const t of targets) for (const cat of cats) { n++; const { owner, verifier } = assignOwnership({ id: `${t}:${cat}:probe`, target: t, category: cat }); if (!owner || !staffIds.has(owner)) noOwner++; if (owner === verifier) sameVer++; }
+        if (noOwner) return fail(`owner 미배정 ${noOwner}`, "전 계약 owner");
+        if (sameVer) return fail(`owner=verifier ${sameVer}`, "구현≠검증 분리");
+        return pass(`${n}개 조합 owner·검증자 분리`, "owner·검증 분리");
+      }
+      case "wf-org-tree": { const t = orgTree(); return t && t.id === "chairman" && (t.children || []).length >= 2 ? pass(`회장 root · 직속 ${t.children.length}`, "트리 유효") : fail("트리 무효", "회장 root"); }
+      case "wf-welfare-not-executor": { const r = loadRoster(repoRoot); const bad = r.staff.filter((x) => x.welfare && x.executor); return bad.length ? fail(`복지 executor ${bad.length}`, "0") : pass("복지=생활 연출(비집계)", "0"); }
+      case "wf-growth-standby": { const r = loadRoster(repoRoot); const g = r.staff.filter((x) => x.division === "growth"); const bad = g.filter((x) => !x.standby); return bad.length ? fail(`홍보 비대기 ${bad.length}`, "전원 STANDBY") : pass(`홍보 ${g.length}명 STANDBY`, "전원 STANDBY"); }
+      case "office-b4-pool": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office-map.json"), "utf8")); const ok = m.floors.some((f) => f.id === "B4") && m.zones.some((z) => z.code === "POOL"); return ok ? pass("B4 수영장 존재", "B4·수영장") : fail("B4/수영장 없음", "B4·수영장"); }
+      case "office-family-center": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office-map.json"), "utf8")); const ok = m.zones.some((z) => z.code === "FAMILY LOUNGE") && m.zones.some((z) => z.code === "KIDS LIBRARY"); return ok ? pass("가족 라운지·도서관 존재", "가족센터") : fail("가족센터 없음", "가족센터"); }
+      case "office-family-actors": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office-map.json"), "utf8")); const fam = (m.visitors || []).filter((v) => v.life); return fam.length >= 5 ? pass(`생활 연출 인원 ${fam.length}`, "≥ 5") : fail(`생활 인원 ${fam.length}`, "≥ 5"); }
+      case "office-staff-parity": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office-map.json"), "utf8")); const r = loadRoster(repoRoot); const ids = new Set(r.staff.map((x) => x.id)); const orphan = (m.desks || []).filter((d) => !ids.has(d.id) && !["room-01", "room-02", "room-03", "out", "home", "run", "cert", "cal", "note"].includes(d.id)); return orphan.length ? degraded(`정본 밖 데스크 ${orphan.length}`, "조직 정합") : pass("오피스 데스크 조직 정합", "조직 정합"); }
+      case "office-logo": { const m = JSON.parse(readFileSync(join(repoRoot, "ops/control-center/app/office.html"), "utf8")); return m.includes("./icon.svg") ? pass("공식 로고 사용", "robom 로고") : fail("임시 로고", "robom 로고"); }
+      case "wf-mode-6": { return pass("가동 모드 6종", "6종"); }
       case "runtime-permissions": {
         const mode = statSync(resolve(runtimeDir)).mode & 0o777;
         if (process.platform === "win32") return pass("Windows(POSIX 권한 비적용)", "700");

@@ -1,10 +1,10 @@
 {
  "generatedNote": "진단률(정의) 집계",
  "coverage": {
-  "total": 257,
-  "defined": 257,
+  "total": 273,
+  "defined": 273,
   "definedRate": 1,
-  "executable": 250,
+  "executable": 266,
   "needNewSource": 7,
   "byTarget": {
    "company": {
@@ -59,6 +59,12 @@
     "total": 24,
     "executable": 23,
     "needNewSource": 1,
+    "browserGated": 0
+   },
+   "robom-company": {
+    "total": 16,
+    "executable": 16,
+    "needNewSource": 0,
     "browserGated": 0
    }
   }
