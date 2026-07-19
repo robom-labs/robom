@@ -429,7 +429,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
       if (passContracts.has(task.originContract)) {
         const loop = (() => { try { return findLoopByTask(task.id); } catch { return null; } })();
         // 회귀 감사: 이 앱에 Loop 시작 시엔 안 깨졌던 계약이 지금 깨졌으면 = 다른 것을 깨뜨림 → 닫지 않고 재시도.
-        const appKey = task.appId || (loop && loop.targetApp) || "";
+        const appKey = appTarget(task.appId || (loop && loop.targetApp) || ""); // 회사(company·robom-hq) 레벨도 실패맵·기준선과 같은 키로 정규화해 회귀 감사가 작동하게 한다
         if (hasRegression(loop, appKey)) {
           try { if (loop) openIteration(loop.loopId, { now, failureSignature: `regression:${appKey}` }); } catch { /* skip */ }
           // 재구현이 끼면 연속 PASS 카운터를 리셋해, 코드 버전이 바뀐 두 PASS를 '2회 연속'으로 오인해 성급히 닫지 않게 한다.
@@ -457,7 +457,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
         // §13 성장·보안 Loop: originContract가 health 계약이 아니라 재검증할 계약이 없다.
         // 합격 기준 = "개선 작업 완료(in_review) + 이 앱에 회귀 없음". 회귀 감사만 통과하면 닫는다(무한 in_review 방지).
         const loop = (() => { try { return findLoopByTask(task.id); } catch { return null; } })();
-        const appKey = task.appId || (loop && loop.targetApp) || "";
+        const appKey = appTarget(task.appId || (loop && loop.targetApp) || ""); // 회사(company·robom-hq) 레벨도 실패맵·기준선과 같은 키로 정규화해 회귀 감사가 작동하게 한다
         if (hasRegression(loop, appKey)) {
           try { if (loop) openIteration(loop.loopId, { now, failureSignature: `regression:${appKey}` }); } catch { /* skip */ }
           try { await store.updateStatus("tasks", task.id, { status: "blocked", reason: "개선 작업 후 이 앱에 새 장애가 생김(회귀) — 재검토 필요" }); } catch { /* skip */ }
