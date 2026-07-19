@@ -4,7 +4,7 @@
 // 창을 닫아도 트레이에서 계속 감시하며, 트레이에서 일시정지·재개·완전 종료할 수 있다.
 "use strict";
 const { app, BrowserWindow, Tray, Menu, nativeImage, shell, dialog } = require("electron");
-const { existsSync, mkdirSync, copyFileSync } = require("node:fs");
+const { existsSync, mkdirSync, copyFileSync, readFileSync } = require("node:fs");
 const { join } = require("node:path");
 const { pathToFileURL } = require("node:url");
 
@@ -16,6 +16,17 @@ let quitting = false;
 const payloadDir = app.isPackaged
   ? join(process.resourcesPath, "payload")
   : join(__dirname, "payload");
+
+// 창 제목·트레이 툴팁에 항상 버전을 보여준다(다운로드한 버전을 한눈에 확인).
+function readDownloadedVersion() {
+  try {
+    const v = JSON.parse(readFileSync(join(payloadDir, "ops/control-center/app/version.json"), "utf8"));
+    return v.version || app.getVersion();
+  } catch {
+    return app.getVersion();
+  }
+}
+const windowTitle = () => `ROBOM HQ v${readDownloadedVersion()}`;
 
 // 외부 링크는 https + 허용된 호스트만 연다(임의 URL로 기본 브라우저를 여는 것을 차단).
 const EXTERNAL_HOST_ALLOWLIST = new Set([
@@ -144,10 +155,13 @@ function createWindow() {
     height: 860,
     minWidth: 360,
     minHeight: 560,
-    title: "ROBOM HQ",
+    title: windowTitle(),
     webPreferences: { contextIsolation: true, nodeIntegration: false },
   });
   mainWindow.loadURL(serverLink);
+  // 화면 자체가 곧 document.title을 버전 포함 문구로 갱신하지만(app.js loadVersion),
+  // 로딩 중 잠깐 보이는 제목도 실제 버전으로 정확히 표시한다.
+  mainWindow.setTitle(windowTitle());
   mainWindow.on("close", (event) => {
     if (!quitting) { // 창만 닫고 감시는 트레이에서 계속
       event.preventDefault();
@@ -175,7 +189,7 @@ function showWindow() {
 function buildTray() {
   const icon = nativeImage.createFromPath(join(payloadDir, "tray.png"));
   tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon.resize({ width: 18, height: 18 }));
-  tray.setToolTip("ROBOM HQ — 로봄 자율 운영 본사");
+  tray.setToolTip(`${windowTitle()} — 로봄 자율 운영 본사`);
   const menu = Menu.buildFromTemplate([
     { label: "본부 열기", click: showWindow },
     { type: "separator" },
