@@ -109,6 +109,7 @@ export function createLoop(input = {}, { runtimeDir = DEFAULT_COMPANY_RUNTIME_DI
     evidence: {},
     attemptHistory: [],
     nextAction: input.nextAction || (state === "AWAITING_APPROVAL" ? "회장 승인 대기" : "조사 시작"),
+    baselineFailCount: Number.isFinite(input.baselineFailCount) ? input.baselineFailCount : null, // §17 회귀 감사 기준선
     contractId: input.contractId || "",
     taskId: input.taskId || null,
     approvalId: input.approvalId || null,

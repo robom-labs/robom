@@ -107,6 +107,15 @@ test("metaAudit는 재시도 폭주·멈춘 Loop를 잡는다", () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
+test("createLoop은 §17 회귀 기준선(baselineFailCount)을 저장한다", () => {
+  const dir = tmp();
+  const loop = createLoop({ objective: "x", contractId: "c", fixClass: "codex", baselineFailCount: 3 }, { runtimeDir: dir });
+  assert.equal(readLoops(dir)[loop.loopId].baselineFailCount, 3);
+  const noBase = createLoop({ objective: "y", contractId: "c2", fixClass: "codex" }, { runtimeDir: dir });
+  assert.equal(noBase.baselineFailCount, null);
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test("summarizeLoops는 meta 자가점검을 포함한다", () => {
   const dir = tmp();
   createLoop({ objective: "x", contractId: "c", fixClass: "codex" }, { runtimeDir: dir });

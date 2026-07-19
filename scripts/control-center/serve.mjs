@@ -347,6 +347,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
             objective: inc.userImpact || `${inc.target} 문제 해결`, contractId: inc.contractId, fixClass,
             appId: appTarget(inc.target), userImpact: inc.userImpact, expected: inc.expected, severity: inc.severity,
             loopType: loopTypeFor(inc.failureClass), approvalId: rec.id,
+            baselineFailCount: (health.results || []).filter((r) => r.confirmed && r.target === inc.target).length, // §17 회귀 기준선
             nextAction: fixClass === "human" ? "회장 확인 필요(비밀키·권한·결제 등)" : "회장 승인 대기",
           }, { now });
           await store.updateStatus("approvals", rec.id, { loopId: loop.loopId });
@@ -359,7 +360,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
 
   // §7 핵심: Codex가 작업을 끝냈다(in_review)고 해결이 아니다. 원래 실패했던 계약이 이번 점검에서
   // 다시 PASS해야만 그 Loop를 CLOSED로 닫고 업무를 완료 처리한다. 아직 실패면 새 iteration으로 재시도한다.
-  let reverified = 0, reiterated = 0;
+  let reverified = 0, reiterated = 0, regressionHeld = 0;
   try {
     const passContracts = new Set(healthResults.filter((r) => r.status === "PASS").map((r) => r.contractId));
     const stillFailing = new Set(healthResults.filter((r) => r.confirmed).map((r) => r.contractId));
@@ -368,12 +369,26 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
     for (const task of (st4.records.tasks || []).filter((t) => t.status === "completed" && t.loopId)) {
       try { const loop = findLoopByTask(task.id); if (loop && loop.state !== "CLOSED") transitionLoop(loop.loopId, "CLOSED", { now, note: "회장 확인 완료" }); } catch { /* skip */ }
     }
+    // §17 감사2(회귀 방지): 앱별 확정 실패 계약 수. 수정 후 이 앱의 실패가 늘었다면 다른 걸 깨뜨린 것 → 종료 보류.
+    const appFailNow = {};
+    for (const r of healthResults) if (r.confirmed) appFailNow[r.target] = (appFailNow[r.target] || 0) + 1;
     const reviewTasks = (st4.records.tasks || []).filter((t) => t.status === "in_review" && t.originContract);
     for (const task of reviewTasks) {
       if (passContracts.has(task.originContract)) {
-        try { await store.updateStatus("tasks", task.id, { status: "completed", verifiedBy: "origin-recheck" }); } catch { /* skip */ }
-        try { const loop = findLoopByTask(task.id); if (loop) transitionLoop(loop.loopId, "CLOSED", { now, note: "원래 계약 재검증 PASS", evidence: { origin_recheck: "PASS" } }); } catch { /* skip */ }
-        if (task.approvalId) { try { await store.updateStatus("approvals", task.approvalId, { status: "resolved", comment: "원래 계약 재검증 통과 — 자동 종료" }); } catch { /* skip */ } }
+        const loop = (() => { try { return findLoopByTask(task.id); } catch { return null; } })();
+        // 회귀 감사: 이 앱의 현재 실패 수가 Loop 시작 시 기준선보다 크면 = 다른 것을 깨뜨림 → 닫지 않고 재시도.
+        const appKey = task.appId || (loop && loop.targetApp) || "";
+        const baseline = loop && Number.isFinite(loop.baselineFailCount) ? loop.baselineFailCount : null;
+        const nowFail = appFailNow[appKey] || 0;
+        if (baseline !== null && nowFail > baseline) {
+          try { if (loop) openIteration(loop.loopId, { now, failureSignature: `regression:${appKey}:${nowFail}>${baseline}` }); } catch { /* skip */ }
+          try { await store.updateStatus("tasks", task.id, { status: "blocked", reason: "원래 문제는 고쳤으나 이 앱에 새 장애가 생김(회귀) — 재검토 필요" }); } catch { /* skip */ }
+          regressionHeld += 1;
+          continue;
+        }
+        try { await store.updateStatus("tasks", task.id, { status: "completed", verifiedBy: "origin-recheck+regression-guard" }); } catch { /* skip */ }
+        try { if (loop) transitionLoop(loop.loopId, "CLOSED", { now, note: "원래 계약 재검증 PASS + 회귀 없음", evidence: { origin_recheck: "PASS", regression_guard: "PASS" } }); } catch { /* skip */ }
+        if (task.approvalId) { try { await store.updateStatus("approvals", task.approvalId, { status: "resolved", comment: "원래 계약 재검증 통과 + 회귀 없음 — 자동 종료" }); } catch { /* skip */ } }
         reverified += 1;
       } else if (stillFailing.has(task.originContract)) {
         try { const loop = findLoopByTask(task.id); if (loop) openIteration(loop.loopId, { now, failureSignature: `origin-still-failing:${task.originContract}` }); } catch { /* skip */ }
@@ -383,7 +398,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
       // PASS도 확정 실패도 아니면(UNAVAILABLE 등) 판정 보류 — in_review 유지
     }
   } catch (error) { console.error("[robom-hq] 원래 계약 재검증 실패", error?.message); }
-  if (healthSummary) { healthSummary.reverified = reverified; healthSummary.reiterated = reiterated; }
+  if (healthSummary) { healthSummary.reverified = reverified; healthSummary.reiterated = reiterated; healthSummary.regressionHeld = regressionHeld; }
 
   // 2) 성장 제안(다음 개선 행동)·회사 보안만 기존 제안기에서 가져온다(건강/CI/PR은 엔진이 담당 — 중복 방지)
   const growth = generateProposals(snapshot, existing, { limit: 20 }).filter((p) => /:next$|:security$/.test(p.key));
