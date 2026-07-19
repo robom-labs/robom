@@ -29,6 +29,19 @@ export function detectCodexCli() {
   }
 }
 
+// codex exec 실패 원인을 결정론적으로 분류한다. 용량/토큰 소진·요청 한도(rate limit)와 로그인 만료를
+// 일반 코드 실패와 구분해, 화면에 "용량 소진"·"로그인 필요"로 정직하게 띄운다.
+export function classifyCodexFailure(stderr = "", stdout = "") {
+  const t = `${stderr}\n${stdout}`.toLowerCase();
+  if (/usage limit|quota|insufficient[_ ]quota|out of (credits|tokens)|사용량|한도 초과|429|rate.?limit|too many requests|resource_exhausted|billing/.test(t)) {
+    return { kind: "quota", detail: "Codex 사용량(토큰)이 소진됐거나 요청 한도에 걸렸습니다. 한도가 회복되면 자동으로 다시 시도합니다." };
+  }
+  if (/not logged in|unauthorized|401|auth|login|세션이 만료|authentication/.test(t)) {
+    return { kind: "auth", detail: "Codex 로그인이 필요합니다(맥에서 codex login)." };
+  }
+  return { kind: "error", detail: String(stderr || "실패").slice(-300) };
+}
+
 // 작업 대상 저장소의 로컬 경로: robom은 이 저장소, 앱은 형제 폴더(../<repo이름>)를 찾는다.
 export function resolveWorkdir(packet, repoRoot = REPO_ROOT) {
   const repo = String(packet.target_repo || "robom-labs/robom");
@@ -97,8 +110,15 @@ export async function runOne({ codex = detectCodexCli() } = {}) {
   writeRunnerStatus({ state: "running", taskId, app: packet.target_app, codex: "connected" }, { runtimeDir: RUNTIME });
   const heartbeat = setInterval(() => heartbeatTask(taskId, { runtimeDir: RUNTIME }), 60_000);
   try {
-    log(taskId, `codex exec 시작 (cwd=${workdir}, timeout=${TASK_TIMEOUT_MS / 60000}분)`);
-    const result = spawnSync("codex", ["exec", "--cd", workdir, buildCodexPrompt(packet)], {
+    // 회장이 고른 모델·추론 강도(control.json)를 codex exec에 전달한다. 없으면 codex CLI 기본값.
+    const model = String(control.codexModel || "").trim();
+    const effort = String(control.codexEffort || "").trim();
+    const args = ["exec"];
+    if (model) args.push("--model", model);
+    if (["low", "medium", "high"].includes(effort)) args.push("-c", `model_reasoning_effort="${effort}"`);
+    args.push("--cd", workdir, buildCodexPrompt(packet));
+    log(taskId, `codex exec 시작 (cwd=${workdir}, model=${model || "기본"}, effort=${effort || "기본"}, timeout=${TASK_TIMEOUT_MS / 60000}분)`);
+    const result = spawnSync("codex", args, {
       encoding: "utf8", timeout: TASK_TIMEOUT_MS, maxBuffer: 16 * 1024 * 1024,
     });
     log(taskId, `codex 종료 코드 ${result.status}\n--- stdout(끝 4000자) ---\n${String(result.stdout || "").slice(-4000)}\n--- stderr(끝 2000자) ---\n${String(result.stderr || "").slice(-2000)}`);
@@ -108,10 +128,18 @@ export async function runOne({ codex = detectCodexCli() } = {}) {
       writeRunnerStatus({ state: "idle", codex: "connected", lastTask: taskId, lastResult: "completed" }, { runtimeDir: RUNTIME });
       return { completed: taskId };
     }
-    failTask(taskId, { exitCode: result.status, reason: String(result.stderr || "실패").slice(-500) }, { runtimeDir: RUNTIME });
+    // 실패 원인 분류: 용량/토큰 소진·로그인 만료는 코드 실패와 구분해 정직하게 표시한다.
+    const cause = classifyCodexFailure(result.stderr, result.stdout);
+    failTask(taskId, { exitCode: result.status, reason: `${cause.kind}: ${cause.detail}`.slice(-500) }, { runtimeDir: RUNTIME });
     await markRecord(taskId, "blocked");
-    writeRunnerStatus({ state: "idle", codex: "connected", lastTask: taskId, lastResult: "failed" }, { runtimeDir: RUNTIME });
-    return { failed: taskId };
+    if (cause.kind === "quota") {
+      writeRunnerStatus({ state: "idle", codex: "quota_exhausted", codexDetail: cause.detail, lastTask: taskId, lastResult: "quota" }, { runtimeDir: RUNTIME });
+    } else if (cause.kind === "auth") {
+      writeRunnerStatus({ state: "idle", codex: "not_connected", codexDetail: cause.detail, lastTask: taskId, lastResult: "auth" }, { runtimeDir: RUNTIME });
+    } else {
+      writeRunnerStatus({ state: "idle", codex: "connected", lastTask: taskId, lastResult: "failed", codexDetail: cause.detail }, { runtimeDir: RUNTIME });
+    }
+    return { failed: taskId, cause: cause.kind };
   } finally {
     clearInterval(heartbeat);
   }

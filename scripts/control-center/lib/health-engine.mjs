@@ -185,7 +185,7 @@ export function runHealthEngine({ snapshot, runtimeDir = DEFAULT_COMPANY_RUNTIME
 
     state.contracts[r.contractId] = { status: r.status, cf, cs, firstFailedAt, lastPassedAt, incidentId, severity: r.severity, updatedAt: nowIso };
     results.push({ contractId: r.contractId, target: r.target, category: r.category, status: r.status, severity: r.severity,
-      confirmed, incidentId, userImpact: r.userImpact, recommendedAction: r.recommendedAction, actual: r.actual, expected: r.expected, checkedAt: nowIso });
+      failureClass: r.failureClass || "", confirmed, incidentId, firstFailedAt, userImpact: r.userImpact, recommendedAction: r.recommendedAction, actual: r.actual, expected: r.expected, checkedAt: nowIso });
   }
   state.updatedAt = nowIso;
 

@@ -23,6 +23,7 @@ import { readApps } from "./lib/sources.mjs";
 import { tryActivatePlaywrightDriver } from "./lib/browser-driver.mjs";
 import { readMobileAccess, writeMobileAccess, connectUrls, DEFAULT_MOBILE_PORT } from "./lib/mobile-access.mjs";
 import { readAuthority, writeAuthority, isDelegable, currentShift, COMPANY_MODES, COMPANY_MODE_LABELS, APPROVAL_MODES } from "./lib/company-authority.mjs";
+import { classifyFix, classifyIncidents, resolutionLine } from "./lib/incident-fix.mjs";
 import { loadRoster, computeWorkforce, orgTree, currentShiftId } from "./lib/workforce.mjs";
 import { startRunnerSupervisor } from "./lib/runner-supervisor.mjs";
 import { REPO_ROOT } from "./lib/sources.mjs";
@@ -291,22 +292,41 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
     const extraResults = contractResultsToRaw(contractReport);
     const health = runHealthEngine({ snapshot, runtimeDir: DEFAULT_COMPANY_RUNTIME_DIR, now, runner, watchdogMinutes: WATCHDOG_MINUTES, extraResults });
     healthSummary = { ...health.summary, contracts: contractReport?.coverage || null };
+    // v2.5.0: 신호가 회복되면(recoveries) 그 계약으로 올렸던 pending 결재를 자동으로 닫는다("회복되면 자동 종료"를 실제로 이행).
+    let autoClosed = 0;
+    try {
+      const st0 = await store.getState();
+      const recoveredKeys = new Set(health.recoveries.map((r) => r.contractId));
+      for (const a of (st0.records.approvals || [])) {
+        if ((!a.status || a.status === "pending") && a.requestedBy === "auto-review" && recoveredKeys.has(a.proposalKey)) {
+          try { await store.updateStatus("approvals", a.id, { status: "resolved", comment: "신호 회복 — 컴퓨터가 자동 종료" }); autoClosed += 1; } catch { /* skip */ }
+        }
+      }
+    } catch { /* 회복 자동종료 실패는 무시 */ }
+    healthSummary.autoClosed = autoClosed;
     // 알림 예산(§8.1): critical·error 무제한, warning은 run당 10건, info는 결재 상신 안 함(기록만)
-    let warningBudget = 10;
+    // v2.5.0 분류: self_heal(재점검·회복형)은 결재로 올리지 않고 컴퓨터가 자동 처리한다.
+    //             codex(코드 변경)·human(비밀키·권한·결제)만 회장 결재로 올린다.
+    let warningBudget = 10, selfHealed = 0;
     for (const inc of health.newIncidents) {
       if (existingKeys.has(inc.contractId)) continue;
       if (inc.severity === "info") continue;
+      const text = `${inc.userImpact || ""} ${inc.recommendedAction || ""}`;
+      const fixClass = classifyFix({ failureClass: inc.failureClass, text, requestedBy: "auto-review" });
+      if (fixClass === "self_heal") { selfHealed += 1; existingKeys.add(inc.contractId); continue; } // 컴퓨터가 재점검·자동종료로 처리
       if (inc.severity === "warning" && warningBudget-- <= 0) continue;
       const priority = inc.severity === "critical" ? "urgent" : inc.severity === "error" ? "high" : "normal";
       const body = inc.actual ? `확인된 값: ${inc.actual}${inc.expected ? ` / 기대: ${inc.expected}` : ""}` : (inc.userImpact || "");
       try {
         const rec = await store.createRecord("approvals", {
           title: inc.userImpact || `${inc.target} 확인 필요`, appId: appTarget(inc.target), body,
-          recommendation: inc.recommendedAction, priority, requestedBy: "auto-review", proposalKey: inc.contractId, status: "pending",
+          recommendation: inc.recommendedAction, priority, requestedBy: "auto-review", proposalKey: inc.contractId,
+          fixClass, failureClass: inc.failureClass || "", detectedAt: inc.detectedAt || null, status: "pending",
         });
         created.push(rec.id); existingKeys.add(inc.contractId);
       } catch { /* 개별 실패는 건너뛴다 */ }
     }
+    healthSummary.selfHealed = selfHealed;
   } catch (error) { console.error("[robom-hq] health 엔진 실행 실패", error?.message); }
 
   // 2) 성장 제안(다음 개선 행동)·회사 보안만 기존 제안기에서 가져온다(건강/CI/PR은 엔진이 담당 — 중복 방지)
@@ -342,6 +362,21 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
       }
     } catch (error) { console.error("[robom-hq] 전결 처리 실패", error?.message); }
   }
+  // v2.5.0: Codex 실행기가 연결돼 있으면, 일시적 사유(미연결·클론 없음)로 막힌 업무를 자동으로 다시 큐에 넣는다.
+  //         ("코덱스가 붙으면 자동으로 다시 시도한다"를 실제로 이행 — 회장이 누를 것 없음). 한 번에 최대 20건.
+  let requeued = 0;
+  try {
+    let runner2 = null; try { runner2 = readRunnerStatus(); } catch { /* 러너 상태 없음 */ }
+    if (runner2?.codex === "connected") {
+      const st3 = await store.getState();
+      const blocked = (st3.records.tasks || []).filter((t) => t.status === "blocked").slice(0, 20);
+      for (const task of blocked) {
+        try { enqueueTask(task, { snapshot: readSnapshotValue(snapDir) }); await store.updateStatus("tasks", task.id, { status: "queued" }); requeued += 1; }
+        catch { /* 재큐 실패는 막힘 유지 */ }
+      }
+    }
+  } catch (error) { console.error("[robom-hq] 막힘 자동 재시도 실패", error?.message); }
+  if (healthSummary) healthSummary.requeued = requeued;
   try {
     mkdirSync(DEFAULT_COMPANY_RUNTIME_DIR, { recursive: true, mode: 0o700 });
     writeFileSync(REVIEW_MARKER, JSON.stringify({ at: new Date().toISOString(), created: created.length, delegated, health: healthSummary }), { mode: 0o600 });
@@ -370,6 +405,31 @@ function readHealthSummary() {
   } catch { return null; }
 }
 
+// v2.5.0: 확정 사건·대기 결재를 "자동/Codex/회장" 3갈래 보드로 묶어 화면에 해결경로를 제공한다.
+// self_heal 은 결재로 올리지 않으므로 health results(확정)에서 뽑고, codex·human 은 대기 결재에서 뽑는다.
+function buildIncidentBoard(pendingApprovals, codexReady) {
+  let results = [];
+  try { results = JSON.parse(readFileSync(join(DEFAULT_COMPANY_RUNTIME_DIR, "health", "latest.json"), "utf8")).results || []; } catch { /* 없음 */ }
+  const selfHeal = results.filter((r) => r.confirmed).map((r) => ({
+    id: r.contractId, target: r.target, title: r.userImpact || r.contractId, detectedAt: r.firstFailedAt || r.checkedAt,
+    severity: r.severity, recommendedAction: r.recommendedAction,
+    fixClass: classifyFix({ failureClass: r.failureClass, text: `${r.userImpact || ""} ${r.recommendedAction || ""}` }),
+  })).filter((r) => r.fixClass === "self_heal");
+  const codex = [], human = [];
+  for (const a of (pendingApprovals || [])) {
+    const text = `${a.title || ""} ${a.body || ""} ${a.recommendation || ""}`;
+    const fixClass = a.fixClass || classifyFix({ failureClass: a.failureClass, text, requestedBy: a.requestedBy });
+    if (fixClass === "self_heal") continue;
+    (fixClass === "human" ? human : codex).push({
+      id: a.id, target: a.appId || "", title: a.title || "확인 필요", detectedAt: a.detectedAt || a.createdAt || null,
+      severity: a.priority === "urgent" ? "critical" : a.priority === "high" ? "error" : "warning", fixClass,
+      resolution: resolutionLine(fixClass, { recommendedAction: a.recommendation, codexReady }),
+    });
+  }
+  const withRes = (list) => list.map((r) => ({ ...r, resolution: r.resolution || resolutionLine(r.fixClass, { recommendedAction: r.recommendedAction, codexReady }) }));
+  return { selfHeal: withRes(selfHeal), codex, human, counts: { selfHeal: selfHeal.length, codex: codex.length, human: human.length } };
+}
+
 async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
   if (path === "/api/company-state") {
     if (req.method !== "GET") {
@@ -387,12 +447,16 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
     const summary = queueSummary();
     if (summary.runner) summary.runner.managed = MANAGE_RUNNER; // 러너 자동 관리 여부는 서버가 정본
     const authority = readAuthority();
-    let wf = null; try {
+    let wf = null, board = null; try {
       let ec = false; try { const rs = summary.runner; ec = rs && ["running", "working", "busy", "processing"].includes(String(rs.state)); } catch { /* noop */ }
-      let tasks = []; try { tasks = (await store.getState()).records?.tasks || []; } catch { /* 작업 없음 */ } // 실제 작업을 넣어야 '수정 중' 집계가 정직해진다
-      wf = computeWorkforce({ report: readContractReport(), tasks, authority, now: new Date(), executorConnected: ec });
-    } catch { /* 인력 계산 실패 무시 */ }
-    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED || mobileEnabled() ? "token" : "local-only", mobile: mobileEnabled(), reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary(), company: { mode: authority.mode, modeLabel: COMPANY_MODE_LABELS[authority.mode] || authority.mode, approvalMode: authority.approvalMode, delegatedAt: authority.delegatedAt, shift: currentShift() }, workforce: wf ? { summary: wf.summary, running: wf.running, contractsAssigned: wf.contractsAssigned, contractsFailing: wf.contractsFailing, contractsAutoFixing: wf.contractsAutoFixing, contractsNeedHuman: wf.contractsNeedHuman, executorConnected: wf.executorConnected, byDivision: wf.byDivision } : null });
+      let stTasks = []; let stApprovals = [];
+      try { const s = await store.getState(); stTasks = s.records?.tasks || []; stApprovals = s.records?.approvals || []; } catch { /* 상태 없음 */ }
+      wf = computeWorkforce({ report: readContractReport(), tasks: stTasks, authority, now: new Date(), executorConnected: ec });
+      const codexReady = summary.runner?.codex === "connected";
+      const pendingApprovals = stApprovals.filter((a) => !a.status || a.status === "pending");
+      board = buildIncidentBoard(pendingApprovals, codexReady);
+    } catch { /* 인력·보드 계산 실패 무시 */ }
+    sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED || mobileEnabled() ? "token" : "local-only", mobile: mobileEnabled(), reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary(), incidentBoard: board, company: { mode: authority.mode, modeLabel: COMPANY_MODE_LABELS[authority.mode] || authority.mode, approvalMode: authority.approvalMode, delegatedAt: authority.delegatedAt, shift: currentShift() }, workforce: wf ? { summary: wf.summary, running: wf.running, contractsAssigned: wf.contractsAssigned, contractsFailing: wf.contractsFailing, contractsAutoFixing: wf.contractsAutoFixing, contractsNeedHuman: wf.contractsNeedHuman, executorConnected: wf.executorConnected, byDivision: wf.byDivision } : null });
     return;
   }
 
@@ -512,6 +576,42 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
       throw new HttpError("paused·intakeClosed boolean만 허용합니다.", 400, "INVALID_CONTROL");
     }
     sendJson(res, 200, { ok: true, control: writeControl(body) });
+    return;
+  }
+
+  // v2.5.0 실행기 설정: 회장이 Codex 모델·추론 강도를 고른다(codex exec에 전달).
+  if (path === "/api/executor-config") {
+    if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "POST" }); return; }
+    const body = await readJsonBody(req, maxBodyBytes);
+    const changes = {};
+    if (body.effort !== undefined) {
+      const e = String(body.effort);
+      if (!["low", "medium", "high", ""].includes(e)) throw new HttpError("effort는 low·medium·high 중 하나여야 합니다.", 400, "INVALID_EFFORT");
+      changes.codexEffort = e;
+    }
+    if (body.model !== undefined) {
+      const m = String(body.model).trim().slice(0, 80);
+      if (m && !/^[A-Za-z0-9._-]+$/.test(m)) throw new HttpError("모델 이름 형식이 올바르지 않습니다.", 400, "INVALID_MODEL");
+      changes.codexModel = m;
+    }
+    if (!Object.keys(changes).length) throw new HttpError("model 또는 effort가 필요합니다.", 400, "INVALID_EXECUTOR_CONFIG");
+    sendJson(res, 200, { ok: true, control: writeControl(changes) });
+    return;
+  }
+
+  // v2.5.0 막힘 업무 다시 시도: 회장 버튼. 막힌 업무를 대기열에 다시 넣는다.
+  const retryMatch = path.match(/^\/api\/retry-task\/([^/]+)$/);
+  if (retryMatch) {
+    if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "POST" }); return; }
+    const id = decodeURIComponent(retryMatch[1]);
+    const state = await store.getState();
+    const task = (state.records.tasks || []).find((t) => t.id === id);
+    if (!task) throw new HttpError("업무를 찾을 수 없습니다.", 404, "TASK_NOT_FOUND");
+    if (!["blocked", "failed"].includes(task.status)) throw new HttpError("막힘·실패 상태의 업무만 다시 시도할 수 있습니다.", 409, "NOT_RETRYABLE");
+    try { enqueueTask(task, { snapshot: readSnapshotValue(snapDir) }); }
+    catch (error) { throw new HttpError(`작업 패킷 생성 실패: ${error.message}`, 500, "PACKET_FAILED"); }
+    const updated = await store.updateStatus("tasks", id, { status: "queued" });
+    sendJson(res, 200, { ok: true, task: updated });
     return;
   }
 
