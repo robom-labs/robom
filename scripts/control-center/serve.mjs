@@ -387,7 +387,11 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
     const summary = queueSummary();
     if (summary.runner) summary.runner.managed = MANAGE_RUNNER; // 러너 자동 관리 여부는 서버가 정본
     const authority = readAuthority();
-    let wf = null; try { let ec = false; try { const rs = summary.runner; ec = rs && ["running", "working", "busy", "processing"].includes(String(rs.state)); } catch { /* noop */ } wf = computeWorkforce({ report: readContractReport(), tasks: [], authority, now: new Date(), executorConnected: ec }); } catch { /* 인력 계산 실패 무시 */ }
+    let wf = null; try {
+      let ec = false; try { const rs = summary.runner; ec = rs && ["running", "working", "busy", "processing"].includes(String(rs.state)); } catch { /* noop */ }
+      let tasks = []; try { tasks = (await store.getState()).records?.tasks || []; } catch { /* 작업 없음 */ } // 실제 작업을 넣어야 '수정 중' 집계가 정직해진다
+      wf = computeWorkforce({ report: readContractReport(), tasks, authority, now: new Date(), executorConnected: ec });
+    } catch { /* 인력 계산 실패 무시 */ }
     sendJson(res, 200, { ok: true, ...summary, remote: REMOTE_ENABLED || mobileEnabled() ? "token" : "local-only", mobile: mobileEnabled(), reviewEveryMinutes: AUTO_REVIEW ? readReviewEveryMinutes() : 0, reviewMinMinutes: REVIEW_MIN_MINUTES, health: readHealthSummary(), company: { mode: authority.mode, modeLabel: COMPANY_MODE_LABELS[authority.mode] || authority.mode, approvalMode: authority.approvalMode, delegatedAt: authority.delegatedAt, shift: currentShift() }, workforce: wf ? { summary: wf.summary, running: wf.running, contractsAssigned: wf.contractsAssigned, contractsFailing: wf.contractsFailing, contractsAutoFixing: wf.contractsAutoFixing, contractsNeedHuman: wf.contractsNeedHuman, executorConnected: wf.executorConnected, byDivision: wf.byDivision } : null });
     return;
   }

@@ -12,6 +12,7 @@ let mainWindow = null;
 let tray = null;
 let serverLink = null;
 let quitting = false;
+let RUNTIME_DIR = null; // desktop-status.json 기록용(트레이 토글 시 즉시 갱신)
 
 const payloadDir = app.isPackaged
   ? join(process.resourcesPath, "payload")
@@ -218,7 +219,7 @@ function buildTray() {
       label: "로그인 시 자동 시작",
       type: "checkbox",
       checked: app.getLoginItemSettings().openAtLogin,
-      click: (item) => app.setLoginItemSettings({ openAtLogin: item.checked }),
+      click: (item) => { app.setLoginItemSettings({ openAtLogin: item.checked }); if (RUNTIME_DIR) writeDesktopStatus(RUNTIME_DIR); },
     },
     { type: "separator" },
     { label: "완전 종료", click: () => { quitting = true; app.quit(); } },
@@ -235,6 +236,7 @@ if (!gotLock) {
   app.whenReady().then(async () => {
     app.setName("ROBOM HQ");
     const { dataRoot, runtimeDir } = prepareDataDirs();
+    RUNTIME_DIR = runtimeDir;
     ensureLoginItemDefault(dataRoot);
     writeDesktopStatus(runtimeDir);
     try {
