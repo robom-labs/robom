@@ -18,7 +18,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: hq-desktop-release-${{ github.ref }}
+  # 태그별 고유 그룹 — 여러 릴리스를 잇달아 올려도 서로 취소하지 않고 각자 빌드된다(설치본 유실 방지).
+  group: hq-desktop-release-${{ github.event.inputs.tag || github.ref }}
   cancel-in-progress: false
 
 jobs:
