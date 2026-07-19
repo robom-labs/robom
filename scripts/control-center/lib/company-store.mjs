@@ -1,6 +1,6 @@
 // 로봄 Company OS의 회의·결재·요청·작업 기록을 로컬 JSONL로 안전하게 저장한다.
 import { createHash, randomUUID } from "node:crypto";
-import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { appendFile, chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { isAbsolute, join, resolve } from "node:path";
 import { REPO_ROOT } from "./sources.mjs";
 
@@ -306,10 +306,16 @@ export function createCompanyStore({
     const suffix = String(idFactory()).toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 20);
     return assertCompanyRecordId(`${collection}_${Date.now().toString(36)}_${suffix || randomUUID().replaceAll("-", "").slice(0, 12)}`);
   };
+  const ensurePrivateDir = async (path) => {
+    await mkdir(path, { recursive: true, mode: 0o700 });
+    // mkdir은 기존 디렉터리의 권한을 바꾸지 않으므로, 이전 설치의 느슨한 모드도 복구한다.
+    await chmod(path, 0o700);
+  };
   const ensureReady = () => Promise.all([
-    mkdir(recordsDir, { recursive: true, mode: 0o700 }),
-    mkdir(exportsDir, { recursive: true, mode: 0o700 }),
-    mkdir(backupsDir, { recursive: true, mode: 0o700 }),
+    ensurePrivateDir(root),
+    ensurePrivateDir(recordsDir),
+    ensurePrivateDir(exportsDir),
+    ensurePrivateDir(backupsDir),
   ]);
   const appendLine = async (path, value) => {
     await appendFile(path, `${JSON.stringify(value)}\n`, { encoding: "utf8", mode: 0o600 });

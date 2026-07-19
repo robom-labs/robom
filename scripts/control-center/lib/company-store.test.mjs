@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { request } from "node:http";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -20,6 +20,27 @@ async function makeStore(t) {
   t.after(() => rm(runtimeDir, { recursive: true, force: true }));
   return createCompanyStore({ runtimeDir });
 }
+
+async function mode(path) {
+  return (await stat(path)).mode & 0o777;
+}
+
+test("기존 로컬 기록 디렉터리도 700으로 복구한다", async (t) => {
+  const runtimeDir = await mkdtemp(join(tmpdir(), "robom-company-store-"));
+  t.after(() => rm(runtimeDir, { recursive: true, force: true }));
+  const recordsDir = join(runtimeDir, "records");
+  await chmod(runtimeDir, 0o755);
+  await mkdir(recordsDir, { recursive: true, mode: 0o755 });
+  await chmod(recordsDir, 0o755);
+
+  const store = createCompanyStore({ runtimeDir });
+  await store.getState();
+
+  assert.equal(await mode(runtimeDir), 0o700);
+  assert.equal(await mode(store.paths.recordsDir), 0o700);
+  assert.equal(await mode(store.paths.exportsDir), 0o700);
+  assert.equal(await mode(store.paths.backupsDir), 0o700);
+});
 
 async function listen(t, store, options = {}) {
   const server = createControlCenterServer({ store, ...options });

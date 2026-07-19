@@ -4,7 +4,7 @@
 // 창을 닫아도 트레이에서 계속 감시하며, 트레이에서 일시정지·재개·완전 종료할 수 있다.
 "use strict";
 const { app, BrowserWindow, Tray, Menu, nativeImage, shell, dialog } = require("electron");
-const { existsSync, mkdirSync, copyFileSync, readFileSync } = require("node:fs");
+const { chmodSync, existsSync, mkdirSync, copyFileSync, readFileSync } = require("node:fs");
 const { join } = require("node:path");
 const { pathToFileURL } = require("node:url");
 
@@ -49,7 +49,9 @@ function prepareDataDirs() {
   const dataRoot = app.getPath("userData");
   const runtimeDir = join(dataRoot, "runtime");
   const snapDir = join(dataRoot, "snapshots");
-  mkdirSync(runtimeDir, { recursive: true });
+  mkdirSync(runtimeDir, { recursive: true, mode: 0o700 });
+  // 기존 설치에서 남은 느슨한 runtime 권한도 시작 시 즉시 복구한다.
+  chmodSync(runtimeDir, 0o700);
   mkdirSync(snapDir, { recursive: true });
   // 예시 스냅샷은 payload 최신본으로 항상 새로 덮어쓴다(옛 버전의 5개 앱 예시가 남아 6개가 안 보이던 버그 방지).
   // example.json은 사용자 데이터가 아니라 첫 화면 fallback이므로 덮어써도 안전하다.
