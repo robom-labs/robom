@@ -1,3 +1,19 @@
+# v2.4.1 _ 마지막 검증 기록
+
+## v2.4.1 성능·전체 점검 (2026-07-19, 회장 지시 "끊김 없이 최적화·전체 보완")
+
+| 항목 | 상태 | 근거 |
+|---|---|---|
+| 바닥 월드 캐시 — 팬·관람·호버 중 재렌더 0(blit만), 줌은 0.25 버킷에서만 재렌더 | PASS | renderFloorCache + floorDirty 4곳(층·fit·resize)으로 축소 |
+| nightFactor 프레임당 Intl 생성 제거(소품마다 매 프레임 → 30초 캐시) | PASS | NIGHT_AT 캐시 |
+| 자동 품질 조절 — fps<40 2초 지속 시 글로우 OFF→해상도 1x 하향, 55fps 회복 시 복원 | PASS | PERF_LEVEL·SHADOW_MUL·applyPerf |
+| HUD DOM 갱신 스로틀(매 프레임 → 초당 3회) · 정적 비품 1회 정렬+병합(전체 재정렬 제거) | PASS | hudAt·FURN sort+merge |
+| 시계 Intl 포매터 캐시 · 호버는 오버레이(캐시 무효화 없음) | PASS | CLOCK_FMT·drawHoverZone |
+| 실측: idle 61fps · 팬 61fps · 관람 61fps · 모바일(390px) 61fps · 콘솔 오류 0 | PASS | Playwright v241-office*.png |
+| 전 화면 6종(오늘·앱·업무·회사·자동화·기록) 오류 0·가로 넘침 0 · 오피스 11층 전 층 오류 0 | PASS | sweep 결과 |
+| '수정 대기' 라벨 서버-오피스 표기 일치(구 '사건 분류') | PASS | ACT_LABEL 갱신 |
+| 테스트 112종 통과 · standalone 빌드 정상 · 버전 삼중 2.4.1 · SW v6.4.1 | PASS | node --test · build-standalone |
+
 # v2.4.0 _ 마지막 검증 기록
 
 - 검증 시각: 2026-07-19 (KST) · 검증 환경: Linux 컨테이너(Node 22) + Playwright Chromium
