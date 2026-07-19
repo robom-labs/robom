@@ -23,7 +23,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/outbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
+    "lastVerifiedAt": "2026-07-19T15:10:00+09:00",
     "lastDeployedSha": "6f9058691d97fe17417b34d74821d22f216572a4",
     "lastDataSyncAt": "2026-07-16T13:42:23+09:00",
     "freshnessStatus": "runtime"
@@ -51,7 +51,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/homebom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
+    "lastVerifiedAt": "2026-07-19T15:10:00+09:00",
     "lastDeployedSha": "651dc0f37ace59c1707c1eb742e9fc9e06749d9b",
     "lastDataSyncAt": "2026-07-17T21:05:01+09:00",
     "freshnessStatus": "runtime"
@@ -135,7 +135,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/certbom",
     "mobileStatus": "pwa",
     "familySpecVersion": "1.0.0",
-    "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
+    "lastVerifiedAt": "2026-07-19T15:10:00+09:00",
     "lastDeployedSha": "3e3fae526810350adc1fa13f9883ddbaf458a045",
     "lastDataSyncAt": "2026-07-16T15:00:00+09:00",
     "freshnessStatus": "last-known-good"
