@@ -3,7 +3,7 @@
 // 같은 네트워크(권장: Tailscale 사설망)의 휴대폰이 토큰 인증으로 접속할 수 있다.
 import { createServer } from "node:http";
 import { randomUUID, timingSafeEqual } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { extname, isAbsolute, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawn, spawnSync } from "node:child_process";
@@ -271,6 +271,19 @@ function loopTypeFor(failureClass = "") {
   return map[failureClass] || "reliability";
 }
 
+// §12 유지보수: 가장 최근 백업의 나이(시간)를 잰다. 백업이 없으면 Infinity.
+const BACKUP_MAX_AGE_HOURS = Number(process.env.ROBOM_HQ_BACKUP_MAX_AGE_HOURS || 24); // 하루 1회 자동 백업
+function newestBackupAgeHours(backupsDir, now = new Date()) {
+  try {
+    const files = readdirSync(backupsDir).filter((f) => f.startsWith("company-backup-") && f.endsWith(".json.local"));
+    if (!files.length) return Infinity;
+    let newest = 0;
+    for (const f of files) { try { const m = statSync(join(backupsDir, f)).mtimeMs; if (m > newest) newest = m; } catch { /* skip */ } }
+    if (!newest) return Infinity;
+    return (now.getTime() - newest) / 3.6e6;
+  } catch { return Infinity; }
+}
+
 async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNAP_DIR, force = false, now = new Date() } = {}) {
   if (!AUTO_REVIEW && !force) return { skipped: "disabled" };
   // v2.0.0: 회사 모드가 정본. RUNNING·MONITOR_ONLY = 상시 관제(감시기 주기마다), PAUSED = 중지.
@@ -459,6 +472,15 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
     }
   } catch (error) { console.error("[robom-hq] 막힘 자동 재시도 실패", error?.message); }
   if (healthSummary) healthSummary.requeued = requeued;
+  // §12 유지보수 Loop(self_heal): 백업이 오래됐으면 컴퓨터가 AI 없이 스스로 백업한다(로컬 파일, 안전·되돌릴 필요 없음).
+  let autoBackedUp = false, backupAgeH = null;
+  try {
+    backupAgeH = newestBackupAgeHours(store.paths.backupsDir, now);
+    if (backupAgeH > BACKUP_MAX_AGE_HOURS) {
+      try { await store.backup(); autoBackedUp = true; backupAgeH = 0; } catch (error) { console.error("[robom-hq] 자동 백업 실패", error?.message); }
+    }
+  } catch { /* 백업 점검 실패 무시 */ }
+  if (healthSummary) { healthSummary.backupAgeHours = Number.isFinite(backupAgeH) ? Math.round(backupAgeH) : null; healthSummary.autoBackedUp = autoBackedUp; }
   try {
     mkdirSync(DEFAULT_COMPANY_RUNTIME_DIR, { recursive: true, mode: 0o700 });
     writeFileSync(REVIEW_MARKER, JSON.stringify({ at: new Date().toISOString(), created: created.length, delegated, health: healthSummary }), { mode: 0o600 });
@@ -483,7 +505,14 @@ function readHealthSummary() {
     const summary = JSON.parse(readFileSync(join(DEFAULT_COMPANY_RUNTIME_DIR, "health", "latest.json"), "utf8")).summary || null;
     if (!summary) return null;
     const report = readContractReport();
-    return { ...summary, contracts: report?.coverage || null, contractsRunAt: report?.runAt || null };
+    // 자동 처리 실적(self_heal·회복 자동종료·원래 계약 재검증·회귀 보류·자동 백업)은 마지막 리뷰 마커에 담긴다 — 병합해 화면에 노출.
+    let marker = {};
+    try { const m = JSON.parse(readFileSync(REVIEW_MARKER, "utf8")); if (m && m.health) marker = m.health; } catch { /* 마커 없음 */ }
+    const extra = {};
+    for (const k of ["selfHealed", "autoClosed", "reverified", "reiterated", "regressionHeld", "requeued", "backupAgeHours", "autoBackedUp"]) {
+      if (marker[k] !== undefined) extra[k] = marker[k];
+    }
+    return { ...summary, ...extra, contracts: report?.coverage || null, contractsRunAt: report?.runAt || null };
   } catch { return null; }
 }
 

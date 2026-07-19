@@ -73,7 +73,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="2.11.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="2.12.0"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -449,7 +449,7 @@ function renderAutomation(){
   </div>`)}
   ${incidentBoardPanel()}
   ${loopBoardPanel()}
-  ${HQ?.health?panel("결정론적 점검 결과 (AI 없이 자동)",`<div class="kpi-row" style="margin-bottom:0">${kpi(HQ.health.pass??0,"정상","good")}${kpi(HQ.health.degraded??0,"확인 필요",HQ.health.degraded?"warn":"")}${kpi(HQ.health.fail??0,"장애",HQ.health.fail?"bad":"")}${kpi(HQ.health.openIncidents??0,"열린 사건",HQ.health.openIncidents?"warn":"")}${kpi(HQ.health.unavailable??0,"점검 불가")}</div><p class="fine">실제 신호(운영 응답·버전·CI·데이터 신선도·PR)를 규칙으로 판정합니다. 위 ‘문제 처리 현황’이 각 사건을 누가 어떻게 고치는지 보여줍니다. 같은 문제는 반복 상신하지 않고, 신호가 회복되면 결재도 자동으로 닫힙니다.${HQ.health.selfHealed?` 이번 점검에서 ${HQ.health.selfHealed}건은 컴퓨터가 자동 처리, ${HQ.health.autoClosed||0}건은 회복으로 자동 종료했습니다.`:""}${HQ.health.reverified?` 원래 계약 재검증 통과 ${HQ.health.reverified}건 자동 완료.`:""}${HQ.health.reiterated?` 아직 실패 ${HQ.health.reiterated}건은 새 시도로 재개했습니다.`:""}${HQ.health.regressionHeld?` 회귀 감사에서 ${HQ.health.regressionHeld}건은 '다른 곳을 깨뜨림'이 확인돼 종료를 보류하고 재검토로 돌렸습니다.`:""}</p>`):""}
+  ${HQ?.health?panel("결정론적 점검 결과 (AI 없이 자동)",`<div class="kpi-row" style="margin-bottom:0">${kpi(HQ.health.pass??0,"정상","good")}${kpi(HQ.health.degraded??0,"확인 필요",HQ.health.degraded?"warn":"")}${kpi(HQ.health.fail??0,"장애",HQ.health.fail?"bad":"")}${kpi(HQ.health.openIncidents??0,"열린 사건",HQ.health.openIncidents?"warn":"")}${kpi(HQ.health.unavailable??0,"점검 불가")}</div><p class="fine">실제 신호(운영 응답·버전·CI·데이터 신선도·PR)를 규칙으로 판정합니다. 위 ‘문제 처리 현황’이 각 사건을 누가 어떻게 고치는지 보여줍니다. 같은 문제는 반복 상신하지 않고, 신호가 회복되면 결재도 자동으로 닫힙니다.${HQ.health.selfHealed?` 이번 점검에서 ${HQ.health.selfHealed}건은 컴퓨터가 자동 처리, ${HQ.health.autoClosed||0}건은 회복으로 자동 종료했습니다.`:""}${HQ.health.reverified?` 원래 계약 재검증 통과 ${HQ.health.reverified}건 자동 완료.`:""}${HQ.health.reiterated?` 아직 실패 ${HQ.health.reiterated}건은 새 시도로 재개했습니다.`:""}${HQ.health.regressionHeld?` 회귀 감사에서 ${HQ.health.regressionHeld}건은 '다른 곳을 깨뜨림'이 확인돼 종료를 보류하고 재검토로 돌렸습니다.`:""}${HQ.health.autoBackedUp?` 백업이 오래돼 컴퓨터가 자동으로 백업했습니다.`:HQ.health.backupAgeHours!=null?` 마지막 백업 ${HQ.health.backupAgeHours<1?"방금":`${HQ.health.backupAgeHours}시간 전`}.`:""}</p>`):""}
   ${contractsPanel()}
   ${panel("제어",`<div class="today-actions">${HQ?.control?.paused?button("자동작업 다시 시작","resume-all","secondary","","play"):button("모든 자동작업 일시정지","pause-all","danger","","pause")}${HQ?.control?.intakeClosed?button("새 작업 접수 재개","open-intake","secondary"):button("새 작업 접수 중지","close-intake","ghost")}</div>`)}
   ${panel("연결 방법 (맥에서 딱 한 번)",`<ol class="number-list"><li>맥 터미널에서 한 번만: <code>codex login</code> — 구독 계정 로그인 (API 키 금지)</li><li>끝. ROBOM HQ가 실행기를 자동으로 켜고 감시합니다 — 이 앱을 켜 두기만 하면 승인한 작업이 자동 처리됩니다.</li></ol><p class="fine">${HQ?.runner?.managed?"실행기 자동 관리가 켜져 있습니다. ":""}로그인 전에는 미연결로 정직하게 표시하며, 요청은 대기열에 안전 보관됩니다. 실제 코드 수정에는 맥에 로봄 저장소 클론이 필요하며, HQ가 <code>~/robom-labs/robom</code> 등을 자동으로 찾습니다.</p>`)}`;
