@@ -25,7 +25,7 @@
       "mobileStatus": "pwa",
       "familySpecVersion": "1.0.0",
       "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
-      "lastDeployedSha": "21e0883571b5413328a81d9185e3b57c99ed00a0",
+      "lastDeployedSha": "6f9058691d97fe17417b34d74821d22f216572a4",
       "lastDataSyncAt": "2026-07-16T13:42:23+09:00",
       "freshnessStatus": "runtime"
     },
@@ -109,7 +109,7 @@
       "mobileStatus": "pwa",
       "familySpecVersion": "1.0.0",
       "lastVerifiedAt": "2026-07-19T23:05:00+09:00",
-      "lastDeployedSha": "fbc734b99eb7209ca4416bc57401520fee122cc0",
+      "lastDeployedSha": "ff7231f457f763143b32b8b59f396a1bda83b85b",
       "lastDataSyncAt": "2026-07-16T13:42:23+09:00",
       "freshnessStatus": "local-only"
     },
@@ -137,7 +137,7 @@
       "mobileStatus": "pwa",
       "familySpecVersion": "1.0.0",
       "lastVerifiedAt": "2026-07-19T00:40:00+09:00",
-      "lastDeployedSha": "ef11828197932b9725317bd418f3b2edd850dcdd",
+      "lastDeployedSha": "3e3fae526810350adc1fa13f9883ddbaf458a045",
       "lastDataSyncAt": "2026-07-16T15:00:00+09:00",
       "freshnessStatus": "last-known-good"
     },
@@ -165,7 +165,7 @@
       "mobileStatus": "pwa",
       "familySpecVersion": "1.0.0",
       "lastVerifiedAt": "2026-07-19T08:28:36+09:00",
-      "lastDeployedSha": "7f3a848a2a4bfc8f26f86119fff983094a7eb8fb",
+      "lastDeployedSha": "7d1a5bcc83cb1730e49000c5c41b683fe78297ec",
       "lastDataSyncAt": "2026-07-17T23:59:39+09:00",
       "freshnessStatus": "local-only"
     }

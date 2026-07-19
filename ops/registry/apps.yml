@@ -26,8 +26,8 @@ apps:
     stable_install_url: https://robom.kr/get/outbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-19T00:40:00+09:00"
-    last_deployed_sha: 21e0883571b5413328a81d9185e3b57c99ed00a0
+    last_verified_at: "2026-07-19T15:10:00+09:00"
+    last_deployed_sha: 6f9058691d97fe17417b34d74821d22f216572a4
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
@@ -58,7 +58,7 @@ apps:
     stable_install_url: https://robom.kr/get/homebom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-19T00:40:00+09:00"
+    last_verified_at: "2026-07-19T15:10:00+09:00"
     last_deployed_sha: 651dc0f37ace59c1707c1eb742e9fc9e06749d9b
     last_data_sync_at: "2026-07-17T21:05:01+09:00"
     freshness_status: runtime
@@ -126,7 +126,7 @@ apps:
     mobile_status: pwa
     family_spec_version: 1.0.0
     last_verified_at: "2026-07-19T23:05:00+09:00"
-    last_deployed_sha: fbc734b99eb7209ca4416bc57401520fee122cc0
+    last_deployed_sha: ff7231f457f763143b32b8b59f396a1bda83b85b
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720
@@ -157,8 +157,8 @@ apps:
     stable_install_url: https://robom.kr/get/certbom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-19T00:40:00+09:00"
-    last_deployed_sha: ef11828197932b9725317bd418f3b2edd850dcdd
+    last_verified_at: "2026-07-19T15:10:00+09:00"
+    last_deployed_sha: 3e3fae526810350adc1fa13f9883ddbaf458a045
     last_data_sync_at: "2026-07-16T15:00:00+09:00"
     freshness_status: last-known-good
     freshness_slo_hours: 48
@@ -190,7 +190,7 @@ apps:
     mobile_status: pwa
     family_spec_version: 1.0.0
     last_verified_at: "2026-07-19T08:28:36+09:00"
-    last_deployed_sha: 7f3a848a2a4bfc8f26f86119fff983094a7eb8fb
+    last_deployed_sha: 7d1a5bcc83cb1730e49000c5c41b683fe78297ec
     last_data_sync_at: "2026-07-17T23:59:39+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720
