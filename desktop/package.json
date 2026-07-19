@@ -55,7 +55,6 @@
       "artifactName": "ROBOM-HQ-${version}-mac-${arch}.${ext}"
     },
     "dmg": {
-      "title": "${productName} ${version}",
       "writeUpdateInfo": false
     },
     "win": {
