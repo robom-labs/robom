@@ -92,16 +92,28 @@ class HttpError extends Error {
   }
 }
 
+let snapshotRefresh = null;
 function buildSnapshotInBackground() {
-  const child = spawn(process.execPath, [join(REPO_ROOT, "scripts/control-center/build-snapshot.mjs")], {
-    cwd: REPO_ROOT,
-    stdio: "inherit",
-  });
-  child.on("error", (error) => console.error("[robom-hq] 스냅샷 갱신 시작 실패", error));
-  child.on("exit", (code) => {
-    if (code !== 0) console.error(`[robom-hq] 스냅샷 갱신 실패 (${code})`);
-  });
-  child.unref();
+  // 첫 자동 점검이 예시 폴백을 실제 상태로 오인하지 않도록, 같은 시각의 생성 요청은 하나만 실행한다.
+  if (snapshotRefresh) return snapshotRefresh;
+  snapshotRefresh = new Promise((resolvePromise, reject) => {
+    const child = spawn(process.execPath, [join(REPO_ROOT, "scripts/control-center/build-snapshot.mjs")], {
+      cwd: REPO_ROOT,
+      stdio: "inherit",
+    });
+    child.once("error", reject);
+    child.once("exit", (code) => {
+      if (code === 0) resolvePromise();
+      else reject(new Error(`스냅샷 갱신 실패 (${code})`));
+    });
+  }).finally(() => { snapshotRefresh = null; });
+  return snapshotRefresh;
+}
+
+function refreshSnapshotAndReview() {
+  return buildSnapshotInBackground()
+    .then(() => runDailyReviewIfDue())
+    .catch((error) => console.error("[robom-hq] 스냅샷/자동 점검 실패", error.message));
 }
 
 function isLocalHostHeader(host = "") {
@@ -424,7 +436,12 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
     if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "POST" }); return; }
     const body = await readJsonBody(req, maxBodyBytes);
     assertEmptyOperationBody(body);
-    runDeepContracts({ force: true }).then(() => runDailyReviewIfDue({ force: true })).catch(() => {});
+    // 실제 스냅샷을 먼저 생성한다. 새 설치에서 example.json만 남은 상태로 계약을 실행하면
+    // snapshot-exists가 거짓 장애를 만들 수 있다.
+    buildSnapshotInBackground()
+      .then(() => runDeepContracts({ force: true }))
+      .then(() => runDailyReviewIfDue({ force: true }))
+      .catch((error) => console.error("[robom-hq] 수동 점검 준비 실패", error.message));
     sendJson(res, 202, { ok: true, started: true });
     return;
   }
@@ -756,12 +773,11 @@ export async function startControlCenter({ port = DEFAULT_PORT, openBrowser = tr
   }).catch(() => {});
   if (refreshSnapshot) {
     console.log("[robom-hq] 기존 화면을 먼저 열고 스냅샷은 백그라운드에서 갱신합니다.");
-    buildSnapshotInBackground();
-    // 결정론적 감시기: Codex 없이 주기적으로 실데이터 스냅샷을 갱신하고, 하루 1회 개선 제안을 올린다.
-    const reviewSoon = () => setTimeout(() => runDailyReviewIfDue().catch((e) => console.error("[robom-hq] 자동 점검 실패", e)), 12_000);
-    reviewSoon();
+    // 결정론적 감시기: 실제 스냅샷 생성 성공 뒤에만 자동 점검을 이어간다.
+    // 예시 폴백을 계약 엔진의 운영 증거로 사용하지 않는다.
+    void refreshSnapshotAndReview();
     if (Number.isFinite(WATCHDOG_MINUTES) && WATCHDOG_MINUTES > 0) {
-      const timer = setInterval(() => { buildSnapshotInBackground(); runDailyReviewIfDue().catch(() => {}); }, WATCHDOG_MINUTES * 60_000);
+      const timer = setInterval(() => { void refreshSnapshotAndReview(); }, WATCHDOG_MINUTES * 60_000);
       timer.unref?.();
     }
     if (AUTO_REVIEW) {

@@ -1,6 +1,6 @@
 // 로봄 본부 스냅샷 생성기 — 실제 데이터만 모아 snapshots/latest.json 을 만든다.
 // 외부 유료 API·상시 서버 없음. GitHub 공개 저장소는 무료 REST로 읽고 토큰이 있으면 호출 한도만 높인다.
-import { writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { writeFileSync, existsSync, mkdirSync, renameSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { REPO_ROOT, readApps, readState, gitInfo, ghOpenPRs, ghRecentRuns, readDepartments, readAgents, parseYamlList, readText } from "./lib/sources.mjs";
 import { controlCenterFields } from "./lib/sources.mjs";
@@ -180,7 +180,11 @@ async function main() {
 
   const outDir = process.env.ROBOM_HQ_SNAP_DIR || join(REPO_ROOT, "ops/control-center/snapshots");
   if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
-  writeFileSync(join(outDir, "latest.json"), JSON.stringify(snapshot, null, 2));
+  // 조회 중인 UI가 반쯤 기록된 JSON을 읽지 않도록 임시 파일을 완성한 뒤 한 번에 교체한다.
+  const latest = join(outDir, "latest.json");
+  const temporary = join(outDir, "latest.json.tmp");
+  writeFileSync(temporary, JSON.stringify(snapshot, null, 2));
+  renameSync(temporary, latest);
   console.log(`[robom-hq] snapshot 생성: apps=${appData.length} agents=${agents.length} runs=${runs.length} github=${connections.github}`);
   return snapshot;
 }
