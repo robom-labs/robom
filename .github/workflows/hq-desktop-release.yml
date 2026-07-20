@@ -10,9 +10,8 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "릴리스 태그 (예: hq-v1.2.0) — 지정하면 이 태그로 Release를 만들고 업로드"
-        required: false
-        default: ""
+        description: "릴리스 태그 (필수, 예: hq-v1.2.0) — 이 태그로 Release를 만들고 업로드합니다"
+        required: true
 
 permissions:
   contents: write
@@ -34,6 +33,15 @@ jobs:
             label: windows
     runs-on: ${{ matrix.os }}
     steps:
+      - name: 릴리스 대상 확인 (태그 push 또는 tag 입력 필수)
+        # required:true는 워크플로 UI에서만 강제된다 — API 디스패치가 tag:""를 보내면 뚫린다. 이 가드가 없으면
+        # 버전 확인·Release 업로드 스텝이 조용히 skipped로 빠지고, 빌드 스텝들은 통과라 잡 전체가 초록으로
+        # 끝나 "릴리스한 줄 알았는데 태그도 Release도 안 생긴" 거짓 성공을 만든다(실측: hq-v3.3.26 시도에서 재현).
+        if: "!(startsWith(github.ref, 'refs/tags/') || github.event.inputs.tag != '')"
+        shell: bash
+        run: |
+          echo "::error::릴리스 태그가 없습니다. 태그 push(hq-v*) 또는 workflow_dispatch의 tag 입력(예: hq-v3.3.27)이 필요합니다 — 없으면 빌드만 하고 Release는 안 만들어져 조용한 거짓 성공이 됩니다."
+          exit 1
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
