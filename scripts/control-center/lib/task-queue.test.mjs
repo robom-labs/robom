@@ -1,7 +1,7 @@
 // 업무 대기열의 패킷 생성·잠금·복구·긴급 제어 계약을 검증한다.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -89,6 +89,24 @@ test("stale lease는 pending으로 복구된다", () => withDir((dir) => {
   assert.equal(queue.running.length, 0);
   assert.equal(queue.pending.length, 1);
   assert.ok(queue.pending[0].recoveredFromStaleLease);
+}));
+
+test("잠금 없는 running 패킷은 갓 쓰였으면(claim 진행 중 창) 회수 안 함, 오래되면 회수 — 교차 프로세스 이중 실행 방지", () => withDir((dir) => {
+  const runningDir = join(dir, "queue", "running");
+  mkdirSync(runningDir, { recursive: true });
+  writeFileSync(join(runningDir, "T1.json"), JSON.stringify({ task_id: "T1", title: "x" })); // lease 없음
+  // 방금 쓰인 파일(mtime 신선) → claim이 lease를 쓰기 직전일 수 있으므로 회수하지 않는다.
+  assert.deepEqual(recoverStaleLeases(dir, { leaseTtlMs: 60_000 }), []);
+  // now를 충분히 미래로 주면 파일 mtime이 TTL을 넘긴 것으로 판정 → 진짜 정체로 보고 회수.
+  assert.deepEqual(recoverStaleLeases(dir, { now: () => Date.now() + 3_600_000, leaseTtlMs: 60_000 }), ["T1"]);
+}));
+
+test("손상된 control.json은 fail-open이 아니라 안전측(일시정지)으로 읽는다", () => withDir((dir) => {
+  writeFileSync(join(dir, "control.json"), "{ paused: 손상된-json");
+  const c = readControl(dir);
+  assert.equal(c.paused, true);
+  assert.equal(c.intakeClosed, true);
+  assert.equal(c.corrupt, true);
 }));
 
 test("긴급 일시정지·러너 상태·요약", () => withDir((dir) => {

@@ -112,18 +112,21 @@ export async function runOne({ codex = detectCodexCli() } = {}) {
     return { skipped: "paused-after-claim" };
   }
   if (!codex.connected) {
-    log(taskId, `Codex 미연결: ${codex.reason} — 작업을 실패가 아닌 '막힘'으로 되돌립니다.`);
-    failTask(taskId, { status: "blocked", reason: `NOT_CONNECTED: ${codex.reason}` }, { runtimeDir: RUNTIME });
-    await markRecord(taskId, "blocked");
-    writeRunnerStatus({ state: "blocked", codex: "not_connected", lastTask: taskId }, { runtimeDir: RUNTIME });
-    return { blocked: taskId };
+    // 미연결은 일시적(맥에서 codex login 하면 해소)이다. failed로 종결하지 말고 대기열로 되돌려 연결되면 재개한다.
+    log(taskId, `Codex 미연결: ${codex.reason} — 작업을 대기열로 되돌립니다(연결되면 재개).`);
+    releaseTask(taskId, { runtimeDir: RUNTIME });
+    await markRecord(taskId, "queued");
+    writeRunnerStatus({ state: "blocked", codex: "not_connected", codexDetail: codex.reason, lastTask: taskId }, { runtimeDir: RUNTIME });
+    return { retryLater: taskId, cause: "not_connected" };
   }
   const workdir = resolveWorkdir(packet);
   if (!workdir) {
-    log(taskId, `대상 저장소 로컬 복제본 없음: ${packet.target_repo}`);
-    failTask(taskId, { status: "blocked", reason: `저장소 로컬 복제본이 없습니다: ${packet.target_repo}` }, { runtimeDir: RUNTIME });
-    await markRecord(taskId, "blocked");
-    return { blocked: taskId };
+    // 로컬 복제본 부재도 일시적(클론되면 해소). 대기열로 되돌려 재개한다.
+    log(taskId, `대상 저장소 로컬 복제본 없음: ${packet.target_repo} — 대기열로 되돌립니다.`);
+    releaseTask(taskId, { runtimeDir: RUNTIME });
+    await markRecord(taskId, "queued");
+    writeRunnerStatus({ state: "blocked", codex: "connected", codexDetail: `저장소 로컬 복제본 없음: ${packet.target_repo}`, lastTask: taskId }, { runtimeDir: RUNTIME });
+    return { retryLater: taskId, cause: "no_workdir" };
   }
   await markRecord(taskId, "in_progress");
   writeRunnerStatus({ state: "running", taskId, app: packet.target_app, codex: "connected" }, { runtimeDir: RUNTIME });
@@ -149,15 +152,17 @@ export async function runOne({ codex = detectCodexCli() } = {}) {
     }
     // 실패 원인 분류: 용량/토큰 소진·로그인 만료는 코드 실패와 구분해 정직하게 표시한다.
     const cause = classifyCodexFailure(result.stderr, result.stdout);
+    // 일시적 원인(용량 소진·로그인 만료)은 failed(종료)로 버리지 않는다 — "한도 회복되면 자동 재시도"가 실제로
+    // 이행되도록 대기열(pending)로 되돌린다(러너는 30초 폴링으로 재시도). 실제 코드 실패만 failed로 종결한다.
+    if (cause.kind === "quota" || cause.kind === "auth") {
+      releaseTask(taskId, { runtimeDir: RUNTIME });
+      await markRecord(taskId, "queued");
+      writeRunnerStatus({ state: "idle", codex: cause.kind === "quota" ? "quota_exhausted" : "not_connected", codexDetail: cause.detail, lastTask: taskId, lastResult: cause.kind }, { runtimeDir: RUNTIME });
+      return { retryLater: taskId, cause: cause.kind };
+    }
     failTask(taskId, { exitCode: result.status, reason: `${cause.kind}: ${cause.detail}`.slice(-500) }, { runtimeDir: RUNTIME });
     await markRecord(taskId, "blocked");
-    if (cause.kind === "quota") {
-      writeRunnerStatus({ state: "idle", codex: "quota_exhausted", codexDetail: cause.detail, lastTask: taskId, lastResult: "quota" }, { runtimeDir: RUNTIME });
-    } else if (cause.kind === "auth") {
-      writeRunnerStatus({ state: "idle", codex: "not_connected", codexDetail: cause.detail, lastTask: taskId, lastResult: "auth" }, { runtimeDir: RUNTIME });
-    } else {
-      writeRunnerStatus({ state: "idle", codex: "connected", lastTask: taskId, lastResult: "failed", codexDetail: cause.detail }, { runtimeDir: RUNTIME });
-    }
+    writeRunnerStatus({ state: "idle", codex: "connected", lastTask: taskId, lastResult: "failed", codexDetail: cause.detail }, { runtimeDir: RUNTIME });
     return { failed: taskId, cause: cause.kind };
   } finally {
     clearInterval(heartbeat);

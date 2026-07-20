@@ -62,7 +62,12 @@ function unquote(v) {
 
 // ── 공식 앱 레지스트리 + 본부 보조 등록부 병합 ──
 export function readApps(root = REPO_ROOT) {
-  const registry = parseAppsYaml(readText(join(root, "ops/registry/apps.yml")));
+  const registryPath = join(root, "ops/registry/apps.yml");
+  const registry = parseAppsYaml(readText(registryPath));
+  // 정본 레지스트리 파일은 있는데 앱이 0개면(권한·손상·BOM 등) '앱 없음=정상'으로 위장하지 않도록 이상을 로그로 남긴다.
+  if (registry.length === 0 && existsSync(registryPath)) {
+    console.warn("[robom-hq] 경고: apps.yml이 존재하나 앱 0개로 파싱됨 — 레지스트리 손상 가능성. 화면의 앱 목록·신호등을 신뢰하지 마세요.");
+  }
   const registeredIds = new Set(registry.map((a) => a.id));
   const extra = parseAppsYaml(readText(join(root, "ops/control-center/apps-extra.yml")));
   const all = [
@@ -88,7 +93,10 @@ export function readState(root, id) {
   const next = [...text.matchAll(/^-\s*\[ \]\s*(.+)$/gm)].map((m) => m[1].trim()).slice(0, 6);
   const done = [...text.matchAll(/^-\s*\[x\]\s*(.+)$/gim)].map((m) => m[1].trim());
   const blockedSec = (text.match(/##\s*Blocked([\s\S]*?)(?:\n##|\n*$)/) || [])[1] || "";
-  const blocked = /없음|^\s*$/.test(blockedSec.replace(/[-*\s]/g, "")) ? null : blockedSec.trim();
+  // '없음'이 부분 문자열로 들어간 실제 막힘("결제 응답 없음", "권한 없음")을 '막힘 없음'으로 오인하지 않는다.
+  // 섹션 전체가 none-표식이거나 비어있을 때만 null(막힘 없음)로 본다.
+  const strippedBlocked = blockedSec.replace(/[-*\s]/g, "");
+  const blocked = (strippedBlocked === "" || /^(없음|없습니다|해당없음|none|n\/?a)$/i.test(strippedBlocked)) ? null : blockedSec.trim();
   return { tracked: true, version, deploy, next, doneCount: done.length, blocked };
 }
 
@@ -97,6 +105,8 @@ export function gitInfo(dir) {
   if (!dir || !existsSync(join(dir, ".git"))) return { available: false };
   const run = (args) => { try { return execFileSync("git", ["-C", dir, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); } catch { return null; } };
   const sha = run(["rev-parse", "--short", "HEAD"]);
+  // git 자체가 실패(바이너리 부재·손상)하면 available:true로 '깨끗한 idle(작업 브랜치 0)'로 위장하지 않는다.
+  if (sha === null) return { available: false, gitError: true };
   const branch = run(["rev-parse", "--abbrev-ref", "HEAD"]);
   const lastMsg = run(["log", "-1", "--pretty=%s"]);
   const lastDate = run(["log", "-1", "--pretty=%cI"]);

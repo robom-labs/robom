@@ -3,7 +3,7 @@
 // 저장 위치는 runtime(비커밋) 아래이며, 한 저장소에는 한 번에 하나의 쓰기 작업만 허용한다.
 import { randomUUID } from "node:crypto";
 import {
-  existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync,
+  existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { DEFAULT_COMPANY_RUNTIME_DIR } from "./company-store.mjs";
@@ -97,9 +97,15 @@ export function listQueue(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR) {
 
 // ── 잠금(lease): 한 번에 한 작업만 실행, 만료되면 자동 복구 ──
 function leaseInfo(packet) { return packet?.lease || null; }
-function isLeaseStale(packet, nowMs, ttlMs) {
+function isLeaseStale(packet, nowMs, ttlMs, fileMtimeMs = NaN) {
   const lease = leaseInfo(packet);
-  if (!lease?.heartbeatAt) return true;
+  if (!lease?.heartbeatAt) {
+    // 잠금이 아직 없는 패킷 = claim이 진행 중인 마이크로초 창일 수 있다(pending→running rename 직후, lease 기록 전).
+    // 이걸 무조건 stale로 보면 다른 프로세스(서버의 recoverStaleLeases)가 방금 잡힌 작업을 pending으로 되돌려
+    // 러너가 다시 만든 running 사본과 동시에 존재 → 같은 작업 이중 실행. 파일 수정 시각으로 생존을 판단해 창을 닫는다.
+    if (Number.isFinite(fileMtimeMs)) return nowMs - fileMtimeMs > ttlMs;
+    return true;
+  }
   return nowMs - Date.parse(lease.heartbeatAt) > ttlMs;
 }
 
@@ -107,8 +113,10 @@ export function recoverStaleLeases(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, { n
   ensureDirs(runtimeDir);
   const recovered = [];
   for (const packet of listState(runtimeDir, "running")) {
-    if (isLeaseStale(packet, now(), leaseTtlMs)) {
-      const runningPath = packetFile(runtimeDir, "running", packet.task_id);
+    const runningPath = packetFile(runtimeDir, "running", packet.task_id);
+    let mtimeMs = NaN;
+    try { mtimeMs = statSync(runningPath).mtimeMs; } catch { /* 파일이 이미 사라졌으면 아래 rename에서 걸러진다 */ }
+    if (isLeaseStale(packet, now(), leaseTtlMs, mtimeMs)) {
       const { lease, ...rest } = packet;
       rest.recoverCount = (Number(packet.recoverCount) || 0) + 1;
       // 독성 작업 방지: 여러 번 회수해도 끝나지 않으면 무한 재시도 대신 failed로 보내 회장 확인으로 넘긴다.
@@ -188,7 +196,13 @@ const controlFile = (runtimeDir) => join(resolve(runtimeDir), "control.json");
 const runnerFile = (runtimeDir) => join(resolve(runtimeDir), "runner-status.json");
 
 export function readControl(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR) {
-  const value = readPacket(controlFile(runtimeDir));
+  const file = controlFile(runtimeDir);
+  const value = readPacket(file);
+  // fail-safe: 파일은 있는데 파싱이 실패하면(손상) 일시정지가 몰래 풀리는 fail-open 대신 정지로 본다.
+  // (파일이 아예 없으면 정상적으로 미정지 — 존재+손상만 안전측으로 처리.)
+  if (value === null && existsSync(file)) {
+    return { paused: true, intakeClosed: true, updatedAt: null, corrupt: true };
+  }
   return { paused: Boolean(value?.paused), intakeClosed: Boolean(value?.intakeClosed), updatedAt: value?.updatedAt || null };
 }
 export function writeControl(changes, { runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, now = () => new Date() } = {}) {
