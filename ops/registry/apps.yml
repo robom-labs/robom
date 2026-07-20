@@ -170,7 +170,7 @@ apps:
     name: 노트봄
     english_name: NoteBom
     repo: robom-labs/notebom
-    version: 0.4.0
+    version: 0.4.1
     data_version: local-schema-v1
     version_source: https://raw.githubusercontent.com/robom-labs/notebom/main/package.json
     web_url: https://robom-labs.github.io/notebom/
@@ -189,8 +189,8 @@ apps:
     stable_install_url: https://robom.kr/get/notebom
     mobile_status: pwa
     family_spec_version: 1.0.0
-    last_verified_at: "2026-07-20T11:30:00+09:00"
-    last_deployed_sha: 309eabcfd800dadb85136b7f254cb9847d9d0815
+    last_verified_at: "2026-07-20T13:40:00+09:00"
+    last_deployed_sha: 4a03c743d19c7968fe1c6ca3434596da3ccb201d
     last_data_sync_at: "2026-07-17T23:59:39+09:00"
     freshness_status: local-only
     freshness_slo_hours: 720
