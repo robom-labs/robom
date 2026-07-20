@@ -49,10 +49,12 @@ const COMMON_FIELDS = [
 const COLLECTION_FIELDS = Object.freeze({
   meetings: new Set([...COMMON_FIELDS, "agenda", "participants", "scheduledAt", "outcome"]),
   decisions: new Set([...COMMON_FIELDS, "recommendation", "rationale", "options", "decidedAt"]),
-  approvals: new Set([...COMMON_FIELDS, "requestedBy", "recommendation", "impact", "reversible", "decidedAt", "proposalKey", "approvedBy"]),
+  // fixClass·failureClass·detectedAt·loopId 없이는 자동 점검이 만드는 결재가 생성 단계에서 통째로 거부돼(silent throw)
+  // 사건·성장 제안이 하나도 기록되지 않는다 — Loop 전결 human-gate(isDelegable fixClass)도 무력화. 반드시 허용한다.
+  approvals: new Set([...COMMON_FIELDS, "requestedBy", "recommendation", "impact", "reversible", "decidedAt", "proposalKey", "approvedBy", "fixClass", "failureClass", "detectedAt", "loopId"]),
   requests: new Set([...COMMON_FIELDS, "requestedBy", "desiredOutcome", "urgency"]),
   reviews: new Set([...COMMON_FIELDS, "target", "url", "viewport", "finding", "severity"]),
-  tasks: new Set([...COMMON_FIELDS, "assignedTo", "targetRepo", "acceptanceCriteria", "startedAt", "completedAt", "problem", "desiredOutcome", "mustPreserve", "autonomy", "attachments"]),
+  tasks: new Set([...COMMON_FIELDS, "assignedTo", "targetRepo", "acceptanceCriteria", "startedAt", "completedAt", "problem", "desiredOutcome", "mustPreserve", "autonomy", "attachments", "originContract", "approvalId", "loopId"]),
   notes: new Set([...COMMON_FIELDS, "body", "topic"]),
   incidents: new Set([...COMMON_FIELDS, "impact", "cause", "mitigation", "severity", "detectedAt", "resolvedAt"]),
   feedback: new Set([...COMMON_FIELDS, "category", "channel", "userImpact", "appVersion"]),

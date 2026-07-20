@@ -391,7 +391,9 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
     for (const inc of health.newIncidents) {
       if (existingKeys.has(inc.contractId)) continue;
       if (inc.severity === "info") continue;
-      const text = `${inc.userImpact || ""} ${inc.recommendedAction || ""}`;
+      // isDelegable(전결 게이트)이 읽는 텍스트(제목+본문+권고)와 같은 신호를 분류기도 보게 한다(actual 값 포함).
+      // 그러지 않으면 본문에만 있는 비밀값·개인정보를 분류기가 놓쳐 fixClass=codex로 잘못 표시할 수 있다.
+      const text = `${inc.userImpact || ""} ${inc.recommendedAction || ""} ${inc.actual || ""} ${inc.expected || ""}`;
       const fixClass = classifyFix({ failureClass: inc.failureClass, text, requestedBy: "auto-review", severity: inc.severity });
       if (fixClass === "self_heal") { selfHealed += 1; existingKeys.add(inc.contractId); continue; } // 컴퓨터가 재점검·자동종료로 처리
       if (inc.severity === "warning" && warningBudget-- <= 0) continue;
@@ -601,7 +603,8 @@ function readWorkforce(tasks = []) {
     try { const rs = readRunnerStatus(); executorConnected = rs && ["running", "working", "busy", "processing"].includes(String(rs.state)); } catch { /* 러너 상태 없음 → 미연결 */ }
     return computeWorkforce({ report, tasks, authority, now: new Date(), executorConnected });
   } catch (error) {
-    return { companyMode: "RUNNING", staff: [], summary: { total: 0 }, byDivision: [], error: String(error?.message || error).slice(0, 80) };
+    // 인력 산출에 실패하면 '가동 중(RUNNING)'으로 위장하지 않는다(fail-open 표시 금지). 상태 불명으로 표기한다.
+    return { companyMode: "UNKNOWN", running: false, staff: [], summary: { total: 0 }, byDivision: [], error: String(error?.message || error).slice(0, 80) };
   }
 }
 // 최근 health 요약(hq-status 노출용) — 심층 계약 coverage(진단률) 포함
@@ -893,6 +896,11 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
     const state = await store.getState();
     const approval = (state.records.approvals || []).find((r) => r.id === id);
     if (!approval) throw new HttpError("제안을 찾을 수 없습니다.", 404, "NOT_FOUND");
+    // 멱등: 이미 처리된 결재를 다시 승인해 중복 업무를 만들지 않는다.
+    if (approval.status && !["pending"].includes(approval.status)) {
+      sendJson(res, 200, { ok: true, alreadyResolved: true, status: approval.status });
+      return;
+    }
     await store.updateStatus("approvals", id, { status: "approved" });
     const task = await store.createRecord("tasks", {
       title: approval.title,

@@ -1,4 +1,6 @@
-// macOS 로그인 뒤 로봄 본부를 자동 실행하고 종료 시 다시 살리는 LaunchAgent를 설치한다.
+// macOS 로그인 시 로봄 본부를 1회 자동 실행하는 LaunchAgent를 설치한다(레거시 수동 도구).
+// "끄면 꺼질 것"(회장 요구 5): 종료하면 다시 살리지 않는다 — KeepAlive는 쓰지 않는다(RunAtLoad만).
+// 정식 자동시작은 데스크톱 앱의 로그인 항목이 담당하며, 앱은 실행 시 이 레거시 에이전트를 제거한다.
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve, sep } from "node:path";
@@ -53,7 +55,7 @@ export function buildLaunchAgentPlist({ nodePath, scriptPath, workingDirectory, 
     <key>PATH</key><string>${escapeXml(`${dirname(nodePath)}:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin`)}</string>
   </dict>
   <key>RunAtLoad</key><true/>
-  <key>KeepAlive</key><true/>
+  <key>KeepAlive</key><false/>
   <key>ThrottleInterval</key><integer>10</integer>
   <key>ProcessType</key><string>Interactive</string>
   <key>StandardOutPath</key><string>${escapeXml(stdoutPath)}</string>

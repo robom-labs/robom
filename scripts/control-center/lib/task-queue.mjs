@@ -207,7 +207,12 @@ export function readRunnerStatus(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR) {
 export function writeRunnerStatus(status, { runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, now = () => new Date() } = {}) {
   ensureDirs(runtimeDir);
   const next = { ...status, at: new Date(now()).toISOString() };
-  writeFileSync(runnerFile(runtimeDir), `${JSON.stringify(next, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+  // 원자적 쓰기: 러너 상태 파일은 감독(Electron 메인)과 러너 자식이 동시에 쓴다. in-place로 쓰면
+  // 조회가 반쯤 기록된 파일을 읽어 실제로 '실행 중'인 러너를 '꺼짐'으로 잘못 표시하는 거짓 성과가 생긴다.
+  const file = runnerFile(runtimeDir);
+  const tmp = `${file}.tmp`;
+  writeFileSync(tmp, `${JSON.stringify(next, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+  renameSync(tmp, file);
   return next;
 }
 

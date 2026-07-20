@@ -2,7 +2,7 @@
 // 자식 프로세스로 직접 실행하고 죽으면 다시 살린다(크래시 루프 보호). 러너는 스스로
 // runner-status.json에 상태를 쓰며, 감독기는 자식이 내려갔을 때만 '실행기 꺼짐'을 정직하게 기록한다.
 // 원칙: spawnSync 금지(비동기 spawn), Codex 미연결이어도 러너는 상주하며 정직하게 not_connected 보고.
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,7 +18,9 @@ function killChildTree(child, signal = "SIGTERM") {
   const pid = child.pid;
   try {
     if (process.platform === "win32") {
-      if (Number.isInteger(pid)) spawn("taskkill", ["/pid", String(pid), "/T", "/F"], { stdio: "ignore" });
+      // 동기 종료: 앱 종료(process 'exit') 핸들러에서는 비동기 spawn이 이벤트루프 종료로 실행되지 못해
+      // 러너·codex 손자가 고아로 남는다("끄면 꺼질 것" 위반). spawnSync로 트리를 확실히 종료한다.
+      if (Number.isInteger(pid)) spawnSync("taskkill", ["/pid", String(pid), "/T", "/F"], { stdio: "ignore" });
     } else if (Number.isInteger(pid)) {
       process.kill(-pid, signal); // detached로 만든 프로세스 그룹 전체(러너 + codex 손자)
     }

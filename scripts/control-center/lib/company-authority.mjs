@@ -17,7 +17,9 @@ const AUDIT = (dir) => join(resolve(dir), "company-audit.jsonl");
 
 // 비위임(회장 전용) 안건 분류 — 제목·본문에 아래 신호가 있으면 전결 금지.
 // 사용량·요금제·한도·보안(quota/security 계열)도 포함해 자동 전결로 승인 경계가 뚫리지 않게 한다.
-const NON_DELEGABLE = /결제|구독료|유료|요금|사용량|한도|quota|billing|광고|홍보 게시|외부 게시|캠페인|개인정보 수집|법률|약관|계약|스토어 제출|App Store|Play Store|출시|도메인|청구|소유권|비밀값|권한|secret|시크릿|토큰|보안|security|인증서|키 교체|키 재발급|키 회전|API 키|삭제(?!된)|마이그레이션|이전(?:합니다| 작업)/;
+// incident-fix.mjs의 HUMAN_TEXT와 반드시 동일한 신호를 유지한다(전결 2차 방어). 결제·계정·권한·비밀값·개인정보 등
+// 헌장상 항상 회장 확인이 필요한 범주를 텍스트로 백스톱한다. 계정·구매·환불·자격증명 누락은 전결 자동승인 escape였다.
+const NON_DELEGABLE = /결제|구독료|유료|요금|청구|사용량|한도|quota|billing|광고|홍보 게시|외부 게시|캠페인|개인정보|법률|약관|계약|스토어 제출|App Store|Play Store|출시|도메인|소유권|계정|권한|보안|security|비밀값|secret|시크릿|토큰|자격증명|credentials|OAuth|인증서|키 교체|키 재발급|키 회전|API 키|구매|환불|삭제(?!된)|마이그레이션|이전(?:합니다| 작업)/;
 export function isDelegable(approval) {
   if (!approval) return false;
   if (approval.requestedBy !== "auto-review") return false; // 시스템 상신만 전결 대상(사람 상신은 회장 확인)

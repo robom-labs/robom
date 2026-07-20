@@ -36,7 +36,9 @@ test("권한 파일이 손상돼도 RUNNING으로 몰래 되돌리지 않는다 
 test("전결 분류: 시스템 상신 코드 수정은 위임 가능, 결제·계약·비밀값·홍보는 회장 전용", () => {
   const ok = { requestedBy: "auto-review", title: "러닝봄 CI 실패 확인", body: "실패 로그", recommendation: "수정" };
   assert.equal(isDelegable(ok), true);
-  for (const bad of ["신규 유료 결제 승인", "광고 캠페인 홍보 게시", "secret 키 변경", "약관 계약 갱신", "백업 없는 대량 삭제", "App Store 제출"]) {
+  for (const bad of ["신규 유료 결제 승인", "광고 캠페인 홍보 게시", "secret 키 변경", "약관 계약 갱신", "백업 없는 대량 삭제", "App Store 제출",
+    // 헌장 필수-회장 범주의 키워드 공백(전결 escape)이었던 것들:
+    "개인정보 노출 3건 확인", "개인정보 처리방침 업데이트", "GitHub 계정 전환", "인앱 구매 UI 추가", "환불 정책 반영", "OAuth 자격증명 갱신"]) {
     assert.equal(isDelegable({ requestedBy: "auto-review", title: bad }), false, bad);
   }
   assert.equal(isDelegable({ requestedBy: "chairman", title: "아무거나" }), false, "사람 상신은 전결 대상 아님");

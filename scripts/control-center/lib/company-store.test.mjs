@@ -174,6 +174,22 @@ test("incidents와 feedback collection을 정식 저장한다", async (t) => {
   assert.equal(state.counts.feedback, 1);
 });
 
+test("자동 점검 결재는 fixClass·failureClass·detectedAt·loopId까지 생성 단계에서 보존한다(파이프라인 무음 유실 방지)", async (t) => {
+  const store = await makeStore(t);
+  // 이 필드들이 허용되지 않으면 createRecord가 throw → 사건·성장 제안이 하나도 기록되지 않고
+  // 전결 human-gate(isDelegable fixClass)도 무력화됐다. 반드시 저장돼야 한다.
+  const rec = await store.createRecord("approvals", {
+    title: "청약봄 운영 응답 지연", appId: "homebom", body: "확인된 값: HTTP 503",
+    recommendation: "복구", priority: "high", requestedBy: "auto-review", proposalKey: "c:homebom:production-home",
+    fixClass: "codex", failureClass: "production", detectedAt: "2026-07-20T00:00:00.000Z", status: "pending",
+  });
+  assert.equal(rec.fixClass, "codex");
+  assert.equal(rec.failureClass, "production");
+  assert.equal(rec.detectedAt, "2026-07-20T00:00:00.000Z");
+  const state = await store.getState();
+  assert.equal(state.records.approvals[0].fixClass, "codex"); // 재구성 후에도 유지
+});
+
 test("approvals PATCH만 짧은 의견과 서명 기록 여부를 append-only로 허용한다", async (t) => {
   const store = await makeStore(t);
   const approval = await store.createRecord("approvals", {
