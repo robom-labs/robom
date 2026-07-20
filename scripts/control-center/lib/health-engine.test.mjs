@@ -138,4 +138,11 @@ test("CI는 배포(deploy) run만으로 판정한다 — 무관 워크플로 실
     { name: "test", status: "completed", conclusion: "success" },
   ] })]), { now: new Date() });
   assert.equal(noDeploy.find((r) => r.contractId === "ci:outbom").status, HEALTH_STATUS.UNAVAILABLE);
+  // success도 hard-fail도 아닌 종료(cancelled 등)는 PASS 위장 대신 DEGRADED-info로 노출(build-snapshot warn과 일치, 사건 스팸 없음)
+  const cancelled = collectRawResults(snap([app("outbom", { ci: [
+    { name: "deploy", status: "completed", conclusion: "cancelled" },
+  ] })]), { now: new Date() });
+  const cr = cancelled.find((r) => r.contractId === "ci:outbom");
+  assert.equal(cr.status, HEALTH_STATUS.DEGRADED);
+  assert.equal(cr.severity, "info"); // 사건/결재로 올리지 않되 초록으로 위장하지도 않음
 });

@@ -46,7 +46,12 @@ function ciResult(app) {
   if (FAILED_CI_CONCLUSIONS.has(deploy.conclusion)) return { ...base, status: HEALTH_STATUS.FAIL, severity: "error",
     userImpact: `${app.name} 배포 자동 검사(CI)가 ${deploy.conclusion}로 끝났습니다. 다음 배포 안전성에 영향이 있을 수 있습니다.`,
     recommendedAction: "실패 로그를 확인하고 배포 전에 원인을 수정하거나 재실행합니다.", actual: `${deploy.name || "deploy"}: ${deploy.conclusion}`, expected: "success" };
-  return { ...base, status: HEALTH_STATUS.PASS, severity: "info", actual: deploy.conclusion || "success", expected: "success" };
+  if (deploy.conclusion === "success") return { ...base, status: HEALTH_STATUS.PASS, severity: "info", actual: "success", expected: "success" };
+  // success도 hard-fail도 아닌 종료(cancelled·neutral·action_required·stale 등)를 PASS로 위장하지 않는다.
+  // build-snapshot이 이를 'warn'으로 보는 것과 맞춰 DEGRADED-info로 노출 — 사건/결재 스팸은 없되(초록 위장도 없음) 두 화면이 어긋나지 않게 한다.
+  return { ...base, status: HEALTH_STATUS.DEGRADED, severity: "info",
+    userImpact: `${app.name} 최근 배포가 ${deploy.conclusion || "미상"}으로 끝났습니다(성공 아님).`,
+    recommendedAction: "배포 결과를 확인하고 필요 시 재배포합니다.", actual: `${deploy.name || "deploy"}: ${deploy.conclusion || "미상"}`, expected: "success" };
 }
 function prAgeResult(app, now) {
   const base = { contractId: `pr-age:${app.id}`, target: app.id, category: "github", failureClass: "open_pr" };
