@@ -1,7 +1,7 @@
 // 로봄 운영 watchdog의 자산 탐색과 신선도 경계를 고정한다.
 import assert from "node:assert/strict";
 import test from "node:test";
-import { cacheBustedUrl, certExpiryDays, dataProbeState, extractAssetUrls, freshnessState } from "./operations-watchdog.mjs";
+import { cacheBustedUrl, certExpiryDays, dataProbeState, extractAssetUrls, freshnessState, inspectCertbomSourceWorkflow } from "./operations-watchdog.mjs";
 
 test("상대·절대 운영 자산만 같은 origin에서 수집한다", () => {
   const urls = extractAssetUrls(
@@ -47,4 +47,21 @@ test("운영 점검 URL에 CDN 캐시 우회 marker를 붙인다", () => {
   const url = new URL(cacheBustedUrl("https://robom.kr/?existing=1", 1234));
   assert.equal(url.searchParams.get("existing"), "1");
   assert.equal(url.searchParams.get("robom-watchdog"), "1234");
+});
+
+test("certbom source workflow 조회는 HTTP 오류 응답과 네트워크 예외를 다르게 처리한다", async (t) => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+
+  // 응답을 받았다는 것은 GitHub가 확정적으로 답했다는 뜻(토큰 만료·권한·워크플로 삭제 등) → FAIL로
+  // 승격돼야 한다. BLOCKED_EXTERNAL로 묻으면 영구 실패가 무기한 마스킹된다.
+  globalThis.fetch = async () => ({ ok: false, status: 404 });
+  const httpError = await inspectCertbomSourceWorkflow(new Date("2026-07-16T12:00:00Z"));
+  assert.equal(httpError.status, "FAIL");
+  assert.match(httpError.detail, /HTTP 404/);
+
+  // fetch 자체가 던지는 경우(DNS·타임아웃)만 진짜 일시적 도달 불가 → BLOCKED_EXTERNAL 유지.
+  globalThis.fetch = async () => { throw new Error("network unreachable"); };
+  const networkError = await inspectCertbomSourceWorkflow(new Date("2026-07-16T12:00:00Z"));
+  assert.equal(networkError.status, "BLOCKED_EXTERNAL");
 });

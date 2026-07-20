@@ -205,28 +205,35 @@ export async function inspectApp(app, now) {
   };
 }
 
-async function inspectCertbomSourceWorkflow(now) {
+export async function inspectCertbomSourceWorkflow(now) {
   const workflowUrl = "https://api.github.com/repos/robom-labs/certbom/actions/workflows/source-operations.yml/runs?status=success&per_page=1";
+  let response;
   try {
     const headers = { accept: "application/vnd.github+json", "x-github-api-version": "2022-11-28" };
     if (process.env.GITHUB_TOKEN) headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-    const response = await fetch(workflowUrl, { headers, signal: AbortSignal.timeout(20_000) });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json();
-    const run = payload.workflow_runs?.[0];
-    if (!run) return { status: "BLOCKED_EXTERNAL", detail: "source workflow 성공 기록이 아직 없습니다." };
-    const heartbeat = freshnessState(run.updated_at, now, 36);
-    return {
-      status: heartbeat.status === "fresh" ? "PASS" : "FAIL",
-      detail: `${run.updated_at} · ${run.html_url}`,
-      ageHours: heartbeat.ageHours,
-    };
+    response = await fetch(workflowUrl, { headers, signal: AbortSignal.timeout(20_000) });
   } catch (error) {
+    // fetch 자체가 던지는 경우(DNS·타임아웃·연결 거부)만 진짜 "일시적으로 도달 못 함" — 재시도로 회복 가능.
     return {
       status: "BLOCKED_EXTERNAL",
-      detail: `source workflow 조회 실패: ${error instanceof Error ? error.message : String(error)}`,
+      detail: `source workflow 조회 실패(네트워크): ${error instanceof Error ? error.message : String(error)}`,
     };
   }
+  if (!response.ok) {
+    // 응답을 받았다는 것은 GitHub가 확정적으로 답했다는 뜻이다(401 토큰 만료, 403 rate-limit/권한,
+    // 404 워크플로 파일 rename·삭제 등). 이걸 BLOCKED_EXTERNAL로 묻으면 영구 실패가 무기한 마스킹돼
+    // watchdog가 certbom 데이터 파이프라인 생존 감시를 조용히 멈춘 채 PASS로 새는 것과 같아진다 → FAIL.
+    return { status: "FAIL", detail: `source workflow 조회 실패(HTTP ${response.status}) — 토큰 만료·권한·워크플로 파일 존재를 확인하세요.` };
+  }
+  const payload = await response.json();
+  const run = payload.workflow_runs?.[0];
+  if (!run) return { status: "BLOCKED_EXTERNAL", detail: "source workflow 성공 기록이 아직 없습니다." };
+  const heartbeat = freshnessState(run.updated_at, now, 36);
+  return {
+    status: heartbeat.status === "fresh" ? "PASS" : "FAIL",
+    detail: `${run.updated_at} · ${run.html_url}`,
+    ageHours: heartbeat.ageHours,
+  };
 }
 
 async function main() {
