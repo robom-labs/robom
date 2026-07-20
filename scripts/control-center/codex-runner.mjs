@@ -57,8 +57,12 @@ export function classifyCodexFailure(stderr = "", stdout = "") {
 export function resolveWorkdir(packet, repoRoot = REPO_ROOT) {
   const repo = String(packet.target_repo || "robom-labs/robom");
   const name = repo.split("/").pop();
+  // 저장소 이름은 안전한 slug만 허용한다. '..'·경로 구분자 등이 섞이면 작업 디렉터리가 의도 밖으로 이동할 수 있어 거부한다.
+  if (!/^[a-z0-9][a-z0-9._-]{0,60}$/i.test(name) || name === ".." || name.includes("..")) return null;
   if (name === "robom") return repoRoot;
   const sibling = resolve(repoRoot, "..", name);
+  // 이중 방어: 해석된 경로가 실제로 repoRoot의 형제인지 확인(상위 탈출 차단).
+  if (resolve(sibling, "..") !== resolve(repoRoot, "..")) return null;
   return existsSync(join(sibling, ".git")) ? sibling : null;
 }
 
@@ -87,6 +91,15 @@ function log(taskId, text) {
 async function markRecord(taskId, status) {
   try { await createCompanyStore().updateStatus("tasks", taskId, { status }); }
   catch (error) { log(taskId, `기록 상태 갱신 실패: ${error.message}`); }
+}
+
+// 회장이 취소·보류한 작업을 러너가 계속 돌리거나 '작업 중'으로 되돌리지 않도록 실제 기록 상태를 확인한다.
+const CANCELLED_STATES = new Set(["cancelled", "dismissed", "on_hold", "held"]);
+async function readTaskStatus(taskId) {
+  try {
+    const st = await createCompanyStore().getState();
+    return (st.records.tasks || []).find((r) => r.id === taskId)?.status || null;
+  } catch { return null; }
 }
 
 export async function runOne({ codex = detectCodexCli() } = {}) {
@@ -128,6 +141,14 @@ export async function runOne({ codex = detectCodexCli() } = {}) {
     writeRunnerStatus({ state: "blocked", codex: "connected", codexDetail: `저장소 로컬 복제본 없음: ${packet.target_repo}`, lastTask: taskId }, { runtimeDir: RUNTIME });
     return { retryLater: taskId, cause: "no_workdir" };
   }
+  // claim과 실행 사이에 회장이 이 작업을 취소·보류했을 수 있다 → 코덱스를 돌리기 전에 확인하고, 그랬으면 실행하지 않는다.
+  const preStatus = await readTaskStatus(taskId);
+  if (CANCELLED_STATES.has(String(preStatus))) {
+    log(taskId, `실행 직전 취소·보류 감지(${preStatus}) — 코덱스를 돌리지 않고 종료합니다.`);
+    failTask(taskId, { status: preStatus, reason: "회장 취소·보류로 실행 안 함" }, { runtimeDir: RUNTIME }); // 패킷만 running에서 내림(기록 상태는 회장 값 유지)
+    writeRunnerStatus({ state: "idle", codex: "connected", lastTask: taskId, lastResult: String(preStatus) }, { runtimeDir: RUNTIME });
+    return { cancelled: taskId, status: preStatus };
+  }
   await markRecord(taskId, "in_progress");
   writeRunnerStatus({ state: "running", taskId, app: packet.target_app, codex: "connected" }, { runtimeDir: RUNTIME });
   const heartbeat = setInterval(() => heartbeatTask(taskId, { runtimeDir: RUNTIME }), 60_000);
@@ -145,7 +166,14 @@ export async function runOne({ codex = detectCodexCli() } = {}) {
     });
     log(taskId, `codex 종료 코드 ${result.status}\n--- stdout(끝 4000자) ---\n${String(result.stdout || "").slice(-4000)}\n--- stderr(끝 2000자) ---\n${String(result.stderr || "").slice(-2000)}`);
     if (result.status === 0) {
-      completeTask(taskId, { exitCode: 0, logTail: String(result.stdout || "").slice(-1500) }, { runtimeDir: RUNTIME });
+      completeTask(taskId, { exitCode: 0, logTail: String(result.stdout || "").slice(-1500) }, { runtimeDir: RUNTIME }); // 패킷은 done/으로(러너 스탈·재실행 방지)
+      // 실행 중 회장이 취소·보류했으면 상태를 in_review로 되돌리지 않는다(거짓 되돌림 금지). 코덱스가 이미 코드를 바꿨을 수 있음을 로그로 남긴다.
+      const postStatus = await readTaskStatus(taskId);
+      if (CANCELLED_STATES.has(String(postStatus))) {
+        log(taskId, `완료됐으나 실행 중 취소·보류(${postStatus}) 감지 — 상태를 덮어쓰지 않습니다(코덱스가 이미 변경했을 수 있음).`);
+        writeRunnerStatus({ state: "idle", codex: "connected", lastTask: taskId, lastResult: "completed-but-cancelled" }, { runtimeDir: RUNTIME });
+        return { completedButCancelled: taskId, status: postStatus };
+      }
       await markRecord(taskId, "in_review"); // 완료 표시는 사람이/검증이 확인한 뒤
       writeRunnerStatus({ state: "idle", codex: "connected", lastTask: taskId, lastResult: "completed" }, { runtimeDir: RUNTIME });
       return { completed: taskId };

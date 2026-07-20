@@ -14,6 +14,8 @@ export function freshnessState(value, now = new Date(), staleAfterHours = 48) {
   const timestamp = Date.parse(value);
   if (!Number.isFinite(timestamp)) return { status: "missing", ageHours: null };
   const ageHours = (now.getTime() - timestamp) / 3_600_000;
+  // 미래 시각(시계 오류·9999 placeholder·파이프라인 버그)을 fresh로 위장하지 않는다. 15분 skew는 허용.
+  if (ageHours < -0.25) return { status: "future", ageHours };
   return { status: ageHours >= staleAfterHours ? "stale" : "fresh", ageHours };
 }
 
@@ -50,8 +52,12 @@ async function inspectTlsCertificates(hosts, now) {
       const status = days === null ? "FAIL" : days < 10 ? "FAIL" : days < 21 ? "STALE" : "PASS";
       results.push({ host, status, daysLeft: days === null ? null : Math.floor(days), validTo });
     } catch (error) {
-      // 조회 실패는 만료 임박과 구분해 경고로만 남긴다(네트워크 요인 오탐 방지).
-      results.push({ host, status: "STALE", daysLeft: null, detail: String(error instanceof Error ? error.message : error) });
+      // 인증서 자체 문제(만료·자가서명·검증 실패)는 FAIL로 올린다. 순수 네트워크 오류(연결 거부·타임아웃·DNS)만
+      // STALE로 남겨 오탐을 막는다. 예전엔 만료(CERT_HAS_EXPIRED)까지 STALE로 삼켜 신호등이 초록으로 위장됐다.
+      const code = String(error?.code || "");
+      const msg = String(error instanceof Error ? error.message : error);
+      const certInvalid = /CERT|_SSL|SIGNATURE|ALTNAME|SELF_SIGNED|EXPIRED|UNTRUSTED/i.test(code) || /expired|certificate|인증서/i.test(msg);
+      results.push({ host, status: certInvalid ? "FAIL" : "STALE", daysLeft: null, detail: msg });
     }
   }
   return results;

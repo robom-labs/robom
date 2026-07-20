@@ -847,7 +847,9 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
     const control = queueSummary().control;
     if (control.intakeClosed) throw new HttpError("새 작업 접수가 중지된 상태입니다.", 409, "INTAKE_CLOSED");
     const body = await readJsonBody(req, maxBodyBytes);
-    const record = await store.createRecord("tasks", body);
+    // 접수 즉시 실행 대기열에 올리는 작업은 항상 'queued'로 시작한다. 클라이언트가 status:'completed' 등을 넣어
+    // '완료'로 표시하면서 실제로는 실행되는 상태 불일치(거짓 완료)를 막는다.
+    const record = await store.createRecord("tasks", { ...body, status: "queued" });
     let packet = null;
     try { packet = enqueueTask(record, { snapshot: readSnapshotValue(snapDir) }); }
     catch (error) {

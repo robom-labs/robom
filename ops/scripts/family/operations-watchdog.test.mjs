@@ -28,6 +28,15 @@ test("데이터 probe는 기준 시간·헤더 부재를 구분한다", () => {
   assert.equal(dataProbeState(null, now, 6).status, "missing");
 });
 
+test("미래 시각(시계 오류·placeholder)은 fresh로 위장하지 않고 future로 표시한다", () => {
+  const now = new Date("2026-07-16T12:00:00Z");
+  assert.equal(freshnessState("2026-07-16T18:00:00Z", now).status, "future"); // 6시간 미래
+  assert.equal(freshnessState("9999-01-01T00:00:00Z", now).status, "future"); // placeholder
+  assert.equal(freshnessState("2026-07-16T12:05:00Z", now).status, "fresh");   // 5분 미래는 skew 허용
+  // dataProbe도 미래 헤더를 fresh로 통과시키지 않는다(≠ fresh → 상류에서 FAIL 처리).
+  assert.notEqual(dataProbeState("2030-01-01T00:00:00Z", now, 6).status, "fresh");
+});
+
 test("TLS 인증서 잔여일을 계산한다", () => {
   const now = new Date("2026-07-16T12:00:00Z");
   assert.equal(Math.floor(certExpiryDays("Aug  5 12:00:00 2026 GMT", now)), 20);
