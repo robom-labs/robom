@@ -18,16 +18,24 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const familyContext = await readFile(resolve(root, "ops/family/ai/FAMILY-CONTEXT.md"), "utf8");
 const repoMap = await readFile(resolve(root, "ops/family/ai/REPO-MAP.yml"), "utf8");
 const appBlock = repoMap.match(new RegExp(`^${app}:\\n([\\s\\S]*?)(?=^[a-z][a-z0-9-]*:|$)`, "m"))?.[0] ?? `${app}: 지도 없음`;
-let changed = [];
+let changed;
 try {
   changed = execFileSync("git", ["diff", "--name-only", base, head], { cwd: root, encoding: "utf8" }).trim().split("\n").filter(Boolean);
-} catch {
-  changed = ["diff를 계산하지 못했습니다."];
+} catch (error) {
+  // 실패를 가짜 "변경 파일 1건"으로 둔갑시켜 조용히 계속하면, 이 컨텍스트를 읽는 AI가 오류 문구를
+  // 실제 파일 경로로 오인해 "변경 거의 없음"으로 판단하고 잘못된 범위의 작업을 승인할 수 있다
+  // (예: fetch-depth:1 얕은 체크아웃에서 HEAD~1이 없을 때). loud하게 실패시킨다.
+  throw new Error(`git diff(${base}..${head}) 계산 실패 — 얕은 체크아웃(fetch-depth)이나 잘못된 base/head인지 확인하세요: ${error.message}`);
 }
 const context = [
   `# ${app} 증분 컨텍스트`,
   "",
   `기준: ${base} → ${head}`,
+  "",
+  // 패밀리 핵심 규칙을 맨 앞에 둔다 — 16KB 하드 truncation이 뒤쪽부터 잘라내므로, 변경 파일·앱 지도가
+  // 커져도 안전 규칙만은 잘려나가지 않게 한다.
+  "## 패밀리 핵심 규칙",
+  familyContext,
   "",
   "## 변경 파일",
   ...changed.map((file) => `- ${file}`),
@@ -36,9 +44,6 @@ const context = [
   "```yml",
   appBlock.trim(),
   "```",
-  "",
-  "## 패밀리 핵심 규칙",
-  familyContext,
 ].join("\n").slice(0, 16_384);
 if (output) await writeFile(resolve(process.cwd(), output), `${context}\n`);
 else process.stdout.write(`${context}\n`);
