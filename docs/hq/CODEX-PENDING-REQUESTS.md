@@ -56,6 +56,10 @@
   [calendarbom#4](https://github.com/robom-labs/calendarbom/pull/4)(draft) — 달력 이전/다음달 버튼을 앱 자체 48px 고령자 기준으로 확대.
 - **야외봄 — "다음 개선·신기능 발굴"(문서 제4771호, 7.20 상신, 재가 대기 중)**: 배경 에이전트가
   `/workspace/outbom`에서 감사·구현까지 로컬로 완료(오늘 탭 리렌더 최적화, React.memo·useCallback, 최신 main 위에 rebase까지 마침). 아직 회장 미재가라 push·PR은 보류, 재가 확인 후 즉시 처리 가능.
+- **자격증봄 — 고령자 글자 크기 접근성 버그**: Claude가 코덱스 부재 기간 감사·대행(2026-07-20).
+  [certbom#14](https://github.com/robom-labs/certbom/pull/14)(draft) — 저장된 글자 크기(`certbom-font-scale`)가
+  설정 화면 진입 시에만 적용돼, 재실행하면 130% 설정이 무시되고 100%로 표시되던 것을 `main.tsx` 시작 시
+  복원으로 수정(단일 출처 `font-scale.ts` 헬퍼). 저장키·스키마·비밀값(QNET) 불변, 테스트 50→54.
 - **노트봄 — ASR 엔진 정직 표시 버그**: Claude가 코덱스 부재 기간 감사·대행(2026-07-20).
   [notebom#11](https://github.com/robom-labs/notebom/pull/11)(draft) — whisper.worker의 `usedFallback` 모듈 전역 플래그가
   리셋 안 돼, 1차 실패 후 재시도에서 고정확도 모델이 성공해도 "경량 모델(낮은 정확도)"로 오표시하던 것을
