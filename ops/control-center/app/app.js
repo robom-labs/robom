@@ -73,7 +73,7 @@ const accent=(id)=>appAccent[id]||"#64748b";
 const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
-const HQ_VERSION="3.3.10"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
+const HQ_VERSION="3.3.11"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
 let APP_VERSION=HQ_VERSION;
 let SNAP=null, LOCAL={records:{},audit:[],mode:"portable"}, HQ=null;
 let CURRENT="today", SELECTED_APP=null, REC_TAB="approvals", MEMORY_Q="";
@@ -101,7 +101,9 @@ function appName(id){return appById(id)?.name||id||"회사 전체";}
 function records(name){return LOCAL.records?.[name]||[];}
 function openCount(name){return records(name).filter(r=>!OPEN_DONE.includes(r.status)).length;}
 function appRunning(id){return (SNAP?.runs||[]).some(r=>r.appId===id&&!["completed","failed"].includes(r.status));}
-function openTasksFor(id){return records("tasks").filter(t=>t.appId===id&&!["completed","cancelled","dismissed","done"].includes(t.status)).length;}
+// '열린 요청'은 openCount과 같은 종료 집합(OPEN_DONE)을 써야 한다. 예전엔 4개 상태만 제외해
+// resolved·closed·approved·rejected·archived 업무가 열린 것으로 잘못 집계돼 배지가 실제보다 부풀었다.
+function openTasksFor(id){return records("tasks").filter(t=>t.appId===id&&!OPEN_DONE.includes(t.status)).length;}
 function allApprovals(){return [...(SNAP?.approvals||[]),...records("approvals")];}
 function pendingApprovals(){return allApprovals().filter(r=>!r.status||r.status==="pending");}
 
@@ -274,7 +276,7 @@ function renderToday(){
         ${HQ?.nextTask?`<p class="fine">다음: ${esc(appName(HQ.nextTask.app))} · ${esc(HQ.nextTask.title||"")}</p>`:""}
         <div class="today-actions" style="margin-top:12px"><a class="button ghost" href="#/automation">${icon("chev")}자동화 현황판</a></div>`)}
       ${panel("자동 운영",`<div class="simple-list">
-        <div><b>${reviewLabel()} 종합 점검 → 결재 상신</b>${tonePill(autos.length?"gold":"good",autos.length?`상신 ${autos.length}건`:"이상 없음")}</div>
+        <div><b>${reviewLabel()} 종합 점검 → 결재 상신</b>${tonePill(autos.length?"gold":"neutral",autos.length?`상신 ${autos.length}건`:"대기 중 제안 없음")}</div>
         <div><b>10분 간격 앱 감시(워치독)</b>${tonePill(LOCAL.mode==="live"?"good":"neutral",LOCAL.mode==="live"?"가동":"본부 꺼짐")}</div>
         <div><b>Codex 실행기 자동 관리</b>${tonePill(HQ?.runner?.managed?(HQ?.runner?.codex==="connected"?"good":"warn"):"neutral",HQ?.runner?.managed?(HQ?.runner?.codex==="connected"?"자동 실행 중":"로그인 대기"):"수동")}</div>
       </div>`)}
@@ -332,6 +334,7 @@ function decreeCard(r){
 function renderApps(){
   const apps=familyApps();
   return `${title("PORTFOLIO",`운영 앱 ${apps.length}개`,"registry 기준 자동 생성 — 앱이 늘면 이 화면도 자동으로 늘어납니다.")}
+  ${freshnessBanner()}
   <div class="portfolio-grid">${apps.map(appCard).join("")}</div>
   ${panel("본사 시스템",`<div class="simple-list">${hqSystems().map(a=>`<a href="#/apps/${attr(a.id)}"><b>${esc(a.name)} · robom.kr</b>${tonePill((HEALTH[a.health]||HEALTH.unknown)[1],(HEALTH[a.health]||HEALTH.unknown)[0])}</a>`).join("")}<div><b>ROBOM HQ (이 프로그램)</b>${tonePill("good",`v${APP_VERSION} 실행 중`)}</div></div>`)}`;
 }
@@ -351,8 +354,10 @@ function appCard(a){
 function renderAppDetail(){
   const a=appById(SELECTED_APP)||familyApps()[0];if(!a)return renderApps();
   const[hl,tone]=HEALTH[a.health]||HEALTH.unknown;const ci=a.ci?.[0];
-  const tasks=records("tasks").filter(t=>t.appId===a.id);
+  // '진행 중 업무' 패널이므로 종료된 업무(OPEN_DONE)는 제외해 제목과 내용을 일치시킨다.
+  const tasks=records("tasks").filter(t=>t.appId===a.id&&!OPEN_DONE.includes(t.status));
   return `${title("APP",a.name,"사용자 영향부터, 기술 정보는 아래.",`${a.url?`<a class="button primary" href="${attr(a.url)}" target="_blank" rel="noopener">운영 앱 열기</a>`:""}${button("수정 요청","new-task-for","secondary",`data-app-id="${attr(a.id)}"`,"plus")}`)}
+  ${freshnessBanner()}
   <div class="product-hero" style="--app:${accent(a.id)}"><div><span class="ph-k">현재 운영 버전</span><h2>v${esc(a.version||"—")}</h2>${tonePill(tone,hl)}</div>
   <dl class="data-list"><dt>사용자 가치</dt><dd>${esc(roleOf(a))}</dd><dt>상태 이유</dt><dd>${esc(a.health==="ok"?"운영 확인 통과":(a.production?.warnings?.[0]||a.blocked||"확인 필요"))}</dd><dt>다음 개선</dt><dd>${esc(a.nextActions?.[0]||"안정 운영")}</dd></dl></div>
   <div class="detail-grid">
@@ -385,10 +390,12 @@ function incidentBoardPanel(){
   const c=b.counts||{selfHeal:(b.selfHeal||[]).length,codex:(b.codex||[]).length,human:(b.human||[]).length};
   const lane=(t,tone,sub,items,key)=>items.length?`<div class="lane-block" style="margin-top:12px"><div class="simple-list"><div><b>${t}</b>${tonePill(tone,items.length+"건")}</div></div><p class="fine">${esc(sub)}</p><div class="record-list">${items.slice(0,6).map(it=>incidentRow(it,key)).join("")}</div>${items.length>6?`<p class="fine">…그 외 ${items.length-6}건 더 (숨기지 않고 모두 처리 중)</p>`:""}</div>`:"";
   const none=!(c.selfHeal||c.codex||c.human);
+  // 종합 점검이 실제로 돌았는지(health/latest.json 존재 → HQ.health 요약 있음). 점검 전엔 '문제 없음'으로 위장하지 않는다.
+  const scanned=Boolean(HQ?.health);
   const body=`
-    <div class="kpi-row" style="margin-bottom:8px">${kpi(c.selfHeal,"컴퓨터 자동","good","","#/automation")}${kpi(c.codex,"Codex로 수정",c.codex?"warn":"","","#/records/approvals")}${kpi(c.human,"회장 확인 필수",c.human?"bad":"","","#/records/approvals")}</div>
+    <div class="kpi-row" style="margin-bottom:8px">${kpi(c.selfHeal,"컴퓨터 자동",c.selfHeal?"accent":"","","#/automation")}${kpi(c.codex,"Codex로 수정",c.codex?"warn":"","","#/records/approvals")}${kpi(c.human,"회장 확인 필수",c.human?"bad":"","","#/records/approvals")}</div>
     <p class="fine">숫자만이 아니라 ‘누가·어떻게 고치는지’까지 보여드립니다. 컴퓨터가 AI 없이 스스로 고칠 수 있는 건 직접 재점검·자동 종료하고, 코드 수정이 필요한 것만 Codex(회장 승인)로, 비밀키·권한·결제는 회장님만 처리합니다.</p>
-    ${none?empty("지금 처리할 문제가 없습니다.","새 사건이 생기면 여기에 해결방안과 함께 나타납니다."):""}
+    ${none?(scanned?empty("지금 처리할 문제가 없습니다.","새 사건이 생기면 여기에 해결방안과 함께 나타납니다."):empty("아직 종합 점검 전입니다.","첫 자동 점검이 끝나면 발견된 문제와 해결 경로가 여기에 나타납니다. ‘문제 없음’이 아니라 ‘아직 확인 전’입니다.")):""}
     ${lane("컴퓨터가 자동 처리 중 (AI 없이)","good","재점검하며 신호가 회복되면 자동으로 닫습니다 — 회장님이 누를 것 없음.",b.selfHeal||[],"self_heal")}
     ${lane("Codex(AI)로 고칠 일","warn","‘승인하고 맡기기’를 누르면 실행기가 코드로 고칩니다.",b.codex||[],"codex")}
     ${lane("회장 확인 필수","bad","비밀키·권한·결제·법률 — 회장님만 처리할 수 있습니다.",b.human||[],"human")}`;
@@ -397,7 +404,11 @@ function incidentBoardPanel(){
 
 /* ── 자율 개선 Loop 보드 (v2.6.0) — 목표·합격기준·상태·원래 계약 재검증 ── */
 const LOOP_AUTH_LABEL={self_heal:"컴퓨터 자동",codex:"Codex 수정",human:"회장 확인"};
-const LOOP_AUTH_TONE={self_heal:"good",codex:"warn",human:"bad"};
+// 상태 칩 색은 '누가 맡았나(authorityClass)'가 아니라 '지금 어떤 상태인가'를 따라야 한다.
+// 예전엔 self_heal이면 무조건 초록이라, 외부 대기·안전 중단으로 멈춘 Loop도 건강한 초록으로 위장됐다.
+// (담당 구분은 헤더 small의 LOOP_AUTH_LABEL로 그대로 보여 정보 손실 없음.)
+const LOOP_STATE_TONE={RECOVERED:"good",CLOSED:"good",FAILED_SAFE:"bad",BLOCKED_EXTERNAL:"warn",BLOCKED_HUMAN:"gold",RETRY_WAIT:"warn",AWAITING_APPROVAL:"gold",QUEUED:"neutral",TRIAGED:"neutral",DISCOVERED:"neutral"};
+const loopStateTone=(s)=>LOOP_STATE_TONE[s]||"accent"; // 그 외 조사·수정·검증·배포 등은 진행 중(accent)
 function loopBoardPanel(){
   const L=HQ?.loops; if(!L)return "";
   const rows=(L.activeLoops||[]).slice(0,12).map(lp=>{
@@ -406,7 +417,7 @@ function loopBoardPanel(){
     const appUrl=lp.targetApp&&appById(lp.targetApp)?.url;
     const openApp=appUrl?`<a class="button ghost" href="${attr(appUrl)}" target="_blank" rel="noopener">앱 열기</a>`:"";
     const foot=[retry,evid,openApp].filter(Boolean).join("");
-    return `<article><header><div><span>${lp.targetApp?esc(appName(lp.targetApp)||lp.targetApp):"회사 전체"} · ${lp.iteration>1?`${lp.iteration}번째 시도 · `:""}${esc(ago(lp.updatedAt))}</span><h3>${esc(lp.objective)}</h3><small>${esc(lp.loopType)} · ${esc(LOOP_AUTH_LABEL[lp.authorityClass]||lp.authorityClass)}</small></div>${tonePill(LOOP_AUTH_TONE[lp.authorityClass]||"neutral",esc(lp.stateLabel||lp.state))}</header>${lp.nextAction?`<p>다음: ${esc(lp.nextAction)}</p>`:""}${(lp.acceptanceCriteria||[]).length?`<p class="fine">합격 기준: ${lp.acceptanceCriteria.map(c=>esc(c.id)).join(" · ")}${lp.evidence?.origin_recheck?` · 원래 계약: ${esc(lp.evidence.origin_recheck)}`:""}</p>`:""}${foot?`<footer>${foot}</footer>`:""}</article>`;
+    return `<article><header><div><span>${lp.targetApp?esc(appName(lp.targetApp)||lp.targetApp):"회사 전체"} · ${lp.iteration>1?`${lp.iteration}번째 시도 · `:""}${esc(ago(lp.updatedAt))}</span><h3>${esc(lp.objective)}</h3><small>${esc(lp.loopType)} · ${esc(LOOP_AUTH_LABEL[lp.authorityClass]||lp.authorityClass)}</small></div>${tonePill(loopStateTone(lp.state),esc(lp.stateLabel||lp.state))}</header>${lp.nextAction?`<p>다음: ${esc(lp.nextAction)}</p>`:""}${(lp.acceptanceCriteria||[]).length?`<p class="fine">합격 기준: ${lp.acceptanceCriteria.map(c=>esc(c.id)).join(" · ")}${lp.evidence?.origin_recheck?` · 원래 계약: ${esc(lp.evidence.origin_recheck)}`:""}</p>`:""}${foot?`<footer>${foot}</footer>`:""}</article>`;
   }).join("");
   const meta=L.meta;
   const metaLine=meta&&meta.issueCount?`<div class="run-banner off" style="margin:4px 0 10px"><span class="dot"></span><b>자기 점검(Meta) — 손볼 Loop ${meta.issueCount}건</b><span class="rb-sub">${esc(meta.issues.slice(0,3).map(i=>`${({missing_role:"담당 누락",missing_criteria:"기준 누락",broken_wiring:"작업 연결 끊김",retry_storm:"재시도 폭주",stuck:"멈춤"}[i.kind]||i.kind)}: ${i.objective||i.loopId}`).join(" · "))}</span></div>`:(meta?`<p class="fine">자기 점검(Meta): 활성 ${meta.activeCount}개 Loop 모두 정상 진행 중 — 멈춤·재시도 폭주·담당 누락 없음.</p>`:"");
@@ -467,7 +478,7 @@ function renderAutomation(){
   ${HQ?.runningTask?panel("실행 중 작업",`<div class="record-list"><article><header><div><span>${esc(appName(HQ.runningTask.app))}</span><h3>${esc(HQ.runningTask.title)}</h3></div>${tonePill("accent","작업 중")}</header><p>시작 ${fmt(HQ.runningTask.lease?.claimedAt)} · 마지막 신호 ${ago(HQ.runningTask.lease?.heartbeatAt)}</p></article></div>`):""}
   ${HQ?.nextTask?panel("다음 대기",`<div class="simple-list"><div><b>${esc(appName(HQ.nextTask.app))} · ${esc(HQ.nextTask.title)}</b>${tonePill("neutral","대기")}</div></div>`):""}
   ${panel("자동 점검 → 결재",`<div class="simple-list">
-    <div><b>${reviewLabel()} 6개 앱 종합 점검 후 개선 제안을 결재로 상신</b>${tonePill(autos?"gold":"good",autos?`상신 ${autos}건 대기`:"이상 없음")}</div>
+    <div><b>${reviewLabel()} 6개 앱 종합 점검 후 개선 제안을 결재로 상신</b>${tonePill(autos?"gold":"neutral",autos?`상신 ${autos}건 대기`:"대기 중 제안 없음")}</div>
     <a href="#/records/approvals"><b>결재함 열기</b><span class="status neutral">이동</span></a>
   </div>`)}
   ${incidentBoardPanel()}
@@ -587,10 +598,16 @@ function recBody(){
       return `<div class="panel-actions">${button("장애 기록","new-record","primary",'data-collection="incidents"',"plus")}</div>${down.length?`<div class="incident-banner">${icon("alert")}<b>운영 장애 ${down.length}건</b><span>${esc(down.map(a=>a.name).join(", "))}</span></div>`:""}${recordList("incidents",{emptyTitle:"기록된 장애가 없습니다."})}`;
     }
     case "delivery":return `<div class="delivery-list">${(SNAP.apps||[]).map(a=>`<article><div><h3>${esc(a.name)}</h3><p>${esc(a.deployTarget||"배포 방식 확인 중")}</p></div>${tonePill((HEALTH[a.health]||HEALTH.unknown)[1],(HEALTH[a.health]||HEALTH.unknown)[0])}<code>${esc(a.production?.deployedSha?.slice(0,12)||a.git?.sha||"—")}</code></article>`).join("")}</div>`;
-    case "data":return `<div class="data-grid">${familyApps().map(a=>`<article><header><h2>${esc(a.name)}</h2>${tonePill(a.production?.status==="PASS"?"good":"warn",a.production?.status||"확인")}</header><dl class="data-list"><dt>운영 확인</dt><dd>${esc(a.production?.version?`v${a.production.version}`:"확인 중")}</dd><dt>신선도</dt><dd>${esc(a.production?.warnings?.[0]||"운영 기준 통과")}</dd></dl></article>`).join("")}</div>`;
+    case "data":return `<div class="data-grid">${familyApps().map(a=>{
+      const ps=a.production?.status;
+      // 데이터 없음(production null)을 '통과'로 위장하지 않는다. FAIL은 amber가 아니라 red로 정직하게.
+      const dtone=ps==="PASS"?"good":ps==="FAIL"?"bad":ps==="STALE"?"warn":"neutral";
+      const dlabel=ps||"미확인";
+      const fresh=a.production?.warnings?.[0]||(a.production?"운영 기준 통과":"운영 데이터 미확인");
+      return `<article><header><h2>${esc(a.name)}</h2>${tonePill(dtone,dlabel)}</header><dl class="data-list"><dt>운영 확인</dt><dd>${esc(a.production?.version?`v${a.production.version}`:"확인 중")}</dd><dt>신선도</dt><dd>${esc(fresh)}</dd></dl></article>`;}).join("")}</div>`;
     case "backup":return `<div class="panel-actions">${button("지금 백업","backup","primary","","save")}${button("JSON 내보내기","export","ghost")}</div><dl class="data-list"><dt>저장 위치</dt><dd>${LOCAL.mode==="live"?"이 컴퓨터의 비공개 runtime 폴더":"브라우저 휴대용 저장"}</dd><dt>마지막 백업</dt><dd>${esc(LOCAL.meta?.lastBackupAt?fmt(LOCAL.meta.lastBackupAt):"아직 없음")}</dd><dt>백업 대상</dt><dd>회의·결재·업무·장애 기록과 감사 로그</dd></dl>`;
     case "connections":loadMobile();return mobilePanel()+connectionMarkup();
-    case "security":return `<div class="security-grid">${(SNAP.operations?.security||[]).map(c=>`<article>${tonePill(c.ok?"good":"warn",c.ok?"통과":"확인")}<h3>${esc(c.name)}</h3><p>${esc(c.note||"")}</p></article>`).join("")||empty("보안 점검 항목을 불러오지 못했습니다.")}</div>`;
+    case "security":return `<div class="security-grid">${(SNAP.operations?.security||[]).map(c=>`<article>${tonePill(c.ok?"good":"bad",c.ok?"통과":"실패")}<h3>${esc(c.name)}</h3><p>${esc(c.note||"")}</p></article>`).join("")||empty("보안 점검 항목을 불러오지 못했습니다.")}</div>`;
     case "settings":return `
       ${executorConfigPanel()}
       ${panel("자동 점검 주기",`<div class="today-actions" style="gap:8px;align-items:center;flex-wrap:wrap"><label class="fine" for="reviewInterval">점검 주기</label>${reviewIntervalSelect()}${button("적용","apply-review-schedule","secondary","","check")}</div><p class="fine">${reviewLabel()} 종합 점검 후 개선 제안을 결재로 상신합니다. 짧을수록 자주 점검하지만 사용량이 늘 수 있어요.</p>`)}

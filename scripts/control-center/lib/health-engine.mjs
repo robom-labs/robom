@@ -32,28 +32,36 @@ function productionResult(app) {
     recommendedAction: "운영 배포와 핵심 자산을 확인하고 마지막 정상 배포로 복구합니다.", actual: p.warnings?.[0] || "FAIL", expected: "정상 응답(200)" };
   return { ...base, status: HEALTH_STATUS.UNAVAILABLE, severity: "info", actual: p.status || null, expected: "PASS" };
 }
+// 배포가 완료되지 못한 종료 상태들. failure만 보면 timed_out·startup_failure로 끝난 실패 배포를 '정상'으로 위장한다.
+const FAILED_CI_CONCLUSIONS = new Set(["failure", "timed_out", "startup_failure"]);
 function ciResult(app) {
   const base = { contractId: `ci:${app.id}`, target: app.id, category: "ci", failureClass: "ci" };
   const ci = app.ci || [];
   if (!ci.length) return { ...base, status: HEALTH_STATUS.UNAVAILABLE, severity: "info", actual: null, expected: "CI 실행 이력" };
-  const latest = ci[0];
-  if (latest.status && latest.status !== "completed") return { ...base, status: HEALTH_STATUS.PASS, severity: "info", actual: "in_progress", expected: "완료" }; // 실행 중은 정상
-  if (latest.conclusion === "failure") return { ...base, status: HEALTH_STATUS.FAIL, severity: "error",
-    userImpact: `${app.name} 자동 검사(CI)가 실패로 끝났습니다. 다음 배포 안전성에 영향이 있을 수 있습니다.`,
-    recommendedAction: "실패 로그를 확인하고 배포 전에 원인을 수정하거나 재실행합니다.", actual: `${latest.name || "workflow"}: failure`, expected: "success" };
-  return { ...base, status: HEALTH_STATUS.PASS, severity: "info", actual: latest.conclusion || "success", expected: "success" };
+  // build-snapshot(appHealth)과 동일 규칙: 배포(deploy) run만으로 판정한다. ci[0](최근 아무 워크플로)로 보면
+  // lint·test 실패가 '배포 위험'으로 거짓 경보되고, 배포 run이 오래됐는데 최근 lint가 통과하면 실패한 배포를 가린다.
+  const deploy = ci.find((r) => /deploy/i.test(r.name));
+  if (!deploy) return { ...base, status: HEALTH_STATUS.UNAVAILABLE, severity: "info", actual: "배포 워크플로 없음", expected: "배포 run 이력" };
+  if (deploy.status && deploy.status !== "completed") return { ...base, status: HEALTH_STATUS.PASS, severity: "info", actual: "in_progress", expected: "완료" }; // 실행 중은 정상
+  if (FAILED_CI_CONCLUSIONS.has(deploy.conclusion)) return { ...base, status: HEALTH_STATUS.FAIL, severity: "error",
+    userImpact: `${app.name} 배포 자동 검사(CI)가 ${deploy.conclusion}로 끝났습니다. 다음 배포 안전성에 영향이 있을 수 있습니다.`,
+    recommendedAction: "실패 로그를 확인하고 배포 전에 원인을 수정하거나 재실행합니다.", actual: `${deploy.name || "deploy"}: ${deploy.conclusion}`, expected: "success" };
+  return { ...base, status: HEALTH_STATUS.PASS, severity: "info", actual: deploy.conclusion || "success", expected: "success" };
 }
 function prAgeResult(app, now) {
   const base = { contractId: `pr-age:${app.id}`, target: app.id, category: "github", failureClass: "open_pr" };
-  const prs = app.openPrs || [];
+  // draft PR은 아직 '병합 대기'가 아니라 의도된 작업 중이므로 정체 신호에서 제외한다(거짓 경보 방지).
+  const prs = (app.openPrs || []).filter((pr) => !pr.draft);
   if (!prs.length) return { ...base, status: HEALTH_STATUS.PASS, severity: "info", actual: 0, expected: "정체 PR 없음" };
-  const ageDays = (pr) => { const t = Date.parse(pr.createdAt || pr.created_at || ""); return Number.isFinite(t) ? (now.getTime() - t) / 86_400_000 : 0; };
-  const oldest = Math.max(...prs.map(ageDays));
+  // 스냅샷 PR 객체에는 updatedAt만 있다(createdAt·created_at은 존재하지 않음 → 옛 코드는 항상 0일로 판정해
+  // 30일 넘은 정체 PR도 전부 PASS로 삼켰다). 마지막 활동 이후 경과 = 진짜 '정체' 신호로 판정한다.
+  const idleDays = (pr) => { const t = Date.parse(pr.updatedAt || ""); return Number.isFinite(t) ? (now.getTime() - t) / 86_400_000 : 0; };
+  const oldest = Math.max(...prs.map(idleDays));
   if (oldest >= 30) return { ...base, status: HEALTH_STATUS.FAIL, severity: "error",
-    userImpact: `${app.name}에 30일 넘게 병합되지 않은 변경이 있습니다.`, recommendedAction: "리뷰를 마치고 병합하거나 필요 없으면 닫아 정리합니다.", actual: `${Math.round(oldest)}일`, expected: "30일 미만" };
+    userImpact: `${app.name}에 30일 넘게 활동 없이 병합되지 않은 변경이 있습니다.`, recommendedAction: "리뷰를 마치고 병합하거나 필요 없으면 닫아 정리합니다.", actual: `${Math.round(oldest)}일 정체`, expected: "30일 미만" };
   if (oldest >= 14) return { ...base, status: HEALTH_STATUS.DEGRADED, severity: "warning",
-    userImpact: `${app.name}에 병합 대기 중인 변경이 오래 남아 있습니다.`, recommendedAction: "리뷰를 마치고 병합하거나 닫아 작업 흐름을 정리합니다.", actual: `${Math.round(oldest)}일`, expected: "14일 미만", failureClass: "open_pr_warn" };
-  return { ...base, status: HEALTH_STATUS.PASS, severity: "info", actual: `${Math.round(oldest)}일`, expected: "14일 미만" };
+    userImpact: `${app.name}에 병합 대기 중인 변경이 오래 방치돼 있습니다.`, recommendedAction: "리뷰를 마치고 병합하거나 닫아 작업 흐름을 정리합니다.", actual: `${Math.round(oldest)}일 정체`, expected: "14일 미만", failureClass: "open_pr_warn" };
+  return { ...base, status: HEALTH_STATUS.PASS, severity: "info", actual: `${Math.round(oldest)}일 정체`, expected: "14일 미만" };
 }
 function nextActionResult(app) {
   const base = { contractId: `next-action:${app.id}`, target: app.id, category: "roadmap", failureClass: "next_action" };
