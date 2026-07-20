@@ -31,6 +31,12 @@ for (const app of apps) {
     errors.push(`${app.id}: deployed_sha가 registry와 다릅니다. (${deployedSha ?? "없음"} != ${app.last_deployed_sha})`);
   }
 }
+// registry에 없는 여분 항목(폐기된 앱의 잔존 compatibility 블록)은 지금까지 검사 대상에서
+// 완전히 빠져 무기한 방치될 수 있었다 — 드리프트 검출기 자신의 사각지대를 없앤다.
+const registryIds = new Set(apps.map((app) => app.id));
+for (const id of appBlocks.keys()) {
+  if (!registryIds.has(id)) errors.push(`${id}: registry에 없는 여분 compatibility 항목(폐기된 앱이면 제거하세요).`);
+}
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
