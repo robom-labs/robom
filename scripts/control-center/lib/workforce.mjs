@@ -186,7 +186,9 @@ export function computeWorkforce({ report = null, tasks = [], authority = { mode
     const owned = byOwner[s.id] || [];
     const verifies = byVerifier[s.id] || [];
     const myTasks = taskByStaff[s.id] || [];
-    const failing = owned.filter((r) => r.status === "FAIL");
+    // FAIL뿐 아니라 DEGRADED+warning(info 아님)도 '주의 필요'다 — health 엔진은 이를 incident로 올리는데
+    // workforce 헤드라인만 빼면 두 화면이 어긋난다(사건판엔 뜨는데 '실패 N'엔 안 잡힘). 같은 기준으로 맞춘다.
+    const failing = owned.filter((r) => r.status === "FAIL" || (r.status === "DEGRADED" && r.severity && r.severity !== "info"));
     const failingHuman = failing.filter((r) => r.human);
     const failingAuto = failing.filter((r) => !r.human);
     let state, work = null, current = null;
@@ -217,7 +219,7 @@ export function computeWorkforce({ report = null, tasks = [], authority = { mode
     else if (failingHuman.length) {
       state = "BLOCKED"; const f = failingHuman[0];
       work = `막힘 · ${f.human.note} · ${f.what || f.contractId}`;
-      current = { id: f.contractId, what: f.what, target: f.target, status: "FAIL", auto: false, note: f.human.note };
+      current = { id: f.contractId, what: f.what, target: f.target, status: f.status || "FAIL", auto: false, note: f.human.note };
     }
     else if (failingAuto.length && !monitorOnly) {
       // 실제 작업(myTasks)이 없으면 REPAIRING으로 위장하지 않는다. 실행기는 1대라 큐에서 순차 처리 →
@@ -225,7 +227,7 @@ export function computeWorkforce({ report = null, tasks = [], authority = { mode
       state = "TRIAGING";
       const f = failingAuto[(bucket + hash(s.id)) % failingAuto.length];
       work = `${executorConnected ? "자동 수정 대기(Codex 큐 · 순차)" : "자동 수정 대기(실행기 연결 시 시작)"} · ${f.what || f.contractId}`;
-      current = { id: f.contractId, what: f.what, target: f.target, status: "FAIL", auto: true, note: executorConnected ? "Codex 큐에서 순차 수정 대기" : "Codex 실행기 연결 시 자동 시작" };
+      current = { id: f.contractId, what: f.what, target: f.target, status: f.status || "FAIL", auto: true, note: executorConnected ? "Codex 큐에서 순차 수정 대기" : "Codex 실행기 연결 시 자동 시작" };
     }
     else if (failingAuto.length) { // monitorOnly: 수정 금지, 관제만
       state = "MONITORING"; const f = failingAuto[0]; work = `관제 · 수정 보류(관제 모드) · ${f.what || f.contractId}`;

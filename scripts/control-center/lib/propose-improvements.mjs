@@ -44,11 +44,16 @@ export function generateProposals(snapshot, existingApprovals = [], { limit = 5 
       title: `${app.name} 열린 PR ${app.openPrs.length}건 검토`, body: "머지 대기 중인 변경이 남아 있습니다.",
       recommendation: "리뷰를 마치고 머지하거나, 필요 없으면 닫아 작업 흐름을 정리합니다." });
   }
-  // 5) 회사 차원 보안 점검 실패 → 보안 확인 제안(실측 점검 결과가 있을 때만)
-  const failedSecurity = (snapshot.operations?.security || []).filter((c) => c && c.ok === false);
-  if (failedSecurity.length) push({ appId: "", key: KEY("company", "security"), priority: "high",
-    title: `보안 점검 ${failedSecurity.length}건 확인 필요`, body: failedSecurity.map((c) => c.name).filter(Boolean).join(", ") || "보안 점검 항목이 통과하지 못했습니다.",
-    recommendation: "비밀값 노출·권한·외부 링크 등 실패 항목을 확인하고 조치합니다." });
+  // 5) 회사 보안 점검 실패 → 실패 항목마다 개별 제안. 예전엔 전부 하나의 company:security 키로 묶어,
+  //    한 건이 상신돼 있는 동안 새로 실패한 다른 점검이 dedup에 걸려 안 보였다(한 문제가 다른 문제를 가림).
+  //    점검별 고유 키를 쓰되 끝은 :security로 유지해 serve의 필터·human 분류가 그대로 작동하게 한다.
+  for (const c of (snapshot.operations?.security || [])) {
+    if (!c || c.ok !== false) continue;
+    const slug = String(c.name || "check").trim().replace(/\s+/g, "-").replace(/[^\w가-힣-]/g, "").slice(0, 40) || "check";
+    push({ appId: "", key: `company:${slug}:security`, priority: "high",
+      title: `보안 점검 실패: ${c.name || "확인 필요"}`, body: c.note || "보안 점검 항목이 통과하지 못했습니다.",
+      recommendation: "비밀값 노출·권한·외부 링크 등 실패 항목을 확인하고 조치합니다." });
+  }
 
   // 6) 성장 백로그가 마르지 않게: 급한 장애·구체 개선 신호가 없는(건강한) 앱에도 '다음 성장' 한 걸음을 세워둔다.
   //    가짜 문제를 지어내지 않는다 — 문제가 없음을 정직히 밝히고, Codex 실행기가 실제 코드베이스를 보고

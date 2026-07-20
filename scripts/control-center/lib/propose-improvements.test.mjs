@@ -29,6 +29,20 @@ test("이미 올라온 제안(proposalKey)은 중복 생성하지 않는다", ()
   assert.equal(generateProposals(s, []).length, 1);
 });
 
+test("보안 점검 실패는 항목마다 개별 제안 — 한 건이 다른 건을 가리지 않는다(끝은 :security 유지)", () => {
+  const s = { apps: [{ id: "outbom", name: "야외봄", health: "ok" }], operations: { security: [
+    { name: "비밀값 원문 저장 차단", ok: false, note: "거부 로직 미확인" },
+    { name: "서버 접근 범위", ok: false, note: "약한 토큰" },
+    { name: "내부 runtime 커밋 제외", ok: true },
+  ] } };
+  const out = generateProposals(s, [], { limit: 20 });
+  const sec = out.filter((p) => /:security$/.test(p.key));
+  assert.equal(sec.length, 2, "실패 2건 → 개별 제안 2건(모두 :security로 끝나 serve 필터 통과)");
+  // 한 건이 이미 상신돼 있어도 나머지 다른 건은 새로 상신된다(단일 키로 가려지지 않음)
+  const withOnePending = generateProposals(s, [{ proposalKey: sec[0].key, status: "pending" }], { limit: 20 });
+  assert.ok(withOnePending.some((p) => p.key === sec[1].key), "다른 보안 실패는 계속 보인다");
+});
+
 test("가짜 문제는 안 만든다 — 건강한 앱엔 정직한 '성장 지시'만(회장 요구 8)", () => {
   // 건강한 앱: 장애·경고를 지어내지 않되, 유지보수에 머물지 않도록 정직한 성장 지시 하나를 세운다.
   const out = generateProposals(snap([{ id: "outbom", name: "야외봄", health: "ok" }]), []);

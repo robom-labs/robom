@@ -136,6 +136,21 @@ test("실행기가 연결돼도 실제 작업(task)이 없으면 '수정 중'으
   assert.ok(out.contractsAutoFixing >= 2, "실패 계약은 자동 수정 '대기'로는 잡힌다");
 });
 
+test("DEGRADED+warning 계약도 '주의 필요'로 집계 — 사건판과 workforce 헤드라인이 어긋나지 않는다", () => {
+  const report = { runAt: new Date().toISOString(), results: [
+    { contractId: "c:homebom:open-pr-age", target: "homebom", category: "github", status: "DEGRADED", severity: "warning", what: "정체 PR", needNewSource: false },
+    { contractId: "c:outbom:production-home", target: "outbom", category: "production", status: "PASS", severity: "info", what: "운영", needNewSource: false },
+  ] };
+  const out = computeWorkforce({ report, tasks: [], authority: { mode: "RUNNING" }, now: new Date("2026-07-19T04:00:00Z"), executorConnected: false });
+  assert.ok(out.contractsFailing >= 1, "DEGRADED+warning은 실패/주의 총계에 포함");
+  // info 심각도 DEGRADED는 주의로 올리지 않는다(노이즈 방지)
+  const infoReport = { runAt: new Date().toISOString(), results: [
+    { contractId: "c:homebom:next", target: "homebom", category: "roadmap", status: "DEGRADED", severity: "info", what: "다음 개선", needNewSource: false },
+  ] };
+  const infoOut = computeWorkforce({ report: infoReport, tasks: [], authority: { mode: "RUNNING" }, now: new Date("2026-07-19T04:00:00Z") });
+  assert.equal(infoOut.contractsFailing, 0, "DEGRADED+info는 주의로 올리지 않음");
+});
+
 test("queued·blocked 업무는 '자동 수정 중'으로 위장하지 않는다 — executorBusy가 capacity를 넘지 않음", () => {
   const report = { runAt: new Date().toISOString(), results: [] };
   const tasks = [
