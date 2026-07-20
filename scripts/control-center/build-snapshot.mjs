@@ -25,7 +25,9 @@ function todayKst(iso) {
 
 function appHealth(ci) {
   if (!ci || ci.length === 0) return "unknown";
-  const latestDeploy = ci.find((r) => /deploy/i.test(r.name)) || ci[0];
+  // 배포 run이 없으면 무관한 워크플로(lint·test 등)로 앱을 down/ok 판정하지 않는다(거짓 장애·거짓 정상 방지) → 미확인.
+  const latestDeploy = ci.find((r) => /deploy/i.test(r.name));
+  if (!latestDeploy) return "unknown";
   if (latestDeploy.status !== "completed") return "running";
   return latestDeploy.conclusion === "success" ? "ok" : latestDeploy.conclusion === "failure" ? "down" : "warn";
 }
@@ -51,7 +53,8 @@ async function collectApp(app) {
   const health = production?.status === "PASS" ? "ok" : production?.status === "STALE" ? "warn" : production?.status === "FAIL" ? "down" : appHealth(ci);
   const fields = controlCenterFields(app);
   const todayDeploys = (ci || []).filter((r) => /deploy/i.test(r.name) && todayKst(r.createdAt) === todayKst(NOW));
-  const todayFails = (ci || []).filter((r) => r.conclusion === "failure" && todayKst(r.createdAt) === todayKst(NOW));
+  // '오늘 실패'는 배포 실패를 뜻한다('오늘 배포'와 같은 기준). lint·test 워크플로 실패로 배포 실패 수를 부풀리지 않는다.
+  const todayFails = (ci || []).filter((r) => /deploy/i.test(r.name) && r.conclusion === "failure" && todayKst(r.createdAt) === todayKst(NOW));
   return {
     id,
     name: app.name,
@@ -133,7 +136,14 @@ async function main() {
   // 승인함(선택): approvals.yml + 이벤트의 approval_requested pending
   const approvalsFile = parseYamlList(readText(join(REPO_ROOT, "ops/control-center/approvals.yml")), "approvals");
   const eventApprovals = runs.filter((r) => r.status === "approval_pending").map((r) => ({ id: r.runId, decision: r.task, app: r.appId, from: "event" }));
-  const approvals = [...approvalsFile, ...eventApprovals];
+  // 같은 안건이 approvals.yml과 이벤트 양쪽에 있으면 회장 화면에 두 번 뜬다 → id 기준 중복 제거.
+  const approvalSeen = new Set();
+  const approvals = [...approvalsFile, ...eventApprovals].filter((a) => {
+    const key = a?.id || `${a?.app || ""}:${a?.decision || ""}`;
+    if (approvalSeen.has(key)) return false;
+    approvalSeen.add(key);
+    return true;
+  });
 
   // 회사 요약(연출 없이 실데이터 집계)
   const workingStatuses = new Set(["assigned", "investigating", "implementing", "verifying", "fixing", "deploying", "working"]);
