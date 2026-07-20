@@ -162,7 +162,13 @@
   - **[HIGH·승인 게이트 붕괴] 사람 승인 대기가 30분 뒤 조용히 사라짐** — `deriveRuns`가 비종료 run을 30분 경과 시 무조건 `needs_check`로 낮춰, 이벤트 기반 `approval_pending`·`external_wait`(사람/외부 대기는 정상적으로 오래 걸림)가 회장 승인함(build-snapshot의 approvalPending)에서 **시간 경과만으로 빠졌다**. CLAUDE.md의 human-in-the-loop 승인 경계를 정면으로 무너뜨리는 결함. → 대기 상태(`approval_pending`·`external_wait`)를 stale 강등 예외로(터미널처럼) 처리해 결재될 때까지 승인함에 유지. 테스트 추가.
   - **[LOW] run 정렬이 버렸던 localeCompare 안티패턴 재도입** — `lastActivity` null 항목이 실제 시각보다 뒤로 정렬돼 순서 오염 → 시각 비교로 교체(깨진 값은 가장 과거). 
   - **[MED·정직성, hq-v3.3.21에서 처리] 손상 이벤트 유실이 화면에 안 뜸(M2)** — 손상 라인을 건너뛰고 로그엔 남기지만 스냅샷 `connections.events`는 무조건 'connected'라 회장이 데이터 유실을 못 봤다. → `readEventsWithMeta`로 dropped 수를 반환해 스냅샷에 `degraded(손상 N줄 건너뜀 — 일부 상태 부정확)`으로 정직 노출. 테스트 추가.
-  - 정직하게 후속 문서화: M1(이벤트 히스토리 무회전 — 다월 운영 시 디스크·스냅샷 크기 증가)은 실제 결함이나, 날짜 윈도우/rotation을 넣되 **장기 대기(external_wait 스토어 심사 등) 항목이 유실되지 않게** 하는 설계가 필요해 별도 라운드로 신중히. 자동시작 L3/L4(트레이 마커 없는 OS 직접 활성 클로버·legacy uninstall의 launchctl disable 생략)는 의도된 tradeoff/경미로 문서화.
+  - 정직하게 후속 문서화: M1(이벤트 히스토리 무회전 — 다월 운영 시 디스크·스냅샷 크기 증가)은 실제 결함이나, 날짜 윈도우/rotation을 넣되 **장기 대기(external_wait 스토어 심사 등) 항목이 유실되지 않게** 하는 설계가 필요해 별도 라운드로 신중히.
+
+- **26차(세션 자기검증 → 자기 결함 수정 — hq-v3.3.22)** → 이 세션 변경분(3.3.11~3.3.21)을 적대적으로 자기검증. 핵심 정직 경로(CLOSE 게이트·ciResult·workforce 파티션·runner backoff·events·정규식·카탈로그)는 **전부 건전** 확인. 내가 이 세션에 넣은 실제 결함만 수정: **[MED]** self_heal 승격 결재가 승인되면 existingKeys에서 빠져 매 실행 중복 상신됐고 회복돼도 안 닫힘 → 승격은 **열린 Loop 유무**로 중복 방지, 회복 시 `#escalated` 결재도 base contractId로 함께 종료. **[LOW]** 회복 경로가 존재하지 않는 `loop.fixClass`를 읽던 것 → `loop.authorityClass`로 교정.
+- **27차(두 CI 엔진 판정 일치 — hq-v3.3.23)** → `evalGithubActions`(deep)가 skipped·neutral·action_required·cancelled를 FAIL(사건)로 올려 health-engine `ciResult`(3.3.19: DEGRADED-info)와 어긋나던 것 → 실제 실패(failure·timed_out·startup_failure)만 FAIL, 나머지 비성공 종료는 **DEGRADED-info**(deep 계약 severityIfFail=error여도 incident 안 나게 severity:info 명시)로 통일. 테스트 추가. **알려진 이월 결함 전부 소진.**
+
+## 코덱스 부재 대응(2026-07-20~ · 토큰 1주 후)
+- 코덱스 토큰이 일주일 뒤 도착. 그때까지 **앱 저장소 코드 수정** 필요 항목은 `docs/hq/CODEX-PENDING-REQUESTS.md`에 대기열로 적재. HQ 본체(robom 저장소) 개선은 Claude가 직접 계속(audit→fix→release). 프로덕션 실측 장애는 HQ 실행 중 결재함으로 자동 상신되므로 대기열이 아니라 그쪽으로 흐른다. 자동시작 L3/L4(트레이 마커 없는 OS 직접 활성 클로버·legacy uninstall의 launchctl disable 생략)는 의도된 tradeoff/경미로 문서화.
 
 ## 회장 추가 요구(7·8·9) 반영 (hq-v3.3.0~)
 - **9. 설정 화면 + Codex 모델 클릭 선택** — 배포됨(3.3.0): 실행기 모델을 텍스트 타이핑이 아니라 **클릭 리스트**(기본값·gpt-5-codex·gpt-5·o4-mini·o3)로 고른다. 추론 강도(낮음/보통/높음)도 클릭. 점검 주기·모델·강도를 '설정' 화면으로 이동(자동화 화면에서 링크로 안내).
