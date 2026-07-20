@@ -9,6 +9,18 @@ import { DEFAULT_COMPANY_RUNTIME_DIR } from "./company-store.mjs";
 
 const FILE = (dir) => join(resolve(dir), "mobile-access.json");
 export const DEFAULT_MOBILE_PORT = Number(process.env.ROBOM_HQ_MOBILE_PORT || 4323);
+// 페어링 토큰 수명(기본 30일). 24h 쿠키 Max-Age는 브라우저만 잊게 할 뿐 서버는 같은 값을 영원히 받아줬다
+// → 유출된 QR/토큰이 무기한 유효했다. 서버가 발급 시각(updatedAt)+TTL로 실제 만료를 강제한다(재발급하면 리셋).
+export const MOBILE_TOKEN_TTL_MS = Number(process.env.ROBOM_HQ_MOBILE_TTL_MS || 30 * 24 * 3600_000);
+export function mobileTokenExpiresAt(state) {
+  const issued = Date.parse(state?.updatedAt || "");
+  return Number.isFinite(issued) ? new Date(issued + MOBILE_TOKEN_TTL_MS).toISOString() : null;
+}
+export function mobileTokenExpired(state, now = new Date()) {
+  const issued = Date.parse(state?.updatedAt || "");
+  if (!Number.isFinite(issued)) return false; // 발급 시각 없음(구버전·수기 편집) → 만료 판정 보류(재발급 시 정상화)
+  return (now.getTime() - issued) > MOBILE_TOKEN_TTL_MS;
+}
 
 // 폰으로 입력할 수도 있게 짧고 헷갈리는 글자(0/O·1/l) 없는 토큰. 총 17자 ≥ 12자 요건 충족.
 export function generateMobileToken() {

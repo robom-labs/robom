@@ -21,7 +21,7 @@ import { runContractEngine, contractResultsToRaw } from "./lib/contract-engine.m
 import { buildContractCatalog, catalogCoverage } from "./lib/contract-catalog.mjs";
 import { readApps } from "./lib/sources.mjs";
 import { tryActivatePlaywrightDriver } from "./lib/browser-driver.mjs";
-import { readMobileAccess, writeMobileAccess, regenerateMobileToken, connectUrls, DEFAULT_MOBILE_PORT } from "./lib/mobile-access.mjs";
+import { readMobileAccess, writeMobileAccess, regenerateMobileToken, connectUrls, DEFAULT_MOBILE_PORT, mobileTokenExpired, mobileTokenExpiresAt } from "./lib/mobile-access.mjs";
 import { readAuthority, writeAuthority, isDelegable, currentShift, COMPANY_MODES, COMPANY_MODE_LABELS, APPROVAL_MODES } from "./lib/company-authority.mjs";
 import { classifyFix, classifyIncidents, resolutionLine } from "./lib/incident-fix.mjs";
 import { createLoop, transitionLoop, openIteration, findLoopByContract, findLoopByTask, summarizeLoops, pruneClosedLoops } from "./lib/loop-engine.mjs";
@@ -748,7 +748,9 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
     if (req.method === "GET") {
       if (!local) { sendJson(res, 200, { ok: true, enabled: mobileEnabled(), connectedRemotely: true }); return; }
       const state = MOBILE_STATE || readMobileAccess();
-      sendJson(res, 200, { ok: true, enabled: Boolean(state.enabled), port: state.port, token: state.enabled ? state.token : null, urls: connectUrls(state), listening: Boolean(mobileServer) });
+      // 만료된 토큰은 '연결됨'으로 위장하지 않는다 — token·urls를 숨기고 expired 플래그로 재발급을 안내한다.
+      const expired = Boolean(state.enabled) && mobileTokenExpired(state);
+      sendJson(res, 200, { ok: true, enabled: Boolean(state.enabled), expired, expiresAt: mobileTokenExpiresAt(state), port: state.port, token: state.enabled && !expired ? state.token : null, urls: expired ? [] : connectUrls(state), listening: Boolean(mobileServer) });
       return;
     }
     if (req.method !== "POST") { sendText(res, 405, "method not allowed", { Allow: "GET, POST" }); return; }
@@ -764,7 +766,7 @@ async function handleApi(req, res, path, store, maxBodyBytes, snapDir, local) {
       if (body.enabled) await startMobileListener(store);
       else stopMobileListener();
     }
-    sendJson(res, 200, { ok: true, enabled: Boolean(MOBILE_STATE.enabled), port: MOBILE_STATE.port, token: MOBILE_STATE.enabled ? MOBILE_STATE.token : null, urls: connectUrls(MOBILE_STATE), listening: Boolean(mobileServer) });
+    sendJson(res, 200, { ok: true, enabled: Boolean(MOBILE_STATE.enabled), expired: false, expiresAt: mobileTokenExpiresAt(MOBILE_STATE), port: MOBILE_STATE.port, token: MOBILE_STATE.enabled ? MOBILE_STATE.token : null, urls: connectUrls(MOBILE_STATE), listening: Boolean(mobileServer) });
     return;
   }
 
@@ -1049,7 +1051,8 @@ function resolveStaticFile(appDir, path) {
 const remoteSessions = new Map(); // ip → {count, windowStart} 간이 rate limit
 let MOBILE_STATE = null; // 시작·토글 시 갱신되는 캐시(파일 정본)
 let mobileServer = null;
-function mobileEnabled() { return Boolean(MOBILE_STATE?.enabled && MOBILE_STATE.token); }
+// 만료된 페어링 토큰은 '켜짐'으로 치지 않는다 — 유출된 토큰이 무기한 유효하지 않게 서버가 수명을 강제한다(재발급하면 리셋).
+function mobileEnabled() { return Boolean(MOBILE_STATE?.enabled && MOBILE_STATE.token && !mobileTokenExpired(MOBILE_STATE)); }
 function remoteAllowed() { return REMOTE_ENABLED || mobileEnabled(); }
 function tokenMatches(candidate) {
   if (typeof candidate !== "string" || !candidate) return false;

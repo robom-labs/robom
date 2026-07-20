@@ -54,6 +54,33 @@ test("보안 카드는 파일 존재가 아니라 실제 거부 로직으로 판
   assert.equal(secretCard(ops).ok, true);
 });
 
+test("보안 카드는 약한 원격 토큰·유료 API 키 env를 초록으로 위장하지 않는다(M1 — 실측)", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "robom-sec2-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await writeFile(join(root, ".gitignore"), "");
+  const KEYS = ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_BASE", "AZURE_OPENAI_API_KEY", "GEMINI_API_KEY"];
+  const saved = Object.fromEntries(KEYS.map((k) => [k, process.env[k]]));
+  const prevTok = process.env.ROBOM_HQ_REMOTE_TOKEN;
+  try {
+    for (const k of KEYS) delete process.env[k]; // 테스트는 모델 API 키 env를 비운 상태에서 판정
+    const scope = (ops) => ops.security.find((c) => c.name === "서버 접근 범위");
+    const paid = (ops) => ops.security.find((c) => c.name === "유료 API·키 미사용");
+    // 약한 토큰(20자여도 전부 같은 글자) → '서버 접근 범위' ok:false로 경고할 수 있어야 한다
+    process.env.ROBOM_HQ_REMOTE_TOKEN = "a".repeat(20);
+    assert.equal(scope(buildCompanyOperations(root, [])).ok, false, "약한 토큰은 경고");
+    // 충분히 무작위한 토큰 → ok:true
+    process.env.ROBOM_HQ_REMOTE_TOKEN = "ab7Kq2mZ9pR4tW6xEs3n";
+    assert.equal(scope(buildCompanyOperations(root, [])).ok, true, "강한 토큰은 통과");
+    assert.equal(paid(buildCompanyOperations(root, [])).ok, true, "API 키 env 없으면 통과");
+    // 유료 모델 API 키 env가 있으면 경고(슬로건 아닌 실측)
+    process.env.OPENAI_API_KEY = "sk-test";
+    assert.equal(paid(buildCompanyOperations(root, [])).ok, false, "API 키 env 설정 시 경고");
+  } finally {
+    if (prevTok === undefined) delete process.env.ROBOM_HQ_REMOTE_TOKEN; else process.env.ROBOM_HQ_REMOTE_TOKEN = prevTok;
+    for (const k of KEYS) { if (saved[k] === undefined) delete process.env[k]; else process.env[k] = saved[k]; }
+  }
+});
+
 test("서버 접근 카드는 원격 토큰이 켜지면 '로컬 전용'이라 위장하지 않는다", async (t) => {
   const root = await mkdtemp(join(tmpdir(), "robom-bind-"));
   t.after(() => rm(root, { recursive: true, force: true }));

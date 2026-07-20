@@ -59,13 +59,17 @@ export function buildCompanyOperations(repoRoot, apps = []) {
   const runtimeDir = process.env.ROBOM_HQ_RUNTIME_DIR || join(repoRoot, "ops/control-center/runtime");
   try { const ms = JSON.parse(read(join(runtimeDir, "mobile-access.json")) || "{}"); mobileOn = Boolean(ms?.enabled && ms?.token); } catch { /* 없으면 로컬 전용 */ }
   const exposedRemotely = remoteOn || mobileOn;
+  // 노출됐다면 토큰이 실제로 충분히 강한지까지 본다(약한 env 토큰을 초록으로 위장 금지 — 이 행이 경고할 수 있어야 한다).
+  const weakEnvToken = remoteOn && (remoteToken.length < 16 || /^(.)\1+$/.test(remoteToken));
+  // 유료 API 금지 원칙(Codex 구독 CLI만)을 슬로건이 아니라 실측한다 — 모델 API 키 env가 있으면 경고한다.
+  const paidKeyEnv = ["OPENAI_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_BASE", "AZURE_OPENAI_API_KEY", "GEMINI_API_KEY"].filter((k) => process.env[k]);
   const security = [
     { name: "내부 runtime 커밋 제외", ok: /ops\/control-center\/runtime/.test(gitignore), note: "회의·결재·검수 기록을 공개 저장소에서 제외합니다(.gitignore 규칙 확인)." },
     { name: "비밀값 원문 저장 차단", ok: secretBlockOk, note: secretBlockOk ? "토큰·키·비밀번호 패턴을 로컬 저장 단계에서 거부합니다(거부 로직 확인됨)." : "저장 거부 로직을 코드에서 확인하지 못했습니다 — 점검 필요." },
     exposedRemotely
-      ? { name: "서버 접근 범위", ok: true, note: `휴대폰·원격 연결이 켜져 있어 사설망(0.0.0.0)에 열려 있습니다. 모든 비로컬 요청은 토큰 인증을 거칩니다.` }
+      ? { name: "서버 접근 범위", ok: !weakEnvToken, note: weakEnvToken ? "원격 토큰이 짧거나 단순합니다 — 16자 이상 무작위 토큰으로 바꾸세요(약한 토큰은 인증을 뚫릴 위험)." : "휴대폰·원격 연결이 켜져 있어 사설망(0.0.0.0)에 열려 있고, 모든 비로컬 요청은 토큰 인증을 거칩니다." }
       : { name: "로컬 전용 서버", ok: true, note: "원격·휴대폰 연결이 꺼져 있어 127.0.0.1·localhost Host만 허용합니다." },
-    { name: "추가 유료 운영비 없음", ok: true, note: "설계 원칙 — GitHub 공개 REST(무료)만 사용하고 유료 API·상시 서버를 새로 켜지 않습니다." },
+    { name: "유료 API·키 미사용", ok: paidKeyEnv.length === 0, note: paidKeyEnv.length ? `모델 API 키 env가 설정됨(${paidKeyEnv.join(", ")}) — Codex 구독 CLI 원칙 위반 가능, 확인 필요.` : "모델 API 키 env가 없습니다. Codex 구독 CLI만 사용하고 유료 API·상시 서버를 새로 켜지 않습니다." },
   ];
   return { humanTasks, roadmap, automations, updates, security };
 }
