@@ -55,10 +55,23 @@ export function discoverRepoRoot() {
 }
 
 // 러너를 자식으로 실행하고 감시한다. runtimeDir/snapDir/repoRoot 환경을 자식에 전달한다.
+// 재시작 정책(순수 함수 — 단위 테스트 가능). 크래시 판정을 '15초 미만'이 아니라 '안정 가동(STABLE_UPTIME_MS) 미달'로
+// 넓혀, ~20초에 반복해서 죽는 '느린 크래시'도 backoff에 걸리게 한다(예전엔 3초 고정 재시작으로 무한 루프). 또한
+// 안정 가동 없이 너무 여러 번 연속 실패하면 재시작 간격을 크게 낮추고 회장 확인으로 escalate한다(자원·쿼터 소모 방지).
+export const STABLE_UPTIME_MS = 90_000;         // 이 이상 살아 있다가 종료하면 '정상 가동'으로 보고 크래시 카운터 리셋
+export const MAX_RESTART_BEFORE_ESCALATE = 15;  // 안정 가동 없이 이만큼 연속 재시작하면 간격을 크게 낮추고 escalate
+export const ESCALATE_DELAY_MS = 600_000;       // 10분 — 반복 실패 시 드물게만 재시도(무한 tight 루프 방지)
+export function restartPlan({ consecutiveFailures = 0, uptimeMs = 0 } = {}) {
+  const next = (Number.isFinite(uptimeMs) && uptimeMs >= STABLE_UPTIME_MS) ? 0 : Math.min(consecutiveFailures + 1, 20);
+  if (next >= MAX_RESTART_BEFORE_ESCALATE) return { consecutiveFailures: next, delayMs: ESCALATE_DELAY_MS, escalated: true };
+  const delayMs = next ? Math.min(3000 * 2 ** next, 120_000) : 3000;
+  return { consecutiveFailures: next, delayMs, escalated: false };
+}
+
 export function startRunnerSupervisor({ runtimeDir, snapDir, repoRoot = discoverRepoRoot(), logger = console, spawnProcess = spawn } = {}) {
   let child = null;
   let stopped = false;
-  let fastFailures = 0;
+  let consecutiveFailures = 0;
   let startedAt = 0;
   let timer = null;
 
@@ -94,30 +107,37 @@ export function startRunnerSupervisor({ runtimeDir, snapDir, repoRoot = discover
       child = spawnProcess(process.execPath, [RUNNER_SCRIPT], { env: childEnv(), stdio: ["ignore", "pipe", "pipe"], detached: process.platform !== "win32" });
     } catch (error) {
       markDown(`실행 실패: ${error.message}`);
-      scheduleRestart(true, `실행 실패: ${error.message}`);
+      scheduleRestart(0, `실행 실패: ${error.message}`); // 즉시 실패 → uptime 0(크래시)
       return;
     }
     child.stdout?.on("data", (d) => logger.log?.(String(d).trimEnd()));
     child.stderr?.on("data", (d) => logger.error?.(String(d).trimEnd()));
     let settled = false;
-    const handleStop = (reason, fast = Date.now() - startedAt < 15_000) => {
+    const handleStop = (reason) => {
       if (settled) return;
       settled = true;
       child = null;
+      const uptimeMs = Date.now() - startedAt; // 안정 가동 여부를 uptime으로 판정(느린 크래시도 backoff에 걸리게)
       markDown(reason);
-      scheduleRestart(fast, reason); // 15초 내 종료면 크래시로 간주
+      scheduleRestart(uptimeMs, reason);
     };
-    child.once("error", (error) => handleStop(`실행 실패: ${error.message}`, true));
+    child.once("error", (error) => handleStop(`실행 실패: ${error.message}`));
     child.once("exit", (code, signal) => handleStop(`실행기 종료(code ${code ?? signal ?? "?"})`));
     logger.log?.(`[robom-hq] codex-runner 자동 실행 중${repoRoot ? ` · 작업 저장소 ${repoRoot}` : " · 작업 저장소 미발견(요청은 대기열 보관)"}`);
   }
 
-  function scheduleRestart(fast, reason) {
+  function scheduleRestart(uptimeMs, reason) {
     if (stopped) return;
-    fastFailures = fast ? Math.min(fastFailures + 1, 6) : 0;
-    const delay = fast ? Math.min(3000 * 2 ** fastFailures, 120_000) : 3000; // 크래시 루프 보호(최대 2분)
-    logger.error?.(`[robom-hq] codex-runner ${reason || "종료"}; ${delay / 1000}초 뒤 자동 재시작`);
-    timer = setTimeout(spawnOnce, delay);
+    const plan = restartPlan({ consecutiveFailures, uptimeMs });
+    consecutiveFailures = plan.consecutiveFailures;
+    if (plan.escalated) {
+      // 안정 가동 없이 반복 실패 → 간격을 크게 낮추고 회장 확인으로 escalate(무한 tight 재시작·쿼터 소모 방지).
+      markDown(`반복 재시작 실패(${consecutiveFailures}회) — 재시작 간격을 ${ESCALATE_DELAY_MS / 60000}분으로 낮췄습니다. 회장 확인이 필요할 수 있습니다: ${reason}`);
+      logger.error?.(`[robom-hq] codex-runner 반복 실패 ${consecutiveFailures}회 — 재시작 간격 ${ESCALATE_DELAY_MS / 60000}분으로 낮춤(회장 확인 권장)`);
+    } else {
+      logger.error?.(`[robom-hq] codex-runner ${reason || "종료"}; ${plan.delayMs / 1000}초 뒤 자동 재시작`);
+    }
+    timer = setTimeout(spawnOnce, plan.delayMs);
     timer.unref?.();
   }
 
