@@ -33,6 +33,7 @@ jobs:
           node --check ops/control-center/app/office.js
           node scripts/control-center/build-snapshot.mjs
           node scripts/control-center/build-standalone.mjs
+          node scripts/control-center/build-health-contracts.mjs --check
           node ops/scripts/check-company-os.mjs
 
   site:
