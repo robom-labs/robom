@@ -578,15 +578,25 @@ async function evalAppDataValidator(c, ctx) {
   return validator(json, ctx, c);
 }
 
+// HTML 안의 모든 캐시버스트 버전(?v=…·&v=…)을 중복 없이 뽑는다. (순수 함수 — 테스트 가능)
+export function cacheBustVersions(html) {
+  return [...new Set([...String(html).matchAll(/[?&]v=([A-Za-z0-9._-]+)/g)].map((m) => m[1]))];
+}
+
 // 러닝봄 ASSET_VERSION: HTML 캐시버스트와 SW 캐시 버전 정합
 async function evalAssetVersionParity(c, ctx) {
   const s = await getSurface(ctx, c.config.url, c.config.baseUrl);
   if (!s.home.ok || s.home.status !== 200) return unavailable("home 실패", "가용성 계약이 담당");
-  const htmlVersion = s.home.bodyText.match(/[?&]v=([A-Za-z0-9._-]+)/)?.[1] || null;
+  // 첫 ?v=만 보던 것 → 모든 distinct 버전을 확인한다. 자산 일부만 새 버전으로 갱신되고 나머지가 옛
+  // 버전을 참조하는데 SW에 그 옛 버전이 없으면(=업데이트 반영 안 됨) 첫 버전만 보는 검사는 놓친다.
+  const htmlVersions = cacheBustVersions(s.home.bodyText);
   const sw = await cachedFetch(ctx, new URL("sw.js", c.config.baseUrl).href, { timeoutMs: 15_000 });
   if (!sw.ok || sw.status !== 200) return unavailable("sw.js 접근 불가", "SW 계약이 담당");
-  if (!htmlVersion) return pass("HTML 캐시버스트 미사용", "정합 위반 없음");
-  return sw.bodyText.includes(htmlVersion) ? pass(`v=${htmlVersion} 정합`, "HTML==SW") : degraded(`HTML v=${htmlVersion}가 SW에 없음`, "HTML==SW");
+  if (!htmlVersions.length) return pass("HTML 캐시버스트 미사용", "정합 위반 없음");
+  const missing = htmlVersions.filter((v) => !sw.bodyText.includes(v));
+  return missing.length
+    ? degraded(`HTML v=${missing.slice(0, 3).join(",")}가 SW에 없음`, "모든 HTML 버전==SW")
+    : pass(`HTML 캐시버스트 ${htmlVersions.length}종 전부 SW 정합`, "모든 HTML 버전==SW");
 }
 
 // robom.kr 라우트 행렬·sitemap·SEO·UA parity·내부 링크

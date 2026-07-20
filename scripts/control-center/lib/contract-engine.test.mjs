@@ -4,7 +4,7 @@ import { createServer } from "node:http";
 import { mkdtempSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { runContractEngine, contractResultsToRaw, redactEvidence, C_STATUS } from "./contract-engine.mjs";
+import { runContractEngine, contractResultsToRaw, redactEvidence, C_STATUS, cacheBustVersions } from "./contract-engine.mjs";
 import { mergeExtraResults } from "./health-engine.mjs";
 
 // 로컬 fixture 서버 — 운영 대신 결정론적 표면을 제공한다(테스트는 외부 네트워크 금지)
@@ -248,4 +248,12 @@ test("contractResultsToRaw — need_new_source는 incident 경로에서 제외(�
   ] });
   assert.equal(raw.length, 2);
   assert.equal(raw.find((r) => r.contractId === "c").status, "UNAVAILABLE"); // BLOCKED → UNAVAILABLE 매핑
+});
+
+test("cacheBustVersions — HTML의 모든 distinct 캐시버스트 버전을 뽑는다(첫 버전만 보던 진공 통과 방지)", () => {
+  // 자산 일부만 새 버전으로 갱신되고 나머지가 옛 버전을 참조하면 두 버전 모두 나와야 SW 대조가 정확하다.
+  assert.deepEqual(cacheBustVersions('<link href="./a.css?v=20260720-01"><script src="./b.js?v=20260720-01">'), ["20260720-01"]);
+  assert.deepEqual(cacheBustVersions('<link href="./a.css?v=NEW"><script src="./b.js?v=OLD">'), ["NEW", "OLD"]);
+  assert.deepEqual(cacheBustVersions('<link href="./a.css">'), []);
+  assert.deepEqual(cacheBustVersions('<img src="./x.png?foo=1&v=20260720-01">'), ["20260720-01"]);
 });
