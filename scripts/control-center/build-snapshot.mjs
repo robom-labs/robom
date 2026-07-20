@@ -4,7 +4,7 @@ import { writeFileSync, existsSync, mkdirSync, renameSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { REPO_ROOT, readApps, readState, gitInfo, ghOpenPRs, ghRecentRuns, readDepartments, readAgents, parseYamlList, readText } from "./lib/sources.mjs";
 import { controlCenterFields } from "./lib/sources.mjs";
-import { readEvents, deriveRuns } from "./lib/events.mjs";
+import { readEventsWithMeta, deriveRuns } from "./lib/events.mjs";
 import { siteDeploySha } from "../../ops/scripts/lib/deployment-sha.mjs";
 import { inspectApp } from "../../ops/scripts/family/operations-watchdog.mjs";
 import { buildCompanyOperations } from "./lib/company-ops.mjs";
@@ -130,7 +130,7 @@ async function main() {
 
   const departments = readDepartments(REPO_ROOT);
   const agents = readAgents(REPO_ROOT);
-  const events = readEvents(REPO_ROOT, NOW);
+  const { events, dropped: eventsDropped } = readEventsWithMeta(REPO_ROOT, NOW);
   const runs = deriveRuns(events, NOW);
 
   // 승인함(선택): approvals.yml + 이벤트의 approval_requested pending
@@ -176,7 +176,8 @@ async function main() {
       ? (TOKEN ? "connected(authenticated REST)" : "connected(public REST · 추가 비용 없음)")
       : "not_connected(GitHub REST 읽기 실패 · 로컬 git만)",
     localGit: apps.map((app) => app.id).filter((id) => existsSync(join(localDir(id), ".git"))),
-    events: events.length > 0 ? "connected" : "no_events(아직 작업 이벤트 없음)",
+    // 손상 라인이 있으면 '연결됨'으로 위장하지 않고 유실을 정직하게 노출한다(로그만이 아니라 회장 화면에도).
+    events: eventsDropped > 0 ? `degraded(손상 ${eventsDropped}줄 건너뜀 — 일부 작업 상태 부정확)` : (events.length > 0 ? "connected" : "no_events(아직 작업 이벤트 없음)"),
     codex: "runner(단일 실행기 — 모든 자동 수정은 코덱스)",
   };
 

@@ -1,7 +1,20 @@
 // 로봄 오피스 실시간 이벤트의 만료·종료 상태 판정을 검증한다.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { deriveRuns, STALE_MINUTES } from "./events.mjs";
+import { deriveRuns, STALE_MINUTES, readEventsWithMeta } from "./events.mjs";
+import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+test("readEventsWithMeta는 손상 라인을 건너뛰되 그 수를 반환한다(스냅샷에서 데이터 유실 정직 표기)", () => {
+  const root = mkdtempSync(join(tmpdir(), "robom-events-"));
+  mkdirSync(join(root, "ops/control-center/events"), { recursive: true });
+  writeFileSync(join(root, "ops/control-center/events/2026-07-17.jsonl"),
+    `{"type":"run_completed","runId":"a","createdAt":"2026-07-17T00:00:00Z"}\n{"type":"run_com{깨진 줄\n{"type":"heartbeat","runId":"b","createdAt":"2026-07-17T00:01:00Z"}\n`);
+  const { events, dropped } = readEventsWithMeta(root, null);
+  assert.equal(dropped, 1, "손상 1줄 집계");
+  assert.equal(events.length, 2, "유효 이벤트는 그대로 유지(이후 줄도 살아남음)");
+});
 
 test("마지막 heartbeat가 30분을 넘으면 상태 확인 필요로 전환한다", () => {
   const createdAt = "2026-07-17T00:00:00.000Z";

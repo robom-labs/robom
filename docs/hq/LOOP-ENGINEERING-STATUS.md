@@ -161,7 +161,8 @@
 - **25차(이벤트 로그·자동시작 — hq-v3.3.20)** → 마지막 미감사 모듈(events.mjs·install-autostart.mjs·main.cjs 자동시작 배선) 감사. 자동시작은 **건전**(실제 OS 로그인 항목을 읽어 정직 보고, disable이 실제로 꺼짐, 재설치 idempotent, plist 절대경로·XML 이스케이프). 이벤트 리더도 대체로 건전(손상 라인 건너뛰되 이후 유효 이벤트 유지, 깨진 createdAt이 last 오염 못 함, 원자적 스냅샷). 실제 결함 수정:
   - **[HIGH·승인 게이트 붕괴] 사람 승인 대기가 30분 뒤 조용히 사라짐** — `deriveRuns`가 비종료 run을 30분 경과 시 무조건 `needs_check`로 낮춰, 이벤트 기반 `approval_pending`·`external_wait`(사람/외부 대기는 정상적으로 오래 걸림)가 회장 승인함(build-snapshot의 approvalPending)에서 **시간 경과만으로 빠졌다**. CLAUDE.md의 human-in-the-loop 승인 경계를 정면으로 무너뜨리는 결함. → 대기 상태(`approval_pending`·`external_wait`)를 stale 강등 예외로(터미널처럼) 처리해 결재될 때까지 승인함에 유지. 테스트 추가.
   - **[LOW] run 정렬이 버렸던 localeCompare 안티패턴 재도입** — `lastActivity` null 항목이 실제 시각보다 뒤로 정렬돼 순서 오염 → 시각 비교로 교체(깨진 값은 가장 과거). 
-  - 정직하게 후속 문서화: M1(이벤트 히스토리 무회전 — 다월 운영 시 디스크·스냅샷 크기 증가, 날짜 윈도우/rotation 필요)·M2(손상 라인 dropped 수가 로그엔 남지만 스냅샷/화면엔 미표기)는 실제 결함이나 중간 심각도로 별도 라운드. 자동시작 L3/L4(트레이 마커 없는 OS 직접 활성 클로버·legacy uninstall의 launchctl disable 생략)는 의도된 tradeoff/경미로 문서화.
+  - **[MED·정직성, hq-v3.3.21에서 처리] 손상 이벤트 유실이 화면에 안 뜸(M2)** — 손상 라인을 건너뛰고 로그엔 남기지만 스냅샷 `connections.events`는 무조건 'connected'라 회장이 데이터 유실을 못 봤다. → `readEventsWithMeta`로 dropped 수를 반환해 스냅샷에 `degraded(손상 N줄 건너뜀 — 일부 상태 부정확)`으로 정직 노출. 테스트 추가.
+  - 정직하게 후속 문서화: M1(이벤트 히스토리 무회전 — 다월 운영 시 디스크·스냅샷 크기 증가)은 실제 결함이나, 날짜 윈도우/rotation을 넣되 **장기 대기(external_wait 스토어 심사 등) 항목이 유실되지 않게** 하는 설계가 필요해 별도 라운드로 신중히. 자동시작 L3/L4(트레이 마커 없는 OS 직접 활성 클로버·legacy uninstall의 launchctl disable 생략)는 의도된 tradeoff/경미로 문서화.
 
 ## 회장 추가 요구(7·8·9) 반영 (hq-v3.3.0~)
 - **9. 설정 화면 + Codex 모델 클릭 선택** — 배포됨(3.3.0): 실행기 모델을 텍스트 타이핑이 아니라 **클릭 리스트**(기본값·gpt-5-codex·gpt-5·o4-mini·o3)로 고른다. 추론 강도(낮음/보통/높음)도 클릭. 점검 주기·모델·강도를 '설정' 화면으로 이동(자동화 화면에서 링크로 안내).

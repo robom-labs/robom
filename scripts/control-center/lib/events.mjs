@@ -17,9 +17,10 @@ const WAIT_EXEMPT = new Set(["approval_pending", "external_wait"]);
 function eventTime(e) { const t = Date.parse(e?.createdAt || ""); return Number.isFinite(t) ? t : -Infinity; }
 function byTime(a, b) { const x = eventTime(a), y = eventTime(b); return x === y ? 0 : x < y ? -1 : 1; } // Array.sort 안정성으로 동시각은 삽입 순서 유지
 
-export function readEvents(root = REPO_ROOT, nowMs = null) {
+// 손상 라인 수(dropped)까지 함께 반환한다 — 스냅샷/화면에 데이터 유실을 정직하게 노출하기 위함(로그만으론 회장이 못 본다).
+export function readEventsWithMeta(root = REPO_ROOT, nowMs = null) {
   const dir = join(root, "ops/control-center/events");
-  if (!existsSync(dir)) return [];
+  if (!existsSync(dir)) return { events: [], dropped: 0 };
   const files = readdirSync(dir).filter((f) => f.endsWith(".jsonl"));
   const events = [];
   let dropped = 0;
@@ -34,7 +35,11 @@ export function readEvents(root = REPO_ROOT, nowMs = null) {
   // 손상 이벤트가 있으면 로그로 남긴다(터미널 이벤트가 유실돼 완료된 작업이 '작업 중'으로 보일 수 있음을 감춤 금지).
   if (dropped > 0) console.warn(`[robom-hq] 손상된 이벤트 줄 ${dropped}개 건너뜀 — 일부 작업 상태가 정확하지 않을 수 있습니다.`);
   events.sort(byTime);
-  return events;
+  return { events, dropped };
+}
+
+export function readEvents(root = REPO_ROOT, nowMs = null) {
+  return readEventsWithMeta(root, nowMs).events;
 }
 
 // runId(없으면 agentId) 단위로 최신 상태를 접는다.
