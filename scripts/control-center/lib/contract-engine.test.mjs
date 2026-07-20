@@ -179,14 +179,20 @@ test("github_actions — timed_out·startup_failure 같은 미완료 종료를 s
   });
   const run = async (conclusion) => {
     const fetchImpl = async (url) => (String(url).includes("api.github.com") ? ghResponse(conclusion) : { status: 404, ok: false, headers: { get: () => "" }, json: async () => ({}) });
-    const contracts = [{ ...base_contract({ id: "t:ci", target: "t", category: "ci", evaluator: "github_actions", config: { repo: "robom-labs/x" } }), requiredCapabilities: [] }];
+    // severityIfFail: error인 deep 계약이라도 skipped·neutral은 incident로 새면 안 된다(severity:info 명시 검증).
+    const contracts = [{ ...base_contract({ id: "t:ci", target: "t", category: "ci", evaluator: "github_actions", config: { repo: "robom-labs/x" }, severityIfFail: "error" }), requiredCapabilities: [] }];
     const report = await runContractEngine({ contracts, runtimeDir: tempRuntime(), repoRoot: runtimeDir, snapDir: runtimeDir, now: new Date(), fetchImpl });
-    return report.results.find((r) => r.contractId === "t:ci").status;
+    return report.results.find((r) => r.contractId === "t:ci");
   };
-  assert.equal(await run("timed_out"), C_STATUS.FAIL);       // 완료 못한 실패를 초록으로 위장 금지
-  assert.equal(await run("startup_failure"), C_STATUS.FAIL); // 워크플로가 시작조차 못함 → 실패
-  assert.equal(await run("success"), C_STATUS.PASS);         // 진짜 성공만 PASS
-  assert.equal(await run("cancelled"), C_STATUS.DEGRADED);   // 의도적 취소는 실패와 구분
+  assert.equal((await run("timed_out")).status, C_STATUS.FAIL);       // 완료 못한 실패를 초록으로 위장 금지
+  assert.equal((await run("startup_failure")).status, C_STATUS.FAIL); // 워크플로가 시작조차 못함 → 실패
+  assert.equal((await run("success")).status, C_STATUS.PASS);         // 진짜 성공만 PASS
+  // cancelled·skipped·neutral·action_required는 실패가 아님 → DEGRADED-info(사건 안 남 — health-engine ciResult와 일치)
+  for (const c of ["cancelled", "skipped", "neutral", "action_required"]) {
+    const r = await run(c);
+    assert.equal(r.status, C_STATUS.DEGRADED, `${c} → DEGRADED`);
+    assert.equal(r.severity, "info", `${c} → severity info(계약 severityIfFail=error여도 incident 안 남)`);
+  }
 });
 
 test("redaction — 증거에서 secret 패턴이 제거된다(CI 필수 게이트 §7.2)", () => {

@@ -339,6 +339,11 @@ function evalDataFreshness(c, ctx) {
   return ageHours > c.config.maxHours ? degraded(`${Math.round(ageHours)}시간 경과`, `≤ ${c.config.maxHours}시간`) : pass(`${Math.round(ageHours)}시간 경과`, `≤ ${c.config.maxHours}시간`);
 }
 
+// 실제 실패(완료 못한 배포)만 FAIL로 올린다. skipped·neutral·action_required·stale·cancelled은 실패가 아니므로
+// health-engine ciResult(3.3.19)와 동일하게 DEGRADED-info로 — deep 계약 severityIfFail이 error여도 incident로
+// 안 새게 severity:"info"를 명시한다(두 엔진 판정 일치·거짓 경보 방지).
+const CI_HARD_FAIL = new Set(["failure", "timed_out", "startup_failure"]);
+const ciDegradedInfo = (name, conclusion) => ({ ...degraded(`${name || "workflow"}: ${conclusion}`, "성공", "성공 아님(실패는 아님) — 확인 권장"), severity: "info" });
 async function evalGithubActions(c, ctx, runtimeDir) {
   const path = c.config.workflowFile
     ? `/repos/${c.config.repo}/actions/workflows/${c.config.workflowFile}/runs?per_page=1&status=success`
@@ -355,19 +360,19 @@ async function evalGithubActions(c, ctx, runtimeDir) {
     // 위장하지 말고 실제 conclusion을 확인한다(실패한 파이프라인이 초록으로 보이던 거짓 성과 차단).
     if (run.status && run.status !== "completed") return pass(`실행 중(${run.status})`, "완료", "실행 중은 정상");
     if (run.conclusion && run.conclusion !== "success") {
-      return run.conclusion === "cancelled"
-        ? degraded(`${run.name || "workflow"}: cancelled`, "성공", "취소는 실패와 구분")
-        : fail(`${run.name || "workflow"}: ${run.conclusion}`, "성공");
+      return CI_HARD_FAIL.has(run.conclusion)
+        ? fail(`${run.name || "workflow"}: ${run.conclusion}`, "성공")
+        : ciDegradedInfo(run.name, run.conclusion); // cancelled·skipped·neutral·action_required 등은 실패 아님 → DEGRADED-info
     }
     const age = (ctx.nowMs - Date.parse(run.updated_at)) / 3_600_000;
     return age > c.config.maxAgeHours ? fail(`마지막 성공 ${Math.round(age)}시간 전`, `≤ ${c.config.maxAgeHours}시간`) : pass(`성공 ${Math.round(age)}시간 전`, `≤ ${c.config.maxAgeHours}시간`);
   }
   if (run.status !== "completed") return pass(`실행 중(${run.status})`, "완료", "실행 중은 정상");
-  // maxAgeHours 분기와 동일 규칙: success만 통과. failure뿐 아니라 timed_out·startup_failure 등
-  // 완료 못한 종료 결론을 success로 위장하지 않는다(거짓 성과 차단). cancelled(의도적)만 degraded로 구분.
+  // success만 통과. 완료 못한 실패(failure·timed_out·startup_failure)만 FAIL. cancelled·skipped·neutral·
+  // action_required 등은 실패가 아니므로 DEGRADED-info로(health-engine ciResult와 동일 — 두 엔진 판정 일치).
   if (run.conclusion === "success") return pass("success", "success");
-  if (run.conclusion === "cancelled") return degraded(`${run.name || "workflow"}: cancelled`, "success", "취소는 실패와 구분");
-  return fail(`${run.name || "workflow"}: ${run.conclusion || "미상"}`, "success");
+  if (CI_HARD_FAIL.has(run.conclusion)) return fail(`${run.name || "workflow"}: ${run.conclusion}`, "success");
+  return ciDegradedInfo(run.name, run.conclusion || "미상");
 }
 
 async function evalGithubPrs(c, ctx, runtimeDir) {
