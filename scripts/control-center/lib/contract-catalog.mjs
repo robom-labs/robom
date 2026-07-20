@@ -106,9 +106,20 @@ function commonAppContracts(app, allAppIds = []) {
     C(`c:${id}:version-production`, id, "version", "surface_marker", { url: app.healthcheck_url, baseUrl: app.web_url, markersAny: [app.version] },
       { severityIfFail: "error", failureClass: "parity", what: `운영 자산에 버전 ${app.version} marker 존재`,
         userImpact: "운영에 오래된 버전이 남아 있으면 사용자에게 구버전이 보입니다.", recommendedAction: "배포 전파를 확인하고 재배포합니다." }),
-    C(`c:${id}:deployed-sha`, id, "version", "surface_marker", { url: app.healthcheck_url, baseUrl: app.web_url, markersAny: [String(app.last_deployed_sha || "").slice(0, 7)].filter(Boolean) },
-      { severityIfFail: "warning", failureClass: "parity", what: "운영 자산에 registry deployed SHA marker 존재",
-        userImpact: "장부의 배포 기록과 실제 운영이 다를 수 있습니다.", recommendedAction: "registry last_deployed_sha를 실제 배포와 맞춥니다." }),
+    // SHA가 있으면 실제 marker 대조. 없으면 markersAny가 빈 배열→진공 통과(거짓 green)라서, 정직하게 need_new_source로 표기한다.
+    (String(app.last_deployed_sha || "").length >= 7
+      ? C(`c:${id}:deployed-sha`, id, "version", "surface_marker", { url: app.healthcheck_url, baseUrl: app.web_url, markersAny: [String(app.last_deployed_sha).slice(0, 7)] },
+        { severityIfFail: "warning", failureClass: "parity", what: "운영 자산에 registry deployed SHA marker 존재",
+          userImpact: "장부의 배포 기록과 실제 운영이 다를 수 있습니다.", recommendedAction: "registry last_deployed_sha를 실제 배포와 맞춥니다." })
+      : C(`c:${id}:deployed-sha`, id, "version", "need_new_source", {},
+        { severityIfFail: "info", failureClass: "parity", needNewSource: true,
+          sourceNeeded: "registry app.last_deployed_sha 기록",
+          whyNeeded: "배포 SHA가 없으면 운영 자산과 장부 배포 기록의 일치를 확인할 수 없음(빈 marker로 진공 통과 금지)",
+          privacyRisk: "없음 — 공개 커밋 SHA",
+          freeImplementationOption: "배포 파이프라인이 registry의 last_deployed_sha를 배포 후 갱신",
+          fallbackStatus: "SHA 미기록 — 확인 불가(UNAVAILABLE)",
+          what: "운영 자산에 registry deployed SHA marker 존재(현재 SHA 미기록)",
+          userImpact: "장부에 배포 SHA가 없어 실제 운영과의 일치를 확인할 수 없습니다.", recommendedAction: "registry에 last_deployed_sha를 기록합니다." })),
     C(`c:${id}:registry-freshness`, id, "version", "data_freshness", { value: app.last_verified_at, maxHours: Number(app.freshness_slo_hours ?? 48) },
       { severityIfFail: "warning", failureClass: "freshness", what: "registry last_verified_at 나이", userImpact: "장부 확인이 오래되면 상태 신뢰가 떨어집니다.", recommendedAction: "운영 검증 후 registry를 갱신합니다." }),
     C(`c:${id}:ci-latest`, id, "ci", "github_actions", { repo: app.repo },
@@ -276,7 +287,7 @@ function homebomContracts(app) {
       { path: "x-collection-stats", op: "exists", label: "수집 통계 헤더" }] },
       { severityIfFail: "info", failureClass: "observability", what: "수집 통계 헤더(x-collection-stats: published·fetched·valid·preserved 숫자) 노출 — 0건 삭제 보호 조기 감지",
         userImpact: "수집 이상을 통계로 조기 감지합니다(헤더 배포 전에는 미노출로 표기).", recommendedAction: "청약봄 Supabase 함수 배포(PR #31)가 반영되면 자동 점검됩니다." }),
-    // ── 공고 응답 심층 실측(서버 normalize()가 보장하는 필드만 — 빈 배열이면 every는 공허참으로 통과) ──
+    // ── 공고 응답 심층 실측(서버 normalize()가 보장하는 필드만 — every는 빈 배열에서 실패 처리됨: 진공참 통과 아님) ──
     s("notices-housing-category", "data", "http_json_contract", { url: probe, itemsPathCandidates: itemPaths, assertions: [
       { path: "", op: "eq", quantifier: "every", itemPath: "housingCategory", value: "아파트", label: "주택구분=아파트" }] },
       { severityIfFail: "error", failureClass: "schema", what: "모든 공고 housingCategory=아파트(서버 보장 상수)", userImpact: "구분이 어긋나면 잘못된 공고가 섞입니다.", recommendedAction: "정규화 로직을 확인합니다." }),

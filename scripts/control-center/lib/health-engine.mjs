@@ -3,7 +3,7 @@
 // "결정론적 판정 + 연속 실패/회복(anti-flap) + incident/회복 + 전역 네트워크 선행"만 얹는다.
 // 원칙(업로드 프롬프트): 주관적 판정 금지, 임의 eval/shell 금지, 비밀/원문 저장 금지, source 없음을 정상으로 위장 금지,
 //   전역 네트워크 장애 시 앱별 critical 스팸 금지, critical은 1회로 확정·warn/error는 연속 2회, 회복은 연속 2회 PASS.
-import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync, renameSync, copyFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { DEFAULT_COMPANY_RUNTIME_DIR } from "./company-store.mjs";
 
@@ -115,18 +115,25 @@ export function mergeExtraResults(raw, extraResults) {
 // ── 전역 네트워크 선행: 모든 앱 운영 점검이 동시에 불가하면 앱별 스팸 대신 회사 incident 1건 ──
 export function collectRawResults(snapshot, ctx) {
   const fam = familyApps(snapshot);
+  // 실제로 점검된(production 결과가 있는) 앱만 전역 판정에 쓴다. production===null(아직 미점검)을 FAIL로 취급하면
+  // 무관한 앱이 미점검이란 이유로 진짜 단일 장애를 가리거나(HIGH), 전부 미점검(콜드 스타트)일 때 헛경보를 낸다.
   const withProd = fam.filter((a) => a.production !== undefined && a.production !== null);
-  const configured = fam.filter((a) => a.url); // healthcheck 대상
-  const allDown = configured.length >= 2 && configured.every((a) => a.production?.status === "FAIL" || a.production === null);
+  const failed = withProd.filter((a) => a.production.status === "FAIL");
+  const allDown = withProd.length >= 2 && failed.length === withProd.length; // 점검된 앱이 2개 이상이고 그 전부가 실제 FAIL
   const results = [];
   if (allDown) {
-    // 로컬 네트워크·공통 host 장애로 간주 → 회사 incident 1건, 앱 production은 UNAVAILABLE로 강등(스팸 억제)
+    // 로컬 네트워크·공통 host 장애로 간주 → 회사 incident 1건, 실패한 앱 production만 UNAVAILABLE로 강등(스팸 억제).
+    // 미점검·통과 앱은 정상 처리해 실제 상태를 가리지 않는다.
+    const failedIds = new Set(failed.map((a) => a.id));
     results.push({ contractId: "company:network", target: "company", category: "network", failureClass: "local_network",
       status: HEALTH_STATUS.FAIL, severity: "warning",
-      userImpact: "여러 앱의 운영 점검이 동시에 실패했습니다. 인터넷 연결 또는 공통 호스트 문제일 수 있습니다.",
-      recommendedAction: "네트워크 연결을 확인하세요. 연결이 정상이면 개별 앱을 다시 점검합니다.", actual: `${configured.length}개 앱 동시 실패`, expected: "정상 응답" });
-    for (const a of configured) results.push({ contractId: `production:${a.id}`, target: a.id, category: "production", failureClass: "production",
-      status: HEALTH_STATUS.UNAVAILABLE, severity: "info", actual: "network", expected: "PASS", userImpact: "", recommendedAction: "" });
+      userImpact: "점검된 앱이 모두 동시에 응답 실패했습니다. 인터넷 연결·공통 호스트 문제일 수도, 실제 전면 장애일 수도 있습니다.",
+      recommendedAction: "네트워크 연결을 확인하세요. 연결이 정상이면 공통 배포·호스트를 점검합니다.", actual: `점검된 ${withProd.length}개 앱 전부 실패`, expected: "정상 응답" });
+    for (const a of fam) {
+      if (failedIds.has(a.id)) results.push({ contractId: `production:${a.id}`, target: a.id, category: "production", failureClass: "production",
+        status: HEALTH_STATUS.UNAVAILABLE, severity: "info", actual: "network", expected: "PASS", userImpact: "", recommendedAction: "" });
+      else results.push(productionResult(a)); // 미점검·통과 앱은 정상 처리
+    }
   } else {
     for (const a of fam) results.push(productionResult(a));
   }
@@ -139,11 +146,21 @@ export function collectRawResults(snapshot, ctx) {
 // ── anti-flap 상태 + evidence 저장 ──
 function healthDir(runtimeDir) { return join(resolve(runtimeDir), "health"); }
 function readState(runtimeDir) {
-  try { return JSON.parse(readFileSync(join(healthDir(runtimeDir), "state.json"), "utf8")); } catch { return { contracts: {} }; }
+  const file = join(healthDir(runtimeDir), "state.json");
+  try { return JSON.parse(readFileSync(file, "utf8")); }
+  catch {
+    // 손상 시 곧바로 빈 상태로 리셋하면 anti-flap 카운터·열린 incidentId가 통째로 날아가
+    // 회복돼도 자동 종료되지 않는 '영구 열림' 사고가 난다. .bak을 먼저 복구한다.
+    try { return JSON.parse(readFileSync(`${file}.bak`, "utf8")); } catch { return { contracts: {} }; }
+  }
 }
 function writeJson(file, value) {
   mkdirSync(join(file, ".."), { recursive: true, mode: 0o700 });
-  writeFileSync(file, JSON.stringify(value, null, 2), { encoding: "utf8", mode: 0o600 });
+  // 원자적 쓰기: 쓰는 도중 크래시로 잘린 파일이 다음 실행에서 파싱 실패 → 상태 전멸(영구 열림 incident)을 막는다.
+  const tmp = `${file}.tmp`;
+  writeFileSync(tmp, JSON.stringify(value, null, 2), { encoding: "utf8", mode: 0o600 });
+  if (existsSync(file)) { try { copyFileSync(file, `${file}.bak`); } catch { /* 백업 실패는 무시 */ } }
+  renameSync(tmp, file);
 }
 
 // 원시 결과 배열 → 확정 상태·신규 incident·회복. 순수 로직(now 주입) + runtimeDir 지속.
@@ -166,7 +183,9 @@ export function runHealthEngine({ snapshot, runtimeDir = DEFAULT_COMPANY_RUNTIME
     if (isFail) {
       cf += 1; cs = 0;
       if (!firstFailedAt) firstFailedAt = nowIso;
-      const needed = r.severity === "critical" ? 1 : CONFIRM_CONSECUTIVE;
+      // critical도 최소 2회 연속 확인한다. 상류 운영 점검은 재시도 없는 단발 probe라, critical=1이면
+      // 순간 5xx·타임아웃 한 번이 곧바로 '긴급' 카드로 확정돼 회장에게 헛경보를 낸다(거짓 성과).
+      const needed = CONFIRM_CONSECUTIVE;
       if (!confirmed && cf >= needed) {
         confirmed = true;
         incidentId = `${r.contractId}#${firstFailedAt}`;
@@ -183,9 +202,21 @@ export function runHealthEngine({ snapshot, runtimeDir = DEFAULT_COMPANY_RUNTIME
       // UNAVAILABLE/SKIPPED: 플랩 카운터 유지, 확정/회복 없음
     }
 
-    state.contracts[r.contractId] = { status: r.status, cf, cs, firstFailedAt, lastPassedAt, incidentId, severity: r.severity, updatedAt: nowIso };
+    state.contracts[r.contractId] = { status: r.status, cf, cs, firstFailedAt, lastPassedAt, incidentId, severity: r.severity, updatedAt: nowIso, lastSeenAt: nowIso };
     results.push({ contractId: r.contractId, target: r.target, category: r.category, status: r.status, severity: r.severity,
       failureClass: r.failureClass || "", confirmed, incidentId, firstFailedAt, userImpact: r.userImpact, recommendedAction: r.recommendedAction, actual: r.actual, expected: r.expected, checkedAt: nowIso });
+  }
+  // 고아 계약 정리: 더 이상 방출되지 않는 계약(retired 앱·중단된 점검)이 incidentId를 영구 보유해
+  // 자동 종료가 안 되고(회장 화면에 영원히 열린 카드) 상태가 무한 증식하는 것을 막는다.
+  // 유예를 넘겨 사라진 항목은 정리하고, 열려 있던 incident는 회복으로 닫아 결재도 자동 종료되게 한다.
+  const ORPHAN_TTL_MS = 7 * 24 * 3600_000;
+  const seenIds = new Set(raw.map((r) => r.contractId));
+  for (const [cid, entry] of Object.entries(state.contracts)) {
+    if (seenIds.has(cid)) continue;
+    const last = Date.parse(entry.lastSeenAt || entry.updatedAt || "");
+    if (Number.isFinite(last) && (now.getTime() - last) <= ORPHAN_TTL_MS) continue; // 아직 유예 내 — 유지
+    if (entry.incidentId) recoveries.push({ incidentId: entry.incidentId, contractId: cid, target: cid.split(":")[1] || cid, recoveredAt: nowIso, reason: "orphan_pruned" });
+    delete state.contracts[cid];
   }
   state.updatedAt = nowIso;
 
