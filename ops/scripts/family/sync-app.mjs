@@ -31,8 +31,12 @@ const accent = JSON.parse(await readFile(resolve(root, `ops/family/design/apps/$
 const canonicalBom = await readFile(resolve(root, "ops/family/brand/bom.svg"), "utf8");
 const icons = await readFile(resolve(root, "ops/family/brand/icons.svg"), "utf8");
 const eventsSource = await readFile(resolve(root, "ops/family/analytics/events.yml"), "utf8");
-const eventLine = eventsSource.match(new RegExp(`^${appId}: \\[(.*)\\]$`, "m"))?.[1] ?? "";
-const events = eventLine.split(",").map((item) => item.trim()).filter(Boolean);
+const eventMatch = eventsSource.match(new RegExp(`^${appId}: \\[(.*)\\]$`, "m"));
+// 매치 실패를 빈 이벤트 목록으로 조용히 흘리면(오타로 앱이 events.yml에서 빠졌거나 포맷이
+// 바뀐 경우) 그 앱은 유효 이벤트가 하나도 없는 분석 계약을 그대로 받는다 — 앱 키를 아예
+// 못 찾은 경우는 실수일 가능성이 높으므로 loud하게 막는다(단일행 포맷 자체의 변경은 후속 과제).
+if (!eventMatch) throw new Error(`ops/family/analytics/events.yml에서 "${appId}:" 항목을 찾지 못했습니다(오타이거나 앱이 등록 안 됨).`);
+const events = eventMatch[1].split(",").map((item) => item.trim()).filter(Boolean);
 const forbidden = ["latitude", "longitude", "address", "email", "phone", "oauth_token", "push_endpoint", "medication", "medicine", "hospital", "calendar_title", "family_event_title", "raw_query", "raw_answer", "api_key", "access_token", "refresh_token"];
 
 const css = `/* DO NOT EDIT. 로봄 패밀리 ${familyVersion.familySpecVersion} 생성 토큰이다. */\n:root {\n  --family-font: ${core.fontFamily};\n  --family-space-1: ${core.space[1]};\n  --family-space-2: ${core.space[2]};\n  --family-space-3: ${core.space[3]};\n  --family-space-4: ${core.space[4]};\n  --family-space-5: ${core.space[5]};\n  --family-radius-sm: ${core.radius.sm};\n  --family-radius-md: ${core.radius.md};\n  --family-radius-lg: ${core.radius.lg};\n  --family-shadow-card: ${core.shadow.card};\n  --family-border: ${core.border};\n  --family-touch-min: ${core.touchMin};\n  --family-nav-height: ${core.navHeight};\n  --family-focus: ${core.focus};\n  --family-motion-fast: ${core.motionFast};\n  --app-brand: ${accent.brand};\n  --app-brand-deep: ${accent.brandDeep};\n  --app-brand-soft: ${accent.brandSoft};\n  --app-page: ${accent.page};\n  --app-ink: ${accent.ink};\n  --app-muted: ${accent.muted};\n}\n`;
