@@ -5,6 +5,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { buildLaunchAgentPlist, LAUNCH_AGENT_LABEL, stageRuntime } from "./install-autostart.mjs";
+import { REPO_ROOT } from "./lib/sources.mjs";
 
 test("자동 시작 LaunchAgent는 로그인 1회 실행하되 종료 후 되살리지 않는다('끄면 꺼질 것')", () => {
   const plist = buildLaunchAgentPlist({
@@ -31,6 +32,15 @@ test("자동 시작 LaunchAgent는 상대 경로를 거부한다", () => {
     stdoutPath: "/tmp/out.log",
     stderrPath: "/tmp/err.log",
   }), /절대 경로/);
+});
+
+test("레거시 제거(uninstallAutostart)도 데스크톱 셸과 동일하게 disable까지 한다(끄면 그냥 꺼짐 일관성)", () => {
+  // launchctl은 실제 macOS 바이너리 호출이라 이 환경에서 직접 실행 검증은 불가 — 데스크톱 셸(main.cjs
+  // killLegacyAutostart)과 이 레거시 CLI 도구가 같은 정책(bootout+disable+rm)을 쓰는지 소스로 고정한다.
+  const src = readFileSync(join(REPO_ROOT, "scripts/control-center/install-autostart.mjs"), "utf8");
+  const fn = src.slice(src.indexOf("export function uninstallAutostart"), src.indexOf("export function uninstallAutostart") + 700);
+  assert.match(fn, /"bootout"/);
+  assert.match(fn, /"disable"/);
 });
 
 test("자동 시작 실행본은 Application Support용 사본을 만들고 기존 기록을 보존한다", () => {

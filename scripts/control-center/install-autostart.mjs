@@ -106,7 +106,12 @@ export function installAutostart({ home = homedir(), uid = process.getuid(), nod
 
 export function uninstallAutostart({ home = homedir(), uid = process.getuid() } = {}) {
   const plistPath = join(home, "Library", "LaunchAgents", `${LAUNCH_AGENT_LABEL}.plist`);
-  launchctl(["bootout", `gui/${uid}/${LAUNCH_AGENT_LABEL}`], true);
+  const domain = `gui/${uid}`;
+  launchctl(["bootout", `${domain}/${LAUNCH_AGENT_LABEL}`], true);
+  // bootout만으로는 launchd의 "다시 로드하면 자동 시작" 상태가 남을 수 있다(예: 다른 프로세스가 같은 경로에
+  // plist를 되살리면 조용히 부활). desktop/main.cjs killLegacyAutostart와 동일하게 disable까지 해 "끄면 그냥
+  // 꺼진다"를 이 레거시 도구에서도 지킨다.
+  launchctl(["disable", `${domain}/${LAUNCH_AGENT_LABEL}`], true);
   rmSync(plistPath, { force: true });
   return { plistPath };
 }
