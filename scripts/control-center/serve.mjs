@@ -361,6 +361,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
   // 1) 결정론적 health 엔진 — 심층 계약 엔진(카탈로그 전량, 동적)을 먼저 실행하고, anti-flap 판정 후 확정 incident만 결재 상신
   let healthSummary = null;
   let healthResults = []; // 원래 계약 자동 재검증에 쓰기 위해 바깥으로 끌어낸다
+  let regressionHeld = 0; // 회복 경로·task 경로가 공유(회귀로 성급히 닫지 않은 건수)
   try {
     let runner = null; try { runner = readRunnerStatus(); } catch { /* 러너 상태 없음 */ }
     const contractReport = await runDeepContracts({ now });
@@ -372,15 +373,43 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
     let autoClosed = 0;
     try {
       const st0 = await store.getState();
+      const recByContract = new Map(health.recoveries.map((r) => [r.contractId, r]));
       const recoveredKeys = new Set(health.recoveries.map((r) => r.contractId));
       for (const a of (st0.records.approvals || [])) {
         if ((!a.status || a.status === "pending") && a.requestedBy === "auto-review" && recoveredKeys.has(a.proposalKey)) {
-          try { await store.updateStatus("approvals", a.id, { status: "resolved", comment: "신호 회복 — 컴퓨터가 자동 종료" }); autoClosed += 1; } catch { /* skip */ }
+          const orphan = recByContract.get(a.proposalKey)?.reason === "orphan_pruned";
+          const comment = orphan ? "원래 계약이 더 이상 방출되지 않아 정리(재검증 불가 — 성공 아님)" : "신호 회복 — 컴퓨터가 자동 종료";
+          try { await store.updateStatus("approvals", a.id, { status: "resolved", comment }); autoClosed += 1; } catch { /* skip */ }
         }
       }
-      // 신호가 회복된 계약의 Loop도 CLOSED로 닫는다(원래 계약 재검증 통과 = 진짜 해결).
-      for (const contractId of recoveredKeys) {
-        try { const loop = findLoopByContract(contractId); if (loop) transitionLoop(loop.loopId, "CLOSED", { now, note: "신호 회복 자동 종료", evidence: { origin_recheck: "PASS" } }); } catch { /* skip */ }
+      // 회귀 기준선: 현재 확정 실패 계약을 앱별로 모아, 회복된 계약의 수정이 '다른 걸 깨뜨렸는지' 본다.
+      const recFailByApp = {};
+      for (const r of health.results) if (r.confirmed) (recFailByApp[appTarget(r.target)] = recFailByApp[appTarget(r.target)] || new Set()).add(r.contractId);
+      const recHasRegression = (loop) => {
+        if (!loop || !Array.isArray(loop.baselineFailContracts)) return false;
+        const base = new Set(loop.baselineFailContracts);
+        for (const cid of (recFailByApp[appTarget(loop.targetApp || "")] || new Set())) if (!base.has(cid)) return true;
+        return false;
+      };
+      // 신호가 회복된 계약의 Loop를 닫되, 두 거짓 성공을 막는다:
+      //  (H2) orphan_pruned = 계약이 회복된 게 아니라 '더 이상 방출 안 됨'(retired·비활성) → PASS로 위장하지 않고 정직 종료.
+      //  (H1) 코드 변경 Loop는 원래 계약이 회복돼도 회귀(다른 걸 깨뜨림)를 먼저 검사 — 회귀면 여기서 성공으로 닫지 않고
+      //       회귀 감사 있는 task 경로가 처리하도록 남긴다(성급한 거짓 성공 차단).
+      for (const rec of health.recoveries) {
+        try {
+          const loop = findLoopByContract(rec.contractId);
+          if (!loop) continue;
+          if (rec.reason === "orphan_pruned") {
+            transitionLoop(loop.loopId, "CLOSED", { now, note: "원래 계약이 더 이상 방출되지 않아 정리 — 재검증 불가(성공 아님)", evidence: { origin_recheck: "UNVERIFIED_RETIRED" } });
+            continue;
+          }
+          if (loop.fixClass !== "self_heal" && recHasRegression(loop)) {
+            try { openIteration(loop.loopId, { now, failureSignature: `regression-on-recovery:${appTarget(loop.targetApp || "")}` }); } catch { /* skip */ }
+            regressionHeld += 1;
+            continue; // 성공으로 닫지 않음 — task 경로/다음 iteration이 처리
+          }
+          transitionLoop(loop.loopId, "CLOSED", { now, note: "신호 회복 자동 종료", evidence: { origin_recheck: "PASS", regression_guard: loop.fixClass === "self_heal" ? "N/A" : "PASS" } });
+        } catch { /* skip */ }
       }
     } catch { /* 회복 자동종료 실패는 무시 */ }
     healthSummary.autoClosed = autoClosed;
@@ -459,7 +488,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
 
   // §7 핵심: Codex가 작업을 끝냈다(in_review)고 해결이 아니다. 원래 실패했던 계약이 이번 점검에서
   // 다시 PASS해야만 그 Loop를 CLOSED로 닫고 업무를 완료 처리한다. 아직 실패면 새 iteration으로 재시도한다.
-  let reverified = 0, reiterated = 0, regressionHeld = 0;
+  let reverified = 0, reiterated = 0; // regressionHeld는 회복 경로와 공유(위에서 선언)
   try {
     const passContracts = new Set(healthResults.filter((r) => r.status === "PASS").map((r) => r.contractId));
     const stillFailing = new Set(healthResults.filter((r) => r.confirmed).map((r) => r.contractId));

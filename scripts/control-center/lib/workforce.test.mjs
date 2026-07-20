@@ -136,6 +136,24 @@ test("실행기가 연결돼도 실제 작업(task)이 없으면 '수정 중'으
   assert.ok(out.contractsAutoFixing >= 2, "실패 계약은 자동 수정 '대기'로는 잡힌다");
 });
 
+test("queued·blocked 업무는 '자동 수정 중'으로 위장하지 않는다 — executorBusy가 capacity를 넘지 않음", () => {
+  const report = { runAt: new Date().toISOString(), results: [] };
+  const tasks = [
+    { id: "t1", appId: "outbom", status: "queued", title: "대기 업무" },
+    { id: "t2", appId: "homebom", status: "blocked", title: "막힌 업무" },
+    { id: "t3", appId: "certbom", status: "in_progress", title: "실제 진행" },
+  ];
+  // 실행기 미연결: 아무도 실제로 '수정 중'이 아니다 → busy 0, capacity 0(자기모순 없음).
+  const off = computeWorkforce({ report, tasks, authority: { mode: "RUNNING" }, now: new Date("2026-07-19T04:00:00Z"), executorConnected: false });
+  assert.equal(off.executorCapacity, 0);
+  assert.equal(off.executorBusy, 0, "미연결이면 REPAIRING 0");
+  assert.ok(off.staff.some((s) => s.state === "BLOCKED"), "blocked 업무 담당자는 BLOCKED(자동 수정 아님)");
+  // 실행기 연결: in_progress 업무만 REPAIRING → busy ≤ capacity.
+  const on = computeWorkforce({ report, tasks, authority: { mode: "RUNNING" }, now: new Date("2026-07-19T04:00:00Z"), executorConnected: true });
+  assert.ok(on.executorBusy <= on.executorCapacity, `busy(${on.executorBusy}) ≤ capacity(${on.executorCapacity})`);
+  assert.ok(on.staff.some((s) => s.state === "TRIAGING"), "queued 업무는 TRIAGING(대기)");
+});
+
 test("needNewSource 계약은 어느 레인에도 사라지지 않고 '사람 확인 필요'로 집계된다", () => {
   const report = { runAt: new Date().toISOString(), results: [
     { contractId: "c:certbom:new-source", target: "certbom", category: "data", status: "FAIL", what: "새 데이터 소스 필요", needNewSource: true },

@@ -197,8 +197,22 @@ export function computeWorkforce({ report = null, tasks = [], authority = { mode
     else if (companyDown) { state = s.authority || s.division === "operations" ? "MONITORING" : "OFF_DUTY"; work = mode === "EMERGENCY_STOP" ? "긴급 정지 · 읽기 전용 관제" : "회사 일시정지 · 대기"; }
     else if (myTasks.length && !monitorOnly) {
       const t = myTasks[0], st = String(t.status || "");
-      state = /deploy/.test(st) ? "DEPLOYING" : /test|verif/.test(st) ? "TESTING" : "REPAIRING";
-      work = `자동 수정 · ${t.title || t.appId || "업무"}`; current = { id: t.id, what: t.title, target: t.appId, status: "REPAIR" };
+      // '수정 중'(WORKING)은 실행기가 실제로 도는 중일 때만. queued·blocked를 REPAIRING으로 위장하면
+      // executorBusy가 executorCapacity(연결 0)를 넘고, '막힌' 업무가 '자동 수정 중'으로 뒤집혀 보인다(거짓 성과·거짓 병렬).
+      const processing = executorConnected && /in_progress|implementing|working|investigating|fixing|deploy|verif/.test(st);
+      const blockedTask = /block|needs_check|external_wait|held|on_hold|fail|reject/.test(st);
+      if (processing) {
+        state = /deploy/.test(st) ? "DEPLOYING" : /test|verif/.test(st) ? "TESTING" : "REPAIRING";
+        work = `자동 수정 · ${t.title || t.appId || "업무"}`; current = { id: t.id, what: t.title, target: t.appId, status: "REPAIR" };
+      } else if (blockedTask) {
+        state = "BLOCKED";
+        work = `막힘 · ${t.title || t.appId || "업무"} · 회장 확인/재시도 필요`; current = { id: t.id, what: t.title, target: t.appId, status: "BLOCKED" };
+      } else {
+        // queued·pending·in_review 등: 실행기 대기(순차) — '수정 중'으로 위장하지 않는다.
+        state = "TRIAGING";
+        work = `${executorConnected ? "자동 수정 대기(Codex 큐 · 순차)" : "자동 수정 대기(실행기 연결 시 시작)"} · ${t.title || t.appId || "업무"}`;
+        current = { id: t.id, what: t.title, target: t.appId, status: "QUEUED" };
+      }
     }
     else if (failingHuman.length) {
       state = "BLOCKED"; const f = failingHuman[0];
