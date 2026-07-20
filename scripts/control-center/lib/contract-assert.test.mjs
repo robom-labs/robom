@@ -16,9 +16,21 @@ test("경로 해석은 프로토타입 접근을 차단한다", () => {
   assert.equal(resolvePath([{ x: 2 }], "0.x"), 2);
 });
 
-test("위험한 정규식(중첩 수량자)은 거부한다", () => {
+test("위험한 정규식(중첩 수량자·중첩 대체)은 거부한다 — catastrophic backtracking 방지", () => {
   assert.equal(safeRegex("(a+)+b"), null);
+  // (a|a)+ 같은 겹치는 대체+반복도 지수적 backtracking을 일으킨다(31자 입력에 실측 73초 지연) —
+  // 예전 검사는 그룹 '안'의 수량자만 봐서 대체(|)+바깥 수량자 조합을 놓쳤다.
+  assert.equal(safeRegex("(a|a)+"), null);
+  assert.equal(safeRegex("^(a|a)+$"), null);
+  assert.equal(safeRegex("(a|ab)*x"), null);
+  // 대체가 있어도 수량자가 안 붙으면(한 번만 매칭) 안전 — 계속 허용
+  assert.ok(safeRegex("(png|jpg|gif)"));
   assert.ok(safeRegex("^v\\d+\\.\\d+"));
+});
+
+test("matches_safe_regex는 거부된 패턴에서 항상 false — 위험 패턴이 실행조차 되지 않는다", () => {
+  assert.equal(ASSERT_OPS.matches_safe_regex("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!", "(a|a)+"), false);
+  assert.equal(ASSERT_OPS.matches_safe_regex("v1.2", "^v\\d+\\.\\d+"), true);
 });
 
 test("quantifier every·optional이 배열 항목을 판정한다", () => {
@@ -40,6 +52,10 @@ test("거짓 PASS 방지: 빈 배열 every·undefined eq·중복 same_set는 통
   // 둘 다 없는 필드끼리 'eq'는 거짓 PASS가 아니라 실패
   assert.equal(ASSERT_OPS.eq(undefined, undefined), false);
   assert.equal(ASSERT_OPS.eq(200, 200), true);
+  // unique: 빈 배열은 '중복 0개'로 진공참 통과하지 않는다(확인한 원소가 없으면 실패)
+  assert.equal(ASSERT_OPS.unique([], undefined), false);
+  assert.equal(ASSERT_OPS.unique(["a", "b"], undefined), true);
+  assert.equal(ASSERT_OPS.unique(["a", "a"], undefined), false);
   // same_set: 중복이 length를 속여 다른 집합을 통과시키지 못한다
   assert.equal(ASSERT_OPS.same_set([1, 1], [1, 2]), false);
   assert.equal(ASSERT_OPS.same_set([1, 2, 2], [1, 2]), true);

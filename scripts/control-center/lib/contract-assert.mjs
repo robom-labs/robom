@@ -21,11 +21,14 @@ export function resolvePath(value, path) {
   return cur;
 }
 
-// 위험한 정규식(중첩 수량자) 거부 — catastrophic backtracking 방지.
+// 위험한 정규식(중첩 수량자·중첩 대체) 거부 — catastrophic backtracking 방지.
 export function safeRegex(pattern) {
   if (typeof pattern !== "string" || pattern.length > 300) return null;
   // 수량자를 품은 그룹/문자클래스에 다시 수량자가 붙으면 거부(중첩 수량자 = backtracking 폭발 위험)
   if (/\([^)]*[+*{][^)]*\)\s*[+*{]/.test(pattern) || /\[[^\]]*\]\s*[+*]\s*[+*]/.test(pattern)) return null;
+  // 대체(|)를 품은 그룹에 수량자가 붙으면 거부. (a|a)+ 같은 겹치는 대체+반복은 중첩 수량자와 마찬가지로
+  // 지수적 backtracking을 일으킨다(예: 31자 입력에 73초) — 위 검사는 그룹 '안'의 수량자만 잡아 이 형태를 놓쳤다.
+  if (/\([^)]*\|[^)]*\)\s*[+*{]/.test(pattern)) return null;
   try { return new RegExp(pattern, "iu"); } catch { return null; }
 }
 
@@ -56,7 +59,8 @@ export const ASSERT_OPS = Object.freeze({
   length_gte: (a, e) => (isStr(a) || Array.isArray(a)) && isNum(e) && a.length >= e,
   length_lte: (a, e) => (isStr(a) || Array.isArray(a)) && isNum(e) && a.length <= e,
   is_array: (a) => Array.isArray(a),
-  unique: (a, e) => Array.isArray(a) && new Set(a.map((x) => (e ? resolvePath(x, e) : x))).size === a.length,
+  // 빈 배열은 진공참으로 통과시키지 않는다(every 쿼안티파이어와 같은 원칙 — 확인한 원소 0개인데 '중복 없음'은 거짓 PASS).
+  unique: (a, e) => Array.isArray(a) && a.length > 0 && new Set(a.map((x) => (e ? resolvePath(x, e) : x))).size === a.length,
   subset: (a, e) => Array.isArray(a) && Array.isArray(e) && a.every((x) => e.includes(x)),
   same_set: (a, e) => { if (!Array.isArray(a) || !Array.isArray(e)) return false; const sa = new Set(a), se = new Set(e); return sa.size === se.size && [...sa].every((x) => se.has(x)); }, // 양방향·중복 무시 집합 동일성(중복이 length를 속이지 못함)
   one_of: (a, e) => Array.isArray(e) && e.includes(a),

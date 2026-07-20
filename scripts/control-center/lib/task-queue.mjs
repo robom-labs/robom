@@ -112,29 +112,49 @@ function isLeaseStale(packet, nowMs, ttlMs, fileMtimeMs = NaN) {
 export function recoverStaleLeases(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, { now = () => Date.now(), leaseTtlMs = DEFAULT_LEASE_TTL_MS } = {}) {
   ensureDirs(runtimeDir);
   const recovered = [];
-  for (const packet of listState(runtimeDir, "running")) {
-    const runningPath = packetFile(runtimeDir, "running", packet.task_id);
+  // listState(파싱 성공만)가 아니라 원본 파일 목록을 순회한다 — 손상된(JSON.parse 실패) running 패킷은
+  // 예전엔 listState의 filter(Boolean)에서 통째로 빠져 이 함수가 존재를 몰랐다: 영원히 회수되지 않는
+  // 유령 잠금으로 남아 단일 실행 보장(§3 저장소당 동시 쓰기 1개)이 조용히 깨졌다(claimNextTask 참고).
+  const runningDir = stateDir(runtimeDir, "running");
+  const files = existsSync(runningDir) ? readdirSync(runningDir).filter((n) => n.endsWith(".json")) : [];
+  for (const name of files) {
+    const runningPath = join(runningDir, name);
+    const taskId = name.slice(0, -5);
+    const packet = readPacket(runningPath); // null이면 손상 — 아래서 조용히 넘어가지 않고 격리한다
     let mtimeMs = NaN;
-    try { mtimeMs = statSync(runningPath).mtimeMs; } catch { /* 파일이 이미 사라졌으면 아래 rename에서 걸러진다 */ }
-    if (isLeaseStale(packet, now(), leaseTtlMs, mtimeMs)) {
-      const { lease, ...rest } = packet;
-      rest.recoverCount = (Number(packet.recoverCount) || 0) + 1;
-      // 독성 작업 방지: 여러 번 회수해도 끝나지 않으면 무한 재시도 대신 failed로 보내 회장 확인으로 넘긴다.
-      const dest = rest.recoverCount > MAX_RECOVER ? "failed" : "pending";
-      if (dest === "failed") rest.result = { status: "failed", reason: `자동 회수 ${rest.recoverCount}회 초과 — 회장 확인 필요`, finishedAt: new Date(now()).toISOString() };
-      else rest.recoveredFromStaleLease = true;
-      // 원자적 이동: running 파일을 갱신한 뒤 rename으로 옮긴다(두 디렉터리에 동시 존재하는 창을 없앤다).
-      writeFileSync(runningPath, `${JSON.stringify(rest, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
-      renameSync(runningPath, packetFile(runtimeDir, dest, rest.task_id));
-      recovered.push(rest.task_id);
+    try { mtimeMs = statSync(runningPath).mtimeMs; } catch { continue; } // 파일이 이미 사라졌으면 건너뜀
+    if (!isLeaseStale(packet, now(), leaseTtlMs, mtimeMs)) continue;
+    if (!packet) {
+      // 손상된 패킷은 내용을 복구할 수 없어 pending으로 되돌릴 수 없다. 조용히 사라지게 두는 대신
+      // failed로 격리해 회장이 보게 하고(§ 정직 — 절대 침묵 실패 금지), 원본은 .corrupt로 증거 보존한다.
+      const quarantined = { schemaVersion: 1, task_id: taskId, corrupted: true, title: `[손상된 작업 패킷] ${taskId}`,
+        result: { status: "failed", reason: "패킷 파일이 손상되어 읽을 수 없습니다 — 회장 확인 필요", finishedAt: new Date(now()).toISOString() } };
+      try { renameSync(runningPath, `${runningPath}.corrupt`); } catch { /* 이미 사라졌으면 무시 */ }
+      writeFileSync(packetFile(runtimeDir, "failed", taskId), `${JSON.stringify(quarantined, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+      recovered.push(taskId);
+      continue;
     }
+    const { lease, ...rest } = packet;
+    rest.recoverCount = (Number(packet.recoverCount) || 0) + 1;
+    // 독성 작업 방지: 여러 번 회수해도 끝나지 않으면 무한 재시도 대신 failed로 보내 회장 확인으로 넘긴다.
+    const dest = rest.recoverCount > MAX_RECOVER ? "failed" : "pending";
+    if (dest === "failed") rest.result = { status: "failed", reason: `자동 회수 ${rest.recoverCount}회 초과 — 회장 확인 필요`, finishedAt: new Date(now()).toISOString() };
+    else rest.recoveredFromStaleLease = true;
+    // 원자적 이동: running 파일을 갱신한 뒤 rename으로 옮긴다(두 디렉터리에 동시 존재하는 창을 없앤다).
+    writeFileSync(runningPath, `${JSON.stringify(rest, null, 2)}\n`, { encoding: "utf8", mode: 0o600 });
+    renameSync(runningPath, packetFile(runtimeDir, dest, rest.task_id));
+    recovered.push(rest.task_id);
   }
   return recovered;
 }
 
 export function claimNextTask(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, { runner = "codex-runner", now = () => new Date() } = {}) {
   ensureDirs(runtimeDir);
-  if (listState(runtimeDir, "running").length > 0) return null; // 저장소 동시 쓰기 방지: 실행 중이면 새 작업 안 잡음
+  // listState(파싱 성공만)로 세면 손상된 running 패킷이 '실행 중 없음'으로 보여, 진짜 잠금이 있는데도
+  // 새 작업을 또 잡아 같은 저장소에 두 작업이 동시에 쓰는 사고가 난다. 파싱 여부와 무관하게 파일 존재로 판단한다.
+  const runningDir = stateDir(runtimeDir, "running");
+  const runningFiles = existsSync(runningDir) ? readdirSync(runningDir).filter((n) => n.endsWith(".json")) : [];
+  if (runningFiles.length > 0) return null; // 저장소 동시 쓰기 방지: 실행 중이면 새 작업 안 잡음
   const [next] = listState(runtimeDir, "pending");
   if (!next) return null;
   // 원자적 claim: pending→running을 rename으로 먼저 확보한다. 두 러너가 같은 패킷을 노려도 rename은
@@ -230,13 +250,21 @@ export function writeRunnerStatus(status, { runtimeDir = DEFAULT_COMPANY_RUNTIME
   return next;
 }
 
+function rawFileCount(runtimeDir, state) {
+  const dir = stateDir(runtimeDir, state);
+  if (!existsSync(dir)) return 0;
+  return readdirSync(dir).filter((n) => n.endsWith(".json")).length;
+}
 export function queueSummary(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR) {
   const queue = listQueue(runtimeDir);
+  // 손상돼 파싱 안 되는 패킷은 pending/running/... 개수에서 조용히 빠지지 않고 별도로 드러난다(§ 정직).
+  const corrupted = QUEUE_STATES.reduce((sum, s) => sum + Math.max(0, rawFileCount(runtimeDir, s) - queue[s].length), 0);
   return {
     pending: queue.pending.length,
     running: queue.running.length,
     done: queue.done.length,
     failed: queue.failed.length,
+    corrupted,
     runningTask: queue.running[0] ? { taskId: queue.running[0].task_id, title: queue.running[0].title, app: queue.running[0].target_app, lease: queue.running[0].lease } : null,
     nextTask: queue.pending[0] ? { taskId: queue.pending[0].task_id, title: queue.pending[0].title, app: queue.pending[0].target_app } : null,
     control: readControl(runtimeDir),

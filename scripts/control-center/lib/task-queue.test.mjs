@@ -101,6 +101,39 @@ test("잠금 없는 running 패킷은 갓 쓰였으면(claim 진행 중 창) 회
   assert.deepEqual(recoverStaleLeases(dir, { now: () => Date.now() + 3_600_000, leaseTtlMs: 60_000 }), ["T1"]);
 }));
 
+test("손상된 running 패킷은 조용히 사라지지 않는다 — 단일 실행 잠금 유지 + stale되면 failed로 격리", () => withDir((dir) => {
+  const runningDir = join(dir, "queue", "running");
+  mkdirSync(runningDir, { recursive: true });
+  // JSON.parse가 실패하는 손상 패킷(예: 크래시로 잘린 쓰기)
+  writeFileSync(join(runningDir, "corrupt-task.json"), '{"task_id":"corrupt-task","lease":{ 잘린-json');
+  // (a) 손상돼도 '실행 중인 무언가'로 세어 새 claim을 막는다 — listState(파싱 성공만) 기준이면 이 잠금이 안 보여
+  //     같은 저장소에 두 번째 작업이 동시에 잡히던 결함.
+  enqueueTask(record(), { runtimeDir: dir });
+  assert.equal(claimNextTask(dir), null, "손상된 running 파일이 있어도 단일 실행 잠금을 지킨다");
+  // (b) 신선한 손상 파일은 아직 회수하지 않는다(claim 진행 중 창일 수 있음 — 정상 패킷과 동일 원칙).
+  assert.deepEqual(recoverStaleLeases(dir, { leaseTtlMs: 60_000 }), []);
+  // (c) 오래되면 조용히 사라지지 않고 failed로 격리 + 원본은 .corrupt로 증거 보존.
+  const recovered = recoverStaleLeases(dir, { now: () => Date.now() + 3_600_000, leaseTtlMs: 60_000 });
+  assert.deepEqual(recovered, ["corrupt-task"]);
+  const queue = listQueue(dir);
+  assert.equal(queue.running.length, 0);
+  assert.equal(queue.failed.length, 1);
+  assert.equal(queue.failed[0].corrupted, true);
+  assert.match(queue.failed[0].result.reason, /손상/);
+  // 이제 잠금이 풀렸으니 대기 중이던 작업을 잡을 수 있다.
+  assert.ok(claimNextTask(dir));
+}));
+
+test("queueSummary는 손상된(파싱 안 되는) 패킷 수를 조용히 숨기지 않고 corrupted로 드러낸다", () => withDir((dir) => {
+  const doneDir = join(dir, "queue", "done");
+  mkdirSync(doneDir, { recursive: true });
+  writeFileSync(join(doneDir, "broken.json"), "{ 손상됨");
+  enqueueTask(record(), { runtimeDir: dir });
+  const summary = queueSummary(dir);
+  assert.equal(summary.pending, 1);
+  assert.equal(summary.corrupted, 1, "done 폴더의 손상 파일 1개가 집계에 드러남");
+}));
+
 test("손상된 control.json은 fail-open이 아니라 안전측(일시정지)으로 읽는다", () => withDir((dir) => {
   writeFileSync(join(dir, "control.json"), "{ paused: 손상된-json");
   const c = readControl(dir);
