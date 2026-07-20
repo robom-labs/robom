@@ -24,12 +24,18 @@ function auditDir(label, dir) {
   try {
     const parsed = JSON.parse(raw);
     // pnpm(=npm v6 형식) advisories 또는 npm v7+ metadata.vulnerabilities 모두 지원한다.
+    // 둘 다 없으면 "취약점 0개"가 아니라 audit 도구가 예상 못 한 새 출력 포맷을 뱉었다는 뜻이다
+    // (두 형식 모두 실제로 0개일 때도 해당 키 자체는 항상 존재한다) — 조용히 0으로 집계하면
+    // 스키마 드리프트로 실재 취약점이 있어도 PASS로 새는 위양성이 된다.
+    if (!parsed.metadata?.vulnerabilities && !parsed.advisories) {
+      return { label, error: "audit 출력 포맷을 인식하지 못함(스키마 변경 가능성) — 취약점 0으로 간주하지 않음" };
+    }
     let high = 0;
     let critical = 0;
     if (parsed.metadata?.vulnerabilities) {
       high = parsed.metadata.vulnerabilities.high ?? 0;
       critical = parsed.metadata.vulnerabilities.critical ?? 0;
-    } else if (parsed.advisories) {
+    } else {
       for (const advisory of Object.values(parsed.advisories)) {
         if (advisory.severity === "high") high += 1;
         if (advisory.severity === "critical") critical += 1;
