@@ -53,12 +53,17 @@ for (const repo of REPOS) {
     results.push({ label: repo, error: `clone 실패: ${String(error.message).slice(0, 120)}` });
     continue;
   }
+  // 하드코딩 3경로(.·apps/mobile·apps/web) 중 lockfile을 찾은 곳이 하나도 없으면 auditDir가 매번 null을
+  // 반환해 이 저장소는 results에 흔적조차 안 남았다 — failures 집계가 실패로 못 잡아 조용히 PASS로
+  // 새는 구조였다(보안 감사가 스스로 "감사 못 함"을 놓치는 유형). 저장소당 최소 1회 실제 감사를 강제한다.
+  let auditedAny = false;
   for (const [label, sub] of [[repo, "."], [`${repo}/apps/mobile`, "apps/mobile"], [`${repo}/apps/web`, "apps/web"]]) {
     const target = join(dir, sub);
     if (!existsSync(target)) continue;
     const entry = auditDir(label, target);
-    if (entry) results.push(entry);
+    if (entry) { results.push(entry); auditedAny = true; }
   }
+  if (!auditedAny) results.push({ label: repo, error: "lockfile을 찾지 못해 감사하지 못함(.·apps/mobile·apps/web 전부 확인)" });
 }
 
 const flat = results.filter(Boolean);
