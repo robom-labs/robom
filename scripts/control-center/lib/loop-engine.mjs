@@ -23,6 +23,9 @@ export const LOOP_TYPES = Object.freeze([
   "user_experience", "maintenance", "product_growth", "portfolio_growth", "meta_improvement",
 ]);
 export const AUTHORITY_CLASSES = Object.freeze(["self_heal", "codex", "human"]);
+// 엔진 차원의 무한 반복 백스톱. serve.mjs의 작업 재시도 상한(MAX_AUTO_REQUEUE)이 보통 먼저 걸리지만,
+// 그 경로를 우회해 iteration만 계속 오르는 Loop도 이 횟수를 넘으면 안전 중단(FAILED_SAFE)으로 회장 확인 escalate.
+export const MAX_LOOP_ITERATION = 8;
 
 const LOOP_STATE_LABEL = {
   DISCOVERED: "발견", TRIAGED: "분류", OBJECTIVE_DEFINED: "목표 정의", CRITERIA_DEFINED: "기준 정의",
@@ -80,6 +83,12 @@ function nextId(now) {
 export function createLoop(input = {}, { runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, now = new Date() } = {}) {
   const objective = input.objective || input.title || "";
   if (!objective) throw new Error("Loop에는 objective가 필요합니다.");
+  // 같은 계약(contractId)에 이미 활성 Loop가 있으면 중복 생성하지 않고 기존 것을 돌려준다.
+  // (중복 Loop는 findLoopByContract가 첫 번째만 찾아 나머지가 영구 orphan으로 남아 활성 수를 부풀린다.)
+  if (input.contractId && !input.loopId) {
+    const existing = Object.values(readLoops(runtimeDir)).find((l) => l.contractId === input.contractId && isActive(l.state));
+    if (existing) return existing;
+  }
   const authorityClass = input.authorityClass || input.fixClass || "codex";
   const acceptanceCriteria = input.acceptanceCriteria?.length ? input.acceptanceCriteria : deriveAcceptanceCriteria({ ...input, authorityClass });
   const owner = input.ownerAgent || input.ownerTeam || "개발팀";
@@ -154,8 +163,18 @@ export function openIteration(loopId, { runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR
   loop.attemptHistory.push({ iteration: loop.iteration, failureSignature: loop.failureSignature || failureSignature, endedAt: nowIso });
   loop.iteration += 1;
   loop.failureSignature = failureSignature || loop.failureSignature;
-  loop.state = "TRIAGED";
   loop.updatedAt = nowIso;
+  // 무한 반복 백스톱: 상한을 넘기면 같은 수정을 계속 재시도하지 않고 안전 중단하고 회장 확인으로 escalate한다(정직·§10.2).
+  if (loop.iteration > MAX_LOOP_ITERATION) {
+    loop.state = "FAILED_SAFE";
+    loop.closedAt = nowIso;
+    loop.nextAction = `${MAX_LOOP_ITERATION}회 반복에도 해결하지 못해 안전 중단했습니다 — 회장 확인이 필요합니다.`;
+    loops[loopId] = loop;
+    writeLoops(runtimeDir, loops);
+    appendEvent(runtimeDir, { at: nowIso, loopId, event: "failed_safe", iteration: loop.iteration, reason: "max_iteration" });
+    return loop;
+  }
+  loop.state = "TRIAGED";
   loop.nextAction = "접근 방식을 바꿔 다시 시도";
   loops[loopId] = loop;
   writeLoops(runtimeDir, loops);
@@ -194,7 +213,12 @@ export function metaAudit(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, { now = new 
   const active = Object.values(readLoops(runtimeDir)).filter((l) => isActive(l.state));
   const nowMs = now.getTime();
   const issues = [];
-  const waiting = new Set(["AWAITING_APPROVAL", "DELEGATED_APPROVAL", "BLOCKED_HUMAN", "BLOCKED_EXTERNAL", "RETRY_WAIT"]);
+  // 사람·외부 대기(회장 확인·외부 시스템)는 나이 무제한 — 정당한 대기다.
+  const externalWait = new Set(["BLOCKED_HUMAN", "BLOCKED_EXTERNAL"]);
+  // 기계 대기(재시도 대기)는 사람 개입이 없다. 정상 주기 내 스스로 풀려야 하므로 정체를 잡는다.
+  const machineWait = new Set(["RETRY_WAIT"]);
+  // 승인 대기는 사람이 눌러야 하지만, 너무 오래 방치되면(3배 임계) 회장께 지연을 알린다.
+  const approvalWait = new Set(["AWAITING_APPROVAL", "DELEGATED_APPROVAL"]);
   const runningStates = new Set(["QUEUED", "CLAIMED", "INVESTIGATING", "IMPLEMENTING", "VERIFYING_LOCAL", "WAITING_CI", "MERGING", "DEPLOYING"]);
   for (const l of active) {
     // §17 감사1(요건): 목표·합격기준·담당·검증자가 다 갖춰졌는가.
@@ -204,7 +228,15 @@ export function metaAudit(runtimeDir = DEFAULT_COMPANY_RUNTIME_DIR, { now = new 
     // §17 감사3(장기): 재시도 폭주·멈춤.
     if ((l.iteration || 1) >= maxIteration) issues.push({ loopId: l.loopId, objective: l.objective, kind: "retry_storm", note: `${l.iteration}회 재시도 — 접근을 근본적으로 바꿔야 합니다.` });
     const ageH = (nowMs - Date.parse(l.updatedAt || l.createdAt || now.toISOString())) / 3.6e6;
-    if (Number.isFinite(ageH) && ageH > stuckHours && !waiting.has(l.state)) issues.push({ loopId: l.loopId, objective: l.objective, kind: "stuck", note: `${Math.round(ageH)}시간째 진행이 없습니다.` });
+    if (Number.isFinite(ageH)) {
+      if (machineWait.has(l.state)) {
+        if (ageH > stuckHours) issues.push({ loopId: l.loopId, objective: l.objective, kind: "stuck", note: `재시도 대기에서 ${Math.round(ageH)}시간째 스스로 풀리지 않았습니다(기계 대기 정체).` });
+      } else if (approvalWait.has(l.state)) {
+        if (ageH > stuckHours * 3) issues.push({ loopId: l.loopId, objective: l.objective, kind: "stuck", note: `승인 대기 ${Math.round(ageH)}시간 — 회장 확인이 오래 지연되고 있습니다.` });
+      } else if (!externalWait.has(l.state) && ageH > stuckHours) {
+        issues.push({ loopId: l.loopId, objective: l.objective, kind: "stuck", note: `${Math.round(ageH)}시간째 진행이 없습니다.` });
+      }
+    }
   }
   return { checkedAt: now.toISOString(), activeCount: active.length, issueCount: issues.length, issues: issues.slice(0, 20) };
 }

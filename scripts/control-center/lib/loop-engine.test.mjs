@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   createLoop, transitionLoop, openIteration, readLoops, summarizeLoops,
-  deriveAcceptanceCriteria, findLoopByContract, isActive, LOOP_STATES, metaAudit, pruneClosedLoops,
+  deriveAcceptanceCriteria, findLoopByContract, isActive, LOOP_STATES, metaAudit, pruneClosedLoops, MAX_LOOP_ITERATION,
 } from "./loop-engine.mjs";
 
 function tmp() { return mkdtempSync(join(tmpdir(), "loop-test-")); }
@@ -59,6 +59,30 @@ test("openIteration은 iteration을 올리고 이력에 실패 서명을 남긴�
   assert.equal(it.state, "TRIAGED");
   assert.equal(it.attemptHistory.length, 1);
   assert.equal(it.attemptHistory[0].iteration, 1);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("openIteration은 상한(MAX_LOOP_ITERATION)을 넘기면 무한 반복 대신 FAILED_SAFE로 안전 중단한다", () => {
+  const dir = tmp();
+  const loop = createLoop({ objective: "x", contractId: "cmax", fixClass: "codex" }, { runtimeDir: dir });
+  let cur = loop;
+  for (let i = 0; i < 20; i++) cur = openIteration(cur.loopId, { runtimeDir: dir, failureSignature: `try${i}` });
+  assert.equal(cur.state, "FAILED_SAFE");
+  assert.equal(isActive(cur.state), false);
+  assert.ok(cur.iteration > MAX_LOOP_ITERATION);
+  rmSync(dir, { recursive: true, force: true });
+});
+
+test("createLoop은 같은 계약에 활성 Loop가 있으면 중복 생성하지 않고 기존 것을 돌려준다", () => {
+  const dir = tmp();
+  const first = createLoop({ objective: "첫 사건", contractId: "dup:outbom", fixClass: "codex" }, { runtimeDir: dir });
+  const second = createLoop({ objective: "같은 계약 재감지", contractId: "dup:outbom", fixClass: "codex" }, { runtimeDir: dir });
+  assert.equal(second.loopId, first.loopId); // 새 orphan을 만들지 않는다
+  assert.equal(Object.keys(readLoops(dir)).length, 1);
+  // 종료된 뒤에는 같은 계약으로 새 Loop를 열 수 있다.
+  transitionLoop(first.loopId, "CLOSED", { runtimeDir: dir });
+  const third = createLoop({ objective: "재발", contractId: "dup:outbom", fixClass: "codex" }, { runtimeDir: dir });
+  assert.notEqual(third.loopId, first.loopId);
   rmSync(dir, { recursive: true, force: true });
 });
 
