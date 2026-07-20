@@ -3,7 +3,7 @@
 // OS 표준 사용자 데이터 폴더에 저장한다(앱 번들은 읽기 전용이어도 동작).
 // 창을 닫아도 트레이에서 계속 감시하며, 트레이에서 일시정지·재개·완전 종료할 수 있다.
 "use strict";
-const { app, BrowserWindow, Tray, Menu, nativeImage, shell, dialog } = require("electron");
+const { app, BrowserWindow, Tray, Menu, nativeImage, shell, dialog, Notification } = require("electron");
 const { chmodSync, existsSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, rmSync } = require("node:fs");
 const { join } = require("node:path");
 const { spawnSync } = require("node:child_process");
@@ -174,15 +174,31 @@ async function startServer() {
 }
 
 async function apiPost(path, body) {
-  if (!serverLink) return;
+  if (!serverLink) return { ok: false, reason: "본부 서버가 아직 실행되지 않았습니다." };
   try {
-    await fetch(new URL(path, serverLink), {
+    const res = await fetch(new URL(path, serverLink), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+    if (!res.ok) return { ok: false, reason: `서버 응답 ${res.status}` };
+    return { ok: true };
   } catch (error) {
     console.error("[robom-hq] 제어 API 실패", error);
+    return { ok: false, reason: String(error?.message || error) };
+  }
+}
+
+// 긴급 일시정지/재시작은 안전 브레이크다. 조용히 실패하면 회장은 멈춘 줄 알지만 실제로는 계속 돈다(거짓 안전).
+// 성공/실패를 반드시 알린다.
+async function controlWithFeedback(paused) {
+  const r = await apiPost("/api/control", { paused });
+  if (r.ok) {
+    if (Notification.isSupported()) new Notification({ title: "로봄 본부", body: paused ? "모든 자동작업을 일시정지했습니다." : "자동작업을 다시 시작했습니다." }).show();
+  } else {
+    dialog.showMessageBox({ type: "error", title: "명령이 적용되지 않았습니다",
+      message: paused ? "‘모든 자동작업 일시정지’가 적용되지 않았습니다." : "‘자동작업 다시 시작’이 적용되지 않았습니다.",
+      detail: `${r.reason}\n\n본부 창을 열어 상태를 확인하고 다시 시도해 주세요.` });
   }
 }
 
@@ -193,7 +209,7 @@ function createWindow() {
     minWidth: 360,
     minHeight: 560,
     title: windowTitle(),
-    webPreferences: { contextIsolation: true, nodeIntegration: false },
+    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }, // 스모크 창과 동일하게 렌더러 샌드박스(심층 방어)
   });
   mainWindow.loadURL(serverLink);
   // 화면 자체가 곧 document.title을 버전 포함 문구로 갱신하지만(app.js loadVersion),
@@ -227,8 +243,8 @@ function buildTray() {
   const menu = Menu.buildFromTemplate([
     { label: "본부 열기", click: showWindow },
     { type: "separator" },
-    { label: "모든 자동작업 일시정지", click: () => apiPost("/api/control", { paused: true }) },
-    { label: "자동작업 다시 시작", click: () => apiPost("/api/control", { paused: false }) },
+    { label: "모든 자동작업 일시정지", click: () => controlWithFeedback(true) },
+    { label: "자동작업 다시 시작", click: () => controlWithFeedback(false) },
     { type: "separator" },
     {
       label: "부팅 시 자동 시작 (기본 꺼짐)",
@@ -281,7 +297,7 @@ if (!gotLock) {
     buildTray();
     app.on("activate", showWindow);
   });
-  app.on("before-quit", () => { quitting = true; });
+  app.on("before-quit", () => { quitting = true; try { tray?.destroy(); } catch { /* 이미 없음 */ } }); // 트레이 아이콘 잔상 제거("끄면 꺼질 것")
   // v2.7.0: "끄면 그냥 꺼진다" — 창을 닫으면(모든 창이 닫히면) 앱을 완전히 종료한다.
   // 예전의 '트레이 상주(닫아도 계속 실행)'가 회장이 껐는데도 켜져 있는 것처럼 느껴지게 했다.
   app.on("window-all-closed", () => { quitting = true; app.quit(); });
