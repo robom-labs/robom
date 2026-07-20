@@ -475,7 +475,7 @@ async function runDailyReviewIfDue({ store = createCompanyStore(), snapDir = SNA
   if (healthSummary) { healthSummary.reverified = reverified; healthSummary.reiterated = reiterated; healthSummary.regressionHeld = regressionHeld; }
 
   // 2) 성장 제안(다음 개선 행동)·회사 보안만 기존 제안기에서 가져온다(건강/CI/PR은 엔진이 담당 — 중복 방지)
-  const growth = generateProposals(snapshot, existing, { limit: 20 }).filter((p) => /:next$|:security$/.test(p.key));
+  const growth = generateProposals(snapshot, existing, { limit: 20 }).filter((p) => /:next$|:security$|:grow$/.test(p.key));
   for (const p of growth) {
     if (existingKeys.has(p.key)) continue;
     try {

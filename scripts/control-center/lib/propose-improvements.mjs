@@ -50,7 +50,19 @@ export function generateProposals(snapshot, existingApprovals = [], { limit = 5 
     title: `보안 점검 ${failedSecurity.length}건 확인 필요`, body: failedSecurity.map((c) => c.name).filter(Boolean).join(", ") || "보안 점검 항목이 통과하지 못했습니다.",
     recommendation: "비밀값 노출·권한·외부 링크 등 실패 항목을 확인하고 조치합니다." });
 
-  // 장애 > 경고·CI > 다음개선 > PR 순으로 정렬해 상위 limit개
+  // 6) 성장 백로그가 마르지 않게: 급한 장애·구체 개선 신호가 없는(건강한) 앱에도 '다음 성장' 한 걸음을 세워둔다.
+  //    가짜 문제를 지어내지 않는다 — 문제가 없음을 정직히 밝히고, Codex 실행기가 실제 코드베이스를 보고
+  //    다음 개선(작은 신기능·UX·성능)을 발굴·구현하는 '성장 지시'다. 유지보수에만 머물지 않기 위함(회장 요구 8).
+  for (const app of family) {
+    if (out.some((o) => o.appId === app.id)) continue; // 이 앱에 이번에 만든 제안이 있으면 생략
+    if ([...seen].some((k) => k.startsWith(`${app.id}:`))) continue; // 이 앱에 이미 대기 중 제안이 있으면 생략(중복 방지)
+    push({ appId: app.id, key: KEY(app.id, "grow"), priority: "low",
+      title: `${app.name} 다음 개선·신기능 발굴`,
+      body: `${app.name}에 급한 장애나 대기 중 개선이 없습니다 — 유지보수에 머물지 않도록 다음 성장 한 걸음을 만듭니다.`,
+      recommendation: "Codex 실행기가 코드·사용자 흐름을 살펴 다음 개선(작은 신기능·UX·성능·접근성)을 하나 발굴해 작은 단위로 구현·검증합니다." });
+  }
+
+  // 장애 > 경고·CI > 다음개선 > PR > 성장 순으로 정렬해 상위 limit개
   const rank = { urgent: 0, high: 1, normal: 2, low: 3 };
   out.sort((a, b) => (rank[a.priority] ?? 9) - (rank[b.priority] ?? 9));
   return out.slice(0, limit);

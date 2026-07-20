@@ -136,8 +136,8 @@ test("본사(robom)와 계열사 앱을 분리하고 예시 스냅샷도 registr
 test("결정론적 health 엔진이 review에 연결되고 incident만 중복 없이 결재로 상신된다", () => {
   assert.match(server, /import \{ runHealthEngine \}/);
   assert.match(server, /runHealthEngine\(\{/);
-  // 건강/CI/PR은 엔진이 담당, 제안기는 성장(:next)·보안(:security)만 → 중복 방지
-  assert.match(server, /\/:next\$\|:security\$\//);
+  // 건강/CI/PR은 엔진이 담당, 제안기는 성장(:next·:grow)·보안(:security)만 → 중복 방지
+  assert.match(server, /\/:next\$\|:security\$\|:grow\$\//);
   assert.match(server, /proposalKey: inc\.contractId/); // incident별 dedup 키
   assert.match(server, /health: readHealthSummary\(\)/); // hq-status 노출
   const engine = readFileSync(join(REPO_ROOT, "scripts/control-center/lib/health-engine.mjs"), "utf8");

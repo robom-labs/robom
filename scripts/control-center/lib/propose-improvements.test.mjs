@@ -29,7 +29,16 @@ test("이미 올라온 제안(proposalKey)은 중복 생성하지 않는다", ()
   assert.equal(generateProposals(s, []).length, 1);
 });
 
-test("아무 신호가 없으면 빈 배열(연출 금지)", () => {
-  assert.deepEqual(generateProposals(snap([{ id: "outbom", name: "야외봄", health: "ok" }]), []), []);
+test("가짜 문제는 안 만든다 — 건강한 앱엔 정직한 '성장 지시'만(회장 요구 8)", () => {
+  // 건강한 앱: 장애·경고를 지어내지 않되, 유지보수에 머물지 않도록 정직한 성장 지시 하나를 세운다.
+  const out = generateProposals(snap([{ id: "outbom", name: "야외봄", health: "ok" }]), []);
+  assert.equal(out.length, 1);
+  assert.equal(out[0].key, "outbom:grow");
+  assert.equal(out[0].priority, "low"); // 실제 문제보다 뒤
+  assert.match(out[0].body, /급한 장애나 대기 중 개선이 없습니다/); // 문제를 지어내지 않고 정직히 밝힘
+  assert.match(out[0].recommendation, /Codex/); // 창의적 발굴은 Codex 실행 단계
+  // 이미 이 앱에 대기 중 제안이 있으면 성장 지시는 중복 생성하지 않는다
+  assert.equal(generateProposals(snap([{ id: "outbom", name: "야외봄", health: "ok" }]), [{ proposalKey: "outbom:grow", status: "pending" }]).length, 0);
+  // 입력이 없으면 빈 배열
   assert.deepEqual(generateProposals(null, []), []);
 });
