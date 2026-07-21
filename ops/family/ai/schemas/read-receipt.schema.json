@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ROBOM Read Receipt (per-task, runtime)",
+  "type": "object",
+  "required": ["taskId", "executor", "repo", "path", "readAt"],
+  "properties": {
+    "taskId": { "type": "string" },
+    "executor": { "enum": ["claude", "codex"] },
+    "repo": { "type": "string" },
+    "path": { "type": "string" },
+    "sha": { "type": ["string", "null"] },
+    "ranges": { "type": "array" },
+    "reason": { "type": "string" },
+    "estimatedTokens": { "type": "number" },
+    "cacheHit": { "type": "boolean" },
+    "usedInResult": { "type": "boolean" },
+    "readAt": { "type": "string" }
+  },
+  "_note": "내부 추론·사용자 개인정보·비밀값은 기록하지 않는다(doc-04 §17)."
+}

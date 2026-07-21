@@ -1,0 +1,20 @@
+# DO NOT EDIT by hand — build-repo-profiles.mjs 생성물 (Context OS v1.1 · doc-04 §E).
+id: certbom
+repo: robom-labs/certbom
+stack: "Vite + React"
+source_roots: ["src/App.tsx", "src/index.css"]
+modules: ["src/lib", "src/data"]
+pwa_paths: ["public/sw.js", "public/manifest.webmanifest"]
+generated_paths: ["generated/robom-family (또는 src/app 하위)"]
+tests: ["src/**/*.test.ts", "e2e"]
+test_command: "pnpm typecheck && pnpm test && pnpm test:e2e"
+build_command: "pnpm build"
+deploy_contract: "vercel · base /"
+production_url: "https://certbom.vercel.app/"
+health_contract: "https://certbom.vercel.app/"
+family_ui_adapter: react
+family_spec_deployed: "1.0.0"
+stable_install_url: "https://robom.kr/get/certbom"
+context_topics: ["공식 출처", "시험 catalog", "일정", "LKG", "source monitor", "PWA"]
+critical_invariants: ["설정은 마지막·다른 로봄 앱은 registry 동적", "분석 이벤트에 개인정보·비밀값 금지"]
+high_risk_paths: ["src/lib", "src/data", "public/sw.js", "public/manifest.webmanifest"]

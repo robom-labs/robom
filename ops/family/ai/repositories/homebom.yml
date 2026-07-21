@@ -1,0 +1,20 @@
+# DO NOT EDIT by hand — build-repo-profiles.mjs 생성물 (Context OS v1.1 · doc-04 §E).
+id: homebom
+repo: robom-labs/homebom
+stack: "Vite + React"
+source_roots: ["apps/web/src/App.tsx", "apps/web/src/styles.css"]
+modules: ["packages/core"]
+pwa_paths: ["apps/web/public/sw.js", "apps/web/public/manifest.webmanifest"]
+generated_paths: ["generated/robom-family (또는 src/app 하위)"]
+tests: ["apps/web/e2e", "packages/core/src/*.test.ts"]
+test_command: "pnpm typecheck && pnpm test"
+build_command: "pnpm build"
+deploy_contract: "github-pages · base /homebom/"
+production_url: "https://robom-labs.github.io/homebom/"
+health_contract: "https://robom-labs.github.io/homebom/"
+family_ui_adapter: react
+family_spec_deployed: "1.0.0"
+stable_install_url: "https://robom.kr/get/homebom"
+context_topics: ["공고", "정규화", "주택형", "가격", "Supabase", "캐시", "마감", "PWA"]
+critical_invariants: ["공고 캐시 무효화가 마감/발표 알림 정확성을 깨지 않도록 유지"]
+high_risk_paths: ["packages/core", "apps/web/public/sw.js", "apps/web/public/manifest.webmanifest"]

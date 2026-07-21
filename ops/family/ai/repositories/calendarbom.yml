@@ -1,0 +1,20 @@
+# DO NOT EDIT by hand — build-repo-profiles.mjs 생성물 (Context OS v1.1 · doc-04 §E).
+id: calendarbom
+repo: robom-labs/calendarbom
+stack: "static HTML + CSS + JavaScript"
+source_roots: ["app/index.html", "app/styles.css", "app/app.js"]
+modules: ["app/calendar-core.js", "app/schedule-core.js"]
+pwa_paths: ["app/sw.js", "app/manifest.webmanifest"]
+generated_paths: ["generated/robom-family (또는 src/app 하위)"]
+tests: ["scripts/*.test.mjs", "scripts/e2e.mjs"]
+test_command: "npm test && npm run test:e2e"
+build_command: "none"
+deploy_contract: "github-pages · base /calendarbom/"
+production_url: "https://robom-labs.github.io/calendarbom/"
+health_contract: "https://robom-labs.github.io/calendarbom/"
+family_ui_adapter: vanilla
+family_spec_deployed: "1.0.0"
+stable_install_url: "https://robom.kr/get/calendarbom"
+context_topics: ["저장 키", "migration", "반복 일정", "알람", "백업", "ICS", "시니어 UX"]
+critical_invariants: ["기존 저장 키·내부 ID는 migration 없이 변경 금지", "알람 계산은 로컬 타임존 정확성 유지"]
+high_risk_paths: ["app/calendar-core.js", "app/schedule-core.js", "app/sw.js", "app/manifest.webmanifest"]

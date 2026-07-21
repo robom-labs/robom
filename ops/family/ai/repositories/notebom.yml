@@ -1,0 +1,20 @@
+# DO NOT EDIT by hand — build-repo-profiles.mjs 생성물 (Context OS v1.1 · doc-04 §E).
+id: notebom
+repo: robom-labs/notebom
+stack: "Vite + React"
+source_roots: ["src/App.tsx", "src/styles.css"]
+modules: ["src/lib/database.ts", "src/lib/recording.ts", "src/lib/backup.ts", "src/lib/handoff.ts"]
+pwa_paths: ["vite.config.ts", "pwa-manifest.json", "public/icons"]
+generated_paths: ["generated/robom-family (또는 src/app 하위)"]
+tests: ["tests", "e2e"]
+test_command: "pnpm typecheck && pnpm lint && pnpm test && pnpm test:e2e"
+build_command: "pnpm build"
+deploy_contract: "github-pages · base /notebom/"
+production_url: "https://robom-labs.github.io/notebom/"
+health_contract: "https://robom-labs.github.io/notebom/"
+family_ui_adapter: react
+family_spec_deployed: "1.0.0"
+stable_install_url: "https://robom.kr/get/notebom"
+context_topics: ["원음 보존", "녹음", "로컬 ASR", "IndexedDB", "backup", "handoff", "native bridge", "PWA"]
+critical_invariants: ["원음(raw audio)은 인식 초안과 분리 보존", "IndexedDB 스키마 변경은 migration 동반"]
+high_risk_paths: ["src/lib/database.ts", "src/lib/recording.ts", "src/lib/backup.ts", "src/lib/handoff.ts", "vite.config.ts", "pwa-manifest.json", "public/icons"]

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ROBOM Repository/Product Profile v2",
+  "type": "object",
+  "required": ["id", "repo", "stack", "source_roots", "tests", "deploy_contract", "production_url", "family_ui_adapter", "context_topics", "critical_invariants"],
+  "properties": {
+    "id": { "type": "string" },
+    "repo": { "type": "string" },
+    "stack": { "type": "string" },
+    "source_roots": { "type": "array" },
+    "modules": { "type": "array" },
+    "pwa_paths": { "type": "array" },
+    "generated_paths": { "type": "array" },
+    "tests": { "type": "array" },
+    "test_command": { "type": "string" },
+    "build_command": { "type": "string" },
+    "deploy_contract": { "type": "string" },
+    "production_url": { "type": "string" },
+    "health_contract": { "type": "string" },
+    "family_ui_adapter": { "enum": ["react", "vanilla"] },
+    "family_spec_deployed": { "type": "string" },
+    "context_topics": { "type": "array" },
+    "critical_invariants": { "type": "array" },
+    "high_risk_paths": { "type": "array" }
+  }
+}

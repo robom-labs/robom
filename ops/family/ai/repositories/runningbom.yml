@@ -1,0 +1,20 @@
+# DO NOT EDIT by hand — build-repo-profiles.mjs 생성물 (Context OS v1.1 · doc-04 §E).
+id: runningbom
+repo: robom-labs/runningbom
+stack: "static HTML + CSS + JavaScript"
+source_roots: ["index.html", "styles.css", "app.js"]
+modules: ["src", "data"]
+pwa_paths: ["sw.js", "manifest.webmanifest"]
+generated_paths: ["generated/robom-family (또는 src/app 하위)"]
+tests: ["tests"]
+test_command: "npm test"
+build_command: "none"
+deploy_contract: "github-pages · base /runningbom/"
+production_url: "https://robom-labs.github.io/runningbom/"
+health_contract: "https://robom-labs.github.io/runningbom/"
+family_ui_adapter: vanilla
+family_spec_deployed: "1.0.0"
+stable_install_url: "https://robom.kr/get/runningbom"
+context_topics: ["대회 catalog", "접수 링크", "상태", "정적 build", "link health", "PWA"]
+critical_invariants: ["설정은 마지막·다른 로봄 앱은 registry 동적", "분석 이벤트에 개인정보·비밀값 금지"]
+high_risk_paths: ["src", "data", "sw.js", "manifest.webmanifest"]

@@ -1,0 +1,20 @@
+# DO NOT EDIT by hand — build-repo-profiles.mjs 생성물 (Context OS v1.1 · doc-04 §E).
+id: outbom
+repo: robom-labs/outbom
+stack: "Next.js 16 + React 19"
+source_roots: ["app/page.tsx", "app/globals.css"]
+modules: ["lib/weather.ts", "lib/scoring.ts"]
+pwa_paths: ["public/sw.js", "public/manifest.webmanifest"]
+generated_paths: ["generated/robom-family (또는 src/app 하위)"]
+tests: ["lib/*.test.ts"]
+test_command: "pnpm typecheck && pnpm test"
+build_command: "pnpm build"
+deploy_contract: "github-pages · base /outbom/"
+production_url: "https://robom-labs.github.io/outbom/"
+health_contract: "https://robom-labs.github.io/outbom/"
+family_ui_adapter: react
+family_spec_deployed: "1.0.0"
+stable_install_url: "https://robom.kr/get/outbom"
+context_topics: ["위치", "날씨", "대기질", "활동 점수", "추천", "준비물", "PWA"]
+critical_invariants: ["설정은 마지막·다른 로봄 앱은 registry 동적", "분석 이벤트에 개인정보·비밀값 금지"]
+high_risk_paths: ["lib/weather.ts", "lib/scoring.ts", "public/sw.js", "public/manifest.webmanifest"]

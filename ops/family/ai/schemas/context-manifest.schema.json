@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ROBOM Context Manifest v2",
+  "type": "object",
+  "required": ["schemaVersion", "contextSystemVersion", "profile", "level", "targetRepositories", "included", "budget"],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "contextSystemVersion": { "type": "string" },
+    "requestHash": { "type": "string" },
+    "profile": { "type": "string" },
+    "level": { "enum": ["L0", "L1", "L2", "L3", "L4"] },
+    "targetRepositories": { "type": "array", "items": { "type": "string" } },
+    "canonical": { "type": "array", "items": { "type": "object", "required": ["path"], "properties": { "path": {"type":"string"}, "sha256": {"type":["string","null"]}, "ruleIds": {"type":"array"} } } },
+    "included": { "type": "array", "items": { "type": "object", "required": ["repo", "path", "role", "reason"], "properties": { "repo": {"type":"string"}, "path": {"type":"string"}, "blobSha": {"type":["string","null"]}, "lineRanges": {"type":"array"}, "role": {"type":"string"}, "reason": {"type":"string"} } } },
+    "tests": { "type": "array" },
+    "directDependencies": { "type": "array" },
+    "flags": { "type": "object", "properties": { "readOnly": {"type":"boolean"}, "noDeploy": {"type":"boolean"}, "explicitPaths": {"type":"array"} } },
+    "neverLoad": { "type": "array" },
+    "cacheHits": { "type": "array" },
+    "escalation": { "type": "array" },
+    "budget": { "type": "object", "required": ["maxEstimatedTokens", "estimatedTokens"], "properties": { "maxEstimatedTokens": {"type":"number"}, "estimatedTokens": {"type":"number"} } },
+    "generatedAt": { "type": ["string", "null"] }
+  }
+}
