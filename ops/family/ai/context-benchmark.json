@@ -1,0 +1,162 @@
+{
+  "summary": {
+    "baselineFiles": 9,
+    "baselineEstTokens": 17946,
+    "fixtures": 14,
+    "avgRoutedEstTokens": 410,
+    "avgSavedPct": 98,
+    "note": "estimated tokens = chars/4 결정론적 근사. baseline = 매 작업 전체 재독 후보 파일 실측 합."
+  },
+  "baselineDetail": [
+    {
+      "file": "CLAUDE.md",
+      "estTokens": 255
+    },
+    {
+      "file": "AGENTS.md",
+      "estTokens": 386
+    },
+    {
+      "file": "ops/company-os/ROBOM_ULTIMATE_COMPANY_OS.md",
+      "estTokens": 11581
+    },
+    {
+      "file": "ops/ai-meetings/PROTOCOL.md",
+      "estTokens": 684
+    },
+    {
+      "file": "ops/ai-meetings/COMPANY-MODE.md",
+      "estTokens": 1406
+    },
+    {
+      "file": "ops/family/ai/FAMILY-CONTEXT.md",
+      "estTokens": 105
+    },
+    {
+      "file": "ops/family/ai/REPO-MAP.yml",
+      "estTokens": 352
+    },
+    {
+      "file": "ops/registry/apps.yml",
+      "estTokens": 1931
+    },
+    {
+      "file": "ops/family/ai/CURRENT-STATE.json",
+      "estTokens": 1246
+    }
+  ],
+  "rows": [
+    {
+      "id": "homebom-button-label",
+      "profile": "micro-copy",
+      "level": "L1",
+      "routedTokens": 413,
+      "savedTokens": 17533,
+      "savedPct": 98
+    },
+    {
+      "id": "outbom-card-spacing",
+      "profile": "single-ui",
+      "level": "L1",
+      "routedTokens": 410,
+      "savedTokens": 17536,
+      "savedPct": 98
+    },
+    {
+      "id": "runningbom-modal-a11y",
+      "profile": "accessibility",
+      "level": "L2",
+      "routedTokens": 419,
+      "savedTokens": 17527,
+      "savedPct": 98
+    },
+    {
+      "id": "calendarbom-alarm-calc",
+      "profile": "product-data",
+      "level": "L2",
+      "routedTokens": 435,
+      "savedTokens": 17511,
+      "savedPct": 98
+    },
+    {
+      "id": "certbom-freshness",
+      "profile": "product-data",
+      "level": "L2",
+      "routedTokens": 419,
+      "savedTokens": 17527,
+      "savedPct": 98
+    },
+    {
+      "id": "notebom-recording-ui",
+      "profile": "single-ui",
+      "level": "L1",
+      "routedTokens": 415,
+      "savedTokens": 17531,
+      "savedPct": 98
+    },
+    {
+      "id": "family-bottom-nav",
+      "profile": "family-ui",
+      "level": "L2",
+      "routedTokens": 427,
+      "savedTokens": 17519,
+      "savedPct": 98
+    },
+    {
+      "id": "pwa-sw-cache",
+      "profile": "pwa-service-worker",
+      "level": "L2",
+      "routedTokens": 415,
+      "savedTokens": 17531,
+      "savedPct": 98
+    },
+    {
+      "id": "notebom-storage-migration",
+      "profile": "storage-migration",
+      "level": "L3",
+      "routedTokens": 456,
+      "savedTokens": 17490,
+      "savedPct": 97
+    },
+    {
+      "id": "app-release",
+      "profile": "release",
+      "level": "L3",
+      "routedTokens": 429,
+      "savedTokens": 17517,
+      "savedPct": 98
+    },
+    {
+      "id": "hq-runner-heartbeat",
+      "profile": "hq-runtime",
+      "level": "L3",
+      "routedTokens": 378,
+      "savedTokens": 17568,
+      "savedPct": 98
+    },
+    {
+      "id": "robom-site-card",
+      "profile": "robom-site",
+      "level": "L2",
+      "routedTokens": 369,
+      "savedTokens": 17577,
+      "savedPct": 98
+    },
+    {
+      "id": "portfolio-audit",
+      "profile": "portfolio",
+      "level": "L3",
+      "routedTokens": 374,
+      "savedTokens": 17572,
+      "savedPct": 98
+    },
+    {
+      "id": "company-os-change",
+      "profile": "full-audit",
+      "level": "L4",
+      "routedTokens": 385,
+      "savedTokens": 17561,
+      "savedPct": 98
+    }
+  ]
+}

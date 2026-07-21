@@ -1,0 +1,20 @@
+{
+  "_generated": "ROBOM Context & Family OS v1.0.0 · 라우팅/벤치마크 골든 fixture (doc-03 §29)",
+  "schemaVersion": 1,
+  "fixtures": [
+    { "id": "homebom-button-label", "request": "청약봄 신청 버튼 문구를 더 명확하게 바꿔줘", "app": "homebom", "expectedProfile": "micro-copy", "expectedLevel": "L1", "mustIncludeSections": ["shell"], "mustExcludeTopics": ["hqRuntime", "queueRunner", "allAppStates"] },
+    { "id": "outbom-card-spacing", "request": "야외봄 카드 간격이 너무 좁아, 여백 조정", "app": "outbom", "expectedProfile": "single-ui", "expectedLevel": "L1", "mustIncludeSections": ["shell"], "mustExcludeTopics": ["hqRuntime", "queueRunner"] },
+    { "id": "runningbom-modal-a11y", "request": "러닝봄 모달 키보드 접근성이 안돼, focus trap 고쳐줘", "app": "runningbom", "expectedProfile": "accessibility", "expectedLevel": "L2", "mustIncludeSections": ["shell", "tests"], "mustExcludeTopics": ["queueRunner"] },
+    { "id": "calendarbom-alarm-calc", "request": "캘린더봄 알람 계산 데이터 로직이 하루 밀려, 정확도 수정", "app": "calendarbom", "expectedProfile": "product-data", "expectedLevel": "L2", "mustIncludeSections": ["domain", "tests"], "mustExcludeTopics": ["hqRuntime"] },
+    { "id": "certbom-freshness", "request": "자격증봄 공식 일정 freshness 데이터 소스 갱신 문제", "app": "certbom", "expectedProfile": "product-data", "expectedLevel": "L2", "mustIncludeSections": ["domain", "tests"], "mustExcludeTopics": ["hqRuntime"] },
+    { "id": "notebom-recording-ui", "request": "노트봄 녹음 버튼 UI 스타일 정리", "app": "notebom", "expectedProfile": "single-ui", "expectedLevel": "L1", "mustIncludeSections": ["shell"], "mustExcludeTopics": ["hqRuntime", "queueRunner"] },
+    { "id": "family-bottom-nav", "request": "패밀리 하단 내비게이션 계약을 앱들에 통일", "app": "homebom", "expectedProfile": "family-ui", "expectedLevel": "L2", "mustIncludeSections": ["shell", "tests"], "mustExcludeTopics": ["hqRuntime", "queueRunner"] },
+    { "id": "pwa-sw-cache", "request": "러닝봄 service worker 캐시가 안 비워져 오프라인에서 옛 화면", "app": "runningbom", "expectedProfile": "pwa-service-worker", "expectedLevel": "L2", "mustIncludeSections": ["pwa", "tests"], "mustExcludeTopics": ["hqRuntime"] },
+    { "id": "notebom-storage-migration", "request": "노트봄 저장 스키마 마이그레이션 + 백업 복원 안전성", "app": "notebom", "expectedProfile": "storage-migration", "expectedLevel": "L3", "mustIncludeSections": ["domain", "tests", "pwa"], "mustExcludeTopics": [] },
+    { "id": "app-release", "request": "야외봄 버전 올리고 배포해줘", "app": "outbom", "expectedProfile": "release", "expectedLevel": "L3", "mustIncludeSections": ["shell", "pwa", "tests"], "mustExcludeTopics": [] },
+    { "id": "hq-runner-heartbeat", "request": "HQ runner heartbeat이 긴 작업 중에 끊겨, queue runtime 확인", "app": null, "expectedProfile": "hq-runtime", "expectedLevel": "L3", "mustIncludeSections": [], "mustExcludeTopics": ["appSource"] },
+    { "id": "robom-site-card", "request": "robom.kr 홈페이지 앱 카드 정렬", "app": null, "expectedProfile": "robom-site", "expectedLevel": "L2", "mustIncludeSections": [], "mustExcludeTopics": [] },
+    { "id": "portfolio-audit", "request": "전체 앱 포트폴리오 상태 한눈에 점검", "app": null, "expectedProfile": "portfolio", "expectedLevel": "L3", "mustIncludeSections": ["shell"], "mustExcludeTopics": [] },
+    { "id": "company-os-change", "request": "company os 정본을 바꾸는 전수 감사", "app": null, "expectedProfile": "full-audit", "expectedLevel": "L4", "mustIncludeSections": ["shell", "domain", "pwa", "tests"], "mustExcludeTopics": [] }
+  ]
+}
