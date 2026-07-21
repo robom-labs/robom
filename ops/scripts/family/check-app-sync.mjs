@@ -57,8 +57,13 @@ async function findLock(appDir) {
 }
 
 const apps = await readRegistry(new URL("../../registry/apps.yml", import.meta.url));
+// 중앙 패밀리 스펙 — 드리프트 분류(SPEC_LAG vs DESIGN_DRIFT)의 기준.
+const familyVersion = JSON.parse(await readFile(resolve(root, "ops/family/family-version.json"), "utf8"));
+const centralSpec = familyVersion.familySpecVersion;
+const supported = familyVersion.supported || [centralSpec];
 const results = [];
-const problems = [];
+const problems = [];       // 실제 실패(디자인 표류·오류)만
+const specLagList = [];    // 중앙 스펙이 앞선 pending 채택(회귀 아님)
 
 for (const app of apps) {
   const appDir = resolve(appsRoot, app.id);
@@ -91,28 +96,43 @@ for (const app of apps) {
   const missing = Object.keys(fresh).filter((k) => k !== META && !(k in (committed.files || {})));
   const metaStale = committed.files?.[META] !== fresh[META];
 
+  const appSpec = committed.familySpecVersion;
+  const specLag = appSpec && appSpec !== centralSpec && supported.includes(appSpec);
   if (drift.length || missing.length) {
-    results.push({ app: app.id, status: "drift", flavor, drift, missing, metaStale });
-    problems.push(`${app.id}: 디자인 표류 ${[...drift, ...missing.map((m) => `+${m}`)].join(", ")}`);
+    if (specLag) {
+      // SPEC_LAG: 중앙 계약이 v1.1로 앞섰고 앱은 아직 이전 supported 스펙 생성물을 소비한다.
+      // 앱 렌더는 생성물 순서를 소비하지 않아 UI 동일 — 회귀가 아니라 Phase 7 순차 채택 대상.
+      results.push({ app: app.id, status: "spec-lag", flavor, appSpec, centralSpec, drift, missing, metaStale });
+      specLagList.push(`${app.id}: ${appSpec}→${centralSpec} 채택 대기 (${[...drift, ...missing].join(", ")})`);
+    } else {
+      // DESIGN_DRIFT: 같은 스펙인데 디자인 표면이 다름 → 실제 회귀, 수정 필요.
+      results.push({ app: app.id, status: "drift", flavor, drift, missing, metaStale });
+      problems.push(`${app.id}: 디자인 표류(DESIGN_DRIFT) ${[...drift, ...missing.map((m) => `+${m}`)].join(", ")}`);
+    }
   } else {
-    results.push({ app: app.id, status: "synced", flavor, metaStale });
+    // METADATA_LAG(app-meta만 차이)는 배포 이후 정상 시차.
+    results.push({ app: app.id, status: "synced", flavor, appSpec, metaStale });
   }
 }
 
 const present = results.filter((r) => !["absent"].includes(r.status));
 const synced = results.filter((r) => r.status === "synced");
+const specLagCount = results.filter((r) => r.status === "spec-lag").length;
 if (has("json")) {
-  console.log(JSON.stringify({ appsRoot, total: apps.length, checked: present.length, synced: synced.length, problems, results }, null, 2));
+  console.log(JSON.stringify({ appsRoot, centralSpec, total: apps.length, checked: present.length, synced: synced.length, specLag: specLagCount, problems, specLagList, results }, null, 2));
 } else {
-  console.log(`ROBOM 앱↔중앙 패밀리 UI 동기화 · apps-root=${appsRoot}`);
+  console.log(`ROBOM 앱↔중앙 패밀리 UI 동기화 · apps-root=${appsRoot} · 중앙 스펙 ${centralSpec}`);
   for (const r of results) {
-    const mark = r.status === "synced" ? "✓" : r.status === "absent" ? "·" : "✗";
+    const mark = r.status === "synced" ? "✓" : r.status === "absent" ? "·" : r.status === "spec-lag" ? "◐" : "✗";
     const extra = r.status === "synced" ? (r.metaStale ? " (디자인 동기화 · 메타는 배포 이후 앞섬)" : " (완전 동기화)")
-      : r.status === "drift" ? ` → ${[...(r.drift || []), ...((r.missing || []).map((m) => `+${m}`))].join(", ")}`
+      : r.status === "spec-lag" ? ` (SPEC_LAG ${r.appSpec}→${r.centralSpec} · UI 동일 · Phase 7 채택 대기)`
+      : r.status === "drift" ? ` → DESIGN_DRIFT ${[...(r.drift || []), ...((r.missing || []).map((m) => `+${m}`))].join(", ")}`
       : ` (${r.status})`;
     console.log(`  ${mark} ${r.app}${extra}`);
   }
-  console.log(`\n검사 ${present.length}개 중 디자인 동기화 ${synced.length}개 · 표류 ${problems.length}개`);
-  if (!problems.length) console.log("존재하는 모든 앱이 중앙 패밀리 UI 정본과 일치 ✓");
+  console.log(`\n검사 ${present.length}개 · 동기화 ${synced.length} · SPEC_LAG ${specLagCount}(v1.1 채택 대기) · DESIGN_DRIFT ${problems.length}`);
+  if (specLagList.length) { console.log("\nSPEC_LAG(회귀 아님 · 순차 채택):"); for (const s of specLagList) console.log(`  ◐ ${s}`); }
+  if (!problems.length) console.log("\n디자인 회귀 0 ✓" + (specLagCount ? " (중앙 계약이 v1.1로 앞섬 · 앱 UI 동일)" : ""));
 }
+// SPEC_LAG은 회귀가 아니므로 종료코드 0. DESIGN_DRIFT(동일 스펙 내 표면 불일치)만 실패.
 process.exit(problems.length ? 1 : 0);

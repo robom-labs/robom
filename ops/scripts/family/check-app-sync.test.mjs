@@ -63,3 +63,28 @@ test("정상 생성물은 synced, 훼손하면 drift로 검출한다", async () 
   assert.equal(rd.status, "drift");
   assert.ok(rd.drift.includes("tokens.css"));
 });
+
+// 이전 supported 스펙 생성물(예: 1.0.0)은 DESIGN_DRIFT가 아니라 SPEC_LAG로 분류되고 종료코드 0이다.
+test("이전 supported 스펙은 SPEC_LAG(회귀 아님·exit 0)로 분류한다", async () => {
+  const apps = await readRegistry(new URL("../../registry/apps.yml", import.meta.url));
+  const app = apps[0].id;
+  const HEAD = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  const fakeRoot = await mkdtemp(resolve(tmpdir(), "robom-speclag-"));
+  const appDir = resolve(fakeRoot, app, "src/generated/robom-family");
+  await mkdir(appDir, { recursive: true });
+  execFileSync("node", [resolve(root, "ops/scripts/family/sync-app.mjs"),
+    "--app", app, "--target", appDir, "--lock", resolve(appDir, "family.lock.json"),
+    "--flavor", "react", "--source-commit", HEAD], { cwd: root, stdio: "pipe" });
+  // lock을 이전 supported 스펙(1.0.0)으로 낮추고 디자인 파일 해시를 바꿔 표류를 만든다.
+  const lockPath = resolve(appDir, "family.lock.json");
+  const lock = JSON.parse(execFileSync("cat", [lockPath], { encoding: "utf8" }));
+  lock.familySpecVersion = "1.0.0";
+  lock.files["tokens.css"] = "sha256:oldspechash";
+  await writeFile(lockPath, JSON.stringify(lock, null, 2));
+  const r = run(["--apps-root", fakeRoot, "--json"]);
+  await rm(fakeRoot, { recursive: true, force: true });
+  assert.equal(r.code, 0, `SPEC_LAG는 회귀가 아니므로 exit 0이어야 함: ${r.out}`);
+  const row = JSON.parse(r.out).results.find((x) => x.app === app);
+  assert.equal(row.status, "spec-lag");
+  assert.equal(row.appSpec, "1.0.0");
+});

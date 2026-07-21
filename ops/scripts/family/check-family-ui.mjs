@@ -61,8 +61,12 @@ if (sections[sections.length - 1] === "app-meta") ok("settings:app-meta-last"); 
 sections.includes("family-apps") ? ok("settings:family-apps-present") : bad("settings:family-apps-present", "family-apps 섹션 없음");
 if (sections.indexOf("family-apps") < sections.indexOf("app-meta")) ok("settings:family-before-meta"); else bad("settings:family-before-meta", "family-apps가 app-meta보다 뒤");
 if (sections.indexOf("notifications-and-permissions") < sections.indexOf("accessibility-and-font-size")) ok("settings:notifications-before-a11y"); else bad("settings:notifications-before-a11y", "알림이 접근성보다 뒤");
+// v1.1: 다른 로봄 앱(family-apps)이 마지막 직전(제공자·버전 app-meta 바로 앞)
+sections.indexOf("family-apps") === sections.length - 2 ? ok("settings:family-second-to-last") : bad("settings:family-second-to-last", `family-apps가 마지막 직전이 아님(idx ${sections.indexOf("family-apps")}/${sections.length})`);
+sections.indexOf("support-and-feedback") < sections.indexOf("family-apps") ? ok("settings:support-before-family") : bad("settings:support-before-family", "문의가 다른 로봄 앱보다 뒤");
+sections.indexOf("privacy-terms-and-official-notice") < sections.indexOf("family-apps") ? ok("settings:privacy-before-family") : bad("settings:privacy-before-family", "정책이 다른 로봄 앱보다 뒤");
 
-// 3. 하단 내비 geometry 계약
+// 3. 하단 내비 geometry + v1.1 의미 계약
 const nav = await readFile(C("bottom-nav.yml"), "utf8");
 const touch = parseInt(scalar(nav, "min_touch_target") || "0", 10);
 touch >= 48 ? ok("nav:touch>=48") : bad("nav:touch>=48", `min_touch_target ${touch} < 48`);
@@ -71,6 +75,15 @@ scalar(nav, "text_symbol_icons_forbidden") === "true" ? ok("nav:no-text-icons") 
 scalar(nav, "content_padding_required") === "true" ? ok("nav:content-padding") : bad("nav:content-padding", "content_padding_required != true");
 const maxTabs = parseInt(scalar(nav, "max_tabs") || "0", 10);
 maxTabs >= 3 && maxTabs <= 5 ? ok("nav:max-tabs-3-5") : bad("nav:max-tabs-3-5", `max_tabs ${maxTabs} 범위 밖`);
+// v1.1 의미 필드 — 순서·상태·접근성 계약이 파일에 명시됐는지
+scalar(nav, "settings_position") === "last" ? ok("nav:settings-last") : bad("nav:settings-last", "settings_position != last");
+(scalar(nav, "notifications_position") || "").includes("before-settings") ? ok("nav:alerts-before-settings") : bad("nav:alerts-before-settings", "notifications_position 계약 없음");
+scalar(nav, "visible_labels_required") === "true" ? ok("nav:labels-required") : bad("nav:labels-required", "visible_labels_required != true");
+scalar(nav, "active_state_not_color_only") === "true" ? ok("nav:active-not-color-only") : bad("nav:active-not-color-only", "active_state_not_color_only != true");
+scalar(nav, "screen_reader_name_required") === "true" ? ok("nav:screen-reader") : bad("nav:screen-reader", "screen_reader_name_required != true");
+scalar(nav, "keyboard_semantics_required") === "true" ? ok("nav:keyboard") : bad("nav:keyboard", "keyboard_semantics_required != true");
+scalar(nav, "badge_requires_real_state") === "true" ? ok("nav:badge-real") : bad("nav:badge-real", "badge_requires_real_state != true");
+(scalar(nav, "icon_format") || "").includes("vector") ? ok("nav:icon-vector") : bad("nav:icon-vector", "icon_format가 vector 계약 아님");
 
 // 4. 앱바 계약
 const appbar = await readFile(C("appbar.yml"), "utf8");

@@ -3,9 +3,12 @@ import { readFile } from "node:fs/promises";
 import { readRegistry } from "../lib/registry.mjs";
 
 const apps = await readRegistry(new URL("../../../ops/registry/apps.yml", import.meta.url));
-const version = JSON.parse(await readFile(new URL("../../family/family-version.json", import.meta.url), "utf8")).familySpecVersion;
+const familyVersion = JSON.parse(await readFile(new URL("../../family/family-version.json", import.meta.url), "utf8"));
+const version = familyVersion.familySpecVersion;
+const supported = familyVersion.supported || [version];
 const matrix = await readFile(new URL("../../family/compatibility.yml", import.meta.url), "utf8");
 const errors = [];
+const adopting = [];  // 중앙보다 낮은 supported 스펙(롤아웃 중 채택 대기) — 회귀 아님
 
 const appBlocks = new Map(
   [...matrix.matchAll(/^  ([a-z][a-z0-9-]*):\n((?:    [^\n]*(?:\n|$))+)/gm)].map((match) => [match[1], match[2]]),
@@ -25,7 +28,12 @@ for (const app of apps) {
   const familySpec = readField(block, "family_spec");
   const generatedCommit = readField(block, "generated_commit");
   const deployedSha = readField(block, "deployed_sha");
-  if (familySpec !== version) errors.push(`${app.id}: family_spec ${version} 불일치 (${familySpec ?? "없음"})`);
+  // 드리프트 taxonomy(compatibility면): 정확히 중앙 스펙이면 OK, 이전 supported 스펙이면
+  // 롤아웃 채택 대기(회귀 아님), 그 외(미지원·누락)만 오류.
+  if (familySpec !== version) {
+    if (familySpec && supported.includes(familySpec)) adopting.push(`${app.id}(${familySpec}→${version})`);
+    else errors.push(`${app.id}: family_spec가 지원 목록[${supported.join(", ")}] 밖 (${familySpec ?? "없음"})`);
+  }
   if (!/^[0-9a-f]{40}$/.test(generatedCommit ?? "")) errors.push(`${app.id}: generated_commit은 40자 commit SHA여야 합니다.`);
   if (deployedSha !== app.last_deployed_sha) {
     errors.push(`${app.id}: deployed_sha가 registry와 다릅니다. (${deployedSha ?? "없음"} != ${app.last_deployed_sha})`);
@@ -42,3 +50,4 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(`compatibility ${version}: ${apps.length} apps tracked`);
+if (adopting.length) console.log(`  채택 대기(SPEC_LAG · 회귀 아님): ${adopting.join(", ")}`);

@@ -31,6 +31,24 @@ const accent = JSON.parse(await readFile(resolve(root, `ops/family/design/apps/$
 const canonicalBom = await readFile(resolve(root, "ops/family/brand/bom.svg"), "utf8");
 const icons = await readFile(resolve(root, "ops/family/brand/icons.svg"), "utf8");
 const eventsSource = await readFile(resolve(root, "ops/family/analytics/events.yml"), "utf8");
+// Family UI v1.1: settings 섹션 순서는 settings.yml 단일 정본을 파싱한다(이중 하드코딩 제거).
+const settingsSource = await readFile(resolve(root, "ops/family/contracts/settings.yml"), "utf8");
+function ymlList(text, key) {
+  const lines = text.split(/\r?\n/);
+  const start = lines.findIndex((l) => l.trim() === `${key}:`);
+  if (start === -1) return [];
+  const out = [];
+  for (const l of lines.slice(start + 1)) {
+    const m = l.match(/^\s+-\s+(.+?)\s*$/);
+    if (m) out.push(m[1].trim());
+    else if (l.trim() && !l.startsWith(" ")) break;
+  }
+  return out;
+}
+const settingsSections = ymlList(settingsSource, "sections");
+const settingsAppMeta = ymlList(settingsSource, "app_meta");
+if (settingsSections.length < 3) throw new Error("ops/family/contracts/settings.yml의 sections 파싱 실패(단일 정본 손상).");
+if (settingsAppMeta.length < 1) throw new Error("ops/family/contracts/settings.yml의 app_meta 파싱 실패.");
 const eventMatch = eventsSource.match(new RegExp(`^${appId}: \\[(.*)\\]$`, "m"));
 // 매치 실패를 빈 이벤트 목록으로 조용히 흘리면(오타로 앱이 events.yml에서 빠졌거나 포맷이
 // 바뀐 경우) 그 앱은 유효 이벤트가 하나도 없는 분석 계약을 그대로 받는다 — 앱 키를 아예
@@ -58,8 +76,8 @@ const appMeta = {
 };
 const settings = {
   _generated: `DO NOT EDIT · robom family ${familyVersion.familySpecVersion}`,
-  sections: ["app-about", "account-and-sync-if-supported", "notifications-and-permissions", "accessibility-and-font-size", "install-and-update", "data-source-and-last-verified", "family-apps", "support-and-feedback", "privacy-terms-and-official-notice", "app-meta"],
-  appMeta: ["app-name", "version", "build-sha", "family-spec-version", "service-worker-cache", "data-version", "last-verified", "deployment-provider"],
+  sections: settingsSections,
+  appMeta: settingsAppMeta,
 };
 const featureFlags = {
   _generated: `DO NOT EDIT · robom family ${familyVersion.familySpecVersion}`,

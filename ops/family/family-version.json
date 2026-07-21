@@ -1,6 +1,9 @@
 {
-  "familySpecVersion": "1.0.0",
-  "supported": ["1.0.0"],
+  "familySpecVersion": "1.1.0",
+  "supported": ["1.0.0", "1.1.0"],
   "generatedSchemaVersion": 1,
-  "releasedAt": "2026-07-16T09:20:24+09:00"
+  "releasedAt": "2026-07-21T00:00:00+09:00",
+  "changeLog": {
+    "1.1.0": "설정 섹션 순서 정교화(다른 로봄 앱 → 제공자·버전 마지막 2블록), 하단바 의미 계약 필드 추가, 생성기 단일 정본화(settings.yml 파싱). 앱 렌더는 계약 순서를 소비하지 않아 UI 동일. 앱별 생성물 채택은 Phase 7 순차 이관."
+  }
 }
