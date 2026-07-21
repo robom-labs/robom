@@ -25,13 +25,6 @@ apps:
     visual: pass
     analytics: pass
     deployed_sha: 5a82a18a2106af882789bb4a25b1b0de8a7418e9
-  calendarbom:
-    family_spec: 1.1.0
-    generated_commit: 75d4f9d4c803e1dbaa6dda67e48b6ed23960520f
-    build: pass
-    visual: pass
-    analytics: pass
-    deployed_sha: f8d12517de3dc15decec147bd4fe801d6aafef3e
   certbom:
     family_spec: 1.1.0
     generated_commit: 75d4f9d4c803e1dbaa6dda67e48b6ed23960520f
@@ -39,10 +32,3 @@ apps:
     visual: pass
     analytics: pass
     deployed_sha: 351abe6ed6389281552be7ae5bb3db73092b9e80
-  notebom:
-    family_spec: 1.1.0
-    generated_commit: 75d4f9d4c803e1dbaa6dda67e48b6ed23960520f
-    build: pass
-    visual: pass
-    analytics: pass
-    deployed_sha: 0217f7f5df15209ee3d1cc32bc4f977786da5248
