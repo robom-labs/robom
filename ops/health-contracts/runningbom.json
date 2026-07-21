@@ -316,11 +316,11 @@
    "evaluator": "version_parity",
    "config": {
     "rawUrl": "https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json",
-    "expected": "0.17.12"
+    "expected": "0.17.13"
    },
    "severityIfFail": "error",
    "failureClass": "parity",
-   "what": "registry 0.17.12 == 앱 main package.json",
+   "what": "registry 0.17.13 == 앱 main package.json",
    "userImpact": "버전 장부가 어긋나면 배포 판단이 틀립니다.",
    "recommendedAction": "registry 또는 앱 버전을 정합화합니다."
   },
@@ -345,12 +345,12 @@
     "url": "https://robom-labs.github.io/runningbom/",
     "baseUrl": "https://robom-labs.github.io/runningbom/",
     "markersAny": [
-     "0.17.12"
+     "0.17.13"
     ]
    },
    "severityIfFail": "error",
    "failureClass": "parity",
-   "what": "운영 자산에 버전 0.17.12 marker 존재",
+   "what": "운영 자산에 버전 0.17.13 marker 존재",
    "userImpact": "운영에 오래된 버전이 남아 있으면 사용자에게 구버전이 보입니다.",
    "recommendedAction": "배포 전파를 확인하고 재배포합니다."
   },
