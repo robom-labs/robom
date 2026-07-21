@@ -12,12 +12,12 @@ apps:
     analytics: pass
     deployed_sha: 6f9058691d97fe17417b34d74821d22f216572a4
   homebom:
-    family_spec: 1.0.0
-    generated_commit: fe655b865edb5ad2c037e117143684c6dae9f5eb
+    family_spec: 1.1.0
+    generated_commit: 75d4f9d4c803e1dbaa6dda67e48b6ed23960520f
     build: pass
     visual: pass
     analytics: pass
-    deployed_sha: 651dc0f37ace59c1707c1eb742e9fc9e06749d9b
+    deployed_sha: 777f34eb67c98c379fed1af4c3f232d1def59665
   runningbom:
     family_spec: 1.0.0
     generated_commit: 4aaa43cade5923a3a8a03160d200a575de4e5a51

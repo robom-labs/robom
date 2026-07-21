@@ -50,9 +50,9 @@ export const generatedAppMeta = [
     "pwaInstallUrl": "https://robom-labs.github.io/homebom/",
     "stableInstallUrl": "https://robom.kr/get/homebom",
     "mobileStatus": "pwa",
-    "familySpecVersion": "1.0.0",
+    "familySpecVersion": "1.1.0",
     "lastVerifiedAt": "2026-07-19T15:10:00+09:00",
-    "lastDeployedSha": "651dc0f37ace59c1707c1eb742e9fc9e06749d9b",
+    "lastDeployedSha": "777f34eb67c98c379fed1af4c3f232d1def59665",
     "lastDataSyncAt": "2026-07-17T21:05:01+09:00",
     "freshnessStatus": "runtime"
   },

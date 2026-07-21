@@ -57,9 +57,9 @@ apps:
     pwa_install_url: https://robom-labs.github.io/homebom/
     stable_install_url: https://robom.kr/get/homebom
     mobile_status: pwa
-    family_spec_version: 1.0.0
+    family_spec_version: 1.1.0
     last_verified_at: "2026-07-19T15:10:00+09:00"
-    last_deployed_sha: 651dc0f37ace59c1707c1eb742e9fc9e06749d9b
+    last_deployed_sha: 777f34eb67c98c379fed1af4c3f232d1def59665
     last_data_sync_at: "2026-07-17T21:05:01+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
