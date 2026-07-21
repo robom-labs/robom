@@ -1,8 +1,17 @@
 # 로봄 회사 규칙
 
+## 진입 (Context OS v1.1 — 라우터 우선)
+
+- 기본 진입은 전체 정본 완독이 아니라 **요청 기반 Context Router**입니다. 매 작업에서 먼저
+  `node ops/scripts/family/route-task.mjs --request "<요청>" [--app <id>]`로 profile·L0~L4·읽을
+  파일(read-next)·예산을 정하고 그 read-next만 읽습니다. Company OS 전수 읽기는 L4 조건
+  (정본 편집·source hash 변경·충돌 해결·회장 명시 전수감사)에서만 합니다.
+- 지침 우선순위: **사용자 현재 요청 → 궁극의 컨트롤타워 v1.4 → HQ 앱 v1.4 → Context&Family OS v1.1 → 저장소 active 지침**. 사실(버전·SHA·배포)은 최신 main·runtime·CI가 문서값보다 우선합니다.
+- 앱 목록·저장소·검증은 `ops/registry/apps.yml`에서 동적으로 읽고, 앱 이름/개수를 하드코딩하지 않습니다.
+
 ## 운영 원칙
 
-- `ops/company-os/ROBOM_ULTIMATE_COMPANY_OS.md`, `ops/company-os/VERSION`, `ops/company-os/COMPATIBILITY.yml`을 전사 실행 계약으로 읽되, 명시적 사용자 요청·안전·저장소 규칙의 경계 안에서 적용합니다.
+- `ops/company-os/ROBOM_ULTIMATE_COMPANY_OS.md`, `ops/company-os/VERSION`, `ops/company-os/COMPATIBILITY.yml`을 전사 실행 계약으로 읽되(필요한 heading 범위만), 명시적 사용자 요청·안전·저장소 규칙의 경계 안에서 적용합니다.
 - 하루에 앱 하나, 목표 하나를 기본 단위로 삼습니다.
 - 04~05 회의실과 그 밖의 일반 기여는 `main` 직접 push를 금지하고 PR에서 검증합니다.
 - 01~03 총괄팀의 실행형 요청(수정·구현·적용·업데이트·업그레이드·배포·논스톱)은 별도 작업 환경에서 검증한 뒤 `main`에 직접 반영하고 기존 배포 파이프라인·운영 검증까지 진행합니다. 세부 절차는 `ops/ai-meetings/COMPANY-MODE.md`·`PROTOCOL.md`를 따릅니다.

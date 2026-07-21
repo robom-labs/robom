@@ -2,33 +2,508 @@
   "_generated": "ROBOM Context & Family OS v1.0.0 · route-task.mjs 기계 정본 (doc-03 §7)",
   "_note": "자연어 요청 → profile → level → 최소 read-plan. 앱 이름은 registry에서 동적으로 읽고 하드코딩하지 않는다.",
   "schemaVersion": 1,
-  "contextSystemVersion": "1.0.0",
+  "contextSystemVersion": "1.1.0",
   "constitution": "ops/family/ai/CORE-CONSTITUTION.md",
   "levels": {
-    "L0": { "name": "constitution", "maxEstimatedTokens": 4000 },
-    "L1": { "name": "task-capsule", "maxEstimatedTokens": 12000 },
-    "L2": { "name": "product-pack", "maxEstimatedTokens": 24000 },
-    "L3": { "name": "deep-pack", "maxEstimatedTokens": 48000 },
-    "L4": { "name": "full-audit", "maxEstimatedTokens": 0 }
+    "L0": {
+      "name": "constitution",
+      "maxEstimatedTokens": 4000
+    },
+    "L1": {
+      "name": "task-capsule",
+      "maxEstimatedTokens": 12000
+    },
+    "L2": {
+      "name": "product-pack",
+      "maxEstimatedTokens": 24000
+    },
+    "L3": {
+      "name": "deep-pack",
+      "maxEstimatedTokens": 48000
+    },
+    "L4": {
+      "name": "full-audit",
+      "maxEstimatedTokens": 0
+    }
   },
   "_matchOrder": "위에서부터 첫 매칭 우선. 도메인·컨텍스트 특화 프로파일을 먼저 두고, 일반 UI(micro-copy/single-ui)를 마지막에 둔다.",
   "profiles": [
-    { "id": "full-audit", "level": "L4", "keywords": ["전수 감사", "company os 변경", "company os", "정본 변경", "architecture", "full audit", "전면 개편"], "mapSections": ["shell", "domain", "pwa", "tests"], "include": ["allRepoMap", "canonical"] },
-    { "id": "hq-runtime", "level": "L3", "keywords": ["hq", "control center", "control-center", "runner", "queue", "codex 실행", "runtime", "electron", "desktop", "watchdog"], "mapSections": [], "read": ["scripts/control-center", "ops/control-center"], "neverLoad": ["appSource"] },
-    { "id": "robom-site", "level": "L2", "keywords": ["홈페이지", "robom.kr", "사이트", "랜딩"], "mapSections": [], "read": ["site"] },
-    { "id": "storage-migration", "level": "L3", "keywords": ["마이그레이션", "migration", "백업", "복원", "indexeddb", "localstorage"], "mapSections": ["domain", "tests", "pwa"], "escalate": ["보안·복구·릴리스 규칙"] },
-    { "id": "release", "level": "L3", "keywords": ["릴리스", "배포", "버전 올", "release", "deploy", "cache-bust", "태그"], "mapSections": ["shell", "pwa", "tests"] },
-    { "id": "portfolio", "level": "L3", "keywords": ["포트폴리오", "전체 앱", "모든 앱", "portfolio", "all apps"], "mapSections": ["shell"], "include": ["allRepoMap"] },
-    { "id": "family-ui", "level": "L2", "keywords": ["패밀리", "하단 내비", "설정 순서", "다른 로봄 앱", "워드마크", "family", "navigation contract", "settings order"], "mapSections": ["shell", "tests"], "neverLoad": ["hqRuntime", "queueRunner"] },
-    { "id": "pwa-service-worker", "level": "L2", "keywords": ["pwa", "service worker", "서비스워커", "캐시", "cache", "오프라인", "manifest", "설치"], "mapSections": ["pwa", "tests"], "neverLoad": ["hqRuntime", "queueRunner"] },
-    { "id": "product-data", "level": "L2", "keywords": ["데이터", "공고", "일정", "freshness", "동기화", "스키마", "adapter", "소스", "정확", "지역", "오류", "계산"], "mapSections": ["domain", "tests"], "neverLoad": ["hqRuntime", "historicalReports"] },
-    { "id": "accessibility", "level": "L2", "keywords": ["접근성", "키보드", "스크린리더", "대비", "확대", "a11y", "aria", "focus"], "mapSections": ["shell", "tests"], "neverLoad": ["queueRunner", "historicalReports"] },
-    { "id": "micro-copy", "level": "L1", "keywords": ["문구", "라벨", "카피", "오탈자", "copy", "label", "typo", "wording"], "mapSections": ["shell"], "neverLoad": ["allAppStates", "hqRuntime", "queueRunner", "historicalReports"] },
-    { "id": "single-ui", "level": "L1", "keywords": ["버튼", "카드", "간격", "여백", "정렬", "헤더", "하단바", "아이콘", "스타일", "css", "디자인", "색감"], "mapSections": ["shell"], "neverLoad": ["hqRuntime", "queueRunner", "allAppStates", "historicalReports"] }
+    {
+      "id": "full-audit",
+      "level": "L4",
+      "keywords": [
+        "전수 감사",
+        "company os 변경",
+        "company os",
+        "정본 변경",
+        "architecture",
+        "full audit",
+        "전면 개편"
+      ],
+      "mapSections": [
+        "shell",
+        "domain",
+        "pwa",
+        "tests"
+      ],
+      "include": [
+        "allRepoMap",
+        "canonical"
+      ]
+    },
+    {
+      "id": "context-os",
+      "level": "L4",
+      "keywords": [
+        "context os",
+        "컨텍스트 os",
+        "라우터",
+        "라우팅",
+        "route-task",
+        "context router",
+        "context&family",
+        "패밀리 os"
+      ],
+      "mapSections": [],
+      "neverLoad": [],
+      "include": [
+        "allRepoMap",
+        "canonical"
+      ]
+    },
+    {
+      "id": "hq-runtime",
+      "level": "L3",
+      "keywords": [
+        "hq",
+        "control center",
+        "control-center",
+        "runner",
+        "queue",
+        "codex 실행",
+        "runtime",
+        "electron",
+        "desktop",
+        "watchdog"
+      ],
+      "mapSections": [],
+      "read": [
+        "scripts/control-center",
+        "ops/control-center"
+      ],
+      "neverLoad": [
+        "appSource"
+      ],
+      "include": []
+    },
+    {
+      "id": "hq-ui",
+      "level": "L2",
+      "keywords": [
+        "hq 화면",
+        "본사 화면",
+        "업무 상세",
+        "control center",
+        "컨트롤 센터",
+        "대시보드",
+        "office 화면"
+      ],
+      "mapSections": [],
+      "neverLoad": [
+        "allAppStates",
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "robom-site",
+      "level": "L2",
+      "keywords": [
+        "홈페이지",
+        "robom.kr",
+        "사이트",
+        "랜딩"
+      ],
+      "mapSections": [],
+      "read": [
+        "site"
+      ],
+      "include": []
+    },
+    {
+      "id": "storage-migration",
+      "level": "L3",
+      "keywords": [
+        "마이그레이션",
+        "migration",
+        "백업",
+        "복원",
+        "indexeddb",
+        "localstorage"
+      ],
+      "mapSections": [
+        "domain",
+        "tests",
+        "pwa"
+      ],
+      "escalate": [
+        "보안·복구·릴리스 규칙"
+      ],
+      "include": []
+    },
+    {
+      "id": "security",
+      "level": "L3",
+      "keywords": [
+        "보안",
+        "security",
+        "취약",
+        "vulnerability",
+        "xss",
+        "csrf",
+        "secret 유출",
+        "인증 우회",
+        "권한 상승"
+      ],
+      "mapSections": [
+        "domain",
+        "tests"
+      ],
+      "neverLoad": [
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "incident",
+      "level": "L3",
+      "keywords": [
+        "장애",
+        "인시던트",
+        "incident",
+        "outage",
+        "먹통",
+        "다운됐",
+        "크래시",
+        "500 에러",
+        "서비스 중단"
+      ],
+      "mapSections": [
+        "domain",
+        "tests"
+      ],
+      "neverLoad": [
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "store-native",
+      "level": "L3",
+      "keywords": [
+        "스토어",
+        "앱스토어",
+        "플레이스토어",
+        "app store",
+        "play store",
+        "testflight",
+        "출시",
+        "네이티브 빌드",
+        "expo",
+        "capacitor"
+      ],
+      "mapSections": [
+        "shell",
+        "tests"
+      ],
+      "neverLoad": [
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "release",
+      "level": "L3",
+      "keywords": [
+        "릴리스",
+        "배포",
+        "버전 올",
+        "release",
+        "deploy",
+        "cache-bust",
+        "태그"
+      ],
+      "mapSections": [
+        "shell",
+        "pwa",
+        "tests"
+      ],
+      "include": []
+    },
+    {
+      "id": "portfolio",
+      "level": "L3",
+      "keywords": [
+        "포트폴리오",
+        "전체 앱",
+        "모든 앱",
+        "portfolio",
+        "all apps"
+      ],
+      "mapSections": [
+        "shell"
+      ],
+      "include": [
+        "allRepoMap"
+      ]
+    },
+    {
+      "id": "family-ui",
+      "level": "L2",
+      "keywords": [
+        "패밀리",
+        "하단 내비",
+        "설정 순서",
+        "다른 로봄 앱",
+        "워드마크",
+        "family",
+        "navigation contract",
+        "settings order"
+      ],
+      "mapSections": [
+        "shell",
+        "tests"
+      ],
+      "neverLoad": [
+        "hqRuntime",
+        "queueRunner"
+      ],
+      "include": []
+    },
+    {
+      "id": "multi-ui",
+      "level": "L2",
+      "keywords": [
+        "여러 앱",
+        "전 앱",
+        "모든 앱",
+        "여섯 앱",
+        "6개 앱",
+        "다같이",
+        "전체 통일",
+        "앱들 통일"
+      ],
+      "mapSections": [
+        "shell"
+      ],
+      "neverLoad": [
+        "hqRuntime",
+        "queueRunner",
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "pwa-service-worker",
+      "level": "L2",
+      "keywords": [
+        "pwa",
+        "service worker",
+        "서비스워커",
+        "캐시",
+        "cache",
+        "오프라인",
+        "manifest",
+        "설치"
+      ],
+      "mapSections": [
+        "pwa",
+        "tests"
+      ],
+      "neverLoad": [
+        "hqRuntime",
+        "queueRunner"
+      ],
+      "include": []
+    },
+    {
+      "id": "product-data",
+      "level": "L2",
+      "keywords": [
+        "데이터",
+        "공고",
+        "일정",
+        "freshness",
+        "동기화",
+        "스키마",
+        "adapter",
+        "소스",
+        "정확",
+        "지역",
+        "오류",
+        "계산"
+      ],
+      "mapSections": [
+        "domain",
+        "tests"
+      ],
+      "neverLoad": [
+        "hqRuntime",
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "notification",
+      "level": "L2",
+      "keywords": [
+        "알림",
+        "푸시",
+        "notification",
+        "push",
+        "알림 설정",
+        "알림 탭"
+      ],
+      "mapSections": [
+        "domain",
+        "shell"
+      ],
+      "neverLoad": [
+        "hqRuntime",
+        "queueRunner",
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "performance",
+      "level": "L2",
+      "keywords": [
+        "성능",
+        "performance",
+        "느림",
+        "최적화",
+        "lighthouse",
+        "번들 크기",
+        "bundle size",
+        "렌더링 성능"
+      ],
+      "mapSections": [
+        "shell",
+        "domain",
+        "tests"
+      ],
+      "neverLoad": [
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "accessibility",
+      "level": "L2",
+      "keywords": [
+        "접근성",
+        "키보드",
+        "스크린리더",
+        "대비",
+        "확대",
+        "a11y",
+        "aria",
+        "focus"
+      ],
+      "mapSections": [
+        "shell",
+        "tests"
+      ],
+      "neverLoad": [
+        "queueRunner",
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "micro-copy",
+      "level": "L1",
+      "keywords": [
+        "문구",
+        "라벨",
+        "카피",
+        "오탈자",
+        "copy",
+        "label",
+        "typo",
+        "wording"
+      ],
+      "mapSections": [
+        "shell"
+      ],
+      "neverLoad": [
+        "allAppStates",
+        "hqRuntime",
+        "queueRunner",
+        "historicalReports"
+      ],
+      "include": []
+    },
+    {
+      "id": "single-ui",
+      "level": "L1",
+      "keywords": [
+        "버튼",
+        "카드",
+        "간격",
+        "여백",
+        "정렬",
+        "헤더",
+        "하단바",
+        "아이콘",
+        "스타일",
+        "css",
+        "디자인",
+        "색감"
+      ],
+      "mapSections": [
+        "shell"
+      ],
+      "neverLoad": [
+        "hqRuntime",
+        "queueRunner",
+        "allAppStates",
+        "historicalReports"
+      ],
+      "include": []
+    }
   ],
-  "default": { "id": "product-feature", "level": "L2", "mapSections": ["shell", "domain", "tests"], "neverLoad": ["hqRuntime", "historicalReports"] },
+  "default": {
+    "id": "product-feature",
+    "level": "L2",
+    "mapSections": [
+      "shell",
+      "domain",
+      "tests"
+    ],
+    "neverLoad": [
+      "hqRuntime",
+      "historicalReports"
+    ]
+  },
   "escalationTriggers": {
-    "L3": ["보안", "마이그레이션", "데이터 손실", "롤백", "여러 앱", "교차 저장소", "security", "migration"],
-    "L4": ["company os", "정본", "architecture", "전수 감사", "full audit"]
+    "L3": [
+      "보안",
+      "마이그레이션",
+      "데이터 손실",
+      "롤백",
+      "여러 앱",
+      "교차 저장소",
+      "security",
+      "migration"
+    ],
+    "L4": [
+      "company os",
+      "정본",
+      "architecture",
+      "전수 감사",
+      "full audit"
+    ]
   }
 }
