@@ -1,0 +1,37 @@
+{
+  "_generated": "ROBOM Family UI OS · 문서화된 패밀리 UI 예외 (Context&Family OS doc-03 §11·§12)",
+  "_note": "예외는 앱 핵심 가치·사용자층·기술 제약에 근거하며 모두 contract 상한 안이다. '예외'를 오래된 복사 UI의 핑계로 쓰지 않는다. check-family-ui.mjs가 app·reason·owner·verification 존재를 검증한다.",
+  "schemaVersion": 1,
+  "exceptions": [
+    {
+      "id": "calendarbom-3-tabs",
+      "app": "calendarbom",
+      "element": "primary-tabs",
+      "deviation": "하단 primary 탭 3개(달력·알림·설정)로 기본 4개보다 적음",
+      "reason": "시니어 타깃의 단순 캘린더 — 도메인상 검색/관심 같은 추가 primary 탭이 없다(doc-03 §12 '캘린더봄: 달력·알림·설정' 예시와 일치)",
+      "owner": "calendarbom",
+      "verification": "bottom-nav.yml max_tabs=5·min 3 이내, 설정 마지막·알림 바로 앞 유지",
+      "withinContract": true
+    },
+    {
+      "app": "certbom",
+      "id": "certbom-5-tabs-and-vercel",
+      "element": "primary-tabs",
+      "deviation": "primary 탭 5개(캘린더 보기 탭 포함)·배포 provider vercel",
+      "reason": "자격증 일정 도메인상 캘린더 보기가 핵심 가치, 탭 5개는 상한과 동일. certbom은 registry상 deploy_provider=vercel",
+      "owner": "certbom",
+      "verification": "bottom-nav.yml max_tabs=5 이내, 설정 마지막 유지; registry deploy_provider와 일치",
+      "withinContract": true
+    },
+    {
+      "app": "runningbom",
+      "id": "runningbom-static-stack",
+      "element": "generation-adapter",
+      "deviation": "React 컴포넌트 대신 static HTML/CSS/JS 어댑터로 패밀리 생성물 통합",
+      "reason": "러닝봄 stack이 static HTML(registry stack='static HTML + CSS + JavaScript') — 중앙 계약·토큰은 동일하게 적용하되 stack별 어댑터를 쓴다(doc-03 §14 stack adapter)",
+      "owner": "runningbom",
+      "verification": "family.lock.json sourceCommit·hash 검증, 하단바·설정 계약 동일 적용(2026-07 통일 배포 완료)",
+      "withinContract": true
+    }
+  ]
+}

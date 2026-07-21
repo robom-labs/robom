@@ -53,3 +53,25 @@ node --test ops/scripts/family/route-task.test.mjs   # 19 pass
 node ops/scripts/family/benchmark-context.mjs         # 실측 98% 절감
 node ops/scripts/family/route-task.mjs --request "청약봄 버튼 문구 수정"
 ```
+
+---
+
+## 후속(끝까지): Family UI OS 계약 계층 설치 (doc-03 §11·§14·§28)
+기존 `ops/family/contracts/`(bottom-nav·settings·appbar·install 등 10종)와 per-app design
+token, 그리고 이번 세션에 이미 배포한 6앱 하단바·아이콘·설정 통일 위에서, 문서가 요구하나
+없던 **공통/개별 분류 매트릭스 + 문서화된 예외 + 계약 정합 검증기**를 추가로 설치했다.
+
+- `ops/family/contracts/COMMON-UNIQUE-MATRIX.json` — MUST_SHARE/SHOULD_SHARE/APP_SPECIFIC 분류(각 MUST_SHARE는 실재 contract 근거).
+- `ops/family/contracts/EXCEPTIONS.json` — 캘린더봄 3탭·자격증봄 5탭/vercel·러닝봄 static 어댑터, 각 app·reason·owner·verification·withinContract.
+- `ops/scripts/family/check-family-ui.mjs` — registry 동적 검증(앱 토큰 커버리지·설정 순서·하단바 geometry·앱바·설치 경로·매트릭스 근거·예외 정합). **38/38 통과**.
+- `ops/scripts/family/check-family-ui.test.mjs` — 5건 통과(총 라우팅+패밀리UI **24건 통과**).
+- `ops/family/contracts/family-ui-check.json` — 실행 산출물.
+
+앱 소스는 각 앱 저장소 소유라 중앙 정본만 검증한다(Codex 동시작업 안전). 실제 6앱 렌더
+통일(하단바·아이콘·설정·색감)은 이번 세션에 이미 배포·CI 그린으로 완료됨.
+
+### 재현
+```bash
+node ops/scripts/family/check-family-ui.mjs            # 38/38 통과
+node --test ops/scripts/family/check-family-ui.test.mjs
+```

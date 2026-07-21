@@ -1,0 +1,39 @@
+{
+  "_generated": "ROBOM Family UI OS · 공통/개별 분류 정본 (Context&Family OS doc-03 §11)",
+  "_note": "모든 UI 요소를 MUST_SHARE / SHOULD_SHARE / APP_SPECIFIC / EXCEPTION으로 분류한다. MUST_SHARE는 각 항목이 기존 contract 파일에 근거해야 한다(check-family-ui.mjs가 검증).",
+  "schemaVersion": 1,
+  "familySpecVersion": "1.0.0",
+  "MUST_SHARE": [
+    { "id": "wordmark", "desc": "로봄 워드마크 규칙", "contract": "appbar.yml" },
+    { "id": "family-icon-style", "desc": "패밀리 선 아이콘 stroke·viewBox·optical size", "contract": "bottom-nav.yml" },
+    { "id": "bottom-nav-geometry", "desc": "하단 내비 safe-area·높이·48px 터치·활성 표현", "contract": "bottom-nav.yml" },
+    { "id": "settings-last", "desc": "설정이 마지막 메뉴", "contract": "bottom-nav.yml" },
+    { "id": "alerts-before-settings", "desc": "알림 탭이 있으면 설정 바로 앞", "contract": "bottom-nav.yml" },
+    { "id": "settings-section-order", "desc": "설정 화면 큰 섹션 순서", "contract": "settings.yml" },
+    { "id": "support-path", "desc": "문의·지원 경로", "contract": "feedback.yml" },
+    { "id": "install-path", "desc": "안정 설치 경로·플랫폼 규칙", "contract": "install.yml" },
+    { "id": "other-robom-apps", "desc": "다른 로봄 앱 소개(registry 동적·현재 앱 제외)", "contract": "settings.yml" },
+    { "id": "provider-version-footer", "desc": "제공자·버전·빌드 정보", "contract": "settings.yml" },
+    { "id": "auth-boundary", "desc": "게스트·연결 준비 상태 공통 계약", "contract": "auth.yml" },
+    { "id": "common-states", "desc": "공통 로딩·오류·빈 상태 품질 기준", "contract": "states.yml" }
+  ],
+  "SHOULD_SHARE": [
+    { "id": "card-radius", "desc": "카드 radius" },
+    { "id": "spacing-scale", "desc": "spacing scale" },
+    { "id": "typography-scale", "desc": "typography scale" },
+    { "id": "header-geometry", "desc": "header geometry", "contract": "appbar.yml" },
+    { "id": "sheet-modal-geometry", "desc": "sheet·modal geometry" },
+    { "id": "status-badge", "desc": "상태 badge" },
+    { "id": "toggle-row", "desc": "toggle·row 구조" }
+  ],
+  "APP_SPECIFIC": [
+    { "id": "home-screen", "desc": "홈 화면" },
+    { "id": "primary-tabs", "desc": "설정 전 primary tab 이름·순서" },
+    { "id": "domain-logic", "desc": "도메인 데이터·추천·판단 로직" },
+    { "id": "notification-meaning", "desc": "알림 의미" },
+    { "id": "search-filter", "desc": "검색·필터" },
+    { "id": "accent-color", "desc": "앱 고유 accent (design/apps/<app>.json)" },
+    { "id": "information-density", "desc": "타깃 사용자에 맞는 정보 밀도" }
+  ],
+  "EXCEPTION": { "documentedIn": "EXCEPTIONS.json" }
+}

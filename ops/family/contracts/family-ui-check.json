@@ -1,0 +1,167 @@
+{
+  "apps": [
+    "outbom",
+    "homebom",
+    "runningbom",
+    "calendarbom",
+    "certbom",
+    "notebom"
+  ],
+  "passed": 38,
+  "total": 38,
+  "problems": [],
+  "checks": [
+    {
+      "name": "design-token:outbom",
+      "pass": true
+    },
+    {
+      "name": "design-token:homebom",
+      "pass": true
+    },
+    {
+      "name": "design-token:runningbom",
+      "pass": true
+    },
+    {
+      "name": "design-token:calendarbom",
+      "pass": true
+    },
+    {
+      "name": "design-token:certbom",
+      "pass": true
+    },
+    {
+      "name": "design-token:notebom",
+      "pass": true
+    },
+    {
+      "name": "settings:app-about-first",
+      "pass": true
+    },
+    {
+      "name": "settings:app-meta-last",
+      "pass": true
+    },
+    {
+      "name": "settings:family-apps-present",
+      "pass": true
+    },
+    {
+      "name": "settings:family-before-meta",
+      "pass": true
+    },
+    {
+      "name": "settings:notifications-before-a11y",
+      "pass": true
+    },
+    {
+      "name": "nav:touch>=48",
+      "pass": true
+    },
+    {
+      "name": "nav:safe-area",
+      "pass": true
+    },
+    {
+      "name": "nav:no-text-icons",
+      "pass": true
+    },
+    {
+      "name": "nav:content-padding",
+      "pass": true
+    },
+    {
+      "name": "nav:max-tabs-3-5",
+      "pass": true
+    },
+    {
+      "name": "appbar:safe-area-top",
+      "pass": true
+    },
+    {
+      "name": "appbar:320px",
+      "pass": true
+    },
+    {
+      "name": "appbar:200%",
+      "pass": true
+    },
+    {
+      "name": "appbar:min-height>=64",
+      "pass": true
+    },
+    {
+      "name": "install:stable-route",
+      "pass": true
+    },
+    {
+      "name": "install:no-fake-store",
+      "pass": true
+    },
+    {
+      "name": "install:no-forced-redirect",
+      "pass": true
+    },
+    {
+      "name": "matrix:wordmark->appbar.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:family-icon-style->bottom-nav.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:bottom-nav-geometry->bottom-nav.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:settings-last->bottom-nav.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:alerts-before-settings->bottom-nav.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:settings-section-order->settings.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:support-path->feedback.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:install-path->install.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:other-robom-apps->settings.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:provider-version-footer->settings.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:auth-boundary->auth.yml",
+      "pass": true
+    },
+    {
+      "name": "matrix:common-states->states.yml",
+      "pass": true
+    },
+    {
+      "name": "exception:calendarbom-3-tabs",
+      "pass": true
+    },
+    {
+      "name": "exception:certbom-5-tabs-and-vercel",
+      "pass": true
+    },
+    {
+      "name": "exception:runningbom-static-stack",
+      "pass": true
+    }
+  ]
+}
