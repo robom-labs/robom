@@ -51,7 +51,25 @@
       "B) Expo/Capacitor 정식 네이티브 앱 신설 + EAS 빌드 — 더 크고 Expo 계정·크리덴셜·빌드 비용(HUMAN/BLOCKED_CEO_COST) 필요."
     ],
     "recommendation": "무료·로컬 우선 가족 성격상 파일럿(certbom)은 A)TWA가 최단·최저비용. notebom은 녹음/로컬ASR 때문에 B)Capacitor(이미 그 방향) 유지.",
-    "DECISION": "A안 확정(2026-07-21, CEO 위임). 5개 웹앱=PWA→TWA(도구: PWABuilder.com, 로컬 툴체인 불필요), notebom=B안 Capacitor. 파일럿=certbom. 다음: PWABuilder로 certbom.vercel.app 분석→서명 AAB+assetlinks 생성(서명키·업로드=HUMAN)→Play 업로드. manifest 부족분은 저장소에서 보완."
+    "DECISION": "A안 확정(2026-07-21, CEO 위임). 5개 웹앱=PWA→TWA(도구: PWABuilder.com, 로컬 툴체인 불필요), notebom=B안 Capacitor. 다음: PWABuilder로 라이브 URL 분석→서명 AAB+assetlinks 생성(서명키·업로드=HUMAN)→Play 업로드. manifest 부족분은 저장소에서 보완.",
+    "PILOT_PAIR_OVERRIDE": {
+      "chosen_at": "2026-07-21(CEO 지시, certbom 대신)",
+      "apps": ["homebom(청약봄)", "outbom(야외봄)"],
+      "reason": "회장이 첫 동시 출시 2종으로 청약봄+야외봄 지정. certbom 파일럿은 후순위로 이동.",
+      "twa_readiness": {
+        "homebom": "READY — apps/web/public/manifest.webmanifest: name/short_name/standalone/192·512·maskable-512 모두 존재. start_url·scope=./ (github pages /homebom/ 서브패스 OK).",
+        "outbom": "READY — app/manifest.ts + src/family-manifest.json: name/short_name/standalone/192·512·maskable-512·theme_color 존재. (maskable-512가 icon-512와 동일 sha=패딩 미적용, 기능상 통과·미관상만 후속 보완 가능)."
+      },
+      "assetlinks_origin_root_finding": {
+        "issue": "두 앱 모두 origin=robom-labs.github.io 공유. TWA Digital Asset Links는 항상 origin 루트 https://robom-labs.github.io/.well-known/assetlinks.json 에서 검증됨(서브패스 무관). 현재 org 루트 pages 저장소(robom-labs.github.io)가 세션 스코프에 없음 → 별도 생성/배치 필요.",
+        "resolution_plan": "AI가 org 루트 pages 저장소에 .well-known/assetlinks.json(두 앱 package_name + Play App Signing SHA-256 다중 엔트리) 배치·배포. 최종 SHA-256은 PWABuilder 서명키 또는 Play Console→앱 서명 페이지에서 확보(HUMAN이 전달). 그 전까지는 미완료.",
+        "human_input_needed": "PWABuilder 생성 후 assetlinks 안의 sha256_cert_fingerprints 값(또는 Play Console 앱 서명 페이지의 SHA-256) 2개를 채팅으로 전달(키스토어 파일 자체는 금지)."
+      },
+      "policy_reminder": {
+        "closed_testing": "개인 계정(2023-11-13 이후 생성)은 Production 전 12테스터·14일 비공개 테스트 필요 — 즉시 프로덕션 공개 아님(약 2주 파이프라인).",
+        "target_api": "2026-08-31부터 신규/업데이트 API36+ 타깃 필요. PWABuilder 기본 타깃 확인 게이트."
+      }
+    }
   },
   "blocked_ceo": [
     "스토어/개발자 계정·서명키·시크릿·최종 제출은 HUMAN 전용 — HUMAN_BLOCKERS.md 참조"
