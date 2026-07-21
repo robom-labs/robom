@@ -14,16 +14,8 @@
       "destination": "https://robom.kr/get/runningbom"
     },
     {
-      "id": "calendarbom",
-      "destination": "https://robom.kr/get/calendarbom"
-    },
-    {
       "id": "certbom",
       "destination": "https://robom.kr/get/certbom"
-    },
-    {
-      "id": "notebom",
-      "destination": "https://robom.kr/get/notebom"
     }
   ]
 }

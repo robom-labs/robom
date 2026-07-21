@@ -9,9 +9,7 @@ const defaults = [
   "https://robom-labs.github.io/outbom/",
   "https://robom-labs.github.io/homebom/",
   "https://robom-labs.github.io/runningbom/",
-  "https://robom-labs.github.io/calendarbom/",
   "https://certbom.vercel.app/",
-  "https://robom-labs.github.io/notebom/",
 ];
 const targets = process.env.A11Y_TARGETS_JSON ? JSON.parse(process.env.A11Y_TARGETS_JSON) : defaults;
 

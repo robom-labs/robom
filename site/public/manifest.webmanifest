@@ -23,8 +23,6 @@
     { "name": "야외봄 설치", "short_name": "야외봄", "url": "./get/outbom", "icons": [{ "src": "./icons/outbom.svg", "sizes": "any", "type": "image/svg+xml" }] },
     { "name": "청약봄 설치", "short_name": "청약봄", "url": "./get/homebom", "icons": [{ "src": "./icons/homebom.svg", "sizes": "any", "type": "image/svg+xml" }] },
     { "name": "러닝봄 설치", "short_name": "러닝봄", "url": "./get/runningbom", "icons": [{ "src": "./icons/runningbom.svg", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "캘린더봄 설치", "short_name": "캘린더봄", "url": "./get/calendarbom", "icons": [{ "src": "./icons/calendarbom.svg", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "자격증봄 설치", "short_name": "자격증봄", "url": "./get/certbom", "icons": [{ "src": "./icons/certbom.svg", "sizes": "any", "type": "image/svg+xml" }] },
-    { "name": "노트봄 설치", "short_name": "노트봄", "url": "./get/notebom", "icons": [{ "src": "./icons/notebom.svg", "sizes": "any", "type": "image/svg+xml" }] }
+    { "name": "자격증봄 설치", "short_name": "자격증봄", "url": "./get/certbom", "icons": [{ "src": "./icons/certbom.svg", "sizes": "any", "type": "image/svg+xml" }] }
   ]
 }

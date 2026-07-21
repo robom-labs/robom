@@ -1,2 +1,0 @@
-<!-- 접힌 노트와 음성 파형, 로봄의 봄점을 합친 노트봄 앱 아이콘이다. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><title>접힌 노트와 음성 파형이 있는 노트봄 아이콘</title><rect width="512" height="512" rx="120" fill="#b33768"/><path d="M129 102h194l60 60v248H129z" fill="#fff9f5"/><path d="M323 102v66h60" fill="#f3c6d8"/><g fill="none" stroke="#7a2148" stroke-width="22" stroke-linecap="round"><path d="M190 274v-28M234 310v-100M278 294v-68M322 274v-28"/></g><circle cx="365" cy="354" r="33" fill="#b33768"/><circle cx="365" cy="354" r="11" fill="#fff9f5"/></svg>

@@ -6,11 +6,11 @@ import { contactHref, familyApps } from "./app-data";
 
 export const metadata: Metadata = {
   title: { absolute: "로봄 | 날씨·청약·러닝·달력·자격증·음성 메모" },
-  description: "날씨, 청약, 러닝 대회, 가족 일정, 자격증 시험과 음성 메모를 한곳에서 확인하세요. 야외봄·청약봄·러닝봄·캘린더봄·자격증봄·노트봄으로 바로 연결됩니다.",
+  description: "날씨, 청약, 러닝 대회, 자격증 시험을 한곳에서 확인하세요. 야외봄·청약봄·러닝봄·자격증봄으로 바로 연결됩니다.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "로봄 | 날씨·청약·러닝·달력·자격증·음성 메모",
-    description: "날씨, 청약, 러닝 대회, 가족 일정, 자격증 시험과 음성 메모를 한곳에서 확인하세요. 야외봄·청약봄·러닝봄·캘린더봄·자격증봄·노트봄으로 바로 연결됩니다.",
+    description: "날씨, 청약, 러닝 대회, 자격증 시험을 한곳에서 확인하세요. 야외봄·청약봄·러닝봄·자격증봄으로 바로 연결됩니다.",
     url: "/",
     siteName: "로봄",
     locale: "ko_KR",

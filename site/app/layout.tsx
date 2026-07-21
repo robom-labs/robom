@@ -90,7 +90,7 @@ export default function RootLayout({
                 width: 512,
                 height: 512,
               },
-              description: "야외봄·청약봄·러닝봄·캘린더봄·자격증봄·노트봄을 운영하는 생활 타이밍 앱 패밀리",
+              description: "야외봄·청약봄·러닝봄·자격증봄을 운영하는 생활 타이밍 앱 패밀리",
             }),
           }}
         />

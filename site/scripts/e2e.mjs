@@ -111,9 +111,9 @@ try {
 
   const iosContext = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1" });
   const iosPage = await iosContext.newPage();
-  await iosPage.goto(`${baseUrl}/get/calendarbom`, { waitUntil: "domcontentloaded" });
-  await iosPage.locator(".store-action.primary", { hasText: "Safari에서 캘린더봄 열기" }).waitFor();
-  assert.match(await iosPage.locator(".store-action.primary").textContent(), /Safari에서 캘린더봄 열기/);
+  await iosPage.goto(`${baseUrl}/get/outbom`, { waitUntil: "domcontentloaded" });
+  await iosPage.locator(".store-action.primary", { hasText: "Safari에서 야외봄 열기" }).waitFor();
+  assert.match(await iosPage.locator(".store-action.primary").textContent(), /Safari에서 야외봄 열기/);
   assert.match(await iosPage.locator(".manual-install-guide").textContent(), /홈 화면에 추가/);
   await iosContext.close();
 

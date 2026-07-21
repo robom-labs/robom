@@ -13,9 +13,7 @@ const REPOSITORIES = {
   outbom: "https://github.com/robom-labs/outbom",
   homebom: "https://github.com/robom-labs/homebom",
   runningbom: "https://github.com/robom-labs/runningbom",
-  calendarbom: "https://github.com/robom-labs/calendarbom",
   certbom: "https://github.com/robom-labs/certbom",
-  notebom: "https://github.com/robom-labs/notebom",
 } as const;
 
 export default function LicensesPage() {

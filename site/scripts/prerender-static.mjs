@@ -78,13 +78,6 @@ for (const path of routes) {
   await mkdir(outputDir, { recursive: true });
   await writeFile(resolve(outputDir, "index.html"), html);
 }
-// 기존 캘린더봄 설치·북마크는 same-origin localStorage를 보존한 채 독립 저장소 주소로 안내한다.
-const calendarbomTarget = resolve(staticDir, "calendarbom");
-await cp(resolve(root.pathname, "legacy", "calendarbom"), calendarbomTarget, { recursive: true });
-const calendarbomBridge = resolve(calendarbomTarget, "index.html");
-const buildSha = (process.env.GITHUB_SHA || "").slice(0, 7) || "local";
-await writeFile(calendarbomBridge, (await readFile(calendarbomBridge, "utf8")).replace("__BUILD_SHA__", buildSha));
-
 await writeFile(resolve(staticDir, ".nojekyll"), "");
 
 console.log(`prerendered ${routes.length} static routes → ${staticDir}`);
