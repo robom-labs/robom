@@ -1,0 +1,45 @@
+{
+  "appsRoot": "/workspace",
+  "total": 6,
+  "checked": 6,
+  "synced": 6,
+  "problems": [],
+  "results": [
+    {
+      "app": "outbom",
+      "status": "synced",
+      "flavor": "react",
+      "metaStale": true
+    },
+    {
+      "app": "homebom",
+      "status": "synced",
+      "flavor": "react",
+      "metaStale": true
+    },
+    {
+      "app": "runningbom",
+      "status": "synced",
+      "flavor": "vanilla",
+      "metaStale": true
+    },
+    {
+      "app": "calendarbom",
+      "status": "synced",
+      "flavor": "vanilla",
+      "metaStale": false
+    },
+    {
+      "app": "certbom",
+      "status": "synced",
+      "flavor": "react",
+      "metaStale": true
+    },
+    {
+      "app": "notebom",
+      "status": "synced",
+      "flavor": "react",
+      "metaStale": true
+    }
+  ]
+}
