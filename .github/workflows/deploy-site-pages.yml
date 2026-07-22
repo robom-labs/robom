@@ -85,36 +85,47 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: robom.kr 커스텀 도메인 실측 진단 (비게이팅)
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: robom.kr 운영 도메인·TLS·QR-only 게이트
         shell: bash
         run: |
-          echo "== page_url(deploy) = ${{ needs.deploy.outputs.page_url }} =="
-          echo "== https://robom.kr/ HEAD =="
-          curl -sSIL --max-time 25 https://robom.kr/ 2>&1 | head -20 || true
-          echo "== https://robom.kr/ TLS =="
-          curl -sS -o /dev/null -w "http_code=%{http_code} ssl_verify=%{ssl_verify_result} scheme=%{scheme} redirect=%{redirect_url}\n" --max-time 25 https://robom.kr/ 2>&1 || true
-          echo "== http://robom.kr/ (no TLS) HEAD =="
-          curl -sSI --max-time 25 http://robom.kr/ 2>&1 | head -12 || true
-          echo "== robom.kr 홈에 QR-only 문구가 실제로 보이나 =="
-          RK="$(curl -fsSL --max-time 25 https://robom.kr/ 2>/dev/null || true)"
-          if grep -q "준비 중" <<<"$RK" && grep -q "2026년 8월 초 출시 예정" <<<"$RK"; then
-            echo "ROBOMKR_HTTPS_CONTENT=OK"
-          else
-            echo "ROBOMKR_HTTPS_CONTENT=NOT_SERVED_OR_STALE"
-          fi
-      - name: 허브·설치·QR·빌드 SHA 확인
-        shell: bash
-        run: |
-          BASE="${{ needs.deploy.outputs.page_url }}"
-          for attempt in 1 2 3 4 5; do
-            HOME="$(curl -fsSL "${BASE}" || true)"
-            INSTALL="$(curl -fsSL "${BASE}get/outbom/" || true)"
-            QR="$(curl -fsSL "${BASE}install/qr/outbom.svg" || true)"
-            if grep -q "준비 중" <<<"$HOME" \
-              && grep -q "2026년 8월 초 출시 예정" <<<"$HOME" \
-              && grep -q "https://robom.kr/get/outbom" <<<"$INSTALL" \
-              && grep -q "<svg" <<<"$QR" \
-              && grep -q "${GITHUB_SHA::7}" <<<"$HOME"; then
+          set -u
+          BASE="https://robom.kr/"
+          EXPECTED_IDS="$(node -e 'const fs=require("fs"); process.stdout.write([...fs.readFileSync("ops/registry/apps.yml", "utf8").matchAll(/^  - id: ([a-z0-9-]+)$/gm)].map(([, id]) => id).join(" "))')"
+          EXPECTED_COUNT="$(wc -w <<<"${EXPECTED_IDS}" | tr -d ' ')"
+          test "${EXPECTED_COUNT}" -eq 4
+
+          for attempt in 1 2 3 4 5 6; do
+            HOME="$(curl -fsS --max-time 25 "${BASE}" || true)"
+            HTTP_CODE="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 "${BASE}" || true)"
+            FINAL_URL="$(curl -sS -o /dev/null -w '%{url_effective}' --max-time 25 "${BASE}" || true)"
+            APPS_STATUS="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 "${BASE}apps/" || true)"
+            CERTIFICATE="$(openssl s_client -connect robom.kr:443 -servername robom.kr </dev/null 2>/dev/null | openssl x509 -noout -ext subjectAltName 2>/dev/null || true)"
+
+            ok=true
+            test "${HTTP_CODE}" = "200" || ok=false
+            test "${FINAL_URL}" = "${BASE}" || ok=false
+            test "${APPS_STATUS}" = "404" || ok=false
+            grep -q "준비 중" <<<"${HOME}" || ok=false
+            grep -q "2026년 8월 초 출시 예정" <<<"${HOME}" || ok=false
+            grep -q "${GITHUB_SHA::7}" <<<"${HOME}" || ok=false
+            grep -q "DNS:robom.kr" <<<"${CERTIFICATE}" || ok=false
+            grep -q "SoftwareApplication" <<<"${HOME}" && ok=false
+            grep -Eqi 'rel=[^>]*manifest' <<<"${HOME}" && ok=false
+            grep -q "serviceWorker.register" <<<"${HOME}" && ok=false
+
+            for id in ${EXPECTED_IDS}; do
+              INSTALL="$(curl -fsS --max-time 25 "${BASE}get/${id}/" || true)"
+              QR="$(curl -fsS --max-time 25 "${BASE}install/qr/${id}.svg" || true)"
+              grep -q "install/qr/${id}.svg" <<<"${HOME}" || ok=false
+              grep -q "robom.kr/get/${id}" <<<"${HOME}" || ok=false
+              grep -q "준비 중" <<<"${INSTALL}" || ok=false
+              grep -q "2026년 8월 초 출시 예정" <<<"${INSTALL}" || ok=false
+              grep -q "robom.kr/get/${id}" <<<"${INSTALL}" || ok=false
+              grep -q "<svg" <<<"${QR}" || ok=false
+            done
+
+            if ${ok}; then
               exit 0
             fi
             sleep 10
