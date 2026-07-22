@@ -51,7 +51,7 @@
 
 - registry와 홈페이지·프리렌더·회귀 검사의 앱 수 고정값을 제거하고 등록부 기준 동적 처리로 전환했다.
 - 중앙 GitHub Actions의 변경 가능한 major tag를 검증한 commit SHA로 고정했다.
-- 야외봄·캘린더봄 canonical Pages 배포 SHA와 러닝봄 canonical provider를 실제 운영 상태에 맞췄다.
+- 야외봄 canonical Pages 배포 SHA와 러닝봄 canonical provider를 실제 운영 상태에 맞췄다.
 
 ### Fixed
 
@@ -91,7 +91,6 @@
 - 다섯 앱을 동등한 설치 카드로 보여주는 모바일 우선 패밀리 허브와 안정 경로 `/get/<app>`를 추가했다.
 - 앱별 QR SVG·PNG를 빌드 시 생성하고 실제 decoder로 안정 URL 다섯 개를 검증한다.
 - 패밀리 1.0.0 정본에 워드마크·토큰·설정·상태·설치·분석·광고 OFF 계약과 앱별 생성물을 추가했다.
-- 캘린더봄을 `robom-labs/calendarbom` 독립 저장소와 Pages로 분리하고 기존 경로에 데이터 보존 이전 화면을 추가했다.
 - Chromium·WebKit에서 여섯 운영 표면의 지정 viewport·200% 글자·48px 터치·콘솔 오류를 함께 검사하는 운영 감사를 추가했다.
 
 ### Changed

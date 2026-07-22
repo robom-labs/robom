@@ -207,22 +207,10 @@
       "duty": "대회 탐색·접수 알림"
     },
     {
-      "id": "calendarbom",
-      "name": "캘린더봄 제품팀",
-      "group": "product",
-      "duty": "계열사 일정 통합 캘린더"
-    },
-    {
       "id": "certbom",
       "name": "자격증봄 제품팀",
       "group": "product",
       "duty": "시험 탐색·접수/시험 일정·추천"
-    },
-    {
-      "id": "notebom",
-      "name": "노트봄 제품팀",
-      "group": "product",
-      "duty": "원음 보존·음성 인식 초안·AI/일정 전달·백업 복구"
     },
     {
       "id": "pm-ux",

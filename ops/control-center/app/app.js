@@ -67,10 +67,10 @@ const ago = (iso)=>{if(!iso)return "—";const d=(Date.now()-Date.parse(iso))/10
 const simpleStatus=(s)=>SIMPLE_STATUS[s]||"대기";
 const statusPill=(s)=>{const l=simpleStatus(s);return `<span class="status ${STATUS_TONE[l]||"neutral"}">${esc(l)}</span>`;};
 const tonePill=(t,l)=>`<span class="status ${t}">${esc(l)}</span>`;
-const appAccent={robom:"#35e39b",outbom:"#42a9ff",homebom:"#3fd28a",runningbom:"#ff7a4d",calendarbom:"#2fd0bd",certbom:"#7f8cff",notebom:"#ff6fa8"};
+const appAccent={robom:"#35e39b",outbom:"#42a9ff",homebom:"#3fd28a",runningbom:"#ff7a4d",certbom:"#7f8cff"};
 const accent=(id)=>appAccent[id]||"#64748b";
 // 스냅샷에 role이 비어 있을 때의 사실 기반 한 줄 소개(제품 목적 — 수치·성과 주장 없음)
-const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",calendarbom:"계열사 일정 통합 캘린더",certbom:"자격증 시험 탐색·접수/시험 일정",notebom:"빠른 메모·기록 정리"};
+const APP_ROLE={robom:"로봄 지주회사 허브 — 계열사 소개·설치 진입",outbom:"날씨·대기질 기반 야외활동 추천",homebom:"청약 공고 탐색·접수 시작/마감 알림",runningbom:"러닝 대회 탐색·접수 알림",certbom:"자격증 시험 탐색·접수/시험 일정"};
 const roleOf=(a)=>a.role||a.note||APP_ROLE[a.id]||"";
 
 const HQ_VERSION="3.3.30"; // 빌드 시 version.json이 실제 앱 버전으로 덮어씀(=다운로드한 버전)
@@ -449,7 +449,7 @@ function loadContracts(){ // 1회 로드 후 도착 시 한 번만 재렌더(무
   CONTRACTS_LOADING=true;
   fetchJson("/api/health-contracts").then(v=>{CONTRACTS=v;if(["automation","company"].includes(CURRENT))renderScreen();}).catch(()=>{CONTRACTS={ok:false};});
 }
-const TARGET_NAMES={company:"회사 전역",robom:"robom.kr",["robom-hq"]:"ROBOM HQ",outbom:"야외봄",homebom:"청약봄",runningbom:"러닝봄",calendarbom:"캘린더봄",certbom:"자격증봄",notebom:"노트봄"};
+const TARGET_NAMES={company:"회사 전역",robom:"robom.kr",["robom-hq"]:"ROBOM HQ",outbom:"야외봄",homebom:"청약봄",runningbom:"러닝봄",certbom:"자격증봄"};
 function contractsPanel(){
   const d=CONTRACTS?.defined,r=CONTRACTS?.report;
   if(!CONTRACTS)return panel("심층 진단 — 진단률",empty("진단 결과를 불러오는 중입니다."));

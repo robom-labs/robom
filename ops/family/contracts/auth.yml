@@ -6,6 +6,5 @@ protocol: oauth2-pkce
 required_flows: [guest-use, progressive-login, provider-link, provider-unlink, session-refresh, export, delete-account, offline-fallback]
 failure_isolation: per-app-namespace
 sensitive_sync:
-  calendarbom: explicit-opt-in-only
   default: app-owned-preferences-only
 forbidden: [login-wall-for-core-browse, token-in-local-analytics, silent-sensitive-sync]

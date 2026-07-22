@@ -11,9 +11,7 @@ const ROLE = {
   outbom: "날씨·대기질 기반 야외활동 추천",
   homebom: "청약 공고 탐색·접수 시작/마감 알림",
   runningbom: "러닝 대회 탐색·접수 알림",
-  calendarbom: "계열사 일정 통합 캘린더",
   certbom: "자격증 시험 탐색·접수/시험 일정",
-  notebom: "빠른 메모·기록 정리",
 };
 
 function exampleApp(app) {

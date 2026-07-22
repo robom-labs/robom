@@ -25,7 +25,7 @@
 ```bash
 # 요청 하나를 최소 read-plan으로 라우팅
 node ops/scripts/family/route-task.mjs --request "청약봄 버튼 문구 수정"
-node ops/scripts/family/route-task.mjs --request "노트봄 저장 마이그레이션" --json
+node ops/scripts/family/route-task.mjs --request "자격증봄 저장 마이그레이션" --json
 
 # 라우팅 전/후 실측 벤치마크
 node ops/scripts/family/benchmark-context.mjs

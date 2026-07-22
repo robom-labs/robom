@@ -31,22 +31,16 @@ v2.1.0부터 업로드 지침(PART 07~12)의 계약이 **전부 machine-readable
   ASSET_VERSION↔SW 정합, 공식 링크 회전 표본(403은 정책으로 구분).
 - **자격증봄**: source registry 무결(중복 id·HTTPS·parserVersion·lastVerifiedAt), 수집 워크플로 36h 하트비트,
   Q-Net 키 번들 노출 0.
-- **캘린더봄**: 저장 키(`calendarbom:events:v1`·`data:v2`) 보존, app.js 문법(vm compile),
-  손상 fixture 부팅·원문 보존(브라우저 fixture).
-- **노트봄**(main 읽기 전용 — 절대 수정 금지): 외부 모델 CDN 금지, 모델 프리캐시 금지, checksum 코드 존재,
-  업로드 endpoint 부재, MediaRecorder/IndexedDB capability.
 - **robom.kr**: robots/sitemap 전수 200, 앱별 3라우트(/apps·/get·/privacy) 전수, JSON-LD, Yeti UA parity,
   네이버 인증 meta, 내부 링크 404 0, 360/390/412 넘침 smoke.
 - **HQ 자체**: 스냅샷 존재/나이/앱 수 parity, 대기열 무결, 권한 정본, 디스크·백업·증거 용량,
   버전 삼중 일치, redaction 자가 검사, 원격 opt-in, Codex 연결(단일 실행기), monitor-the-monitor.
 
-## 아직 실측 불가 — `need_new_source` 7건(§18, 숨기지 않음)
+## 아직 실측 불가 — `need_new_source`(§18, 숨기지 않음)
 각각 `source_needed / why_needed / privacy_risk / free_implementation_option / fallback_status`를 계약에 명시했다.
 - 야외봄 forecast probe URL(registry 선언 필요 — 추측 URL로 거짓 PASS 금지)
 - 청약봄 수집 통계(fetched·published·preserved) read-only 신호
 - 자격증봄 source 문서 hash 변경 감지
-- 캘린더봄·노트봄 실사용자 로컬 데이터 건강(옵트인 진단 브리지 필요 — 원문 절대 금지, 숫자만)
-- 노트봄 native 세션(준비 전 과잉 표시 금지)
 - HQ 로그인 항목 실제 상태(desktop API 노출 필요)
 앱 쪽 신호가 생기면 계약이 자동으로 실측으로 전환된다. 반복 상신은 하지 않고 화면에만 표시한다.
 

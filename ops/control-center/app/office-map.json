@@ -22,8 +22,6 @@
   "home": "#4da35e",
   "run": "#e0574a",
   "cert": "#5b6ee0",
-  "cal": "#2fd0bd",
-  "note": "#b33768",
   "gold2": "#c8a04a"
  },
  "floors": [
@@ -143,9 +141,7 @@
     "out",
     "home",
     "run",
-    "cert",
-    "cal",
-    "note"
+    "cert"
    ]
   },
   {
@@ -272,9 +268,7 @@
   "out",
   "home",
   "run",
-  "cert",
-  "cal",
-  "note"
+  "cert"
  ],
  "names": {
   "ceo-orchestrator": "비서실장 · 서아",
@@ -298,8 +292,6 @@
   "home": "청약봄",
   "run": "러닝봄",
   "cert": "자격증봄",
-  "cal": "캘린더봄",
-  "note": "노트봄",
   "executive-vice-chair": "리리 수석부회장",
   "internal-audit-director": "민서 감사실장",
   "cafeteria-manager": "정옥 식당총괄",
@@ -886,7 +878,7 @@
    "color": "#2fd0bd",
    "label": "🧩 앱 랩 B",
    "code": "APP LAB SOUTH",
-   "owner": "자격증봄·캘린더봄",
+   "owner": "자격증봄",
    "purpose": "신규 앱 검증, 패밀리 연동, 출시 준비",
    "walls": true,
    "door": [
@@ -2038,34 +2030,6 @@
     "skin": "#e4e8ff",
     "outfit": "brand",
     "accent": "#5b6ee0"
-   }
-  },
-  {
-   "id": "cal",
-   "x": 8,
-   "y": 20,
-   "team": "cal",
-   "appearance": {
-    "gender": "brand",
-    "hair": "spark",
-    "hairColor": "#2fd0bd",
-    "skin": "#dcfffa",
-    "outfit": "brand",
-    "accent": "#2fd0bd"
-   }
-  },
-  {
-   "id": "note",
-   "x": 12,
-   "y": 20,
-   "team": "note",
-   "appearance": {
-    "gender": "brand",
-    "hair": "spark",
-    "hairColor": "#b33768",
-    "skin": "#fbe8f0",
-    "outfit": "brand",
-    "accent": "#b33768"
    }
   },
   {

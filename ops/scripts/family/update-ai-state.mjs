@@ -53,17 +53,13 @@ const cacheCandidates = {
   outbom: ["public/sw.js"],
   homebom: ["apps/web/public/sw.js"],
   runningbom: ["outputs/pushrun-site/sw.js"],
-  calendarbom: ["app/sw.js"],
   certbom: ["apps/web/public/sw.js", "apps/web/vite.config.ts"],
-  notebom: ["vite.config.ts"],
 };
 const entrypoints = {
   outbom: ["app/page.tsx", "app/globals.css", "lib/weather.ts", "lib/scoring.ts"],
   homebom: ["apps/web/src/App.tsx", "apps/web/src/styles.css", "packages/core"],
   runningbom: ["outputs/pushrun-site/index.html", "outputs/pushrun-site/styles.css", "outputs/pushrun-site/app.js", "outputs/pushrun-site/races.json"],
-  calendarbom: ["app/index.html", "app/styles.css", "app/app.js", "app/schedule-core.js"],
   certbom: ["apps/web/src/App.tsx", "apps/web/src/styles.css", "packages/core/src", "packages/source-adapters/src"],
-  notebom: ["src/App.tsx", "src/styles.css", "src/lib/database.ts", "src/lib/recording.ts", "src/lib/backup.ts"],
 };
 
 const appState = [];

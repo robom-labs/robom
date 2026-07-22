@@ -4,16 +4,6 @@
   "schemaVersion": 1,
   "exceptions": [
     {
-      "id": "calendarbom-3-tabs",
-      "app": "calendarbom",
-      "element": "primary-tabs",
-      "deviation": "하단 primary 탭 3개(달력·알림·설정)로 기본 4개보다 적음",
-      "reason": "시니어 타깃의 단순 캘린더 — 도메인상 검색/관심 같은 추가 primary 탭이 없다(doc-03 §12 '캘린더봄: 달력·알림·설정' 예시와 일치)",
-      "owner": "calendarbom",
-      "verification": "bottom-nav.yml max_tabs=5·min 3 이내, 설정 마지막·알림 바로 앞 유지",
-      "withinContract": true
-    },
-    {
       "app": "certbom",
       "id": "certbom-5-tabs-and-vercel",
       "element": "primary-tabs",

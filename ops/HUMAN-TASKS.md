@@ -14,6 +14,6 @@
 - [ ] GitHub와 다른 공급자의 보조 scheduler를 쓰려면 Vercel·Cloudflare·Supabase 중 한 곳의 cron credential과 서명 endpoint 연결.
 - [ ] Kakao·Google·Apple OAuth 앱 등록과 redirect URI 승인.
 - [ ] 비공개 분석 수집 endpoint·dashboard credential 연결.
-- [ ] 공통 계정의 개인정보 고지와 캘린더봄 민감 데이터 동의 문구 법률 검토.
+- [ ] 공통 계정의 개인정보 고지 문구 법률 검토.
 
 비밀키 값, 결제 정보와 운영 계정 인증 정보는 문서나 Git 기록에 남기지 않습니다.

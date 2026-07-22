@@ -6,10 +6,10 @@ import { readApps, REPO_ROOT } from "./sources.mjs";
 
 const roster = loadRoster(REPO_ROOT);
 
-test("80명 정본 roster — id 고유·보고선/대직 유효·순환 0", () => {
-  assert.equal(roster.staff.length, 80);
+test("78명 정본 roster — id 고유·보고선/대직 유효·순환 0", () => {
+  assert.equal(roster.staff.length, 78);
   const ids = new Set(roster.staff.map((s) => s.id));
-  assert.equal(ids.size, 80, "id 중복 0");
+  assert.equal(ids.size, 78, "id 중복 0");
   for (const s of roster.staff) {
     assert.ok(s.name && s.title && s.division, `${s.id} 필드`);
     if (s.reportsTo) assert.ok(ids.has(s.reportsTo), `${s.id} 보고선`);
@@ -51,7 +51,7 @@ test("직원 상태는 계약 판정 근거로 도출 — FAIL 소유자는 막�
     { contractId: "c:outbom:production-home", target: "outbom", category: "production", status: "PASS", what: "운영", needNewSource: false },
   ] };
   const out = computeWorkforce({ report, tasks: [], authority: { mode: "RUNNING" }, now: new Date("2026-07-19T04:00:00Z") }); // 서울 13시=DAY
-  assert.equal(out.staff.length, 80);
+  assert.equal(out.staff.length, 78);
   assert.equal(out.companyMode, "RUNNING");
   // 결정론: 같은 입력 → 같은 출력
   const out2 = computeWorkforce({ report, tasks: [], authority: { mode: "RUNNING" }, now: new Date("2026-07-19T04:00:00Z") });

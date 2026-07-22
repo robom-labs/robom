@@ -10,12 +10,12 @@ const officeJs = readFileSync(join(REPO_ROOT, "ops/control-center/app/office.js"
 const officeHtml = readFileSync(join(REPO_ROOT, "ops/control-center/app/office.html"), "utf8");
 const employees = [...map.desks.filter((desk) => !map.products.includes(desk.id)), map.chair, ...map.secretaries];
 
-test("오피스 팀 편성이 실제 조직(agents.yml)과 6개 앱(registry)을 모두 반영한다", () => {
+test("오피스 팀 편성이 실제 조직(agents.yml)과 4개 앱(registry)을 모두 반영한다", () => {
   const deskIds = new Set(map.desks.map((d) => d.id));
   // 실제 직원(에이전트) 전원에게 자리가 있어야 실시간 run이 들어오면 애니메이션된다
   for (const agent of readAgents(REPO_ROOT)) assert.ok(deskIds.has(agent.id), `오피스에 ${agent.id} 자리 없음`);
-  // 6개 계열사 앱 셀(out/home/run/cert/cal/note)이 모두 있어야 한다(노트봄 포함)
-  const APP_CELL = { outbom: "out", homebom: "home", runningbom: "run", calendarbom: "cal", certbom: "cert", notebom: "note" };
+  // 4개 계열사 앱 셀(out/home/run/cert)이 모두 있어야 한다
+  const APP_CELL = { outbom: "out", homebom: "home", runningbom: "run", certbom: "cert" };
   for (const app of readApps(REPO_ROOT).filter((a) => a.registered !== false)) {
     const cell = APP_CELL[app.id];
     assert.ok(cell && deskIds.has(cell), `오피스에 ${app.id} 앱 셀(${cell}) 없음`);

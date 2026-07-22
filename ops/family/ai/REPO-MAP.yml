@@ -19,18 +19,8 @@ runningbom:
   domain: [src, data]
   pwa: [sw.js, manifest.webmanifest]
   tests: [tests]
-calendarbom:
-  shell: [app/index.html, app/styles.css, app/app.js]
-  domain: [app/calendar-core.js, app/schedule-core.js]
-  pwa: [app/sw.js, app/manifest.webmanifest]
-  tests: [scripts/*.test.mjs, scripts/e2e.mjs]
 certbom:
   shell: [src/App.tsx, src/index.css]
   domain: [src/lib, src/data]
   pwa: [public/sw.js, public/manifest.webmanifest]
   tests: [src/**/*.test.ts, e2e]
-notebom:
-  shell: [src/App.tsx, src/styles.css]
-  domain: [src/lib/database.ts, src/lib/recording.ts, src/lib/backup.ts, src/lib/handoff.ts]
-  pwa: [vite.config.ts, pwa-manifest.json, public/icons]
-  tests: [tests, e2e]

@@ -54,19 +54,16 @@
 
 ## 정직한 미완(다음 단계 — 프롬프트의 거짓 성과 금지 원칙 준수)
 
-- **계약 356개**(273 → 356, 실측 가능한 고유 계약만; 문구만 바꾼 중복 금지). **5개 앱 진단 신호 전부 오픈 완료**(2026-07-19, 회장 지시 "원칙 수정·다 열어라·모든 권한"). 각 앱 원본 저장소를 세션에 붙여 **실제 데이터 소스·스키마를 확인한 뒤** 그에 맞는 실측 계약을 추가(가짜·추측 금지):
+- **계약 356개**(273 → 356, 실측 가능한 고유 계약만; 문구만 바꾼 중복 금지). **4개 앱 진단 신호 전부 오픈 완료**(2026-07-19, 회장 지시 "원칙 수정·다 열어라·모든 권한"). 각 앱 원본 저장소를 세션에 붙여 **실제 데이터 소스·스키마를 확인한 뒤** 그에 맞는 실측 계약을 추가(가짜·추측 금지):
   - **야외봄**: Open-Meteo(서울 좌표, 공개·무키) → forecast 6종(200·JSON, 48시간+, 기온 전수 유효, 핵심 기상필드, 일출·일몰, 타임존). lib/weather.ts 쿼리와 동일.
   - **청약봄**: Supabase notices(공개 URL) → 공고 6종(housingCategory=아파트 상수, applyHome 공식 URL 고정, type 존재, modelDataStatus enum, lastVerifiedAt parse, events 배열). 서버 normalize() 보장 필드만 + 빈 배열 공허참 안전.
   - **러닝봄**: races.json(사이트 루트, top-level 객체) → 8종(featuredRaces·scheduleFeed 비어있지 않음·이름·날짜 parse·status enum·접수 URL 유효). URL http/https 혼용이라 https 단정 금지→url_valid. 기존 races-data-version 필드 경로 버그(dataVersion→version) 수정.
   - **자격증봄**: ops/source-registry/sources.json(raw GitHub) → 4종(schemaVersion≥2·dataVersion·출처 8곳·id 중복0·공식/접수 URL https·확인시각). 실제 파일 한글 키 스키마 확인. (런타임 데이터는 번들 내장이라 별도 API 없음 — 정직히 파일 점검)
-  - **캘린더봄**: 서버 데이터 없음(클라이언트 전용) → 저장 키 6개 불변 계약(critical, 사용자 데이터 유실 방지) + 백업/ICS 내보내기·가져오기 UI 존재. 앱 스스로 선언한 '저장 키 불변' 원칙 기반.
   - 라이브 PASS는 회장 맥에서(샌드박스는 외부 호스트 403 차단). 엔진 구조 검증: 신규 계약 전수 코드 예외 0.
-- **남은 신호도 노트봄만 빼고 전부 착수 완료**(회장 지시 "노트봄 빼고 다 진행·모든 권한"). need_new_source 7 → **2(노트봄 2개만)**:
+- **남은 신호도 전부 착수 완료**(회장 지시 "다 진행·모든 권한"). 열린 신호는 각 앱 원본 저장소 PR로 상신했다:
   - **robom-hq login-item** ✅ 본사에서 구현 완료 — desktop main이 `app.getLoginItemSettings()`를 `desktop-status.json`에 기록, 계약이 OS 실제 자동시작 상태를 판정(v2.4.0 포함).
   - **청약봄 collection-stats** → homebom PR #31(Supabase 함수 `x-collection-stats` 숫자 헤더). 병합·배포 시 계약 자동 green.
   - **자격증봄 source-hash** → certbom PR #8(공식 출처 콘텐츠 모니터 워크플로 + `source-hashes.json`). 병합·배포 시 green.
-  - **캘린더봄 user-storage-health** → calendarbom PR #1(개인정보 없는 옵트인 진단·숫자만·기본 꺼짐·**자동 전송 없음**·로컬 저장). 회장이 소유주로서 직접 동의해 개인정보 경계 충족. 자동 데이터 전송은 안전 원칙상 제외(로컬 저장만). 배포 시 옵트인 존재를 계약이 확인.
-  - **노트봄 2개**: '절대 수정 금지' 규칙으로 열지 않음(정직 표기 유지).
-  - 3개 앱 신호는 Draft PR로 상신(사람 병합·배포 검증). 계약은 이미 실측형으로 전환돼 배포되는 즉시 green으로 살아남.
-- **오피스 80명 전원 데스크 배치**: 현재 층별 핵심 데스크 + 가족·생활 인원 구동. 80명을 11개 층 좌석에 충돌 없이 전수 배치(seatsByFloor 확장)는 다음 단계.
+  - 앱 신호는 Draft PR로 상신(사람 병합·배포 검증). 계약은 이미 실측형으로 전환돼 배포되는 즉시 green으로 살아남.
+- **오피스 78명 전원 데스크 배치**: 현재 층별 핵심 데스크 + 가족·생활 인원 구동. 78명을 11개 층 좌석에 충돌 없이 전수 배치(seatsByFloor 확장)는 다음 단계.
 - **CompanyKernel SSE·ExecutorBroker**: 현재 6초 폴링 + Codex 단일 러너. 실행기 미연결은 정직하게 '자동 수정 대기'로 표기(연결 시 즉시 '수정 중'). 이벤트 버스(SSE)·다중 실행기 어댑터는 다음 단계.

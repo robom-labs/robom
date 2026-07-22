@@ -13,7 +13,7 @@ function startFixture() {
     const path = req.url.split("?")[0];
     const send = (code, type, body, headers = {}) => { res.writeHead(code, { "content-type": type, ...headers }); res.end(body); };
     if (path === "/") return send(200, "text/html", `<html><head><title>야외봄</title><script src="/app.js"></script></head><body>야외봄 v9.9.9 sha1234 ${"내용".repeat(300)}</body></html>`);
-    if (path === "/app.js") return send(200, "text/javascript", "const KEY='calendarbom:events:v1'; const K2='calendarbom:data:v2'; // v9.9.9 sha1234abc");
+    if (path === "/app.js") return send(200, "text/javascript", "const KEY='testapp:events:v1'; const K2='testapp:data:v2'; // v9.9.9 sha1234abc");
     if (path === "/manifest.webmanifest") return send(200, "application/json", JSON.stringify({ name: "야외봄", start_url: "/", icons: [{ src: "/icon.png", sizes: "192x192" }] }));
     if (path === "/icon.png") return send(200, "image/png", "png");
     if (path === "/sw.js") return send(200, "text/javascript", "const CACHE='testapp-v1'; caches.open(CACHE); // index.html precache");
@@ -49,7 +49,7 @@ test("http_html·surface_marker·manifest·sw evaluator가 fixture에서 정확�
     const contracts = [
       base_contract({ id: "t:home", target: "t", category: "production", evaluator: "http_html", config: { url: `${base}/`, minBytes: 500, negativeMarkers: ["Application Error"] } }),
       base_contract({ id: "t:error-page", target: "t", category: "production", evaluator: "http_html", config: { url: `${base}/error-page`, negativeMarkers: ["Application Error"] } }),
-      base_contract({ id: "t:marker", target: "t", category: "version", evaluator: "surface_marker", config: { url: `${base}/`, baseUrl: `${base}/`, markersAny: ["v9.9.9"], markersAll: ["calendarbom:events:v1", "calendarbom:data:v2"] } }),
+      base_contract({ id: "t:marker", target: "t", category: "version", evaluator: "surface_marker", config: { url: `${base}/`, baseUrl: `${base}/`, markersAny: ["v9.9.9"], markersAll: ["testapp:events:v1", "testapp:data:v2"] } }),
       base_contract({ id: "t:secret", target: "t", category: "security", evaluator: "surface_marker", config: { url: `${base}/`, baseUrl: `${base}/`, forbiddenMarkers: ["sk-proj-"] } }),
       base_contract({ id: "t:manifest", target: "t", category: "pwa", evaluator: "manifest_contract", config: { baseUrl: `${base}/` } }),
       base_contract({ id: "t:manifest-icons", target: "t", category: "pwa", evaluator: "manifest_contract", config: { baseUrl: `${base}/`, iconCheck: true } }),

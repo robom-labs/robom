@@ -1,24 +1,24 @@
 {
   "summary": {
     "baselineFiles": 9,
-    "baselineEstTokens": 17946,
-    "fixtures": 14,
-    "avgRoutedEstTokens": 410,
+    "baselineEstTokens": 17039,
+    "fixtures": 24,
+    "avgRoutedEstTokens": 402,
     "avgSavedPct": 98,
     "note": "estimated tokens = chars/4 결정론적 근사. baseline = 매 작업 전체 재독 후보 파일 실측 합."
   },
   "baselineDetail": [
     {
       "file": "CLAUDE.md",
-      "estTokens": 255
+      "estTokens": 389
     },
     {
       "file": "AGENTS.md",
-      "estTokens": 386
+      "estTokens": 430
     },
     {
       "file": "ops/company-os/ROBOM_ULTIMATE_COMPANY_OS.md",
-      "estTokens": 11581
+      "estTokens": 11580
     },
     {
       "file": "ops/ai-meetings/PROTOCOL.md",
@@ -26,7 +26,7 @@
     },
     {
       "file": "ops/ai-meetings/COMPANY-MODE.md",
-      "estTokens": 1406
+      "estTokens": 1394
     },
     {
       "file": "ops/family/ai/FAMILY-CONTEXT.md",
@@ -34,15 +34,15 @@
     },
     {
       "file": "ops/family/ai/REPO-MAP.yml",
-      "estTokens": 352
+      "estTokens": 243
     },
     {
       "file": "ops/registry/apps.yml",
-      "estTokens": 1931
+      "estTokens": 1334
     },
     {
       "file": "ops/family/ai/CURRENT-STATE.json",
-      "estTokens": 1246
+      "estTokens": 880
     }
   ],
   "rows": [
@@ -51,7 +51,7 @@
       "profile": "micro-copy",
       "level": "L1",
       "routedTokens": 413,
-      "savedTokens": 17533,
+      "savedTokens": 16626,
       "savedPct": 98
     },
     {
@@ -59,7 +59,7 @@
       "profile": "single-ui",
       "level": "L1",
       "routedTokens": 410,
-      "savedTokens": 17536,
+      "savedTokens": 16629,
       "savedPct": 98
     },
     {
@@ -67,15 +67,7 @@
       "profile": "accessibility",
       "level": "L2",
       "routedTokens": 419,
-      "savedTokens": 17527,
-      "savedPct": 98
-    },
-    {
-      "id": "calendarbom-alarm-calc",
-      "profile": "product-data",
-      "level": "L2",
-      "routedTokens": 435,
-      "savedTokens": 17511,
+      "savedTokens": 16620,
       "savedPct": 98
     },
     {
@@ -83,15 +75,7 @@
       "profile": "product-data",
       "level": "L2",
       "routedTokens": 419,
-      "savedTokens": 17527,
-      "savedPct": 98
-    },
-    {
-      "id": "notebom-recording-ui",
-      "profile": "single-ui",
-      "level": "L1",
-      "routedTokens": 415,
-      "savedTokens": 17531,
+      "savedTokens": 16620,
       "savedPct": 98
     },
     {
@@ -99,39 +83,31 @@
       "profile": "family-ui",
       "level": "L2",
       "routedTokens": 427,
-      "savedTokens": 17519,
-      "savedPct": 98
+      "savedTokens": 16612,
+      "savedPct": 97
     },
     {
       "id": "pwa-sw-cache",
       "profile": "pwa-service-worker",
       "level": "L2",
       "routedTokens": 415,
-      "savedTokens": 17531,
+      "savedTokens": 16624,
       "savedPct": 98
-    },
-    {
-      "id": "notebom-storage-migration",
-      "profile": "storage-migration",
-      "level": "L3",
-      "routedTokens": 456,
-      "savedTokens": 17490,
-      "savedPct": 97
     },
     {
       "id": "app-release",
       "profile": "release",
       "level": "L3",
       "routedTokens": 429,
-      "savedTokens": 17517,
-      "savedPct": 98
+      "savedTokens": 16610,
+      "savedPct": 97
     },
     {
       "id": "hq-runner-heartbeat",
       "profile": "hq-runtime",
       "level": "L3",
       "routedTokens": 378,
-      "savedTokens": 17568,
+      "savedTokens": 16661,
       "savedPct": 98
     },
     {
@@ -139,7 +115,7 @@
       "profile": "robom-site",
       "level": "L2",
       "routedTokens": 369,
-      "savedTokens": 17577,
+      "savedTokens": 16670,
       "savedPct": 98
     },
     {
@@ -147,7 +123,7 @@
       "profile": "portfolio",
       "level": "L3",
       "routedTokens": 374,
-      "savedTokens": 17572,
+      "savedTokens": 16665,
       "savedPct": 98
     },
     {
@@ -155,7 +131,111 @@
       "profile": "full-audit",
       "level": "L4",
       "routedTokens": 385,
-      "savedTokens": 17561,
+      "savedTokens": 16654,
+      "savedPct": 98
+    },
+    {
+      "id": "multi-app-negation",
+      "profile": "single-ui",
+      "level": "L1",
+      "routedTokens": 413,
+      "savedTokens": 16626,
+      "savedPct": 98
+    },
+    {
+      "id": "incident-outage",
+      "profile": "incident",
+      "level": "L3",
+      "routedTokens": 417,
+      "savedTokens": 16622,
+      "savedPct": 98
+    },
+    {
+      "id": "security-xss",
+      "profile": "security",
+      "level": "L3",
+      "routedTokens": 419,
+      "savedTokens": 16620,
+      "savedPct": 98
+    },
+    {
+      "id": "performance-bundle",
+      "profile": "performance",
+      "level": "L2",
+      "routedTokens": 426,
+      "savedTokens": 16613,
+      "savedPct": 97
+    },
+    {
+      "id": "multi-ui-unify",
+      "profile": "multi-ui",
+      "level": "L2",
+      "routedTokens": 368,
+      "savedTokens": 16671,
+      "savedPct": 98
+    },
+    {
+      "id": "context-os-self",
+      "profile": "context-os",
+      "level": "L4",
+      "routedTokens": 385,
+      "savedTokens": 16654,
+      "savedPct": 98
+    },
+    {
+      "id": "hq-ui-screen",
+      "profile": "hq-ui",
+      "level": "L2",
+      "routedTokens": 368,
+      "savedTokens": 16671,
+      "savedPct": 98
+    },
+    {
+      "id": "micro-copy-btn-v11",
+      "profile": "micro-copy",
+      "level": "L1",
+      "routedTokens": 410,
+      "savedTokens": 16629,
+      "savedPct": 98
+    },
+    {
+      "id": "portfolio-review",
+      "profile": "portfolio",
+      "level": "L3",
+      "routedTokens": 374,
+      "savedTokens": 16665,
+      "savedPct": 98
+    },
+    {
+      "id": "deploy-explicit",
+      "profile": "release",
+      "level": "L3",
+      "routedTokens": 435,
+      "savedTokens": 16604,
+      "savedPct": 97
+    },
+    {
+      "id": "pwa-sw-update-v11",
+      "profile": "pwa-service-worker",
+      "level": "L2",
+      "routedTokens": 415,
+      "savedTokens": 16624,
+      "savedPct": 98
+    },
+    {
+      "id": "robom-site-card-v11",
+      "profile": "robom-site",
+      "level": "L2",
+      "routedTokens": 369,
+      "savedTokens": 16670,
+      "savedPct": 98
+    },
+    {
+      "id": "product-data-fresh",
+      "profile": "product-data",
+      "level": "L2",
+      "routedTokens": 419,
+      "savedTokens": 16620,
       "savedPct": 98
     }
   ]

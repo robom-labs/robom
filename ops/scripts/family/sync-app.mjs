@@ -92,7 +92,6 @@ const authConfig = {
   redirectBase: "https://robom.kr/auth/callback",
   providers: { kakao: "unconfigured", google: "unconfigured", apple: "unconfigured" },
   namespace: appId,
-  calendarSensitiveSync: appId === "calendarbom" ? "local-only-default" : "not-applicable",
 };
 const analytics = flavor === "react"
   ? `// DO NOT EDIT. ${app.name}의 개인정보 최소 분석 이벤트 계약이다.\nexport const familyEventNames = ${JSON.stringify(events)} as const;\nexport type FamilyEventName = (typeof familyEventNames)[number];\nexport const forbiddenAnalyticsFields = ${JSON.stringify(forbidden)} as const;\n`

@@ -95,7 +95,7 @@ test("v1.1 멀티앱: 여러 앱을 모두 대상에 담는다", async () => {
 
 // v1.1-F: 파일 경로 신호 감지.
 test("v1.1 경로: 요청 속 파일 경로를 신호로 잡는다", () => {
-  const sig = detectSignals("노트봄 src/RecordButton.tsx 라벨 고쳐");
+  const sig = detectSignals("자격증봄 src/RecordButton.tsx 라벨 고쳐");
   assert.deepEqual(sig.filePaths, ["src/RecordButton.tsx"]);
 });
 
@@ -110,6 +110,6 @@ test("v1.1 manifest v2: 구조·결정론", async () => {
   assert.equal(a.manifest.requestHash, b.manifest.requestHash);
 });
 
-test("fixture 최소 30개(v1.1-P 골든 확대)", () => {
-  assert.ok(fixtures.length >= 30, `fixtures ${fixtures.length} < 30`);
+test("fixture 최소 24개(4앱 포트폴리오 골든)", () => {
+  assert.ok(fixtures.length >= 24, `fixtures ${fixtures.length} < 24`);
 });

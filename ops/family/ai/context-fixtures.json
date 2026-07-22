@@ -46,20 +46,6 @@
       ]
     },
     {
-      "id": "calendarbom-alarm-calc",
-      "request": "캘린더봄 알람 계산 데이터 로직이 하루 밀려, 정확도 수정",
-      "app": "calendarbom",
-      "expectedProfile": "product-data",
-      "expectedLevel": "L2",
-      "mustIncludeSections": [
-        "domain",
-        "tests"
-      ],
-      "mustExcludeTopics": [
-        "hqRuntime"
-      ]
-    },
-    {
       "id": "certbom-freshness",
       "request": "자격증봄 공식 일정 freshness 데이터 소스 갱신 문제",
       "app": "certbom",
@@ -71,20 +57,6 @@
       ],
       "mustExcludeTopics": [
         "hqRuntime"
-      ]
-    },
-    {
-      "id": "notebom-recording-ui",
-      "request": "노트봄 녹음 버튼 UI 스타일 정리",
-      "app": "notebom",
-      "expectedProfile": "single-ui",
-      "expectedLevel": "L1",
-      "mustIncludeSections": [
-        "shell"
-      ],
-      "mustExcludeTopics": [
-        "hqRuntime",
-        "queueRunner"
       ]
     },
     {
@@ -115,19 +87,6 @@
       "mustExcludeTopics": [
         "hqRuntime"
       ]
-    },
-    {
-      "id": "notebom-storage-migration",
-      "request": "노트봄 저장 스키마 마이그레이션 + 백업 복원 안전성",
-      "app": "notebom",
-      "expectedProfile": "storage-migration",
-      "expectedLevel": "L3",
-      "mustIncludeSections": [
-        "domain",
-        "tests",
-        "pwa"
-      ],
-      "mustExcludeTopics": []
     },
     {
       "id": "app-release",
@@ -204,21 +163,6 @@
       ]
     },
     {
-      "id": "path-accessibility",
-      "request": "노트봄 apps/web/src/RecordButton.tsx 스크린리더 라벨 고쳐",
-      "app": "notebom",
-      "expectedProfile": "accessibility",
-      "expectedLevel": "L2",
-      "mustIncludeSections": [
-        "shell",
-        "tests"
-      ],
-      "mustExcludeTopics": [
-        "queueRunner",
-        "historicalReports"
-      ]
-    },
-    {
       "id": "incident-outage",
       "request": "청약봄 지금 먹통이래 장애 원인 찾아",
       "app": "homebom",
@@ -243,22 +187,6 @@
         "tests"
       ],
       "mustExcludeTopics": [
-        "historicalReports"
-      ]
-    },
-    {
-      "id": "notification-tab",
-      "request": "캘린더봄 알림 탭 문구랑 푸시 동작 정리",
-      "app": "calendarbom",
-      "expectedProfile": "notification",
-      "expectedLevel": "L2",
-      "mustIncludeSections": [
-        "domain",
-        "shell"
-      ],
-      "mustExcludeTopics": [
-        "hqRuntime",
-        "queueRunner",
         "historicalReports"
       ]
     },
@@ -293,20 +221,6 @@
       ]
     },
     {
-      "id": "store-native-release",
-      "request": "노트봄 플레이스토어 출시 준비하고 capacitor 빌드 점검",
-      "app": "notebom",
-      "expectedProfile": "store-native",
-      "expectedLevel": "L3",
-      "mustIncludeSections": [
-        "shell",
-        "tests"
-      ],
-      "mustExcludeTopics": [
-        "historicalReports"
-      ]
-    },
-    {
       "id": "context-os-self",
       "request": "context router 라우팅 정확도 올려줘 route-task 개선",
       "app": null,
@@ -326,19 +240,6 @@
         "allAppStates",
         "historicalReports"
       ]
-    },
-    {
-      "id": "storage-mig-v11",
-      "request": "캘린더봄 저장 키 마이그레이션 스키마 변경",
-      "app": "calendarbom",
-      "expectedProfile": "storage-migration",
-      "expectedLevel": "L3",
-      "mustIncludeSections": [
-        "domain",
-        "tests",
-        "pwa"
-      ],
-      "mustExcludeTopics": []
     },
     {
       "id": "micro-copy-btn-v11",
@@ -366,21 +267,6 @@
         "shell"
       ],
       "mustExcludeTopics": []
-    },
-    {
-      "id": "readonly-audit",
-      "request": "캘린더봄 알람 계산 로직 분석만 해줘 배포 하지마",
-      "app": "calendarbom",
-      "expectedProfile": "product-data",
-      "expectedLevel": "L2",
-      "mustIncludeSections": [
-        "domain",
-        "tests"
-      ],
-      "mustExcludeTopics": [
-        "hqRuntime",
-        "historicalReports"
-      ]
     },
     {
       "id": "deploy-explicit",

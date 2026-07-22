@@ -14,8 +14,8 @@ try { stdin = await new Promise((res) => { let s=""; process.stdin.on("data",c=>
 let hook = {}; try { hook = JSON.parse(stdin || "{}"); } catch {}
 
 // cwd/repo → appId 추정
-const APPS = ["outbom","homebom","runningbom","certbom","calendarbom","robom"];
-const ALIAS = { outbom:"out", homebom:"home", runningbom:"run", certbom:"cert", calendarbom:"cal", robom:"robom" };
+const APPS = ["outbom","homebom","runningbom","certbom","robom"];
+const ALIAS = { outbom:"out", homebom:"home", runningbom:"run", certbom:"cert", robom:"robom" };
 const cwd = (hook.cwd || process.cwd() || "");
 const appHit = APPS.find(a => cwd.includes(a));
 const appId = appHit ? (ALIAS[appHit] || appHit) : null;

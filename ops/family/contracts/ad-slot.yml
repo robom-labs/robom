@@ -7,4 +7,4 @@ default:
   render_when_empty: false
 placements: [bottom-safe, inline-safe]
 requirements: [no-content-cover, reserved-height-when-enabled, safe-area, ad-label, lazy-sdk, frequency-cap]
-forbidden_contexts: [outbom-risk-warning, homebom-official-apply, runningbom-registration-open, calendarbom-medication, certbom-official-registration]
+forbidden_contexts: [outbom-risk-warning, homebom-official-apply, runningbom-registration-open, certbom-official-registration]

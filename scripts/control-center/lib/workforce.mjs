@@ -63,8 +63,8 @@ const DIV_CATEGORIES = {
   exec: ["version", "release", "self", "production"],
 };
 // 앱 target → 그 앱을 주로 맡는 division(제품/데이터 우선), 없으면 전 division 대상.
-const APP_LEAD = { outbom: "outbom-product-lead", homebom: "homebom-product-lead", runningbom: "runningbom-product-lead", calendarbom: "calendarbom-product-lead", certbom: "certbom-product-lead", notebom: "notebom-product-lead", robom: "site-product-lead", "robom-hq": "hq-product-lead" };
-const APP_DATA = { outbom: "weather-data-lead", homebom: "housing-data-lead", runningbom: "race-data-lead", calendarbom: "notification-quality-lead", certbom: "certification-data-lead", notebom: "notebom-product-lead" };
+const APP_LEAD = { outbom: "outbom-product-lead", homebom: "homebom-product-lead", runningbom: "runningbom-product-lead", certbom: "certbom-product-lead", robom: "site-product-lead", "robom-hq": "hq-product-lead" };
+const APP_DATA = { outbom: "weather-data-lead", homebom: "housing-data-lead", runningbom: "race-data-lead", certbom: "certification-data-lead" };
 
 // 사람 확인이 꼭 필요한(자동 수정 불가) 계약 — 비밀키·보안 폐기·데이터 소스 선언·법적/스토어.
 function needsHuman(c) {

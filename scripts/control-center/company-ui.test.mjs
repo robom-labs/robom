@@ -122,7 +122,7 @@ test("사용자용 상태는 단순 상태로 변환하고 색+글자로 함께 
   assert.match(app, /statusPill/);
 });
 
-test("본사(robom)와 계열사 앱을 분리하고 예시 스냅샷도 registry 기준 6앱이다", () => {
+test("본사(robom)와 계열사 앱을 분리하고 예시 스냅샷도 registry 기준 4앱이다", () => {
   assert.match(app, /a\.id!=="robom"/);
   assert.match(app, /본사 시스템/);
   const example = JSON.parse(readFileSync(join(REPO_ROOT, "ops/control-center/snapshots/example.json"), "utf8"));
@@ -130,7 +130,7 @@ test("본사(robom)와 계열사 앱을 분리하고 예시 스냅샷도 registr
   const exampleFamily = example.apps.filter((a) => a.id !== "robom").map((a) => a.id);
   assert.deepEqual(exampleFamily, registryIds, "example.json 계열사 = registry 정본");
   assert.ok(example.apps.some((a) => a.id === "robom"), "본사 포함");
-  assert.ok(example.apps.some((a) => a.id === "notebom"), "노트봄 포함");
+  assert.ok(example.apps.some((a) => a.id === "certbom"), "자격증봄 포함");
 });
 
 test("결정론적 health 엔진이 review에 연결되고 incident만 중복 없이 결재로 상신된다", () => {

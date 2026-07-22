@@ -865,7 +865,7 @@ function evalHqRuntime(c, ctx, env) {
       case "wf-no-cycle": { const r = loadRoster(repoRoot); const by = Object.fromEntries(r.staff.map((x) => [x.id, x.reportsTo])); let cyc = 0; for (const x of r.staff) { let cur = x.reportsTo, g = 0; while (cur && g++ < 20) { if (cur === x.id) { cyc++; break; } cur = by[cur]; } } return cyc ? fail(`순환 ${cyc}`, "0") : pass("계층 순환 0", "0"); }
       case "wf-owner-coverage": {
         // 소유권 배정 속성: 대표 (target,category) 조합 전부 owner 지정 + owner != verifier
-        const targets = ["outbom", "homebom", "runningbom", "calendarbom", "certbom", "notebom", "robom", "robom-hq", "company"];
+        const targets = ["outbom", "homebom", "runningbom", "certbom", "robom", "robom-hq", "company"];
         const cats = ["production", "data", "pwa", "security", "version", "ci", "github", "user_surface", "self", "seo", "network", "release"];
         const staffIds = new Set(loadRoster(repoRoot).staff.map((x) => x.id));
         let noOwner = 0, sameVer = 0, n = 0;

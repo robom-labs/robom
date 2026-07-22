@@ -3,12 +3,10 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
   ],
-  "passed": 38,
-  "total": 38,
+  "passed": 35,
+  "total": 35,
   "problems": [],
   "checks": [
     {
@@ -24,15 +22,7 @@
       "pass": true
     },
     {
-      "name": "design-token:calendarbom",
-      "pass": true
-    },
-    {
       "name": "design-token:certbom",
-      "pass": true
-    },
-    {
-      "name": "design-token:notebom",
       "pass": true
     },
     {
@@ -149,10 +139,6 @@
     },
     {
       "name": "matrix:common-states->states.yml",
-      "pass": true
-    },
-    {
-      "name": "exception:calendarbom-3-tabs",
       "pass": true
     },
     {

@@ -1,5 +1,5 @@
 {
- "_doc": "로봄 80명 정본 roster(v2.3.0). id=안정 키. 이름·직책·외형은 편집 가능. 실제 executor 수와 인원 수는 다르며, 업무 상태는 run·task·health 근거로만 판정한다.",
+ "_doc": "로봄 78명 정본 roster(v2.3.0). id=안정 키. 이름·직책·외형은 편집 가능. 실제 executor 수와 인원 수는 다르며, 업무 상태는 run·task·health 근거로만 판정한다.",
  "divisions": [
   {
    "id": "exec",
@@ -269,9 +269,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": "11F",
@@ -535,9 +533,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": "9F",
@@ -647,26 +643,6 @@
    "authority": null
   },
   {
-   "id": "calendarbom-product-lead",
-   "name": "나리",
-   "title": "캘린더봄 제품셀장",
-   "rank": "실장",
-   "careerLevel": 8,
-   "division": "product",
-   "divisionName": "제품본부",
-   "reportsTo": "planner",
-   "deputy": "notification-quality-lead",
-   "targets": [
-    "calendarbom"
-   ],
-   "shift": "DAY",
-   "floor": "9F",
-   "standby": false,
-   "welfare": false,
-   "executor": false,
-   "authority": null
-  },
-  {
    "id": "certbom-product-lead",
    "name": "승우",
    "title": "자격증봄 제품셀장",
@@ -678,26 +654,6 @@
    "deputy": "certification-data-lead",
    "targets": [
     "certbom"
-   ],
-   "shift": "DAY",
-   "floor": "9F",
-   "standby": false,
-   "welfare": false,
-   "executor": false,
-   "authority": null
-  },
-  {
-   "id": "notebom-product-lead",
-   "name": "채원",
-   "title": "노트봄 제품셀장",
-   "rank": "실장",
-   "careerLevel": 8,
-   "division": "product",
-   "divisionName": "제품본부",
-   "reportsTo": "planner",
-   "deputy": "mobile-engineer",
-   "targets": [
-    "notebom"
    ],
    "shift": "DAY",
    "floor": "9F",
@@ -720,9 +676,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": "9F",
@@ -790,9 +744,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": {
@@ -818,9 +770,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": {
@@ -842,8 +792,10 @@
    "reportsTo": "builder",
    "deputy": "integration-engineer",
    "targets": [
-    "notebom",
-    "calendarbom"
+    "outbom",
+    "homebom",
+    "runningbom",
+    "certbom"
    ],
    "shift": "DAY",
    "floor": {
@@ -955,9 +907,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": "7F",
@@ -980,9 +930,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": "7F",
@@ -1105,9 +1053,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": "6F",
@@ -1205,9 +1151,7 @@
    "division": "data",
    "divisionName": "데이터·자동화본부",
    "reportsTo": "data-engineer",
-   "deputy": "calendarbom-product-lead",
    "targets": [
-    "calendarbom",
     "homebom"
    ],
    "shift": "DAY",
@@ -1431,9 +1375,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": "2F",
@@ -1456,9 +1398,7 @@
     "outbom",
     "homebom",
     "runningbom",
-    "calendarbom",
-    "certbom",
-    "notebom"
+    "certbom"
    ],
    "shift": "DAY",
    "floor": "2F",

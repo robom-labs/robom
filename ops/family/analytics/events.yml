@@ -5,13 +5,9 @@ robom: [family_home_viewed, app_card_viewed, app_install_landing_viewed, qr_rend
 outbom: [activity_selected, location_method_selected, recommendation_viewed, metric_opened, prep_item_checked, alarm_enabled]
 homebom: [notice_filter_applied, notice_opened, official_apply_clicked, alert_enabled, stale_recovered]
 runningbom: [race_search_used, race_filter_applied, race_opened, official_registration_clicked, alert_enabled]
-calendarbom: [date_selected, event_created, reminder_enabled, font_scale_changed, backup_exported, restore_completed]
 certbom: [recommendation_started, recommendation_completed, exam_opened, exam_saved, calendar_added, official_exam_clicked]
-notebom: [recording_started, recording_saved, note_opened, transcript_edited, backup_exported, restore_completed, calendar_handoff_started]
 activation:
   outbom: recommendation_viewed
   homebom: notice_opened-or-alert_enabled
   runningbom: official_registration_clicked-or-alert_enabled
-  calendarbom: event_created-and-reminder_enabled
   certbom: recommendation_completed-or-exam_saved
-  notebom: recording_saved-or-transcript_edited

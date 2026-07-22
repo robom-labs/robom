@@ -1,8 +1,8 @@
 {
   "appsRoot": "/workspace",
-  "total": 6,
-  "checked": 6,
-  "synced": 6,
+  "total": 4,
+  "checked": 4,
+  "synced": 4,
   "problems": [],
   "results": [
     {
@@ -24,19 +24,7 @@
       "metaStale": true
     },
     {
-      "app": "calendarbom",
-      "status": "synced",
-      "flavor": "vanilla",
-      "metaStale": false
-    },
-    {
       "app": "certbom",
-      "status": "synced",
-      "flavor": "react",
-      "metaStale": true
-    },
-    {
-      "app": "notebom",
       "status": "synced",
       "flavor": "react",
       "metaStale": true

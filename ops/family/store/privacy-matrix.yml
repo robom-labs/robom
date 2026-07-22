@@ -19,18 +19,8 @@ apps:
     location: none
     notifications: optional
     sensitive_content_sync: none
-  calendarbom:
-    location: none
-    notifications: optional
-    calendar: optional-explicit-action
-    sensitive_content_sync: local-only-default
   certbom:
     location: none
     notifications: optional
     calendar: optional-explicit-action
     sensitive_content_sync: none
-  notebom:
-    microphone: required-while-recording
-    speech_recognition: local-device-default-external-provider-optional
-    calendar: optional-explicit-action
-    sensitive_content_sync: local-only-default

@@ -32,21 +32,17 @@ const TOPICS = {
   outbom: ["위치", "날씨", "대기질", "활동 점수", "추천", "준비물", "PWA"],
   homebom: ["공고", "정규화", "주택형", "가격", "Supabase", "캐시", "마감", "PWA"],
   runningbom: ["대회 catalog", "접수 링크", "상태", "정적 build", "link health", "PWA"],
-  calendarbom: ["저장 키", "migration", "반복 일정", "알람", "백업", "ICS", "시니어 UX"],
   certbom: ["공식 출처", "시험 catalog", "일정", "LKG", "source monitor", "PWA"],
-  notebom: ["원음 보존", "녹음", "로컬 ASR", "IndexedDB", "backup", "handoff", "native bridge", "PWA"],
 };
 // 사람 판단 불변조건(회귀 시 사용자 피해). 이번 세션까지 확인된 것만 — 미확인은 두지 않는다.
 const INVARIANTS = {
-  calendarbom: ["기존 저장 키·내부 ID는 migration 없이 변경 금지", "알람 계산은 로컬 타임존 정확성 유지"],
-  notebom: ["원음(raw audio)은 인식 초안과 분리 보존", "IndexedDB 스키마 변경은 migration 동반"],
   homebom: ["공고 캐시 무효화가 마감/발표 알림 정확성을 깨지 않도록 유지"],
 };
 
 function yamlList(arr) { return arr.length ? `[${arr.map((s) => JSON.stringify(s)).join(", ")}]` : "[]"; }
 
 function profileYaml(app) {
-  const flavor = /vanilla|static|html/i.test(app.stack || "") || /runningbom|calendarbom/.test(app.id) ? "vanilla" : "react";
+  const flavor = /vanilla|static|html/i.test(app.stack || "") || /runningbom/.test(app.id) ? "vanilla" : "react";
   const lines = [
     `# DO NOT EDIT by hand — build-repo-profiles.mjs 생성물 (Context OS v1.1 · doc-04 §E).`,
     `id: ${app.id}`,

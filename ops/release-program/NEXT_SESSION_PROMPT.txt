@@ -3,21 +3,20 @@ ROBOM ALL-APP RELEASE PROGRAM v1.1.0 — 다음 세션 재개 지침
 
 ## 지금까지 (this-session done)
 - 릴리스 패키지(마스터 + governing 2 + baseline/policy/changelog) 전수 정독 완료.
-- Phase 0 라이브 기준선 감사 완료: 7 repo main·registry 버전·open PR·store status·HQ 버전 3.3.30 실측.
+- Phase 0 라이브 기준선 감사 완료: 5 repo main·registry 버전·open PR·store status·HQ 버전 3.3.30 실측.
 - ops/release-program/ 상태 파일 초기화: PROGRAM_STATE.json, HUMAN_BLOCKERS.md, STATE_DRIFT_REPORT.md, NEXT_SESSION_PROMPT.txt.
 - 상태 드리프트 확인: ops/family/ai/CURRENT-STATE.json / LAST-VERIFIED.json 이 2026-07-16 고정(spec 1.0.0, robom 2.1.4)이라 실제와 불일치 → 재생성은 실제 deploy-SHA 근거로만(가짜 generatedAt sync 금지).
 
 ## 다음 세션 우선순위 (자동 가능, 이 순서로)
-1. [최우선] notebom#11 마감: `git fetch`, 최신 origin/main 위로 head(claude/honest-engine-label)만 `git rebase --onto origin/main <parent>` (현재 mergeable_state=dirty). 재빌드 게이트(typecheck/lint/test/build/family:verify) → CI(workflow_dispatch로 ci.yml+family-contract.yml, 자동트리거 불안정) → 병합(squash) → Pages 배포 → registry/compat 0.6.2 동기화 → 약 175s 전파 후 operations-watchdog로 notebom PASS 확인. 이유: 0.6.0에서 내가 넣은 "재시도 후 고정확도를 경량모델로 오표시"하는 엔진라벨 결함을 이 PR이 교정.
-2. 나머지 open draft PR 10단계 재판정(§10.3): homebom#32(Supabase deploy smoke는 HUMAN), calendarbom#4(merged #5와 중복 판정), certbom#14(#15 rebase). dependabot(certbom 8·notebom 4)은 lockfile·CI 통과 시 병합 후보.
-3. Phase 3 mobile-release-contract v2 스캐폴딩: ops/mobile-release/apps/<id>.yml + mobile-release-v2.schema.json + validator(check-mobile-release-contract/…/check-store-copy-drift) — ops/family/contracts/ 확장으로. certbom 파일럿 우선.
-4. STATE_DRIFT: certbom 모바일 "97개"→104 잔존 여부 코드 확인·정정 게이트, calendarbom web 0.7.x/mobile 0.6.1 intent 판정.
+1. open draft PR 10단계 재판정(§10.3): homebom#32(Supabase deploy smoke는 HUMAN), certbom#14(#15 rebase). dependabot(certbom 8)은 lockfile·CI 통과 시 병합 후보.
+2. Phase 3 mobile-release-contract v2 스캐폴딩: ops/mobile-release/apps/<id>.yml + mobile-release-v2.schema.json + validator(check-mobile-release-contract/…/check-store-copy-drift) — ops/family/contracts/ 확장으로. certbom 파일럿 우선.
+3. STATE_DRIFT: certbom 모바일 "97개"→104 잔존 여부 코드 확인·정정 게이트.
 
 ## 절대 금지 (DO-NOT)
 - HQ 앱 버전 3.3.30 아래로 내리지 말 것(문서의 v1.4.0은 실행지침이지 앱버전 아님). Company OS 1.3.0은 적용만, bump 금지.
-- 완료된 6앱 Family UI(6/6 sync) 재작업·디자인토큰/생성물 덮어쓰기 금지.
-- 프레임워크 강제 통일/노트봄 Expo 강제 이식 금지(문서화된 adapter 예외 유지).
-- 이미 merge된 작업 재구현 금지: outbom#28/#29, homebom#33, runningbom#34, calendarbom#5, certbom#15(97→104), notebom#12.
+- 완료된 4앱 Family UI(4/4 sync) 재작업·디자인토큰/생성물 덮어쓰기 금지.
+- 프레임워크 강제 통일 금지(문서화된 adapter 예외 유지).
+- 이미 merge된 작업 재구현 금지: outbom#28/#29, homebom#33, runningbom#34, certbom#15(97→104).
 - 시크릿 출력/커밋, 실제 사용자데이터 접근, 광고 SDK 도입, 미검증 PASS 표기, 강제푸시/리셋 금지.
 
 ## 외부/사람 블로커 (재질문 금지)
@@ -25,4 +24,4 @@ ROBOM ALL-APP RELEASE PROGRAM v1.1.0 — 다음 세션 재개 지침
 - 계정·서명키·시크릿·약관·법무·최종 스토어 제출·오프사이트 백업 = HUMAN_BLOCKERS.md 참조.
 
 ## 정책 게이트(빌드/제출일 재확인)
-Google Play API36+(2026-08-31), 신규개인계정 12테스터·14일 비공개테스트, Apple Xcode26+/iOS26 SDK(2026-04-28), Expo SDK57(Node22.13+), Capacitor privacy manifest(notebom).
+Google Play API36+(2026-08-31), 신규개인계정 12테스터·14일 비공개테스트, Apple Xcode26+/iOS26 SDK(2026-04-28), Expo SDK57(Node22.13+).

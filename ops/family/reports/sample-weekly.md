@@ -18,7 +18,6 @@
 | 청약봄 | 88 | 41% | 25% | notice_opened 67, notice_filter_applied 49, alert_enabled 21 |
 | 러닝봄 | 76 | 39% | 22% | race_filter_applied 61, race_opened 47, official_registration_clicked 18 |
 | 자격증봄 | 74 | 43% | 24% | exam_opened 70, recommendation_completed 36, exam_saved 16 |
-| 캘린더봄 | 62 | 48% | 31% | date_selected 89, event_created 46, reminder_enabled 30 |
 
 ## 다음 우선 실험
 
