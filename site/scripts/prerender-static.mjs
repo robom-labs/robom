@@ -10,7 +10,7 @@ const appIds = JSON.parse(await readFile(new URL("../public/family/apps.json", i
 
 const routes = [
   "/",
-  ...appIds.flatMap((id) => [`/apps/${id}`, `/get/${id}`]),
+  ...appIds.map((id) => `/get/${id}`),
   "/support",
   "/privacy",
   ...appIds.map((id) => `/privacy/${id}`),
@@ -79,6 +79,21 @@ for (const path of routes) {
   await writeFile(resolve(outputDir, "index.html"), html);
 }
 await writeFile(resolve(staticDir, ".nojekyll"), "");
+// 이전 배포의 서비스워커를 확실히 걷어내기 위해, public/sw.js가 복사되지 않았더라도 자기 파괴 sw.js를 보장한다.
+const selfDestroyingSw = `// 로봄 허브는 더 이상 PWA로 동작하지 않는다. 이 서비스워커는 자기 자신을 해제하고 허브 캐시만 비운다.
+const CACHE_PREFIX = "robom-site-v";
+self.addEventListener("install", () => { self.skipWaiting(); });
+self.addEventListener("activate", (event) => {
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX)).map((key) => caches.delete(key)));
+    await self.registration.unregister();
+    const clients = await self.clients.matchAll();
+    clients.forEach((client) => client.navigate(client.url));
+  })());
+});
+`;
+await writeFile(resolve(staticDir, "sw.js"), selfDestroyingSw);
 // robom.kr 커스텀 도메인을 GitHub Pages에 연결한다(가비아 A레코드를 Pages IP로 전환한 뒤 실서비스 발효).
 await writeFile(resolve(staticDir, "CNAME"), "robom.kr\n");
 

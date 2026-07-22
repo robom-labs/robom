@@ -16,8 +16,9 @@ export type FamilyApp = {
   metadataDescription: string;
   mobileValue: string;
   mobileAction: string;
-  status: "live";
+  status: "preparing";
   statusLabel: string;
+  launchWindow: string;
   accessLabel: string;
   version: string;
   webUrl: string;
@@ -31,7 +32,6 @@ export type FamilyApp = {
   familySpecVersion: string;
   deployProvider: string;
   lastVerifiedAt: string;
-  hubPath: `/apps/${AppId}`;
   installPath: `/get/${AppId}`;
   tone: "out" | "home" | "run" | "cal" | "cert" | "note";
   eyebrow: string;
@@ -50,10 +50,10 @@ export const familyApps: readonly FamilyApp[] = appCopy.map((copy) => {
   return {
     ...copy,
     ...meta,
-    status: "live",
-    statusLabel: "운영 중",
+    status: "preparing",
+    statusLabel: "준비 중",
+    launchWindow: "2026년 8월 초 출시 예정",
     accessLabel: "설치 안내",
-    hubPath: `/apps/${copy.id}`,
     installPath: `/get/${copy.id}`,
   } as FamilyApp;
 });

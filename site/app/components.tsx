@@ -69,7 +69,7 @@ export function FamilyFooter() {
         <p>먼저 보고, 필요한 순간에 분명하게 알립니다.</p>
       </div>
       <div className="footer-links" aria-label="앱과 지원 링크">
-        <div><strong>로봄 패밀리</strong>{familyApps.map((app) => <Link href={app.hubPath} prefetch={false} key={app.id}>{app.name}</Link>)}</div>
+        <div><strong>로봄 패밀리</strong>{familyApps.map((app) => <Link href={app.installPath} prefetch={false} key={app.id}>{app.name}</Link>)}</div>
         <div><strong>지원</strong><a href={contactHref()}>문의 · 광고 · 제휴</a><Link href="/support" prefetch={false}>고객 지원</Link></div>
         <div><strong>정보</strong><Link href="/privacy" prefetch={false}>개인정보처리방침</Link><Link href="/terms" prefetch={false}>이용약관</Link><Link href="/licenses" prefetch={false}>오픈소스 라이선스</Link><a href="https://robom.kr">robom.kr</a></div>
       </div>

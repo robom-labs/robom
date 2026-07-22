@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://robom.kr/</loc></url>
-  <url><loc>https://robom.kr/apps/outbom</loc></url>
-  <url><loc>https://robom.kr/apps/homebom</loc></url>
-  <url><loc>https://robom.kr/apps/runningbom</loc></url>
-  <url><loc>https://robom.kr/apps/certbom</loc></url>
   <url><loc>https://robom.kr/get/outbom</loc></url>
   <url><loc>https://robom.kr/get/homebom</loc></url>
   <url><loc>https://robom.kr/get/runningbom</loc></url>

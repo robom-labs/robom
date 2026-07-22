@@ -1,17 +1,23 @@
-// 로봄 설치 허브의 서비스워커를 현재 배포 base path 안에서 안전하게 등록한다.
+// 출시 준비 단계에서는 허브를 PWA로 설치하지 않는다.
+// 이전에 등록된 로봄 허브 서비스워커와 허브 전용 캐시만 1회 정리한다(앱 origin 캐시는 건드리지 않는다).
 "use client";
 
 import { useEffect } from "react";
 
-export function PwaRegistration() {
+export function PwaCleanup() {
   useEffect(() => {
-    if (!("serviceWorker" in navigator)) return;
-    const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
-    const baseUrl = manifest?.href ? new URL(".", manifest.href) : new URL("/", window.location.href);
-    const swUrl = new URL("sw.js", baseUrl);
-    navigator.serviceWorker.register(swUrl, { scope: baseUrl.pathname }).catch(() => {
-      // 설치 기능 실패가 앱 선택과 미리보기를 막지 않도록 조용히 폴백한다.
-    });
+    // 이 origin(robom.kr 허브)에 등록된 서비스워커만 해제한다. 앱 기술 origin은 별도 origin이라 영향받지 않는다.
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations?.()
+        .then((registrations) => registrations.forEach((registration) => registration.unregister()))
+        .catch(() => undefined);
+    }
+    // 허브 전용 캐시(robom-site-v*)만 삭제한다. 다른 캐시는 그대로 둔다.
+    if ("caches" in window) {
+      caches.keys()
+        .then((keys) => Promise.all(keys.filter((key) => key.startsWith("robom-site-v")).map((key) => caches.delete(key))))
+        .catch(() => undefined);
+    }
   }, []);
 
   return null;

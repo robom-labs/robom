@@ -1,32 +1,19 @@
-// 로봄 설치 허브의 앱 셸을 보존하고 문서는 항상 최신 네트워크를 우선하는 서비스워커다.
+// 출시 준비 단계: 로봄 허브는 더 이상 PWA로 동작하지 않는다.
+// 이 서비스워커는 자기 자신을 해제하고 허브 전용 캐시(robom-site-v*)만 비운 뒤 사라진다(self-destroying).
 const CACHE_PREFIX = "robom-site-v";
-const CACHE_NAME = `${CACHE_PREFIX}2.2.2`;
-const SHELL = ["./", "./manifest.webmanifest", "./icons/robom-192.png", "./icons/robom-512.png"];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)));
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map((key) => caches.delete(key))))
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX)).map((key) => caches.delete(key)));
+      await self.registration.unregister();
+      const clients = await self.clients.matchAll();
+      clients.forEach((client) => client.navigate(client.url));
+    })(),
   );
-  self.clients.claim();
-});
-
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
-  if (event.request.mode === "navigate") {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
-          return response;
-        })
-        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./")))
-    );
-    return;
-  }
-  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
 });

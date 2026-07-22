@@ -6,7 +6,6 @@ const sitemapUrl = new URL("public/sitemap.xml", siteRoot);
 const apps = JSON.parse(await readFile(new URL("public/family/apps.json", siteRoot), "utf8")).apps;
 const paths = [
   "/",
-  ...apps.map(({ id }) => `/apps/${id}`),
   ...apps.map(({ id }) => `/get/${id}`),
   "/support",
   "/privacy",
