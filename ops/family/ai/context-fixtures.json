@@ -102,17 +102,6 @@
       "mustExcludeTopics": []
     },
     {
-      "id": "hq-runner-heartbeat",
-      "request": "HQ runner heartbeat이 긴 작업 중에 끊겨, queue runtime 확인",
-      "app": null,
-      "expectedProfile": "hq-runtime",
-      "expectedLevel": "L3",
-      "mustIncludeSections": [],
-      "mustExcludeTopics": [
-        "appSource"
-      ]
-    },
-    {
       "id": "robom-site-card",
       "request": "robom.kr 홈페이지 앱 카드 정렬",
       "app": null,
@@ -228,18 +217,6 @@
       "expectedLevel": "L4",
       "mustIncludeSections": [],
       "mustExcludeTopics": []
-    },
-    {
-      "id": "hq-ui-screen",
-      "request": "본사 화면 업무 상세에 컨텍스트 효율 표시 추가",
-      "app": null,
-      "expectedProfile": "hq-ui",
-      "expectedLevel": "L2",
-      "mustIncludeSections": [],
-      "mustExcludeTopics": [
-        "allAppStates",
-        "historicalReports"
-      ]
     },
     {
       "id": "micro-copy-btn-v11",

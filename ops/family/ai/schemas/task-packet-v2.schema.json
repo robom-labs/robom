@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "ROBOM Task Packet v2 (Claude/Codex 공용, migration 호환)",
-  "_note": "runner는 Codex 소유 HQ runtime(scripts/control-center)이다. 이 스키마는 계약(정본)만 정의하며 runner 재작성은 Codex와 조율한다. schema 1 packet도 읽을 수 있어야 하고 쓰기부터 schema 2를 쓴다.",
+  "title": "ROBOM Task Packet v2 (4앱 패밀리 공용, migration 호환)",
+  "_note": "이 스키마는 작업 패킷 계약(정본)만 정의한다. schema 1 packet도 읽을 수 있어야 하고 쓰기부터 schema 2를 쓴다.",
   "type": "object",
   "required": ["schemaVersion", "task_id", "target_repositories", "title", "acceptance_criteria"],
   "properties": {

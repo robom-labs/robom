@@ -103,14 +103,6 @@
       "savedPct": 97
     },
     {
-      "id": "hq-runner-heartbeat",
-      "profile": "hq-runtime",
-      "level": "L3",
-      "routedTokens": 378,
-      "savedTokens": 16661,
-      "savedPct": 98
-    },
-    {
       "id": "robom-site-card",
       "profile": "robom-site",
       "level": "L2",
@@ -180,14 +172,6 @@
       "level": "L4",
       "routedTokens": 385,
       "savedTokens": 16654,
-      "savedPct": 98
-    },
-    {
-      "id": "hq-ui-screen",
-      "profile": "hq-ui",
-      "level": "L2",
-      "routedTokens": 368,
-      "savedTokens": 16671,
       "savedPct": 98
     },
     {

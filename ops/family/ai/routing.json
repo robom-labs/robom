@@ -72,50 +72,6 @@
       ]
     },
     {
-      "id": "hq-runtime",
-      "level": "L3",
-      "keywords": [
-        "hq",
-        "control center",
-        "control-center",
-        "runner",
-        "queue",
-        "codex 실행",
-        "runtime",
-        "electron",
-        "desktop",
-        "watchdog"
-      ],
-      "mapSections": [],
-      "read": [
-        "scripts/control-center",
-        "ops/control-center"
-      ],
-      "neverLoad": [
-        "appSource"
-      ],
-      "include": []
-    },
-    {
-      "id": "hq-ui",
-      "level": "L2",
-      "keywords": [
-        "hq 화면",
-        "본사 화면",
-        "업무 상세",
-        "control center",
-        "컨트롤 센터",
-        "대시보드",
-        "office 화면"
-      ],
-      "mapSections": [],
-      "neverLoad": [
-        "allAppStates",
-        "historicalReports"
-      ],
-      "include": []
-    },
-    {
       "id": "robom-site",
       "level": "L2",
       "keywords": [

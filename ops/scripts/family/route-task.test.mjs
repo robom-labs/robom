@@ -110,6 +110,6 @@ test("v1.1 manifest v2: 구조·결정론", async () => {
   assert.equal(a.manifest.requestHash, b.manifest.requestHash);
 });
 
-test("fixture 최소 24개(4앱 포트폴리오 골든)", () => {
-  assert.ok(fixtures.length >= 24, `fixtures ${fixtures.length} < 24`);
+test("fixture 최소 22개(4앱 포트폴리오 골든)", () => {
+  assert.ok(fixtures.length >= 22, `fixtures ${fixtures.length} < 22`);
 });

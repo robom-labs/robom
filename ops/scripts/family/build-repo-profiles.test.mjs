@@ -18,6 +18,6 @@ test("모든 registry 앱이 PRODUCT PROFILE을 갖는다(--check 통과)", () =
 
 test("생성물이 registry 앱 집합과 정확히 일치(하드코딩 아님)", async () => {
   const apps = await readRegistry(new URL("../../registry/apps.yml", import.meta.url));
-  const files = new Set((await readdir(dir)).filter((f) => f.endsWith(".yml") && !["robom.yml", "robom-hq.yml"].includes(f)));
+  const files = new Set((await readdir(dir)).filter((f) => f.endsWith(".yml") && !["robom.yml"].includes(f)));
   assert.deepEqual(files, new Set(apps.map((a) => `${a.id}.yml`)));
 });

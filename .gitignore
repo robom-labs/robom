@@ -20,13 +20,3 @@ site/screenshots/
 # os
 .DS_Store
 Thumbs.db
-
-# 로봄 본부(control-center) 내부 런타임 데이터 — 공개 저장소에 커밋 금지
-ops/control-center/events/*.jsonl
-ops/control-center/snapshots/latest.json
-ops/control-center/runtime/
-desktop/payload/
-
-# desktop 앱 빌드 자산(아이콘·훅)은 소스라 추적
-!desktop/build/
-!desktop/build/**

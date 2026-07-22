@@ -81,7 +81,7 @@ if (check) {
     if (cur !== expected.get(`${app.id}.yml`)) problems.push(`${app.id}: PRODUCT PROFILE가 registry/REPO-MAP과 드리프트 (재생성 필요)`);
   }
   // registry에 없는 여분 프로파일(폐기 앱 잔존)도 경고.
-  for (const f of existing) if (![...expected.keys()].includes(f) && !["robom.yml", "robom-hq.yml"].includes(f)) problems.push(`${f}: registry에 없는 여분 프로파일`);
+  for (const f of existing) if (![...expected.keys()].includes(f) && !["robom.yml"].includes(f)) problems.push(`${f}: registry에 없는 여분 프로파일`);
   if (problems.length) { console.error("repo-profile 검사 실패:\n" + problems.map((p) => "  ✗ " + p).join("\n")); process.exit(1); }
   console.log(`repo-profile: ${apps.length}개 앱 PRODUCT PROFILE 정합 ✓`);
 } else {

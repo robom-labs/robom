@@ -1,6 +1,6 @@
-# STATE DRIFT REPORT — Phase 0 (2026-07-21)
+# STATE DRIFT REPORT — 4앱 릴리스 기준선 (2026-07-22)
 
-릴리스 프로그램 §6.4 기준선 드리프트 감사. 이 세션 실측(git fetch·registry·open PR·버전 파일).
+릴리스 프로그램 기준선 드리프트 감사. 실측(git fetch·registry·open PR·버전 파일). 설치형 데스크톱 본부 서브시스템은 아카이브로 이관·저장소에서 제거됨(버전 네임스페이스에서 제외).
 
 ## 1. 중앙 AI 상태 파일 드리프트 (수정 필요, 재생성은 deploy-SHA 근거로만)
 - `ops/family/ai/CURRENT-STATE.json`: `generatedAt` = **2026-07-16T09:39:39Z 고정**, `familySpecVersion` = **1.0.0**, `robom.version` = **2.1.4**, `sourceCommit` = 46ac6c5.
@@ -13,10 +13,9 @@
 - 버전: outbom 0.25.6 / homebom 0.14.8 / runningbom 0.17.13 / certbom 0.7.4.
 
 ## 3. 버전 네임스페이스(혼동 주의, 드리프트 아님)
-- HQ 데스크톱 앱 = **3.3.30** (desktop/package.json·control-center/app/version.json). ← 3.3.30 아래로 내리지 말 것.
 - Company OS = **1.3.0** (ops/company-os/VERSION). 적용만.
 - 홈페이지 site = **2.2.1** (site/package.json).
-- 문서의 "v1.4.0"은 실행지침 버전이지 HQ 앱버전 아님.
+- 각 앱 버전은 registry(ops/registry/apps.yml)가 단일 소스.
 
 ## 4. 스토어 문구/데이터 드리프트 (빌드 전 게이트)
 - certbom: 검증 카탈로그 **104개**. 모바일 스토어 문구에 **"97개"** 잔존 여부 확인 → 104로 정정 필요(§9.10).
