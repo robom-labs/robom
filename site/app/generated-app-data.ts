@@ -89,7 +89,7 @@ export const generatedAppMeta = [
     "name": "자격증봄",
     "englishName": "CertBom",
     "repo": "robom-labs/certbom",
-    "version": "0.8.0",
+    "version": "0.8.1",
     "dataVersion": "2026.07.20-v4",
     "webUrl": "https://certbom.vercel.app/",
     "healthcheckUrl": "https://certbom.vercel.app/",
