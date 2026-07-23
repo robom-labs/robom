@@ -1,6 +1,6 @@
 # App Links·Universal Links 활성화
 
-서명 정보가 없는 현재 운영 파일은 빈 배열이며 가짜 fingerprint나 Team ID를 게시하지 않습니다.
+서명 정보가 없는 현재 운영 파일은 빈 배열이며 가짜 fingerprint나 Team ID를 게시하지 않습니다. 현재 비공개 테스트 빌드는 검증 가능한 커스텀 scheme만 사용하고, 서명 확인 전의 `autoVerify`·Associated Domains 선언은 하지 않습니다.
 
 ## Android
 

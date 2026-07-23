@@ -74,7 +74,7 @@ apps:
     name: 러닝봄
     english_name: RunningBom
     repo: robom-labs/runningbom
-    version: 0.17.13
+    version: 0.18.0
     data_version: 2026.07.16-race-data-11
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
     web_url: https://robom-labs.github.io/runningbom/
@@ -91,12 +91,12 @@ apps:
     app_store_status: planned
     pwa_install_url: https://robom-labs.github.io/runningbom/
     stable_install_url: https://robom.kr/get/runningbom
-    mobile_status: pwa
+    mobile_status: native-closed-test-candidate
     family_spec_version: 1.1.0
     last_verified_at: "2026-07-19T22:40:00+09:00"
     last_deployed_sha: 5a82a18a2106af882789bb4a25b1b0de8a7418e9
-    last_data_sync_at: "2026-07-12T00:00:00+09:00"
-    freshness_status: fresh
+    last_data_sync_at: "2026-07-16T15:00:00+09:00"
+    freshness_status: review-required
     freshness_slo_hours: 168
     stack: static HTML + CSS + JavaScript
     test: npm test
@@ -106,8 +106,8 @@ apps:
     name: 자격증봄
     english_name: CertBom
     repo: robom-labs/certbom
-    version: 0.7.4
-    data_version: 2026.07.16-v3
+    version: 0.8.0
+    data_version: 2026.07.20-v4
     version_source: https://raw.githubusercontent.com/robom-labs/certbom/main/package.json
     web_url: https://certbom.vercel.app/
     healthcheck_url: https://certbom.vercel.app/
@@ -123,7 +123,7 @@ apps:
     app_store_status: planned
     pwa_install_url: https://certbom.vercel.app/
     stable_install_url: https://robom.kr/get/certbom
-    mobile_status: pwa
+    mobile_status: native-closed-test-candidate
     family_spec_version: 1.1.0
     last_verified_at: "2026-07-19T15:10:00+09:00"
     last_deployed_sha: 351abe6ed6389281552be7ae5bb3db73092b9e80
