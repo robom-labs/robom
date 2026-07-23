@@ -23,7 +23,7 @@
     "audit:prod": "node ../ops/scripts/family/audit-production.mjs"
   },
   "dependencies": {
-    "next": "16.2.6",
+    "next": "16.2.11",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },
@@ -41,7 +41,7 @@
     "@vitejs/plugin-rsc": "0.5.26",
     "axe-core": "^4.12.1",
     "eslint": "9.39.4",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "16.2.11",
     "jsqr": "1.4.0",
     "playwright": "1.61.1",
     "pngjs": "7.0.0",

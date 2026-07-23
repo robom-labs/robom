@@ -39,21 +39,30 @@ for (const packageDir of new Set(listed.stdout.split(/\r?\n/).filter(Boolean))) 
 const requestBody = Object.fromEntries(
   [...packages.entries()].map(([name, versions]) => [name, [...versions].sort()])
 );
-const response = await fetch("https://registry.npmjs.org/-/npm/v1/security/advisories/bulk", {
-  method: "POST",
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify(requestBody),
-  signal: AbortSignal.timeout(20_000)
-});
+let advisoryMap;
+let lastError;
+for (let attempt = 1; attempt <= 3; attempt += 1) {
+  try {
+    const response = await fetch("https://registry.npmjs.org/-/npm/v1/security/advisories/bulk", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(20_000)
+    });
 
-if (!response.ok) {
-  throw new Error(`npm 보안 감사 실패: ${response.status} ${response.statusText}`);
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    advisoryMap = await response.json();
+    break;
+  } catch (error) {
+    lastError = error;
+    if (attempt < 3) await new Promise((resolve) => setTimeout(resolve, attempt * 1_000));
+  }
 }
 
-const advisoryMap = await response.json();
+if (!advisoryMap) throw new Error(`npm 보안 감사 실패: ${lastError?.message ?? "unknown error"}`);
 const advisories = Object.entries(advisoryMap).flatMap(([name, values]) =>
   values.map((advisory) => ({ name, ...advisory }))
 );
