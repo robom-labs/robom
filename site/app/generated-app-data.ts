@@ -61,7 +61,7 @@ export const generatedAppMeta = [
     "name": "러닝봄",
     "englishName": "RunningBom",
     "repo": "robom-labs/runningbom",
-    "version": "0.18.0",
+    "version": "0.18.1",
     "dataVersion": "2026.07.16-race-data-11",
     "webUrl": "https://robom-labs.github.io/runningbom/",
     "healthcheckUrl": "https://robom-labs.github.io/runningbom/",

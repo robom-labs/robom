@@ -74,7 +74,7 @@ apps:
     name: 러닝봄
     english_name: RunningBom
     repo: robom-labs/runningbom
-    version: 0.18.0
+    version: 0.18.1
     data_version: 2026.07.16-race-data-11
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
     web_url: https://robom-labs.github.io/runningbom/
