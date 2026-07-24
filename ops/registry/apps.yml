@@ -106,8 +106,8 @@ apps:
     name: 자격증봄
     english_name: CertBom
     repo: robom-labs/certbom
-    version: 0.8.2
-    data_version: 2026.07.20-v4
+    version: 0.8.3
+    data_version: 2026.07.24-v4
     version_source: https://raw.githubusercontent.com/robom-labs/certbom/main/package.json
     web_url: https://certbom.vercel.app/
     healthcheck_url: https://certbom.vercel.app/
@@ -125,9 +125,9 @@ apps:
     stable_install_url: https://robom.kr/get/certbom
     mobile_status: native-closed-test-candidate
     family_spec_version: 1.1.0
-    last_verified_at: "2026-07-24T14:19:53+09:00"
-    last_deployed_sha: bcb3ff68986e8d9b7558bc87c6b93e7b6628c2d0
-    last_data_sync_at: "2026-07-16T15:00:00+09:00"
+    last_verified_at: "2026-07-24T14:30:00+09:00"
+    last_deployed_sha: 6f2aa946a79681fdd47f5d52f464c184f3b48d0a
+    last_data_sync_at: "2026-07-24T14:30:00+09:00"
     freshness_status: last-known-good
     freshness_slo_hours: 48
     stack: Vite + React
