@@ -24,7 +24,7 @@ apps:
     build: pass
     visual: pass
     analytics: pass
-    deployed_sha: a8e05b10220237a0ac7464d755b519c565794791
+    deployed_sha: 0f71ff5502965aba3e6f63c2e7e748fe3f5c5ecc
   certbom:
     family_spec: 1.1.0
     generated_commit: 75d4f9d4c803e1dbaa6dda67e48b6ed23960520f
