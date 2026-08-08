@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-08-08T09:33:46.270Z",
+  "generatedAt": "2026-08-08T11:21:37.277Z",
   "familySpecVersion": "1.1.0",
-  "sourceCommit": "da8c034b6bc559cc58828451216e7069ab5ce101",
+  "sourceCommit": "cec006520ed37ad8e78b5f0e76a7c6d209b8a800",
   "robom": {
-    "mainSha": "da8c034b6bc559cc58828451216e7069ab5ce101",
+    "mainSha": "cec006520ed37ad8e78b5f0e76a7c6d209b8a800",
     "version": "2.2.2",
     "productionUrl": "https://robom.kr",
     "deployProvider": "sites+github-pages",
@@ -80,15 +80,15 @@
     {
       "id": "certbom",
       "repo": "robom-labs/certbom",
-      "mainSha": "4ca147842713c623775186566fffe37fc994e7fd",
+      "mainSha": "dc44ba9a330faff1d5c47b0927348589dbf85aba",
       "version": "0.8.3",
       "productionUrl": "https://certbom.vercel.app/",
       "deployProvider": "vercel",
-      "serviceWorkerCache": "certbom-0.8.3",
+      "serviceWorkerCache": "certbom-0.8.3-dc44ba9",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "31238007041",
-      "lastDeployment": "unavailable",
-      "lastVerifiedAt": "2026-07-24T14:30:00+09:00",
+      "lastSuccessfulCI": "31254538872",
+      "lastDeployment": "5808162390",
+      "lastVerifiedAt": "2026-08-08T20:18:03+09:00",
       "keyEntrypoints": [
         "apps/web/src/App.tsx",
         "apps/web/src/styles.css",

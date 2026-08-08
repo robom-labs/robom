@@ -1,21 +1,21 @@
 {
-  "generatedAt": "2026-08-08T09:33:46.270Z",
-  "sourceCommit": "da8c034b6bc559cc58828451216e7069ab5ce101",
+  "generatedAt": "2026-08-08T11:21:37.277Z",
+  "sourceCommit": "cec006520ed37ad8e78b5f0e76a7c6d209b8a800",
   "files": {
-    "ops/registry/apps.yml": "sha256:78cd8cdd358f03244e72fc7b904b4f73fcadeffdedf2d67ec59f8aa28831b451",
+    "ops/registry/apps.yml": "sha256:e7ac3490a4aa8cad80172b205104be7a30ce6e89276bdcfe80d1e492f6a8fee3",
     "ops/family/family-version.json": "sha256:2690c10d9f1c8f6d42981f8d2b77a2ff5b2ea9e146039e2a556589b6f8941203",
     "ops/family/contracts/analytics.yml": "sha256:7bbac0683e187ae6fbff287c56ad4021ea96d4014dd988fb301d5d3fbce80678",
     "ops/family/contracts/install.yml": "sha256:76b64da7c383c9b60fd54b874f37671fb7bf0d1e6bdf5d5de0acaedde7a39836",
-    "ops/family/compatibility.yml": "sha256:ec63b76ba27414874372ca4a81f0a6ecf3fa2729d90c9c90c27e151568ce2d3e"
+    "ops/family/compatibility.yml": "sha256:a2f451fd88292cc514191589bd79b5b943ee506c2c96db677ecb1295ba0d4477"
   },
   "tests": [
-    "homebom 0.15.1 all checks pass",
-    "runningbom 0.19.3 87 tests pass and mobile 1187 tests pass"
+    "certbom 59 tests pass",
+    "certbom 96 e2e cases pass",
+    "certbom Android and iOS native export pass",
+    "certbom production dependency audit pass"
   ],
   "productionSmoke": [
-    "https://robom-labs.github.io/homebom/ 200 and build 5db7288",
-    "https://robom-labs.github.io/runningbom/ 200 and 212 unique races",
-    "https://runningbom.vercel.app/ 200 and 212 unique races"
+    "https://certbom.vercel.app/ 200 and dc44ba9 UI markers verified"
   ],
-  "nextDiffBase": "da8c034b6bc559cc58828451216e7069ab5ce101"
+  "nextDiffBase": "cec006520ed37ad8e78b5f0e76a7c6d209b8a800"
 }

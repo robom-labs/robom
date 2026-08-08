@@ -25,6 +25,7 @@ function pairs(value) {
 }
 
 async function firstCacheVersion(repo, candidates, version) {
+  const shortSha = git(repo, "rev-parse", "--short=7", "HEAD");
   for (const candidate of candidates) {
     try {
       const source = await readFile(resolve(repo, candidate), "utf8");
@@ -34,7 +35,10 @@ async function firstCacheVersion(repo, candidates, version) {
       const prefixed = source.match(/CACHE_NAME\s*=\s*`\$\{CACHE_PREFIX\}([^`]+)`/)?.[1];
       if (prefix && prefixed) return `${prefix}${prefixed}`;
       const packageVersion = source.match(/serviceWorkerCache\s*=\s*`([^`]*)\$\{packageMetadata\.version\}([^`]*)`/);
-      if (packageVersion) return `${packageVersion[1]}${version}${packageVersion[2]}`;
+      if (packageVersion) {
+        return `${packageVersion[1]}${version}${packageVersion[2]}`
+          .replace("${buildSha.slice(0, 7)}", shortSha);
+      }
     } catch { /* 다음 후보 */ }
   }
   return "not-declared";
