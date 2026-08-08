@@ -23,7 +23,7 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: anthropics/claude-code-action@700e7f8316990de46bed556429765647af760efc # v1
         with:

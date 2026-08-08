@@ -1,6 +1,7 @@
 # changelog: robom
 
 - 2026-08-08: 2.2.3. 청약봄 0.17.1과 러닝봄 0.21.0의 운영 버전·배포 SHA·AAB 검증·자동 최신화 상태를 중앙 registry와 설치 허브에 동기화했다.
+- 2026-08-08: GitHub-hosted runner의 Node 20 강제 전환 경고를 제거하도록 checkout·setup-node·artifact·Pages 공식 Action을 Node 24 기반 최신 major와 고정 SHA로 갱신했다.
 - 2026-07-17: 2.1.7. Company OS 1.2.0을 중앙 정본과 CI에 연결하고 registry 앱 수 고정·mutable Action 참조·관제의 URL/provider 오독을 제거했다. 본사와 앱 Production을 같은 신호등으로 검증하고 canonical Pages 배포 SHA를 실제 운영 값으로 동기화했다.
 - 2026-07-16: 2.1.3. 자격증봄 0.6.2와 데이터 버전·배포 SHA·동기화 시각을 단일 registry에 반영하고, 여섯 운영 표면의 버전·PWA·build marker와 자격증봄 source heartbeat를 하루 두 번 검사해 중복 없는 운영 이슈로 승격하는 watchdog을 추가했다.
 - 2026-07-16: 2.1.1. 앱별 브랜드색은 유지하면서 텍스트·설치 CTA에 별도 고대비 색을 적용하고, 가로 기능 목록의 키보드 접근성, 홈페이지 PWA 업데이트, 운영 axe 감사, registry 최신 버전 확인과 Pages E2E 종료를 보강했다.
