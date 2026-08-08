@@ -1,27 +1,21 @@
 {
-  "generatedAt": "2026-08-08T11:43:19.000Z",
-  "sourceCommit": "82a16393924d73d29e7cd054188b86d51ebe6bf2",
+  "generatedAt": "2026-08-08T11:57:33.304Z",
+  "sourceCommit": "36b9f87953f1899e7c013ebdcdc889ea072e5f73",
   "files": {
-    "ops/registry/apps.yml": "sha256:1b58fcf47027284c330aa8d21fceb4d91746baa39df3c92e17bcbf0aa1a640a1",
+    "ops/registry/apps.yml": "sha256:5ea3247a09606f2adc2ea3a75616878e1f40803d060e483d48cbded619c450ee",
     "ops/family/family-version.json": "sha256:2690c10d9f1c8f6d42981f8d2b77a2ff5b2ea9e146039e2a556589b6f8941203",
     "ops/family/contracts/analytics.yml": "sha256:7bbac0683e187ae6fbff287c56ad4021ea96d4014dd988fb301d5d3fbce80678",
     "ops/family/contracts/install.yml": "sha256:76b64da7c383c9b60fd54b874f37671fb7bf0d1e6bdf5d5de0acaedde7a39836",
-    "ops/family/compatibility.yml": "sha256:c74e750fd60bdc88d98e588900322258b455d689d45653d98a564e095ad2505c"
+    "ops/family/compatibility.yml": "sha256:e6f50a915bb7e45e07a31b1c444ee56befbeb473e1991ec2e1017ee0cd342a20"
   },
   "tests": [
-    "certbom 59 tests pass",
-    "certbom 96 e2e cases pass",
-    "certbom Android and iOS native export pass",
-    "certbom production dependency audit pass",
-    "robom operations 56 tests pass",
-    "robom registry remote version check pass for 4 apps",
-    "robom family drift, QR, compatibility and sitemap checks pass",
-    "robom site build, lint and 11 rendered HTML tests pass"
+    "homebom:187 unit+native+web+node and 10 E2E",
+    "runningbom:1283 tests and 212 static data checks",
+    "robom:family drift 0 and 11 rendered HTML tests"
   ],
   "productionSmoke": [
-    "https://certbom.vercel.app/ 200 and d303558 UI plus 8/8 official source connectivity markers verified",
-    "https://robom-labs.github.io/homebom/ 200 and dac7d02 deployment verified",
-    "https://robom-labs.github.io/runningbom/ 200 and 0602e11 deployment verified"
+    "homebom:production SHA dac7d02 and 25 official notices",
+    "runningbom:production SHA 7c5ed90 and 212 unique events"
   ],
-  "nextDiffBase": "82a16393924d73d29e7cd054188b86d51ebe6bf2"
+  "nextDiffBase": "36b9f87953f1899e7c013ebdcdc889ea072e5f73"
 }

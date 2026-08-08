@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-08-08T11:40:00.000Z",
+  "generatedAt": "2026-08-08T11:57:33.304Z",
   "familySpecVersion": "1.1.0",
-  "sourceCommit": "82a16393924d73d29e7cd054188b86d51ebe6bf2",
+  "sourceCommit": "36b9f87953f1899e7c013ebdcdc889ea072e5f73",
   "robom": {
-    "mainSha": "82a16393924d73d29e7cd054188b86d51ebe6bf2",
+    "mainSha": "36b9f87953f1899e7c013ebdcdc889ea072e5f73",
     "version": "2.2.2",
     "productionUrl": "https://robom.kr",
     "deployProvider": "sites+github-pages",
     "serviceWorkerCache": "not-declared",
-    "lastSuccessfulCI": "unavailable",
-    "lastDeployment": "unavailable"
+    "lastSuccessfulCI": "pending",
+    "lastDeployment": "pending"
   },
   "apps": [
     {
@@ -21,8 +21,8 @@
       "deployProvider": "github-pages",
       "serviceWorkerCache": "outbom-v0.25.6",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "30263073226",
-      "lastDeployment": "30263073219",
+      "lastSuccessfulCI": "unavailable",
+      "lastDeployment": "unavailable",
       "lastVerifiedAt": "2026-07-24T16:55:00+09:00",
       "keyEntrypoints": [
         "app/page.tsx",
@@ -45,7 +45,7 @@
       "familySpecVersion": "1.1.0",
       "lastSuccessfulCI": "31255223166",
       "lastDeployment": "31255222940",
-      "lastVerifiedAt": "2026-08-08T20:40:00+09:00",
+      "lastVerifiedAt": "2026-08-08T20:40:46+09:00",
       "keyEntrypoints": [
         "apps/web/src/App.tsx",
         "apps/web/src/styles.css",
@@ -58,15 +58,15 @@
     {
       "id": "runningbom",
       "repo": "robom-labs/runningbom",
-      "mainSha": "0602e115e2cbd2ae4e7edd2290353d2af0b503a9",
+      "mainSha": "7c5ed903d4dc3390a3c45a473da828a0608730dc",
       "version": "0.20.0",
       "productionUrl": "https://robom-labs.github.io/runningbom/",
       "deployProvider": "github-pages",
       "serviceWorkerCache": "pushrun-v0.20.0",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "31254944550",
-      "lastDeployment": "31254944564",
-      "lastVerifiedAt": "2026-08-08T20:40:00+09:00",
+      "lastSuccessfulCI": "31255906446",
+      "lastDeployment": "31255906446",
+      "lastVerifiedAt": "2026-08-08T20:53:09+09:00",
       "keyEntrypoints": [
         "outputs/pushrun-site/index.html",
         "outputs/pushrun-site/styles.css",
@@ -86,8 +86,8 @@
       "deployProvider": "vercel",
       "serviceWorkerCache": "certbom-0.8.3-d303558",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "31255105222",
-      "lastDeployment": "5808272343",
+      "lastSuccessfulCI": "unavailable",
+      "lastDeployment": "unavailable",
       "lastVerifiedAt": "2026-08-08T20:33:21+09:00",
       "keyEntrypoints": [
         "apps/web/src/App.tsx",
