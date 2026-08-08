@@ -2,17 +2,17 @@
 
 ## 현재 상태
 
-- 운영 웹·PWA 버전: 0.15.1.
+- 운영 웹·PWA 버전: 0.16.0.
 - 기존 이름: 줍줍콜.
 - 역할: 일반공급·무순위 청약 공고, 접수·발표·계약 일정과 관심 공고 알림 제공.
 - 목표 저장소: `robom-labs/homebom`.
 - 현재 배포: https://robom-labs.github.io/homebom/.
 - 기존 배포: https://runnerpyrri-lgtm.github.io/zoopzoopcall/.
-- 운영 main: `5db7288befc7e181f14f90d860daff952a417907`.
-- 운영 앱 소스 SHA: `3a19ec610f4a04494780e967b53fb61170857712`.
-- PWA 캐시: `zzc-v0.15.1`.
-- 운영 API: 청약홈 공식 상세 API 5개 범주에서 활성 공고 25건을 제공하며, 2026-08-18 이후 접수 공고를 포함한다.
-- Android 후보: versionCode 21, `0.15.1`, EAS build `41116b30-bb50-48cb-9381-5aa93195eb8b`, AAB SHA-256 `07658569317a37a9ee67152249968f46025cd887a61845df6d440884df108672`.
+- 운영 main·앱 소스 SHA: `dac7d024496f0e205e8c98dad043b5e1dc81fae1`.
+- PWA 캐시: `zzc-v0.16.0`.
+- 운영 API: 청약홈 공식 상세 API 5개 범주에서 활성 공고 25건을 제공한다. 2026-08-08 KST 기준 25건 모두 접수 시작일이 있고, 23건은 향후 14일 안에 접수를 시작한다.
+- 자동 최신화: 매시 5분 정상 수집, 매시 35분·50분 독립 watchdog, 75분 이상 미갱신 시 자동 복구 호출을 사용한다. 이상 응답·0건·대량 삭제는 공개하지 않고 마지막 정상본을 유지한다.
+- Android 후보: versionCode 22, `0.16.0`, EAS build `7680989b-379e-4d42-b6e1-8f06a1d7f1aa`, AAB SHA-256 `6539ae258958e497edc588e3da7c7c3f0c2eda52149d34fd42064e1b77435c70`.
 - Google Play Alpha: 기존 비공개 테스트는 보존했다. 새 AAB는 EAS의 Google Service Account 미연결로 Play 업로드 전에 중단됐다.
 
 ## Next
@@ -20,8 +20,9 @@
 - [x] 아파트 일반공급·무순위·임의공급·공공지원 민간임대·오피스텔/도시형생활주택 5개 범주를 함께 수집하고 1~2주 뒤 접수 공고 누락을 복구했다.
 - [x] 접수 중·7일 안·8일 이후 필터, 검색, 한국시간 날짜 경계, 전경 복귀 갱신과 마지막 정상본을 네이티브에 반영했다.
 - [x] 딥링크 공고 복원, 발표·계약 일정 확인본, 공식 일정 변경 시 알림 재예약, 손상 저장값 마이그레이션을 반영했다.
-- [x] Android 0.15.1(21) AAB의 패키지·버전·업로드 인증서·해시를 검증했다.
-- [ ] Google Play Console에서 AAB를 직접 업로드하거나 EAS Google Service Account를 연결한 뒤 기존 Alpha 트랙에 0.15.1(21)을 제출한다.
+- [x] 매시간 공식 API 갱신, 놓친 스케줄 감시, 이상 데이터 차단, 마지막 정상본 보존과 400일 시간 이동·장애 주입 검사를 반영했다.
+- [x] Android 0.16.0(22) AAB의 패키지·버전·targetSdk 36·업로드 인증서·해시를 검증했다.
+- [ ] Google Play Console에서 AAB를 직접 업로드하거나 EAS Google Service Account를 연결한 뒤 기존 Alpha 트랙에 0.16.0(22)을 제출한다.
 - [x] 패밀리 디자인과 대표 아이콘을 운영 배포했다.
 - [x] 청약봄 브랜딩 PR을 merge했다.
 - [x] 저장소 이전 후 `/homebom/` Pages 배포와 HTTP 200 응답을 확인했다.

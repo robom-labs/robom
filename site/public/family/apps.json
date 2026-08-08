@@ -34,7 +34,7 @@
       "name": "청약봄",
       "englishName": "HomeBom",
       "repo": "robom-labs/homebom",
-      "version": "0.15.1",
+      "version": "0.16.0",
       "dataVersion": "official-notices-runtime-v1",
       "webUrl": "https://robom-labs.github.io/homebom/",
       "healthcheckUrl": "https://robom-labs.github.io/homebom/",
@@ -52,9 +52,9 @@
       "stableInstallUrl": "https://robom.kr/get/homebom",
       "mobileStatus": "native-closed-test-review",
       "familySpecVersion": "1.1.0",
-      "lastVerifiedAt": "2026-08-08T17:26:03+09:00",
-      "lastDeployedSha": "5db7288befc7e181f14f90d860daff952a417907",
-      "lastDataSyncAt": "2026-08-08T16:05:02+09:00",
+      "lastVerifiedAt": "2026-08-08T20:40:46+09:00",
+      "lastDeployedSha": "dac7d024496f0e205e8c98dad043b5e1dc81fae1",
+      "lastDataSyncAt": "2026-08-08T20:05:01+09:00",
       "freshnessStatus": "runtime"
     },
     {
@@ -62,7 +62,7 @@
       "name": "러닝봄",
       "englishName": "RunningBom",
       "repo": "robom-labs/runningbom",
-      "version": "0.19.3",
+      "version": "0.20.0",
       "dataVersion": "2026.08.08-race-data-34",
       "webUrl": "https://robom-labs.github.io/runningbom/",
       "healthcheckUrl": "https://robom-labs.github.io/runningbom/",
@@ -80,9 +80,9 @@
       "stableInstallUrl": "https://robom.kr/get/runningbom",
       "mobileStatus": "native-closed-test-active",
       "familySpecVersion": "1.1.0",
-      "lastVerifiedAt": "2026-08-08T18:27:24+09:00",
-      "lastDeployedSha": "ab8d458fbac90d9917bdfd02e026543d3cddc3ac",
-      "lastDataSyncAt": "2026-08-08T16:14:00+09:00",
+      "lastVerifiedAt": "2026-08-08T20:53:09+09:00",
+      "lastDeployedSha": "7c5ed903d4dc3390a3c45a473da828a0608730dc",
+      "lastDataSyncAt": "2026-08-08T04:18:56+09:00",
       "freshnessStatus": "healthy"
     },
     {
