@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "program_id": "ROBOM_4_APP_RELEASE",
-  "program_version": "1.2.0",
+  "program_version": "1.3.0",
   "governing": ["ops/company-os/ROBOM_ULTIMATE_COMPANY_OS.md", "ops/registry/apps.yml"],
-  "updated_at": "2026-07-24T22:55:00+09:00",
+  "updated_at": "2026-08-08T17:14:34+09:00",
   "phase": "CLOSED_TEST_ROLLOUT",
-  "status": "WAITING_FOR_HOME_REVIEW_AND_TESTER_OPT_IN",
-  "session_note": "4개 Android 앱의 Alpha 비공개 테스트 AAB와 트랙은 모두 생성됐다. 야외봄·러닝봄·자격증봄은 테스터 제공 상태이며 청약봄은 Google 검토 중이다. 앱 목록 요약의 지연 표시는 출시 세부 화면보다 우선하지 않는다.",
+  "status": "HOME_RUNNING_UPDATE_AABS_READY_BLOCKED_EXTERNAL",
+  "session_note": "청약봄 0.15.1과 러닝봄 0.19.2의 데이터·모바일·알림 복구를 main과 운영 웹에 반영하고 Android AAB를 검증했다. EAS Submit은 두 앱 모두 Google Service Account가 연결되지 않아 Play 업로드 전에 중단됐다. 기존 비공개 테스트 트랙은 변경하지 않았다.",
   "apps": {
     "outbom": {
       "version": "0.25.6",
@@ -17,20 +17,26 @@
       "verified_at": "2026-07-24T16:55:00+09:00"
     },
     "homebom": {
-      "version": "0.14.8",
-      "version_code": 16,
-      "main_sha": "0233c5beb96d84780b0e1ffe438c6a13469d9845",
-      "google_play_status": "CLOSED_TEST_REVIEW",
-      "release_state": "WAITING_FOR_GOOGLE_REVIEW",
-      "verified_at": "2026-07-24T16:24:00+09:00"
+      "version": "0.15.1",
+      "version_code": 21,
+      "main_sha": "6e98e65f4b2f71a3323e7117ea23c80928bcb6bd",
+      "aab_source_sha": "3a19ec610f4a04494780e967b53fb61170857712",
+      "eas_build_id": "41116b30-bb50-48cb-9381-5aa93195eb8b",
+      "aab_sha256": "07658569317a37a9ee67152249968f46025cd887a61845df6d440884df108672",
+      "google_play_status": "EXISTING_CLOSED_TEST_PRESERVED_NEW_UPDATE_NOT_SUBMITTED",
+      "release_state": "AAB_READY_GOOGLE_SERVICE_ACCOUNT_REQUIRED",
+      "verified_at": "2026-08-08T17:14:34+09:00"
     },
     "runningbom": {
-      "version": "0.18.3",
-      "version_code": 6,
-      "main_sha": "a8e05b10220237a0ac7464d755b519c565794791",
-      "google_play_status": "CLOSED_TEST_ACTIVE",
-      "release_state": "TESTERS_AVAILABLE",
-      "verified_at": "2026-07-24T22:11:00+09:00"
+      "version": "0.19.2",
+      "version_code": 12,
+      "main_sha": "2249d83cb3633666e54dad430474dbd13ba0ff8c",
+      "aab_source_sha": "211135cd18a64472f4024ed97cd7cbe654c919e0",
+      "eas_build_id": "a36a3ec1-daa5-405a-9b86-f568478bd1c2",
+      "aab_sha256": "c42574efddad05704be75c8ec83431c1b752ba44f688d21fc054bc8a6ff5216d",
+      "google_play_status": "EXISTING_CLOSED_TEST_PRESERVED_NEW_UPDATE_NOT_SUBMITTED",
+      "release_state": "AAB_READY_GOOGLE_SERVICE_ACCOUNT_REQUIRED",
+      "verified_at": "2026-08-08T17:14:34+09:00"
     },
     "certbom": {
       "version": "0.8.3",
@@ -46,10 +52,15 @@
     "4개 앱의 Alpha 비공개 테스트 트랙과 테스트용 AAB 업로드",
     "야외봄·러닝봄·자격증봄 테스터 제공 상태 확인",
     "청약봄 Alpha 16(0.14.8) Google 검토 시작 확인",
-    "앱별 운영 버전·배포 SHA·서비스워커 캐시와 본사 registry 동기화"
+    "앱별 운영 버전·배포 SHA·서비스워커 캐시와 본사 registry 동기화",
+    "청약홈 공식 공고 다섯 범주와 1~2주 뒤 접수 공고를 포함한 운영 데이터 25건 복구",
+    "러닝봄 212개 대회 데이터·관심 대회 마이그레이션·알림 재조정 복구",
+    "청약봄 0.15.1(21)과 러닝봄 0.19.2(12) AAB 서명·해시·EAS 소스 커밋 검증",
+    "두 저장소의 closed submit profile을 Google Play alpha 트랙으로 고정"
   ],
   "open_external_work": [
-    "청약봄 Google 검토 완료 대기",
+    "Google Play Console에서 두 AAB를 수동 업로드하거나 EAS에 Google Service Account를 한 번 연결",
+    "청약봄 0.15.1(21)과 러닝봄 0.19.2(12)를 기존 Alpha 비공개 트랙에 제출하고 Google 처리 상태 확인",
     "실제 Google 계정 12명 이상이 각 테스트 링크에서 참여 선택",
     "12명 참여 후 14일 연속 비공개 테스트 진행"
   ],
@@ -58,5 +69,5 @@
     "Apple Developer Program 및 iOS 배포",
     "프로덕션 공개 신청"
   ],
-  "next_action": "청약봄이 테스터 제공으로 바뀌면 동일 테스터 목록으로 4개 앱 링크를 배포하고, 참여 인원과 14일 진행일을 Play Console에서만 추적한다."
+  "next_action": "Play 제출 권한을 연결한 뒤 검증된 두 AAB를 기존 Alpha 트랙에 올린다. 업로드 전에는 파일명·versionCode·SHA-256을 이 상태 파일과 대조하고, 업로드 후에는 새 출시가 검토 중인지 확인한다."
 }

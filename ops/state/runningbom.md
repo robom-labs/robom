@@ -2,21 +2,28 @@
 
 ## 현재 상태
 
-- 운영 웹·PWA 버전: 0.19.0.
+- 운영 웹·PWA 버전: 0.19.2.
 - 기존 이름: PushRun.
 - 역할: 러닝 대회 탐색, 접수 시작과 대회일 알림 제공.
 - 목표 저장소: `robom-labs/runningbom`.
 - 현재 배포: https://robom-labs.github.io/runningbom/.
 - 보조 배포: https://runningbom.vercel.app/.
 - 기존 배포: https://runnerpyrri-lgtm.github.io/pushrun/.
-- 운영 main: `0f71ff5502965aba3e6f63c2e7e748fe3f5c5ecc`.
-- PWA 캐시: `pushrun-v0.19.0`.
-- Google Play Alpha: versionCode 6, `0.18.3`, 테스터 제공 상태.
-- Android 코드 후보: versionCode 7, `0.19.0`, signed AAB 검증 완료·Play 미업로드.
-- 릴리스 단계: `CODE_ONLY`. 기존 Alpha 트랙·테스터·프로덕션은 변경하지 않았다.
+- 운영 main: `2249d83cb3633666e54dad430474dbd13ba0ff8c`.
+- 운영 앱 소스 SHA: `211135cd18a64472f4024ed97cd7cbe654c919e0`.
+- PWA 캐시: `pushrun-v0.19.2`.
+- 데이터 리비전: `2026.08.08-race-data-34`, 전체 212개 대회, 마지막 대회일 2027-04-18.
+- Google Play Alpha: 기존 비공개 테스트와 테스터는 보존했다.
+- Android 후보: versionCode 12, `0.19.2`, EAS build `a36a3ec1-daa5-405a-9b86-f568478bd1c2`, AAB SHA-256 `c42574efddad05704be75c8ec83431c1b752ba44f688d21fc054bc8a6ff5216d`.
+- 릴리스 단계: `CLOSED_PUBLISH` 승인을 통과했지만 EAS의 Google Service Account 미연결로 Play 업로드 전에 중단됐다.
 
 ## Next
 
+- [x] 212개 대회의 기간·상태·접수 링크를 검증하고 반복 동기화가 데이터 리비전을 불필요하게 올리지 않도록 수정했다.
+- [x] 대회군 기준 관심 상태, 구버전 저장값 마이그레이션, 손상 저장값 정리와 원격 일정 변경 알림 재조정을 반영했다.
+- [x] Android 0.19.2(12) AAB의 패키지·버전·업로드 인증서·해시와 EAS 소스 SHA를 검증했다.
+- [x] fail-closed 릴리스 가드의 Alpha 제출 dry-run과 공식 bundletool 검증을 GitHub Actions에서 통과했다.
+- [ ] Google Play Console에서 AAB를 직접 업로드하거나 EAS Google Service Account를 연결한 뒤 기존 Alpha 트랙에 0.19.2(12)를 제출한다.
 - [x] 패밀리 디자인과 대표 아이콘을 운영 배포했다.
 - [x] 러닝봄 브랜딩 PR을 merge했다.
 - [x] 저장소 이전 후 Pages 배포와 HTTP 200 응답을 확인했다.
@@ -31,5 +38,5 @@
 - [x] vNext 1차에서 5탭·로컬 코칭·스트릭·배지·러닝화·보호된 소셜 기반과 Release Guard를 구현하고 웹 0.19.0을 운영 배포했다.
 - [x] Android 0.19.0(versionCode 7) production 후보 AAB와 분리 설치 Preview APK를 서명·권한·16KB·bundletool 기준으로 검증했다.
 - [ ] 0.19.0 Android 후보의 삼성·Pixel 실기기 장시간 코칭·전화·Bluetooth·절전·업데이트 설치 검증은 실제 기기가 연결될 때 수행한다.
-- [ ] Play Alpha 0.18.3에서 0.19.0으로 올리는 작업은 별도 단계 명령 전까지 보류한다.
+- [ ] Play Alpha의 기존 버전에서 0.19.2(12)로 올리고 Google 처리 상태와 테스터 설치 업데이트를 확인한다.
 - [ ] GitHub 계정 이전으로 404가 된 기존 개인 계정 Pages 주소는 해당 계정의 별도 redirect 저장소를 만들 수 있을 때 안내 페이지로 전환한다.
