@@ -89,7 +89,7 @@ export const generatedAppMeta = [
     "name": "자격증봄",
     "englishName": "CertBom",
     "repo": "robom-labs/certbom",
-    "version": "0.8.3",
+    "version": "0.8.4",
     "dataVersion": "2026.07.24-v4",
     "webUrl": "https://certbom.vercel.app/",
     "healthcheckUrl": "https://certbom.vercel.app/",
@@ -107,8 +107,8 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/certbom",
     "mobileStatus": "native-closed-test-active",
     "familySpecVersion": "1.1.0",
-    "lastVerifiedAt": "2026-08-08T21:14:39+09:00",
-    "lastDeployedSha": "a1dcdf2a874a15d1dd59519bceb00e7116cbb7dc",
+    "lastVerifiedAt": "2026-08-08T22:07:23+09:00",
+    "lastDeployedSha": "8a4d8f7cefd42ab575d0f1a51cebec0fc40041c9",
     "lastDataSyncAt": "2026-07-24T14:30:00+09:00",
     "freshnessStatus": "last-known-good"
   }
