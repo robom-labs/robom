@@ -17,14 +17,14 @@ apps:
     build: pass
     visual: pass
     analytics: pass
-    deployed_sha: dac7d024496f0e205e8c98dad043b5e1dc81fae1
+    deployed_sha: 599180c6d51fda5086a23d6845c02c8b8353fc15
   runningbom:
     family_spec: 1.1.0
     generated_commit: 75d4f9d4c803e1dbaa6dda67e48b6ed23960520f
     build: pass
     visual: pass
     analytics: pass
-    deployed_sha: 7c5ed903d4dc3390a3c45a473da828a0608730dc
+    deployed_sha: 34053e555001abdb08797214a033f23579e16eb0
   certbom:
     family_spec: 1.1.0
     generated_commit: 75d4f9d4c803e1dbaa6dda67e48b6ed23960520f
