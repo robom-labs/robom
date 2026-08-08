@@ -41,10 +41,10 @@
     "certbom": {
       "version": "0.8.3",
       "version_code": 9,
-      "main_sha": "6f2aa946a79681fdd47f5d52f464c184f3b48d0a",
+      "main_sha": "d3035581a6864ad8b70314c0a9f1b2a9122dcb94",
       "google_play_status": "CLOSED_TEST_ACTIVE",
       "release_state": "TESTERS_AVAILABLE",
-      "verified_at": "2026-07-24T22:07:00+09:00"
+      "verified_at": "2026-08-08T20:33:21+09:00"
     }
   },
   "completed_actions": [
@@ -57,7 +57,8 @@
     "러닝봄 212개 대회 데이터·관심 대회 마이그레이션·알림 재조정과 대회 1개당 카드 1개 불변조건 복구",
     "청약봄 0.15.1(21)과 러닝봄 0.19.3(13) AAB 서명·해시·EAS 소스 커밋 검증",
     "러닝봄 GitHub Pages와 Vercel을 0.19.3·212개 고유 대회·중복 카드 0개로 동기화",
-    "일회성 Alpha 제출 설정으로 EAS Submit 자격 증명 경계를 확인하고 저장소의 수동 제출 안전 계약을 보존"
+    "일회성 Alpha 제출 설정으로 EAS Submit 자격 증명 경계를 확인하고 저장소의 수동 제출 안전 계약을 보존",
+    "자격증봄 내 일정·출처 신뢰 표시·보안 감사를 보강하고 main·Vercel·외장하드 미러를 동일 SHA로 동기화"
   ],
   "open_external_work": [
     "Google Play Console에서 두 AAB를 수동 업로드하거나 EAS에 Google Service Account를 한 번 연결",

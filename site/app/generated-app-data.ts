@@ -107,8 +107,8 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/certbom",
     "mobileStatus": "native-closed-test-active",
     "familySpecVersion": "1.1.0",
-    "lastVerifiedAt": "2026-07-24T14:30:00+09:00",
-    "lastDeployedSha": "6f2aa946a79681fdd47f5d52f464c184f3b48d0a",
+    "lastVerifiedAt": "2026-08-08T20:33:21+09:00",
+    "lastDeployedSha": "d3035581a6864ad8b70314c0a9f1b2a9122dcb94",
     "lastDataSyncAt": "2026-07-24T14:30:00+09:00",
     "freshnessStatus": "last-known-good"
   }
