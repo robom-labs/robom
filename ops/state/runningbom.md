@@ -9,7 +9,7 @@
 - 현재 배포: https://robom-labs.github.io/runningbom/.
 - 보조 배포: https://runningbom.vercel.app/.
 - 기존 배포: https://runnerpyrri-lgtm.github.io/pushrun/.
-- 운영 main: `2249d83cb3633666e54dad430474dbd13ba0ff8c`.
+- 운영 main: `41d49c22dbc2fa9c49fdb63b1b50a11d636064c7`.
 - 운영 앱 소스 SHA: `211135cd18a64472f4024ed97cd7cbe654c919e0`.
 - PWA 캐시: `pushrun-v0.19.2`.
 - 데이터 리비전: `2026.08.08-race-data-34`, 전체 212개 대회, 마지막 대회일 2027-04-18.

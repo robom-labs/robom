@@ -8,7 +8,7 @@
 - 목표 저장소: `robom-labs/homebom`.
 - 현재 배포: https://robom-labs.github.io/homebom/.
 - 기존 배포: https://runnerpyrri-lgtm.github.io/zoopzoopcall/.
-- 운영 main: `6e98e65f4b2f71a3323e7117ea23c80928bcb6bd`.
+- 운영 main: `5db7288befc7e181f14f90d860daff952a417907`.
 - 운영 앱 소스 SHA: `3a19ec610f4a04494780e967b53fb61170857712`.
 - PWA 캐시: `zzc-v0.15.1`.
 - 운영 API: 청약홈 공식 상세 API 5개 범주에서 활성 공고 25건을 제공하며, 2026-08-18 이후 접수 공고를 포함한다.

@@ -6,10 +6,10 @@
 
 | 제품 | 운영 버전 | 앱 소스 SHA | 최신 main | Android | 결과 |
 | --- | --- | --- | --- | --- | --- |
-| 청약봄 | 0.15.1 | `3a19ec610f4a04494780e967b53fb61170857712` | `6e98e65f4b2f71a3323e7117ea23c80928bcb6bd` | versionCode 21 | 코드·운영 웹·운영 데이터·AAB PASS, Play 제출 BLOCKED_EXTERNAL |
-| 러닝봄 | 0.19.2 | `211135cd18a64472f4024ed97cd7cbe654c919e0` | `2249d83cb3633666e54dad430474dbd13ba0ff8c` | versionCode 12 | 코드·운영 웹·대회 데이터·AAB·릴리스 가드 PASS, Play 제출 BLOCKED_EXTERNAL |
+| 청약봄 | 0.15.1 | `3a19ec610f4a04494780e967b53fb61170857712` | `5db7288befc7e181f14f90d860daff952a417907` | versionCode 21 | 코드·운영 웹·운영 데이터·AAB PASS, Play 제출 BLOCKED_EXTERNAL |
+| 러닝봄 | 0.19.2 | `211135cd18a64472f4024ed97cd7cbe654c919e0` | `41d49c22dbc2fa9c49fdb63b1b50a11d636064c7` | versionCode 12 | 코드·운영 웹·대회 데이터·AAB·릴리스 가드 PASS, Play 제출 BLOCKED_EXTERNAL |
 
-`main`에는 비공개 트랙 제출 설정과 릴리스 제어 파일이 추가돼 앱 소스 SHA보다 뒤에 있다. AAB는 표의 앱 소스 SHA에서 생성됐고 EAS 빌드 메타데이터로 이를 별도 검증했다.
+`main`에는 릴리스 제어와 제출 안전 경계 복구 커밋이 추가돼 앱 소스 SHA보다 뒤에 있다. AAB는 표의 앱 소스 SHA에서 생성됐고 EAS 빌드 메타데이터로 이를 별도 검증했다.
 
 ## 청약봄
 
@@ -34,7 +34,7 @@
 
 ## Play 제출 상태
 
-- 두 저장소의 EAS 제출 프로필을 `alpha` 비공개 트랙과 `completed` 릴리스 상태로 고정했다.
+- 저장소에는 자동 제출 프로필을 영구 저장하지 않는 기존 안전 계약을 유지했다. 제출 시도에는 일회성 로컬 `alpha` 설정만 사용했다.
 - 두 AAB를 EAS Submit에 전달해 제출을 시도했지만 두 앱 모두 `Google Service Account Keys cannot be set up in --non-interactive mode`에서 중단됐다.
 - Google Play에는 새 AAB가 올라가지 않았고 기존 비공개 테스트 트랙과 테스터 상태는 변경되지 않았다.
 - 다음 실행은 Google Play Console에서 AAB를 직접 업로드하거나, EAS에 최소 권한 Google Service Account를 한 번 연결한 뒤 같은 파일을 제출하는 것이다.

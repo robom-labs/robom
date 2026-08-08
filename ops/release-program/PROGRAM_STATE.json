@@ -19,7 +19,7 @@
     "homebom": {
       "version": "0.15.1",
       "version_code": 21,
-      "main_sha": "6e98e65f4b2f71a3323e7117ea23c80928bcb6bd",
+      "main_sha": "5db7288befc7e181f14f90d860daff952a417907",
       "aab_source_sha": "3a19ec610f4a04494780e967b53fb61170857712",
       "eas_build_id": "41116b30-bb50-48cb-9381-5aa93195eb8b",
       "aab_sha256": "07658569317a37a9ee67152249968f46025cd887a61845df6d440884df108672",
@@ -30,7 +30,7 @@
     "runningbom": {
       "version": "0.19.2",
       "version_code": 12,
-      "main_sha": "2249d83cb3633666e54dad430474dbd13ba0ff8c",
+      "main_sha": "41d49c22dbc2fa9c49fdb63b1b50a11d636064c7",
       "aab_source_sha": "211135cd18a64472f4024ed97cd7cbe654c919e0",
       "eas_build_id": "a36a3ec1-daa5-405a-9b86-f568478bd1c2",
       "aab_sha256": "c42574efddad05704be75c8ec83431c1b752ba44f688d21fc054bc8a6ff5216d",
@@ -56,7 +56,7 @@
     "청약홈 공식 공고 다섯 범주와 1~2주 뒤 접수 공고를 포함한 운영 데이터 25건 복구",
     "러닝봄 212개 대회 데이터·관심 대회 마이그레이션·알림 재조정 복구",
     "청약봄 0.15.1(21)과 러닝봄 0.19.2(12) AAB 서명·해시·EAS 소스 커밋 검증",
-    "두 저장소의 closed submit profile을 Google Play alpha 트랙으로 고정"
+    "일회성 Alpha 제출 설정으로 EAS Submit 자격 증명 경계를 확인하고 저장소의 수동 제출 안전 계약을 보존"
   ],
   "open_external_work": [
     "Google Play Console에서 두 AAB를 수동 업로드하거나 EAS에 Google Service Account를 한 번 연결",
