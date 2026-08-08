@@ -31,4 +31,4 @@ apps:
     build: pass
     visual: pass
     analytics: pass
-    deployed_sha: dc44ba9a330faff1d5c47b0927348589dbf85aba
+    deployed_sha: d3035581a6864ad8b70314c0a9f1b2a9122dcb94

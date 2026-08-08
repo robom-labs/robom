@@ -41,10 +41,10 @@
     "certbom": {
       "version": "0.8.3",
       "version_code": 9,
-      "main_sha": "dc44ba9a330faff1d5c47b0927348589dbf85aba",
+      "main_sha": "d3035581a6864ad8b70314c0a9f1b2a9122dcb94",
       "google_play_status": "CLOSED_TEST_ACTIVE",
       "release_state": "TESTERS_AVAILABLE",
-      "verified_at": "2026-08-08T20:18:03+09:00"
+      "verified_at": "2026-08-08T20:33:21+09:00"
     }
   },
   "completed_actions": [

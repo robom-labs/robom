@@ -93,7 +93,7 @@ em { font-style: normal; }
 .prelaunch-status .status-pill { min-height: 34px; background: var(--tint); padding-inline: 11px; color: var(--tone-ink); font-size: 11px; }
 .launch-window { flex: 1 1 116px; }
 .prelaunch-qr { display: block; width: min(100%, 158px); height: auto; align-self: end; justify-self: center; margin: 4px auto 14px; border: 1px solid var(--line); border-radius: 16px; background: #fff; padding: 8px; }
-.install-address { display: flex; min-height: 42px; align-items: center; justify-content: center; border-radius: 13px; background: var(--tint); padding: 0 10px; color: var(--tone-ink); font-size: 11px; font-weight: 900; letter-spacing: -.02em; text-align: center; }
+.install-address { display: flex; min-height: 48px; align-items: center; justify-content: center; border-radius: 13px; background: var(--tint); padding: 0 10px; color: var(--tone-ink); font-size: 11px; font-weight: 900; letter-spacing: -.02em; text-align: center; }
 .install-address:hover { background: var(--tone-ink); color: #fff; }.install-address__mobile { display: none; }
 .family-hero--install > .trust-copy { max-width: 1320px; margin: 22px auto 0; }
 

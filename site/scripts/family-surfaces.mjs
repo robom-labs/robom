@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { chromium, webkit } from "playwright";
 
 const defaults = [
-  { id: "robom", url: "https://robom.kr", expected: "로봄", action: ".quick-install-card img.prelaunch-qr" },
+  { id: "robom", url: "https://robom.kr", expected: "로봄", action: ".quick-install-card .install-address:visible" },
   { id: "outbom", url: "https://robom-labs.github.io/outbom/", expected: "야외봄", nav: ".family-bottom-nav button:visible", settings: ".family-bottom-nav button:nth-of-type(4):visible", family: ".family-app-row" },
   { id: "homebom", url: "https://robom-labs.github.io/homebom/", expected: "청약봄", nav: ".nav__tab:visible", settings: ".nav__tab:nth-of-type(3):visible", family: "section:has(#family-apps) a.settings-row" },
   { id: "runningbom", url: "https://robom-labs.github.io/runningbom/", expected: "러닝봄", nav: ".mobile-tab:visible, .nav-pill:visible", settings: "[data-view='settings']:visible", family: "[data-family-app]" },

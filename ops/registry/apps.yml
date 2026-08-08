@@ -125,8 +125,8 @@ apps:
     stable_install_url: https://robom.kr/get/certbom
     mobile_status: native-closed-test-active
     family_spec_version: 1.1.0
-    last_verified_at: "2026-08-08T20:18:03+09:00"
-    last_deployed_sha: dc44ba9a330faff1d5c47b0927348589dbf85aba
+    last_verified_at: "2026-08-08T20:33:21+09:00"
+    last_deployed_sha: d3035581a6864ad8b70314c0a9f1b2a9122dcb94
     last_data_sync_at: "2026-07-24T14:30:00+09:00"
     freshness_status: last-known-good
     freshness_slo_hours: 48

@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-08-08T11:21:37.277Z",
-  "sourceCommit": "cec006520ed37ad8e78b5f0e76a7c6d209b8a800",
+  "generatedAt": "2026-08-08T11:33:21.000Z",
+  "sourceCommit": "538702e0b2c98a7e761c1286d2c02c39b3002f27",
   "files": {
-    "ops/registry/apps.yml": "sha256:e7ac3490a4aa8cad80172b205104be7a30ce6e89276bdcfe80d1e492f6a8fee3",
+    "ops/registry/apps.yml": "sha256:f7dc7fe8fe286fe284ca1c8687e5eec63ca1cc8acb3a6b15702f68c9f20b5485",
     "ops/family/family-version.json": "sha256:2690c10d9f1c8f6d42981f8d2b77a2ff5b2ea9e146039e2a556589b6f8941203",
     "ops/family/contracts/analytics.yml": "sha256:7bbac0683e187ae6fbff287c56ad4021ea96d4014dd988fb301d5d3fbce80678",
     "ops/family/contracts/install.yml": "sha256:76b64da7c383c9b60fd54b874f37671fb7bf0d1e6bdf5d5de0acaedde7a39836",
-    "ops/family/compatibility.yml": "sha256:a2f451fd88292cc514191589bd79b5b943ee506c2c96db677ecb1295ba0d4477"
+    "ops/family/compatibility.yml": "sha256:5bbe6919350b859e0b8c328d5d16323af7d64832577dbecb574545e980422066"
   },
   "tests": [
     "certbom 59 tests pass",
@@ -15,7 +15,7 @@
     "certbom production dependency audit pass"
   ],
   "productionSmoke": [
-    "https://certbom.vercel.app/ 200 and dc44ba9 UI markers verified"
+    "https://certbom.vercel.app/ 200 and d303558 UI plus 8/8 official source connectivity markers verified"
   ],
-  "nextDiffBase": "cec006520ed37ad8e78b5f0e76a7c6d209b8a800"
+  "nextDiffBase": "538702e0b2c98a7e761c1286d2c02c39b3002f27"
 }
