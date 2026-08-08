@@ -61,7 +61,8 @@
     "러닝봄 GitHub Pages를 0.20.0·212개 고유 대회·중복 카드 0개로 동기화",
     "러닝봄 0.20.0(14) Play 릴리스 dry-run을 GitHub Actions 31255912729에서 통과",
     "일회성 Alpha 제출 설정으로 EAS Submit 자격 증명 경계를 확인하고 저장소의 수동 제출 안전 계약을 보존",
-    "자격증봄 내 일정·출처 신뢰 표시·보안 감사를 보강하고 main·Vercel·외장하드 미러를 동일 SHA로 동기화"
+    "자격증봄 내 일정·출처 신뢰 표시·보안 감사를 보강하고 main·Vercel·외장하드 미러를 동일 SHA로 동기화",
+    "청약봄 웹 0.16.0과 러닝봄 웹 0.20.0의 최신 main·서비스워커·GitHub Pages 배포를 본사 장부와 동기화"
   ],
   "open_external_work": [
     "Google Play Console에서 두 AAB를 수동 업로드하거나 EAS에 Google Service Account를 한 번 연결",
