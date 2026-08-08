@@ -60,7 +60,7 @@ apps:
     family_spec_version: 1.1.0
     last_verified_at: "2026-08-08T22:11:37+09:00"
     last_deployed_sha: 599180c6d51fda5086a23d6845c02c8b8353fc15
-    last_data_sync_at: "2026-08-08T20:05:01+09:00"
+    last_data_sync_at: "2026-08-08T21:05:02+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
     # 시간별 실공고 갱신 파이프라인의 missed-run heartbeat — watchdog이 x-verified-at 나이를 검사한다.

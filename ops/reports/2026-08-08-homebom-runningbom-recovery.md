@@ -1,56 +1,60 @@
 # 청약봄·러닝봄 데이터 복구와 비공개 테스트 업데이트
 
-검증 시각은 2026-08-08 18:27 KST다.
+최종 검증 시각은 2026-08-08 22:12 KST다.
 
 ## 결과
 
 | 제품 | 운영 버전 | 앱 소스 SHA | 최신 main | Android | 결과 |
 | --- | --- | --- | --- | --- | --- |
-| 청약봄 | 0.15.1 | `3a19ec610f4a04494780e967b53fb61170857712` | `5db7288befc7e181f14f90d860daff952a417907` | versionCode 21 | 코드·운영 웹·운영 데이터·AAB PASS, Play 제출 BLOCKED_EXTERNAL |
-| 러닝봄 | 0.19.3 | `da648cae6e0ec8b7fb998fbb2269e563df237310` | `ab8d458fbac90d9917bdfd02e026543d3cddc3ac` | versionCode 13 | 코드·두 운영 웹·대회 단일화·AAB·릴리스 가드 PASS, Play 제출 BLOCKED_EXTERNAL |
+| 청약봄 | 0.17.1 | `599180c6d51fda5086a23d6845c02c8b8353fc15` | 동일 | versionCode 24 | 코드·운영 웹·운영 데이터·최종 AAB·권한 최소화 PASS, Play 제출 BLOCKED_EXTERNAL |
+| 러닝봄 | 0.21.0 | `86e1682468d8d0979d95943c957148d2c76cbc29` | `34053e555001abdb08797214a033f23579e16eb0` | versionCode 15 | 코드·운영 웹·대회 단일화·최종 AAB PASS, Play 제출 BLOCKED_EXTERNAL |
 
-`main`에는 릴리스 제어와 제출 안전 경계 복구 커밋이 추가돼 앱 소스 SHA보다 뒤에 있다. AAB는 표의 앱 소스 SHA에서 생성됐고 EAS 빌드 메타데이터로 이를 별도 검증했다.
+러닝봄 최신 main의 추가 커밋은 인앱 업데이트 미리보기 매니페스트만 갱신한다. 최종 AAB는 표의 앱 소스 SHA에서 생성됐고 EAS 빌드 메타데이터로 이를 별도 검증했다.
 
 ## 청약봄
 
-- 청약홈 공식 상세 API의 아파트 일반공급, 무순위·잔여세대, 임의공급, 공공지원 민간임대, 오피스텔·도시형생활주택을 모두 수집하도록 복구했다.
-- 운영 API에서 원본 514건 중 현재 게시 대상 25건을 검증했다. 접수 시작이 미래인 공고는 23건이며 마지막 접수 시작은 2026-08-18, 마지막 접수 마감은 2026-08-26이다.
-- 네이티브 첫 화면에 전체·접수 중·7일 안·8일 이후 실제 건수 필터와 공고명·지역·주소·유형 검색을 추가했다.
-- 알림·딥링크로 연 공고를 즉시 복원하고, 활성 목록에서 내려간 관심 공고도 저장 당시 확인본으로 발표·계약 일정을 보존한다.
-- 공식 일정이 바뀌면 기존 알림을 자동 재예약한다. 자동 갱신은 알림 권한 창을 띄우지 않는다.
-- 한국시간 날짜 경계, 10초 요청 중단, 7일 마지막 정상본, 전경 복귀 갱신, 저장 실패·손상 데이터 마이그레이션을 회귀 테스트로 고정했다.
-- EAS build `41116b30-bb50-48cb-9381-5aa93195eb8b`의 AAB SHA-256은 `07658569317a37a9ee67152249968f46025cd887a61845df6d440884df108672`다.
-- 업로드 인증서 SHA-256은 `92:DD:3B:65:0E:9A:64:53:70:89:59:41:47:14:5C:4C:D6:EE:47:EF:82:B5:17:CF:DA:D3:F5:1D:56:D8:2F:40`이며 기존 Play 수락 AAB와 일치한다.
+- 청약홈 공식 상세 API의 아파트 일반공급, 무순위·잔여세대, 임의공급, 공공지원 민간임대, 오피스텔·도시형생활주택을 모두 수집한다.
+- 운영 API는 활성 공고 25건과 `x-verified-at` 2026-08-08 21:05 KST를 제공한다. 25건의 ID는 모두 고유하고 2026-08-18 접수 시작 공고까지 포함한다.
+- 가격·면적·청약통장·선정 방식·입주 예정·정정 여부·검증 시각을 공식 데이터 우선으로 표시하고 빠른 판단 타일과 일정 밀도 캘린더를 추가했다.
+- 매시 5분 수집, 매시 35분·50분 독립 watchdog, 75분 stale 자가복구, 이상 응답·0건·대량 삭제 차단과 마지막 정상본 보존을 유지한다.
+- 최종 EAS build `d43fa504-ec14-47b3-9e8f-f19042b50748`의 AAB SHA-256은 `24114174fa420e77b9856a22bdc88b0415d2c137634e464b2ecb560ad91257f5`다.
+- bundletool 1.18.3 검증 결과 패키지는 `kr.robom.homebom`, 버전은 0.17.1(24), minSdk는 24, targetSdk는 36이다.
+- 최종 병합 매니페스트에서 카메라·마이크·다른 앱 위 표시·구형 외부 저장소 권한이 모두 제거됐다. 이를 정적 검사로 고정해 이후 빌드의 재유입도 차단한다.
+- 업로드 인증서 SHA-256은 `92:DD:3B:65:0E:9A:64:53:70:89:59:41:47:14:5C:4C:D6:EE:47:EF:82:B5:17:CF:DA:D3:F5:1D:56:D8:2F:40`이다.
 
 ## 러닝봄
 
-- 데이터 리비전 `2026.08.08-race-data-34`에서 대회 212건을 검증했다. 마지막 대회일은 2027-04-18이고 미래 접수 시작 15건, 종료 0건, 마감 83건이다.
-- 수집처가 같은 대회의 5K·10K·하프·풀을 별도 행으로 제공해도 이름·대회일·지역·회차 기준으로 한 대회 카드만 만든다. 종목과 종목별 접수 기간은 카드 안에서 합치고, 날짜·지역·회차가 다른 실제 별도 대회는 분리한다.
-- GitHub Pages와 Vercel 운영 데이터 모두 원본 212건, 고유 대회 212개, 최종 카드 212개, 중복 identity 0개다. 이 중 175개 카드는 여러 종목을 한 카드 안에 정상적으로 포함한다.
-- 같은 대회의 회차·거리 데이터가 바뀌어도 관심 상태가 유지되도록 안정 대회군 ID와 구버전 저장값 마이그레이션을 적용했다.
-- 손상된 관심 저장값을 안전하게 정리하고 원격 일정 변경·취소·매진·마감에 맞춰 알림을 재조정한다. 이 과정에서 권한 창을 다시 띄우지 않는다.
-- 유효 데이터가 바뀌지 않은 반복 동기화는 데이터 리비전을 올리지 않도록 수정했다.
-- EAS build `51695246-f022-48bb-a493-f0ddf67a2495`의 AAB SHA-256은 `add709437ef030a39c87b06243f0e47db7a1599713950434f64debe331b3aaea`다. bundletool 1.18.3 검증 결과 패키지는 `kr.robom.runningbom`, 버전은 0.19.3(13), targetSdk는 36이다.
-- 업로드 인증서 SHA-256은 `68:F9:6A:DF:AB:A0:47:8A:53:F9:F7:70:2C:69:CA:43:EC:2E:59:91:0B:9C:06:0F:FB:72:70:82:62:28:F7:46`이며 기존 Play 수락 AAB와 일치한다.
-- Google Play 릴리스 가드는 승인 문서 `CEO-APPROVAL-2026-0002`, 후보 소스 SHA, EAS 빌드 ID, AAB 해시, 공식 bundletool 검증을 모두 확인한 뒤에만 Alpha 제출을 허용한다. GitHub Actions dry-run `31250602238`이 통과했다.
-- 오래된 Vercel 보조 운영 주소의 0.17.2·100건 데이터를 제거했다. `https://runningbom.vercel.app/`도 0.19.3·빌드 `da648ca`·212건을 제공하며 HTTP 200을 반환한다.
+- 데이터 리비전 `2026.08.08-race-data-34`에서 고유 대회 212건을 제공한다. 175개 대회가 여러 종목을 포함하지만 대회·카드·달력 날짜 수는 종목 수 때문에 늘어나지 않는다.
+- 같은 대회의 5K·10K·하프·풀은 이름·대회일·지역·회차 기준 한 카드 안에 합치고 종목별 접수 정보는 카드 내부에 보존한다.
+- 실제 월별 7열 캘린더, 한국시간 접수 마감 카운트다운, 마감 임박 바로가기와 48px 터치 셀을 추가했다.
+- 6시간 수집, watchdog, 스키마 오류·0건·대량 삭제 차단, 마지막 정상본과 중복 잠금을 유지한다.
+- 최종 EAS build `0cc5c452-54bc-492c-a983-19639df72127`의 AAB SHA-256은 `4cf319b97ea19b9bdf320974bdaa3496d5ccc5282ca0492a45ba9c6d7445e703`이다.
+- bundletool 1.18.3 검증 결과 패키지는 `kr.robom.runningbom`, 버전은 0.21.0(15), minSdk는 24, targetSdk는 36이다.
+- 업로드 인증서 SHA-256은 `68:F9:6A:DF:AB:A0:47:8A:53:F9:F7:70:2C:69:CA:43:EC:2E:59:91:0B:9C:06:0F:FB:72:70:82:62:28:F7:46`이다.
+
+## 검증
+
+- 청약봄은 core 96, native 41, web 43, node 10, E2E 10, service worker 2 테스트와 typecheck·family drift 0·웹 빌드·Android/iOS export를 통과했다.
+- 러닝봄은 root 94, mobile 1,192 테스트와 type/config/static/build/native export·production watchdog을 통과했다.
+- 로봄 본사는 node 46, rendered HTML 11, Chromium 9개 viewport, WebKit 9개 viewport를 통과했다. 모든 E2E에서 overflow 0, 48px 이상 터치, console error 0을 확인했다.
+- 청약봄 Production은 build SHA `599180c6d51fda5086a23d6845c02c8b8353fc15`와 cache `zzc-v0.17.1`을 제공한다.
+- 러닝봄 Production은 버전 0.21.0과 cache `pushrun-v0.21.0`을 제공한다.
 
 ## Play 제출 상태
 
-- 저장소에는 자동 제출 프로필을 영구 저장하지 않는 기존 안전 계약을 유지했다. 제출 시도에는 일회성 로컬 `alpha` 설정만 사용했다.
-- 두 AAB를 EAS Submit에 전달해 제출을 시도했지만 두 앱 모두 `Google Service Account Keys cannot be set up in --non-interactive mode`에서 중단됐다. PC, 저장소 secret, EAS 설정에서 재사용 가능한 서비스 계정 JSON도 찾지 못했다.
-- Google Play에는 새 AAB가 올라가지 않았고 기존 비공개 테스트 트랙과 테스터 상태는 변경되지 않았다.
-- 다음 실행은 Google Play Console에서 AAB를 직접 업로드하거나, EAS에 최소 권한 Google Service Account를 한 번 연결한 뒤 같은 파일을 제출하는 것이다.
+- 두 최종 AAB는 생성·다운로드·해시·서명·패키지·버전·SDK·권한 검증을 마쳤다.
+- EAS 프로젝트에는 Google Play Service Account가 연결되지 않았고 현재 실행 세션에는 사용자 Play Console을 제어하는 브라우저 도구가 없다.
+- 따라서 Google Play에는 이번 최종 AAB가 올라가지 않았으며 기존 비공개 테스트 트랙과 테스터 상태는 변경하지 않았다.
+- 다음 실행은 EAS에 최소 권한 Google Play Service Account를 한 번 연결한 뒤 같은 파일을 Alpha 트랙에 제출하는 것이다.
 
 ## 외장하드 정본
 
-- 최신 독립 복제본은 `/Volumes/One Touch/Robom-Bom-Projects-2026-08-02/06-current-main-20260808` 아래에 보존한다.
-- 비공개 테스트 작업 복제본은 `/Volumes/One Touch/Robom-Bom-Projects-2026-08-02/01-private-test-apps` 아래에 보존한다.
-- 검증된 AAB는 `/Volumes/One Touch/Robom-Bom-Projects-2026-08-02/03-release-artifacts` 아래에 보존한다.
-- 이전에 깨진 worktree는 `*-broken-worktree-backup-20260808` 이름으로 그대로 보존했고 삭제하지 않았다.
+- 소스 미러는 `/Volumes/MANGO_LIBRARY/03_PROJECT_DATA/ROBOM/homebom`, `/Volumes/MANGO_LIBRARY/03_PROJECT_DATA/ROBOM/runningbom`, `/Volumes/MANGO_LIBRARY/03_PROJECT_DATA/ROBOM/robom`에 보존한다.
+- 최종 AAB는 `/Volumes/MANGO_LIBRARY/03_PROJECT_DATA/ROBOM/releases/2026-08-08-homebom-runningbom`에 보존한다.
+- 이전 AAB는 감사 이력으로 남기고 0.17.1(24)와 0.21.0(15)을 다음 Play 제출 대상으로 명확히 구분한다.
 
 ## 롤백
 
-- 청약봄 코드 롤백은 `git revert 3a19ec610f4a04494780e967b53fb61170857712` 후 Pages 재배포로 수행한다. 데이터 장애 시 Supabase 검증 스냅샷의 마지막 정상본을 유지한다.
-- 러닝봄 웹 기능 롤백은 `git revert da648cae6e0ec8b7fb998fbb2269e563df237310` 후 테스트와 재배포로 수행한다. Play는 새 제출 전이므로 현재 활성 0.17.13(2)을 그대로 유지하며, 릴리스 제어 문서는 `CEO-APPROVAL-2026-0002`를 따른다.
-- Play 제출 전이므로 이번 작업으로 Google Play에서 되돌릴 새 출시는 없다.
+- 청약봄 기능 롤백은 `git revert 599180c6d51fda5086a23d6845c02c8b8353fc15 eea9a498bba77ea3e941055d1a95b65bc59229ad` 후 테스트와 Pages 재배포로 수행한다.
+- 러닝봄 기능 롤백은 `git revert 86e1682468d8d0979d95943c957148d2c76cbc29` 후 테스트와 Pages 재배포로 수행한다. 미리보기 매니페스트만 되돌릴 때는 `git revert 34053e555001abdb08797214a033f23579e16eb0`을 별도로 사용한다.
+- 데이터 장애 시 두 앱 모두 마지막 정상본을 계속 제공하고, 새 Play 제출 전이므로 이번 작업으로 Google Play에서 되돌릴 출시는 없다.

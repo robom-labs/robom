@@ -53,7 +53,7 @@ export const generatedAppMeta = [
     "familySpecVersion": "1.1.0",
     "lastVerifiedAt": "2026-08-08T22:11:37+09:00",
     "lastDeployedSha": "599180c6d51fda5086a23d6845c02c8b8353fc15",
-    "lastDataSyncAt": "2026-08-08T20:05:01+09:00",
+    "lastDataSyncAt": "2026-08-08T21:05:02+09:00",
     "freshnessStatus": "runtime"
   },
   {

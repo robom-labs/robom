@@ -9,25 +9,27 @@
 - 현재 배포: https://robom-labs.github.io/runningbom/.
 - 보조 배포: https://runningbom.vercel.app/.
 - 기존 배포: https://runnerpyrri-lgtm.github.io/pushrun/.
-- 운영 main·배포 SHA: `34053e555001abdb08797214a033f23579e16eb0`.
+- 운영 main: `34053e555001abdb08797214a033f23579e16eb0`.
+- 운영 앱 소스 SHA: `86e1682468d8d0979d95943c957148d2c76cbc29`.
 - PWA 캐시: `pushrun-v0.21.0`.
 - 데이터 리비전: `2026.08.08-race-data-34`, 전체 212개 대회, 마지막 대회일 2027-04-18.
 - Google Play Alpha: 기존 비공개 테스트와 테스터는 보존했다.
 - 자동 최신화: 6시간마다 공식·검증 소스 동기화를 시도하고 watchdog이 누락·지연을 감시한다. 스키마 오류·0건·대량 삭제는 배포하지 않고 마지막 정상본을 유지한다.
-- Android 소스 설정: versionCode 15, `0.21.0`. Play Console과 테스트 트랙은 이번 웹·장부 동기화에서 변경하지 않았다.
-- 과거 릴리스 증거: `CLOSED_PUBLISH` 승인과 GitHub Actions 실행 `31255912729`의 AAB dry-run 기록은 보존한다.
+- Android 후보: versionCode 15, `0.21.0`, EAS build `0cc5c452-54bc-492c-a983-19639df72127`, AAB SHA-256 `4cf319b97ea19b9bdf320974bdaa3496d5ccc5282ca0492a45ba9c6d7445e703`.
+- 릴리스 단계: 최종 AAB의 패키지·버전·targetSdk 36·업로드 인증서·권한·해시를 검증했다. EAS의 Google Service Account 미연결과 현재 세션의 Play Console 제어 부재로 Play 업로드 전에 중단됐다.
 
 ## Next
 
 - [x] 웹 0.21.0에서 한 대회당 카드 한 장 규칙, 종목별 접수·알림, 관심 대회 필터, 6시간 수집과 3시간 운영 감시, 320px 레이아웃을 운영 반영했다.
+- [x] 실제 월별 7열 달력, 접수 마감 KST 카운트다운, 마감 임박 바로가기, 48px 터치 셀을 운영 반영했다.
 - [x] 212개 대회의 기간·상태·접수 링크를 검증하고 반복 동기화가 데이터 리비전을 불필요하게 올리지 않도록 수정했다.
 - [x] 대회군 기준 관심 상태, 구버전 저장값 마이그레이션, 손상 저장값 정리와 원격 일정 변경 알림 재조정을 반영했다.
 - [x] 같은 대회의 5K·10K·하프·풀 행을 대회 카드 한 개로 합치고, 종목·종목별 접수창은 그 카드 안에 보존하는 불변조건을 수집·웹·네이티브·릴리스 게이트에 적용했다.
 - [x] 운영 데이터 212건이 고유 대회 212개, 표시 카드 212개이며 종목 때문에 늘어난 중복 카드가 0개인지 두 운영 주소에서 확인했다.
 - [x] 6시간 자동 수집, watchdog, 이상 데이터 차단, 마지막 정상본, 400일 시간 이동·장애 주입 검사를 반영했다.
-- [x] Android 0.20.0(14) AAB의 패키지·버전·targetSdk 36·업로드 인증서·해시와 EAS 소스 SHA를 검증한 과거 증거를 보존했다.
+- [x] Android 0.21.0(15) AAB의 패키지·버전·targetSdk 36·업로드 인증서·해시와 EAS 소스 SHA를 검증했다.
 - [x] fail-closed 릴리스 가드의 Alpha 제출 dry-run과 공식 bundletool 검증을 GitHub Actions 실행 `31255912729`에서 통과했다.
-- [ ] Android 0.21.0(15)은 Play Console 별도 작업에서 빌드·서명·트랙 상태를 확인한다.
+- [ ] Google Play Console에서 AAB를 직접 업로드하거나 EAS Google Service Account를 연결한 뒤 기존 Alpha 트랙에 0.21.0(15)을 제출한다.
 - [x] 패밀리 디자인과 대표 아이콘을 운영 배포했다.
 - [x] 러닝봄 브랜딩 PR을 merge했다.
 - [x] 저장소 이전 후 Pages 배포와 HTTP 200 응답을 확인했다.
@@ -42,5 +44,5 @@
 - [x] vNext 1차에서 5탭·로컬 코칭·스트릭·배지·러닝화·보호된 소셜 기반과 Release Guard를 구현하고 웹 0.19.0을 운영 배포했다.
 - [x] Android 0.19.0(versionCode 7) production 후보 AAB와 분리 설치 Preview APK를 서명·권한·16KB·bundletool 기준으로 검증했다.
 - [ ] 0.21.0 Android 후보의 삼성·Pixel 실기기 장시간 코칭·전화·Bluetooth·절전·업데이트 설치 검증은 실제 기기가 연결될 때 수행한다.
-- [ ] Play Alpha 상태와 테스터 설치 업데이트는 Play Console 별도 작업에서 확인한다.
+- [ ] Play Alpha의 기존 활성 0.17.13(2)에서 0.21.0(15)으로 올리고 Google 처리 상태와 테스터 설치 업데이트를 확인한다.
 - [ ] GitHub 계정 이전으로 404가 된 기존 개인 계정 Pages 주소는 해당 계정의 별도 redirect 저장소를 만들 수 있을 때 안내 페이지로 전환한다.
