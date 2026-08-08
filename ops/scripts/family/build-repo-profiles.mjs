@@ -37,6 +37,7 @@ const TOPICS = {
 // 사람 판단 불변조건(회귀 시 사용자 피해). 이번 세션까지 확인된 것만 — 미확인은 두지 않는다.
 const INVARIANTS = {
   homebom: ["공고 캐시 무효화가 마감/발표 알림 정확성을 깨지 않도록 유지"],
+  runningbom: ["같은 대회의 5K·10K·하프·풀은 종목별 행이 아니라 대회 카드 한 개로 표시"],
 };
 
 function yamlList(arr) { return arr.length ? `[${arr.map((s) => JSON.stringify(s)).join(", ")}]` : "[]"; }

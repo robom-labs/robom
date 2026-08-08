@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-07-21T22:25:46.740Z",
+  "generatedAt": "2026-08-08T09:33:46.270Z",
   "familySpecVersion": "1.1.0",
-  "sourceCommit": "c0bbe5f6ca1d3cc17c1a4737ecaa7f47b1caccd6",
+  "sourceCommit": "da8c034b6bc559cc58828451216e7069ab5ce101",
   "robom": {
-    "mainSha": "c0bbe5f6ca1d3cc17c1a4737ecaa7f47b1caccd6",
-    "version": "2.2.1",
+    "mainSha": "da8c034b6bc559cc58828451216e7069ab5ce101",
+    "version": "2.2.2",
     "productionUrl": "https://robom.kr",
     "deployProvider": "sites+github-pages",
-    "serviceWorkerCache": "robom-site-v2.2.1",
+    "serviceWorkerCache": "not-declared",
     "lastSuccessfulCI": "unavailable",
     "lastDeployment": "unavailable"
   },
@@ -15,15 +15,15 @@
     {
       "id": "outbom",
       "repo": "robom-labs/outbom",
-      "mainSha": "unavailable",
+      "mainSha": "8866be9035196bac4912c4ff8182a73acd7d0c86",
       "version": "0.25.6",
       "productionUrl": "https://robom-labs.github.io/outbom/",
       "deployProvider": "github-pages",
-      "serviceWorkerCache": "not-declared",
+      "serviceWorkerCache": "outbom-v0.25.6",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "unavailable",
-      "lastDeployment": "unavailable",
-      "lastVerifiedAt": "2026-07-19T15:10:00+09:00",
+      "lastSuccessfulCI": "30263073226",
+      "lastDeployment": "30263073219",
+      "lastVerifiedAt": "2026-07-24T16:55:00+09:00",
       "keyEntrypoints": [
         "app/page.tsx",
         "app/globals.css",
@@ -32,20 +32,20 @@
       ],
       "testCommand": "pnpm typecheck && pnpm test",
       "buildCommand": "pnpm build",
-      "workingTree": "dirty"
+      "workingTree": "clean"
     },
     {
       "id": "homebom",
       "repo": "robom-labs/homebom",
-      "mainSha": "unavailable",
-      "version": "0.14.8",
+      "mainSha": "5db7288befc7e181f14f90d860daff952a417907",
+      "version": "0.15.1",
       "productionUrl": "https://robom-labs.github.io/homebom/",
       "deployProvider": "github-pages",
-      "serviceWorkerCache": "not-declared",
+      "serviceWorkerCache": "zzc-v0.15.1",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "unavailable",
-      "lastDeployment": "unavailable",
-      "lastVerifiedAt": "2026-07-19T15:10:00+09:00",
+      "lastSuccessfulCI": "31248133908",
+      "lastDeployment": "31248133697",
+      "lastVerifiedAt": "2026-08-08T17:26:03+09:00",
       "keyEntrypoints": [
         "apps/web/src/App.tsx",
         "apps/web/src/styles.css",
@@ -53,20 +53,20 @@
       ],
       "testCommand": "pnpm typecheck && pnpm test",
       "buildCommand": "pnpm build",
-      "workingTree": "dirty"
+      "workingTree": "clean"
     },
     {
       "id": "runningbom",
       "repo": "robom-labs/runningbom",
-      "mainSha": "unavailable",
-      "version": "0.17.13",
+      "mainSha": "ab8d458fbac90d9917bdfd02e026543d3cddc3ac",
+      "version": "0.19.3",
       "productionUrl": "https://robom-labs.github.io/runningbom/",
       "deployProvider": "github-pages",
-      "serviceWorkerCache": "not-declared",
+      "serviceWorkerCache": "pushrun-v0.19.3",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "unavailable",
-      "lastDeployment": "unavailable",
-      "lastVerifiedAt": "2026-07-19T22:40:00+09:00",
+      "lastSuccessfulCI": "31250597092",
+      "lastDeployment": "31250597091",
+      "lastVerifiedAt": "2026-08-08T18:27:24+09:00",
       "keyEntrypoints": [
         "outputs/pushrun-site/index.html",
         "outputs/pushrun-site/styles.css",
@@ -75,20 +75,20 @@
       ],
       "testCommand": "npm test",
       "buildCommand": "none",
-      "workingTree": "dirty"
+      "workingTree": "clean"
     },
     {
       "id": "certbom",
       "repo": "robom-labs/certbom",
-      "mainSha": "unavailable",
-      "version": "0.7.4",
+      "mainSha": "4ca147842713c623775186566fffe37fc994e7fd",
+      "version": "0.8.3",
       "productionUrl": "https://certbom.vercel.app/",
       "deployProvider": "vercel",
-      "serviceWorkerCache": "not-declared",
+      "serviceWorkerCache": "certbom-0.8.3",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "unavailable",
+      "lastSuccessfulCI": "31238007041",
       "lastDeployment": "unavailable",
-      "lastVerifiedAt": "2026-07-19T15:10:00+09:00",
+      "lastVerifiedAt": "2026-07-24T14:30:00+09:00",
       "keyEntrypoints": [
         "apps/web/src/App.tsx",
         "apps/web/src/styles.css",
@@ -97,7 +97,7 @@
       ],
       "testCommand": "pnpm typecheck && pnpm test && pnpm test:e2e",
       "buildCommand": "pnpm build",
-      "workingTree": "dirty"
+      "workingTree": "clean"
     }
   ],
   "openHighRiskWork": [

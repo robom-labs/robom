@@ -1,13 +1,13 @@
 # 청약봄·러닝봄 데이터 복구와 비공개 테스트 업데이트
 
-검증 시각은 2026-08-08 17:14 KST다.
+검증 시각은 2026-08-08 18:27 KST다.
 
 ## 결과
 
 | 제품 | 운영 버전 | 앱 소스 SHA | 최신 main | Android | 결과 |
 | --- | --- | --- | --- | --- | --- |
 | 청약봄 | 0.15.1 | `3a19ec610f4a04494780e967b53fb61170857712` | `5db7288befc7e181f14f90d860daff952a417907` | versionCode 21 | 코드·운영 웹·운영 데이터·AAB PASS, Play 제출 BLOCKED_EXTERNAL |
-| 러닝봄 | 0.19.2 | `211135cd18a64472f4024ed97cd7cbe654c919e0` | `41d49c22dbc2fa9c49fdb63b1b50a11d636064c7` | versionCode 12 | 코드·운영 웹·대회 데이터·AAB·릴리스 가드 PASS, Play 제출 BLOCKED_EXTERNAL |
+| 러닝봄 | 0.19.3 | `da648cae6e0ec8b7fb998fbb2269e563df237310` | `ab8d458fbac90d9917bdfd02e026543d3cddc3ac` | versionCode 13 | 코드·두 운영 웹·대회 단일화·AAB·릴리스 가드 PASS, Play 제출 BLOCKED_EXTERNAL |
 
 `main`에는 릴리스 제어와 제출 안전 경계 복구 커밋이 추가돼 앱 소스 SHA보다 뒤에 있다. AAB는 표의 앱 소스 SHA에서 생성됐고 EAS 빌드 메타데이터로 이를 별도 검증했다.
 
@@ -25,17 +25,20 @@
 ## 러닝봄
 
 - 데이터 리비전 `2026.08.08-race-data-34`에서 대회 212건을 검증했다. 마지막 대회일은 2027-04-18이고 미래 접수 시작 15건, 종료 0건, 마감 83건이다.
+- 수집처가 같은 대회의 5K·10K·하프·풀을 별도 행으로 제공해도 이름·대회일·지역·회차 기준으로 한 대회 카드만 만든다. 종목과 종목별 접수 기간은 카드 안에서 합치고, 날짜·지역·회차가 다른 실제 별도 대회는 분리한다.
+- GitHub Pages와 Vercel 운영 데이터 모두 원본 212건, 고유 대회 212개, 최종 카드 212개, 중복 identity 0개다. 이 중 175개 카드는 여러 종목을 한 카드 안에 정상적으로 포함한다.
 - 같은 대회의 회차·거리 데이터가 바뀌어도 관심 상태가 유지되도록 안정 대회군 ID와 구버전 저장값 마이그레이션을 적용했다.
 - 손상된 관심 저장값을 안전하게 정리하고 원격 일정 변경·취소·매진·마감에 맞춰 알림을 재조정한다. 이 과정에서 권한 창을 다시 띄우지 않는다.
 - 유효 데이터가 바뀌지 않은 반복 동기화는 데이터 리비전을 올리지 않도록 수정했다.
-- EAS build `a36a3ec1-daa5-405a-9b86-f568478bd1c2`의 AAB SHA-256은 `c42574efddad05704be75c8ec83431c1b752ba44f688d21fc054bc8a6ff5216d`다.
+- EAS build `51695246-f022-48bb-a493-f0ddf67a2495`의 AAB SHA-256은 `add709437ef030a39c87b06243f0e47db7a1599713950434f64debe331b3aaea`다. bundletool 1.18.3 검증 결과 패키지는 `kr.robom.runningbom`, 버전은 0.19.3(13), targetSdk는 36이다.
 - 업로드 인증서 SHA-256은 `68:F9:6A:DF:AB:A0:47:8A:53:F9:F7:70:2C:69:CA:43:EC:2E:59:91:0B:9C:06:0F:FB:72:70:82:62:28:F7:46`이며 기존 Play 수락 AAB와 일치한다.
-- Google Play 릴리스 가드는 승인 문서, 후보 소스 SHA, EAS 빌드 ID, AAB 해시, 공식 bundletool 검증을 모두 확인한 뒤에만 Alpha 제출을 허용한다. GitHub Actions dry-run `31247748407`이 통과했다.
+- Google Play 릴리스 가드는 승인 문서 `CEO-APPROVAL-2026-0002`, 후보 소스 SHA, EAS 빌드 ID, AAB 해시, 공식 bundletool 검증을 모두 확인한 뒤에만 Alpha 제출을 허용한다. GitHub Actions dry-run `31250602238`이 통과했다.
+- 오래된 Vercel 보조 운영 주소의 0.17.2·100건 데이터를 제거했다. `https://runningbom.vercel.app/`도 0.19.3·빌드 `da648ca`·212건을 제공하며 HTTP 200을 반환한다.
 
 ## Play 제출 상태
 
 - 저장소에는 자동 제출 프로필을 영구 저장하지 않는 기존 안전 계약을 유지했다. 제출 시도에는 일회성 로컬 `alpha` 설정만 사용했다.
-- 두 AAB를 EAS Submit에 전달해 제출을 시도했지만 두 앱 모두 `Google Service Account Keys cannot be set up in --non-interactive mode`에서 중단됐다.
+- 두 AAB를 EAS Submit에 전달해 제출을 시도했지만 두 앱 모두 `Google Service Account Keys cannot be set up in --non-interactive mode`에서 중단됐다. PC, 저장소 secret, EAS 설정에서 재사용 가능한 서비스 계정 JSON도 찾지 못했다.
 - Google Play에는 새 AAB가 올라가지 않았고 기존 비공개 테스트 트랙과 테스터 상태는 변경되지 않았다.
 - 다음 실행은 Google Play Console에서 AAB를 직접 업로드하거나, EAS에 최소 권한 Google Service Account를 한 번 연결한 뒤 같은 파일을 제출하는 것이다.
 
@@ -49,5 +52,5 @@
 ## 롤백
 
 - 청약봄 코드 롤백은 `git revert 3a19ec610f4a04494780e967b53fb61170857712` 후 Pages 재배포로 수행한다. 데이터 장애 시 Supabase 검증 스냅샷의 마지막 정상본을 유지한다.
-- 러닝봄 기능 롤백 기준은 0.19.1(versionCode 11)이다. 릴리스 제어 문서는 `CEO-APPROVAL-2026-0001`의 롤백 값을 따른다.
+- 러닝봄 웹 기능 롤백은 `git revert da648cae6e0ec8b7fb998fbb2269e563df237310` 후 테스트와 재배포로 수행한다. Play는 새 제출 전이므로 현재 활성 0.17.13(2)을 그대로 유지하며, 릴리스 제어 문서는 `CEO-APPROVAL-2026-0002`를 따른다.
 - Play 제출 전이므로 이번 작업으로 Google Play에서 되돌릴 새 출시는 없다.

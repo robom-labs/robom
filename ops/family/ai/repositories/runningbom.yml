@@ -16,5 +16,5 @@ family_ui_adapter: vanilla
 family_spec_deployed: "1.1.0"
 stable_install_url: "https://robom.kr/get/runningbom"
 context_topics: ["대회 catalog", "접수 링크", "상태", "정적 build", "link health", "PWA"]
-critical_invariants: ["설정은 마지막·다른 로봄 앱은 registry 동적", "분석 이벤트에 개인정보·비밀값 금지"]
+critical_invariants: ["같은 대회의 5K·10K·하프·풀은 종목별 행이 아니라 대회 카드 한 개로 표시"]
 high_risk_paths: ["src", "data", "sw.js", "manifest.webmanifest"]
