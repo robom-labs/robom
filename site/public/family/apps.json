@@ -52,8 +52,8 @@
       "stableInstallUrl": "https://robom.kr/get/homebom",
       "mobileStatus": "native-closed-test-review",
       "familySpecVersion": "1.1.0",
-      "lastVerifiedAt": "2026-07-24T16:24:00+09:00",
-      "lastDeployedSha": "0233c5beb96d84780b0e1ffe438c6a13469d9845",
+      "lastVerifiedAt": "2026-08-08T16:44:12+09:00",
+      "lastDeployedSha": "3a19ec610f4a04494780e967b53fb61170857712",
       "lastDataSyncAt": "2026-08-08T16:05:02+09:00",
       "freshnessStatus": "runtime"
     },
@@ -80,8 +80,8 @@
       "stableInstallUrl": "https://robom.kr/get/runningbom",
       "mobileStatus": "native-closed-test-active",
       "familySpecVersion": "1.1.0",
-      "lastVerifiedAt": "2026-07-26T19:59:17+09:00",
-      "lastDeployedSha": "0f71ff5502965aba3e6f63c2e7e748fe3f5c5ecc",
+      "lastVerifiedAt": "2026-08-08T16:44:12+09:00",
+      "lastDeployedSha": "211135cd18a64472f4024ed97cd7cbe654c919e0",
       "lastDataSyncAt": "2026-08-08T16:14:00+09:00",
       "freshnessStatus": "healthy"
     },
