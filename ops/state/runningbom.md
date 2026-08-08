@@ -2,23 +2,24 @@
 
 ## 현재 상태
 
-- 운영 웹·PWA 버전: 0.19.3.
+- 운영 웹·PWA 버전: 0.20.0.
 - 기존 이름: PushRun.
 - 역할: 러닝 대회 탐색, 접수 시작과 대회일 알림 제공.
 - 목표 저장소: `robom-labs/runningbom`.
 - 현재 배포: https://robom-labs.github.io/runningbom/.
 - 보조 배포: https://runningbom.vercel.app/.
 - 기존 배포: https://runnerpyrri-lgtm.github.io/pushrun/.
-- 운영 main: `ab8d458fbac90d9917bdfd02e026543d3cddc3ac`.
-- 운영 앱 소스 SHA: `da648cae6e0ec8b7fb998fbb2269e563df237310`.
-- PWA 캐시: `pushrun-v0.19.3`.
+- 운영 main: `0602e115e2cbd2ae4e7edd2290353d2af0b503a9`.
+- PWA 캐시: `pushrun-v0.20.0`.
 - 데이터 리비전: `2026.08.08-race-data-34`, 전체 212개 대회, 마지막 대회일 2027-04-18.
 - Google Play Alpha: 기존 비공개 테스트와 테스터는 보존했다.
 - Android 후보: versionCode 13, `0.19.3`, EAS build `51695246-f022-48bb-a493-f0ddf67a2495`, AAB SHA-256 `add709437ef030a39c87b06243f0e47db7a1599713950434f64debe331b3aaea`.
+- 검증된 Android 후보 소스 SHA: `da648cae6e0ec8b7fb998fbb2269e563df237310`. 웹 0.20.0과는 별도 후보이며 Play Console에 제출하지 않았다.
 - 릴리스 단계: `CLOSED_PUBLISH` 승인을 통과했지만 EAS의 Google Service Account 미연결로 Play 업로드 전에 중단됐다.
 
 ## Next
 
+- [x] 웹 0.20.0에서 한 대회당 카드 한 장 규칙, 종목별 접수·알림, 관심 대회 필터, 6시간 수집과 3시간 운영 감시, 320px 레이아웃을 운영 반영했다.
 - [x] 212개 대회의 기간·상태·접수 링크를 검증하고 반복 동기화가 데이터 리비전을 불필요하게 올리지 않도록 수정했다.
 - [x] 대회군 기준 관심 상태, 구버전 저장값 마이그레이션, 손상 저장값 정리와 원격 일정 변경 알림 재조정을 반영했다.
 - [x] 같은 대회의 5K·10K·하프·풀 행을 대회 카드 한 개로 합치고, 종목·종목별 접수창은 그 카드 안에 보존하는 불변조건을 수집·웹·네이티브·릴리스 게이트에 적용했다.

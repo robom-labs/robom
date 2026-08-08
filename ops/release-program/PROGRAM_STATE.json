@@ -3,10 +3,10 @@
   "program_id": "ROBOM_4_APP_RELEASE",
   "program_version": "1.3.0",
   "governing": ["ops/company-os/ROBOM_ULTIMATE_COMPANY_OS.md", "ops/registry/apps.yml"],
-  "updated_at": "2026-08-08T18:27:24+09:00",
+  "updated_at": "2026-08-08T20:40:00+09:00",
   "phase": "CLOSED_TEST_ROLLOUT",
-  "status": "HOME_RUNNING_UPDATE_AABS_READY_BLOCKED_EXTERNAL",
-  "session_note": "청약봄 0.15.1과 러닝봄 0.19.3의 데이터·모바일·알림 복구를 main과 운영 웹에 반영하고 Android AAB를 검증했다. 러닝봄은 한 대회의 거리별 행을 카드 한 개로 합치고 GitHub Pages·Vercel 모두 212개 고유 대회로 동기화했다. EAS Submit은 두 앱 모두 Google Service Account가 연결되지 않아 Play 업로드 전에 중단됐고 기존 비공개 테스트 트랙은 변경하지 않았다.",
+  "status": "WEB_CURRENT_ANDROID_AABS_READY_BLOCKED_EXTERNAL",
+  "session_note": "청약봄 웹 0.16.0과 러닝봄 웹 0.20.0을 최신 main·GitHub Pages와 동기화했다. 검증된 Android 후보는 각각 0.15.1(21), 0.19.3(13)으로 별도 유지하며 Google Play Console과 기존 비공개 테스트 트랙은 변경하지 않았다.",
   "apps": {
     "outbom": {
       "version": "0.25.6",
@@ -17,26 +17,28 @@
       "verified_at": "2026-07-24T16:55:00+09:00"
     },
     "homebom": {
-      "version": "0.15.1",
+      "version": "0.16.0",
+      "android_candidate_version": "0.15.1",
       "version_code": 21,
-      "main_sha": "5db7288befc7e181f14f90d860daff952a417907",
+      "main_sha": "dac7d024496f0e205e8c98dad043b5e1dc81fae1",
       "aab_source_sha": "3a19ec610f4a04494780e967b53fb61170857712",
       "eas_build_id": "41116b30-bb50-48cb-9381-5aa93195eb8b",
       "aab_sha256": "07658569317a37a9ee67152249968f46025cd887a61845df6d440884df108672",
       "google_play_status": "EXISTING_CLOSED_TEST_PRESERVED_NEW_UPDATE_NOT_SUBMITTED",
       "release_state": "AAB_READY_GOOGLE_SERVICE_ACCOUNT_REQUIRED",
-      "verified_at": "2026-08-08T17:14:34+09:00"
+      "verified_at": "2026-08-08T20:40:00+09:00"
     },
     "runningbom": {
-      "version": "0.19.3",
+      "version": "0.20.0",
+      "android_candidate_version": "0.19.3",
       "version_code": 13,
-      "main_sha": "ab8d458fbac90d9917bdfd02e026543d3cddc3ac",
+      "main_sha": "0602e115e2cbd2ae4e7edd2290353d2af0b503a9",
       "aab_source_sha": "da648cae6e0ec8b7fb998fbb2269e563df237310",
       "eas_build_id": "51695246-f022-48bb-a493-f0ddf67a2495",
       "aab_sha256": "add709437ef030a39c87b06243f0e47db7a1599713950434f64debe331b3aaea",
       "google_play_status": "EXISTING_CLOSED_TEST_PRESERVED_NEW_UPDATE_NOT_SUBMITTED",
       "release_state": "AAB_READY_GOOGLE_SERVICE_ACCOUNT_REQUIRED",
-      "verified_at": "2026-08-08T18:27:24+09:00"
+      "verified_at": "2026-08-08T20:40:00+09:00"
     },
     "certbom": {
       "version": "0.8.3",
@@ -58,7 +60,8 @@
     "청약봄 0.15.1(21)과 러닝봄 0.19.3(13) AAB 서명·해시·EAS 소스 커밋 검증",
     "러닝봄 GitHub Pages와 Vercel을 0.19.3·212개 고유 대회·중복 카드 0개로 동기화",
     "일회성 Alpha 제출 설정으로 EAS Submit 자격 증명 경계를 확인하고 저장소의 수동 제출 안전 계약을 보존",
-    "자격증봄 내 일정·출처 신뢰 표시·보안 감사를 보강하고 main·Vercel·외장하드 미러를 동일 SHA로 동기화"
+    "자격증봄 내 일정·출처 신뢰 표시·보안 감사를 보강하고 main·Vercel·외장하드 미러를 동일 SHA로 동기화",
+    "청약봄 웹 0.16.0과 러닝봄 웹 0.20.0의 최신 main·서비스워커·GitHub Pages 배포를 본사 장부와 동기화"
   ],
   "open_external_work": [
     "Google Play Console에서 두 AAB를 수동 업로드하거나 EAS에 Google Service Account를 한 번 연결",
