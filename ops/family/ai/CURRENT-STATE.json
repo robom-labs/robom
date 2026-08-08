@@ -1,15 +1,15 @@
 {
-  "generatedAt": "2026-08-08T13:20:12.068Z",
+  "generatedAt": "2026-08-08T13:58:02.840Z",
   "familySpecVersion": "1.1.0",
-  "sourceCommit": "14530c35e734c9c5655095ab78ae564983ea7597",
+  "sourceCommit": "688dca6e0bf3aa7735ac4945310070a3a2b95cf8",
   "robom": {
-    "mainSha": "14530c35e734c9c5655095ab78ae564983ea7597",
+    "mainSha": "688dca6e0bf3aa7735ac4945310070a3a2b95cf8",
     "version": "2.2.3",
     "productionUrl": "https://robom.kr",
     "deployProvider": "sites+github-pages",
     "serviceWorkerCache": "not-declared",
-    "lastSuccessfulCI": "31259098911",
-    "lastDeployment": "31259098904"
+    "lastSuccessfulCI": "31260690207",
+    "lastDeployment": "31260690183"
   },
   "apps": [
     {
@@ -37,15 +37,15 @@
     {
       "id": "homebom",
       "repo": "robom-labs/homebom",
-      "mainSha": "599180c6d51fda5086a23d6845c02c8b8353fc15",
+      "mainSha": "04884ce4ed3d11bdc05b579a383eadbf8d5eff85",
       "version": "0.17.1",
       "productionUrl": "https://robom-labs.github.io/homebom/",
       "deployProvider": "github-pages",
       "serviceWorkerCache": "zzc-v0.17.1",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "31258584688",
-      "lastDeployment": "31258584513",
-      "lastVerifiedAt": "2026-08-08T22:11:37+09:00",
+      "lastSuccessfulCI": "31259700256",
+      "lastDeployment": "31259700027",
+      "lastVerifiedAt": "2026-08-08T22:34:00+09:00",
       "keyEntrypoints": [
         "apps/web/src/App.tsx",
         "apps/web/src/styles.css",
@@ -58,15 +58,15 @@
     {
       "id": "runningbom",
       "repo": "robom-labs/runningbom",
-      "mainSha": "34053e555001abdb08797214a033f23579e16eb0",
+      "mainSha": "9aac3826fba02a53c7d5b08b318ae5cc288cb2ca",
       "version": "0.21.0",
       "productionUrl": "https://robom-labs.github.io/runningbom/",
       "deployProvider": "github-pages",
       "serviceWorkerCache": "pushrun-v0.21.0",
       "familySpecVersion": "1.1.0",
-      "lastSuccessfulCI": "31257813422",
-      "lastDeployment": "31258568451",
-      "lastVerifiedAt": "2026-08-08T22:11:37+09:00",
+      "lastSuccessfulCI": "31259700193",
+      "lastDeployment": "31260542895",
+      "lastVerifiedAt": "2026-08-08T22:54:00+09:00",
       "keyEntrypoints": [
         "outputs/pushrun-site/index.html",
         "outputs/pushrun-site/styles.css",

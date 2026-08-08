@@ -38,7 +38,7 @@
 - 청약봄은 core 96, native 41, web 43, node 10, E2E 10, service worker 2 테스트와 typecheck·family drift 0·웹 빌드·Android/iOS export를 통과했다.
 - 러닝봄은 root 94, mobile 1,192 테스트와 type/config/static/build/native export·production watchdog을 통과했다.
 - 로봄 본사는 node 46, rendered HTML 11, Chromium 9개 viewport, WebKit 9개 viewport를 통과했다. 모든 E2E에서 overflow 0, 48px 이상 터치, console error 0을 확인했다.
-- 청약봄 최신 CI `31259700256`과 Pages `31259700027`, 러닝봄 CI `31259700193`·Family `31259700404`·Preview APK `31259700180`·후속 Pages `31260542895`, 본사 Guardrails `31259948255`와 Pages `31259948256`이 통과했다. 공식 JavaScript Action은 Node 24 기반 최신 major의 immutable SHA로 고정했고 해당 실행 로그에 Node 20 폐기 경고가 없다.
+- 청약봄 최신 CI `31259700256`과 Pages `31259700027`, 러닝봄 CI `31259700193`·Family `31259700404`·Preview APK `31259700180`·후속 Pages `31260542895`, 본사 상태 정본 Guardrails `31260690207`과 Pages `31260690183`이 통과했다. 공식 JavaScript Action은 Node 24 기반 최신 major의 immutable SHA로 고정했고 해당 실행 로그에 Node 20 폐기 경고가 없다.
 - 청약봄 Production은 build SHA `04884ce4ed3d11bdc05b579a383eadbf8d5eff85`와 cache `zzc-v0.17.1`을 제공한다.
 - 러닝봄 Production은 버전 0.21.0과 cache `pushrun-v0.21.0`을 제공한다.
 - 러닝봄 Preview 운영 매니페스트는 0.21.0(67)과 분리 패키지 `kr.robom.runningbom.preview`를 제공한다.

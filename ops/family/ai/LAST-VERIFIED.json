@@ -1,22 +1,25 @@
 {
-  "generatedAt": "2026-08-08T13:20:12.068Z",
-  "sourceCommit": "14530c35e734c9c5655095ab78ae564983ea7597",
+  "generatedAt": "2026-08-08T13:58:02.840Z",
+  "sourceCommit": "688dca6e0bf3aa7735ac4945310070a3a2b95cf8",
   "files": {
-    "ops/registry/apps.yml": "sha256:51831e26689c687baadb67e2903c69809bad12ceaa80c96dc70f4a4ab379c329",
+    "ops/registry/apps.yml": "sha256:89a75ff3f4fa44554aa3e2a22656d92ca763fb484994e24f93bdbdc3f3909294",
     "ops/family/family-version.json": "sha256:2690c10d9f1c8f6d42981f8d2b77a2ff5b2ea9e146039e2a556589b6f8941203",
     "ops/family/contracts/analytics.yml": "sha256:7bbac0683e187ae6fbff287c56ad4021ea96d4014dd988fb301d5d3fbce80678",
     "ops/family/contracts/install.yml": "sha256:76b64da7c383c9b60fd54b874f37671fb7bf0d1e6bdf5d5de0acaedde7a39836",
-    "ops/family/compatibility.yml": "sha256:2749f6b5876cddce71af3395fde22a1c9387c1caefe93c8db5bc250af3e64713"
+    "ops/family/compatibility.yml": "sha256:0fbeafdd021318350836dca05ae6ec21179453d7a4e45c09555f0b0aee1117ee"
   },
   "tests": [
-    "homebom=core96+native41+web43+node10+e2e10+sw2",
-    "runningbom=root94+mobile1192",
-    "robom=node46+html11+chromium9+webkit9"
+    "ops-56-pass",
+    "site-rendered-html-11-pass",
+    "chromium-e2e-9-pass",
+    "webkit-e2e-9-pass",
+    "homebom-full-gate-pass",
+    "runningbom-full-gate-pass"
   ],
   "productionSmoke": [
-    "homebom=production599180c+25officialnotices",
-    "runningbom=production0.21.0+212uniqueevents",
-    "robom=production2.2.3"
+    "robom.kr-tls-qr-pass",
+    "homebom-25-unique-future-2026-08-18",
+    "runningbom-212-unique-preview-67"
   ],
-  "nextDiffBase": "14530c35e734c9c5655095ab78ae564983ea7597"
+  "nextDiffBase": "688dca6e0bf3aa7735ac4945310070a3a2b95cf8"
 }
