@@ -33,7 +33,7 @@ export const generatedAppMeta = [
     "name": "청약봄",
     "englishName": "HomeBom",
     "repo": "robom-labs/homebom",
-    "version": "0.14.8",
+    "version": "0.15.1",
     "dataVersion": "official-notices-runtime-v1",
     "webUrl": "https://robom-labs.github.io/homebom/",
     "healthcheckUrl": "https://robom-labs.github.io/homebom/",
@@ -53,7 +53,7 @@ export const generatedAppMeta = [
     "familySpecVersion": "1.1.0",
     "lastVerifiedAt": "2026-07-24T16:24:00+09:00",
     "lastDeployedSha": "0233c5beb96d84780b0e1ffe438c6a13469d9845",
-    "lastDataSyncAt": "2026-07-17T21:05:01+09:00",
+    "lastDataSyncAt": "2026-08-08T16:05:02+09:00",
     "freshnessStatus": "runtime"
   },
   {
@@ -61,8 +61,8 @@ export const generatedAppMeta = [
     "name": "러닝봄",
     "englishName": "RunningBom",
     "repo": "robom-labs/runningbom",
-    "version": "0.19.0",
-    "dataVersion": "2026.07.24-race-data-12",
+    "version": "0.19.2",
+    "dataVersion": "2026.08.08-race-data-34",
     "webUrl": "https://robom-labs.github.io/runningbom/",
     "healthcheckUrl": "https://robom-labs.github.io/runningbom/",
     "deployProvider": "github-pages",
@@ -81,7 +81,7 @@ export const generatedAppMeta = [
     "familySpecVersion": "1.1.0",
     "lastVerifiedAt": "2026-07-26T19:59:17+09:00",
     "lastDeployedSha": "0f71ff5502965aba3e6f63c2e7e748fe3f5c5ecc",
-    "lastDataSyncAt": "2026-07-24T08:48:14+09:00",
+    "lastDataSyncAt": "2026-08-08T16:14:00+09:00",
     "freshnessStatus": "healthy"
   },
   {

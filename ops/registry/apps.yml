@@ -39,7 +39,7 @@ apps:
     name: 청약봄
     english_name: HomeBom
     repo: robom-labs/homebom
-    version: 0.14.8
+    version: 0.15.1
     data_version: official-notices-runtime-v1
     version_source: https://raw.githubusercontent.com/robom-labs/homebom/main/apps/web/package.json
     web_url: https://robom-labs.github.io/homebom/
@@ -60,7 +60,7 @@ apps:
     family_spec_version: 1.1.0
     last_verified_at: "2026-07-24T16:24:00+09:00"
     last_deployed_sha: 0233c5beb96d84780b0e1ffe438c6a13469d9845
-    last_data_sync_at: "2026-07-17T21:05:01+09:00"
+    last_data_sync_at: "2026-08-08T16:05:02+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
     # 시간별 실공고 갱신 파이프라인의 missed-run heartbeat — watchdog이 x-verified-at 나이를 검사한다.
@@ -74,8 +74,8 @@ apps:
     name: 러닝봄
     english_name: RunningBom
     repo: robom-labs/runningbom
-    version: 0.19.0
-    data_version: 2026.07.24-race-data-12
+    version: 0.19.2
+    data_version: 2026.08.08-race-data-34
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
     web_url: https://robom-labs.github.io/runningbom/
     healthcheck_url: https://robom-labs.github.io/runningbom/
@@ -95,7 +95,7 @@ apps:
     family_spec_version: 1.1.0
     last_verified_at: "2026-07-26T19:59:17+09:00"
     last_deployed_sha: 0f71ff5502965aba3e6f63c2e7e748fe3f5c5ecc
-    last_data_sync_at: "2026-07-24T08:48:14+09:00"
+    last_data_sync_at: "2026-08-08T16:14:00+09:00"
     freshness_status: healthy
     freshness_slo_hours: 168
     stack: static HTML + CSS + JavaScript
