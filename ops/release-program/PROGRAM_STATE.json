@@ -3,7 +3,7 @@
   "program_id": "ROBOM_4_APP_RELEASE",
   "program_version": "1.3.0",
   "governing": ["ops/company-os/ROBOM_ULTIMATE_COMPANY_OS.md", "ops/registry/apps.yml"],
-  "updated_at": "2026-08-08T22:12:00+09:00",
+  "updated_at": "2026-08-08T22:34:00+09:00",
   "phase": "CLOSED_TEST_ROLLOUT",
   "status": "HOME_RUNNING_UPDATE_AABS_READY_BLOCKED_EXTERNAL",
   "session_note": "청약봄 0.17.1과 러닝봄 0.21.0을 main과 운영 웹에 반영하고 최종 Android AAB를 검증했다. 청약봄은 공식 공고 판단 필드·빠른 판단 타일·일정 밀도 캘린더를 보강하고 불필요 Android 권한을 제거했다. 러닝봄은 실제 월간 달력·접수 마감 카운트다운·마감 임박 흐름을 추가하면서 한 대회당 카드 한 장 불변조건을 유지한다. 기존 매시간·6시간 수집, 독립 watchdog, 이상 차단, 마지막 정상본은 계속 동작한다. 두 앱 모두 EAS Google Service Account가 연결되지 않아 새 AAB의 Play 업로드 전에서 중단했고 기존 비공개 테스트는 보존했다.",
@@ -19,24 +19,24 @@
     "homebom": {
       "version": "0.17.1",
       "version_code": 24,
-      "main_sha": "599180c6d51fda5086a23d6845c02c8b8353fc15",
+      "main_sha": "04884ce4ed3d11bdc05b579a383eadbf8d5eff85",
       "aab_source_sha": "599180c6d51fda5086a23d6845c02c8b8353fc15",
       "eas_build_id": "d43fa504-ec14-47b3-9e8f-f19042b50748",
       "aab_sha256": "24114174fa420e77b9856a22bdc88b0415d2c137634e464b2ecb560ad91257f5",
       "google_play_status": "EXISTING_CLOSED_TEST_PRESERVED_NEW_UPDATE_NOT_SUBMITTED",
       "release_state": "AAB_READY_GOOGLE_SERVICE_ACCOUNT_OR_CHROME_CONTROL_REQUIRED",
-      "verified_at": "2026-08-08T22:10:00+09:00"
+      "verified_at": "2026-08-08T22:34:00+09:00"
     },
     "runningbom": {
       "version": "0.21.0",
       "version_code": 15,
-      "main_sha": "34053e555001abdb08797214a033f23579e16eb0",
+      "main_sha": "0b48526191c0e29ba2d650bfd8bc5ba0cb969713",
       "aab_source_sha": "86e1682468d8d0979d95943c957148d2c76cbc29",
       "eas_build_id": "0cc5c452-54bc-492c-a983-19639df72127",
       "aab_sha256": "4cf319b97ea19b9bdf320974bdaa3496d5ccc5282ca0492a45ba9c6d7445e703",
       "google_play_status": "EXISTING_CLOSED_TEST_PRESERVED_NEW_UPDATE_NOT_SUBMITTED",
       "release_state": "AAB_READY_GOOGLE_SERVICE_ACCOUNT_OR_CHROME_CONTROL_REQUIRED",
-      "verified_at": "2026-08-08T22:10:00+09:00"
+      "verified_at": "2026-08-08T22:34:00+09:00"
     },
     "certbom": {
       "version": "0.8.3",
@@ -63,7 +63,8 @@
     "러닝봄 0.20.0(14) Play 릴리스 dry-run을 GitHub Actions 31255912729에서 통과",
     "일회성 Alpha 제출 설정으로 EAS Submit 자격 증명 경계를 확인하고 저장소의 수동 제출 안전 계약을 보존",
     "자격증봄 내 일정·출처 신뢰 표시·보안 감사를 보강하고 main·Vercel·외장하드 미러를 동일 SHA로 동기화",
-    "청약봄 웹 0.17.1과 러닝봄 웹 0.21.0의 최신 main·서비스워커·GitHub Pages 배포를 본사 장부와 동기화"
+    "청약봄 웹 0.17.1과 러닝봄 웹 0.21.0의 최신 main·서비스워커·GitHub Pages 배포를 본사 장부와 동기화",
+    "청약봄·러닝봄·본사 GitHub Actions를 Node 24 기반 최신 공식 major의 고정 SHA로 전환하고 최신 main·Pages 배포를 재검증"
   ],
   "open_external_work": [
     "Google Play Console에서 두 AAB를 수동 업로드하거나 EAS에 Google Service Account를 한 번 연결",

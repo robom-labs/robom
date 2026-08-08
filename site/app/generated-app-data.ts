@@ -51,8 +51,8 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/homebom",
     "mobileStatus": "native-closed-test-review",
     "familySpecVersion": "1.1.0",
-    "lastVerifiedAt": "2026-08-08T22:11:37+09:00",
-    "lastDeployedSha": "599180c6d51fda5086a23d6845c02c8b8353fc15",
+    "lastVerifiedAt": "2026-08-08T22:34:00+09:00",
+    "lastDeployedSha": "04884ce4ed3d11bdc05b579a383eadbf8d5eff85",
     "lastDataSyncAt": "2026-08-08T21:05:02+09:00",
     "freshnessStatus": "runtime"
   },
@@ -79,8 +79,8 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/runningbom",
     "mobileStatus": "native-closed-test-active",
     "familySpecVersion": "1.1.0",
-    "lastVerifiedAt": "2026-08-08T22:11:37+09:00",
-    "lastDeployedSha": "34053e555001abdb08797214a033f23579e16eb0",
+    "lastVerifiedAt": "2026-08-08T22:34:00+09:00",
+    "lastDeployedSha": "0b48526191c0e29ba2d650bfd8bc5ba0cb969713",
     "lastDataSyncAt": "2026-08-08T04:18:56+09:00",
     "freshnessStatus": "healthy"
   },

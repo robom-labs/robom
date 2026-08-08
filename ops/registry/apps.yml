@@ -58,8 +58,8 @@ apps:
     stable_install_url: https://robom.kr/get/homebom
     mobile_status: native-closed-test-review
     family_spec_version: 1.1.0
-    last_verified_at: "2026-08-08T22:11:37+09:00"
-    last_deployed_sha: 599180c6d51fda5086a23d6845c02c8b8353fc15
+    last_verified_at: "2026-08-08T22:34:00+09:00"
+    last_deployed_sha: 04884ce4ed3d11bdc05b579a383eadbf8d5eff85
     last_data_sync_at: "2026-08-08T21:05:02+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
@@ -93,8 +93,8 @@ apps:
     stable_install_url: https://robom.kr/get/runningbom
     mobile_status: native-closed-test-active
     family_spec_version: 1.1.0
-    last_verified_at: "2026-08-08T22:11:37+09:00"
-    last_deployed_sha: 34053e555001abdb08797214a033f23579e16eb0
+    last_verified_at: "2026-08-08T22:34:00+09:00"
+    last_deployed_sha: 0b48526191c0e29ba2d650bfd8bc5ba0cb969713
     last_data_sync_at: "2026-08-08T04:18:56+09:00"
     freshness_status: healthy
     freshness_slo_hours: 168

@@ -9,7 +9,7 @@
 - 현재 배포: https://robom-labs.github.io/runningbom/.
 - 보조 배포: https://runningbom.vercel.app/.
 - 기존 배포: https://runnerpyrri-lgtm.github.io/pushrun/.
-- 운영 main: `34053e555001abdb08797214a033f23579e16eb0`.
+- 운영 main: `0b48526191c0e29ba2d650bfd8bc5ba0cb969713`.
 - 운영 앱 소스 SHA: `86e1682468d8d0979d95943c957148d2c76cbc29`.
 - PWA 캐시: `pushrun-v0.21.0`.
 - 데이터 리비전: `2026.08.08-race-data-34`, 전체 212개 대회, 마지막 대회일 2027-04-18.
@@ -28,6 +28,7 @@
 - [x] 운영 데이터 212건이 고유 대회 212개, 표시 카드 212개이며 종목 때문에 늘어난 중복 카드가 0개인지 두 운영 주소에서 확인했다.
 - [x] 6시간 자동 수집, watchdog, 이상 데이터 차단, 마지막 정상본, 400일 시간 이동·장애 주입 검사를 반영했다.
 - [x] Android 0.21.0(15) AAB의 패키지·버전·targetSdk 36·업로드 인증서·해시와 EAS 소스 SHA를 검증했다.
+- [x] GitHub 공식 checkout·setup-node·artifact·Pages Action을 Node 24 기반 최신 major의 고정 SHA로 갱신하고 CI·Pages를 재검증했다.
 - [x] fail-closed 릴리스 가드의 Alpha 제출 dry-run과 공식 bundletool 검증을 GitHub Actions 실행 `31255912729`에서 통과했다.
 - [ ] Google Play Console에서 AAB를 직접 업로드하거나 EAS Google Service Account를 연결한 뒤 기존 Alpha 트랙에 0.21.0(15)을 제출한다.
 - [x] 패밀리 디자인과 대표 아이콘을 운영 배포했다.

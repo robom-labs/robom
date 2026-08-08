@@ -1,15 +1,15 @@
 # 청약봄·러닝봄 데이터 복구와 비공개 테스트 업데이트
 
-최종 검증 시각은 2026-08-08 22:12 KST다.
+최종 검증 시각은 2026-08-08 22:34 KST다.
 
 ## 결과
 
 | 제품 | 운영 버전 | 앱 소스 SHA | 최신 main | Android | 결과 |
 | --- | --- | --- | --- | --- | --- |
-| 청약봄 | 0.17.1 | `599180c6d51fda5086a23d6845c02c8b8353fc15` | 동일 | versionCode 24 | 코드·운영 웹·운영 데이터·최종 AAB·권한 최소화 PASS, Play 제출 BLOCKED_EXTERNAL |
-| 러닝봄 | 0.21.0 | `86e1682468d8d0979d95943c957148d2c76cbc29` | `34053e555001abdb08797214a033f23579e16eb0` | versionCode 15 | 코드·운영 웹·대회 단일화·최종 AAB PASS, Play 제출 BLOCKED_EXTERNAL |
+| 청약봄 | 0.17.1 | `599180c6d51fda5086a23d6845c02c8b8353fc15` | `04884ce4ed3d11bdc05b579a383eadbf8d5eff85` | versionCode 24 | 코드·운영 웹·운영 데이터·최종 AAB·권한 최소화 PASS, Play 제출 BLOCKED_EXTERNAL |
+| 러닝봄 | 0.21.0 | `86e1682468d8d0979d95943c957148d2c76cbc29` | `0b48526191c0e29ba2d650bfd8bc5ba0cb969713` | versionCode 15 | 코드·운영 웹·대회 단일화·최종 AAB PASS, Play 제출 BLOCKED_EXTERNAL |
 
-러닝봄 최신 main의 추가 커밋은 인앱 업데이트 미리보기 매니페스트만 갱신한다. 최종 AAB는 표의 앱 소스 SHA에서 생성됐고 EAS 빌드 메타데이터로 이를 별도 검증했다.
+두 앱 최신 main에는 앱·AAB 소스 커밋 뒤의 운영 메타데이터와 Node 24 기반 CI 유지보수 커밋이 포함된다. 최종 AAB는 표의 앱 소스 SHA에서 생성됐고 EAS 빌드 메타데이터로 이를 별도 검증했다.
 
 ## 청약봄
 
@@ -37,7 +37,8 @@
 - 청약봄은 core 96, native 41, web 43, node 10, E2E 10, service worker 2 테스트와 typecheck·family drift 0·웹 빌드·Android/iOS export를 통과했다.
 - 러닝봄은 root 94, mobile 1,192 테스트와 type/config/static/build/native export·production watchdog을 통과했다.
 - 로봄 본사는 node 46, rendered HTML 11, Chromium 9개 viewport, WebKit 9개 viewport를 통과했다. 모든 E2E에서 overflow 0, 48px 이상 터치, console error 0을 확인했다.
-- 청약봄 Production은 build SHA `599180c6d51fda5086a23d6845c02c8b8353fc15`와 cache `zzc-v0.17.1`을 제공한다.
+- 청약봄 최신 CI `31259700256`과 Pages `31259700027`, 러닝봄 최신 CI `31259700193`과 Pages `31259700188`, 본사 Guardrails `31259642054`와 Pages `31259642053`이 Node 24 기반 공식 Action으로 통과했다.
+- 청약봄 Production은 build SHA `04884ce4ed3d11bdc05b579a383eadbf8d5eff85`와 cache `zzc-v0.17.1`을 제공한다.
 - 러닝봄 Production은 버전 0.21.0과 cache `pushrun-v0.21.0`을 제공한다.
 
 ## Play 제출 상태
@@ -55,6 +56,6 @@
 
 ## 롤백
 
-- 청약봄 기능 롤백은 `git revert 599180c6d51fda5086a23d6845c02c8b8353fc15 eea9a498bba77ea3e941055d1a95b65bc59229ad` 후 테스트와 Pages 재배포로 수행한다.
-- 러닝봄 기능 롤백은 `git revert 86e1682468d8d0979d95943c957148d2c76cbc29` 후 테스트와 Pages 재배포로 수행한다. 미리보기 매니페스트만 되돌릴 때는 `git revert 34053e555001abdb08797214a033f23579e16eb0`을 별도로 사용한다.
+- 청약봄 CI 유지보수만 되돌릴 때는 `git revert 04884ce4ed3d11bdc05b579a383eadbf8d5eff85`를 사용한다. 기능까지 되돌릴 때는 이어서 `git revert 599180c6d51fda5086a23d6845c02c8b8353fc15 eea9a498bba77ea3e941055d1a95b65bc59229ad`를 수행한 뒤 테스트와 Pages를 재배포한다.
+- 러닝봄 CI 유지보수만 되돌릴 때는 `git revert 0b48526191c0e29ba2d650bfd8bc5ba0cb969713`를 사용한다. 기능까지 되돌릴 때는 이어서 `git revert 34053e555001abdb08797214a033f23579e16eb0 86e1682468d8d0979d95943c957148d2c76cbc29`를 수행한 뒤 테스트와 Pages를 재배포한다.
 - 데이터 장애 시 두 앱 모두 마지막 정상본을 계속 제공하고, 새 Play 제출 전이므로 이번 작업으로 Google Play에서 되돌릴 출시는 없다.

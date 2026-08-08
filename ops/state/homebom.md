@@ -8,7 +8,8 @@
 - 목표 저장소: `robom-labs/homebom`.
 - 현재 배포: https://robom-labs.github.io/homebom/.
 - 기존 배포: https://runnerpyrri-lgtm.github.io/zoopzoopcall/.
-- 운영 main·앱 소스 SHA: `599180c6d51fda5086a23d6845c02c8b8353fc15`.
+- 운영 main: `04884ce4ed3d11bdc05b579a383eadbf8d5eff85`.
+- 운영 앱·AAB 소스 SHA: `599180c6d51fda5086a23d6845c02c8b8353fc15`.
 - PWA 캐시: `zzc-v0.17.1`.
 - 운영 API: 청약홈 공식 상세 API 5개 범주에서 활성 공고 25건을 제공한다. 2026-08-08 KST 기준 25건 모두 접수 시작일이 있고, 23건은 향후 14일 안에 접수를 시작한다.
 - 자동 최신화: 매시 5분 정상 수집, 매시 35분·50분 독립 watchdog, 75분 이상 미갱신 시 자동 복구 호출을 사용한다. 이상 응답·0건·대량 삭제는 공개하지 않고 마지막 정상본을 유지한다.
@@ -25,6 +26,7 @@
 - [x] 딥링크 공고 복원, 발표·계약 일정 확인본, 공식 일정 변경 시 알림 재예약, 손상 저장값 마이그레이션을 반영했다.
 - [x] 매시간 공식 API 갱신, 놓친 스케줄 감시, 이상 데이터 차단, 마지막 정상본 보존과 400일 시간 이동·장애 주입 검사를 반영했다.
 - [x] Android 0.17.1(24) AAB의 패키지·버전·targetSdk 36·업로드 인증서·해시·불필요 권한 부재를 bundletool로 검증했다.
+- [x] GitHub 공식 checkout·setup-node·artifact·Pages Action을 Node 24 기반 최신 major의 고정 SHA로 갱신하고 CI·Pages를 재검증했다.
 - [ ] Google Play Console에서 AAB를 직접 업로드하거나 EAS Google Service Account를 연결한 뒤 기존 Alpha 트랙에 0.17.1(24)을 제출한다.
 - [x] 패밀리 디자인과 대표 아이콘을 운영 배포했다.
 - [x] 청약봄 브랜딩 PR을 merge했다.
