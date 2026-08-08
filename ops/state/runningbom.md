@@ -9,13 +9,14 @@
 - 현재 배포: https://robom-labs.github.io/runningbom/.
 - 보조 배포: https://runningbom.vercel.app/.
 - 기존 배포: https://runnerpyrri-lgtm.github.io/pushrun/.
-- 운영 main: `0b48526191c0e29ba2d650bfd8bc5ba0cb969713`.
+- 운영 main: `9aac3826fba02a53c7d5b08b318ae5cc288cb2ca`.
 - 운영 앱 소스 SHA: `86e1682468d8d0979d95943c957148d2c76cbc29`.
 - PWA 캐시: `pushrun-v0.21.0`.
 - 데이터 리비전: `2026.08.08-race-data-34`, 전체 212개 대회, 마지막 대회일 2027-04-18.
 - Google Play Alpha: 기존 비공개 테스트와 테스터는 보존했다.
 - 자동 최신화: 6시간마다 공식·검증 소스 동기화를 시도하고 watchdog이 누락·지연을 감시한다. 스키마 오류·0건·대량 삭제는 배포하지 않고 마지막 정상본을 유지한다.
 - Android 후보: versionCode 15, `0.21.0`, EAS build `0cc5c452-54bc-492c-a983-19639df72127`, AAB SHA-256 `4cf319b97ea19b9bdf320974bdaa3496d5ccc5282ca0492a45ba9c6d7445e703`.
+- 분리 설치 Preview: package `kr.robom.runningbom.preview`, 0.21.0(67), GitHub Actions `31259700180`에서 기존 EAS Preview 서명·패키지·APK SHA-256 검증 후 Pages `31260542895`로 업데이트 매니페스트를 운영 배포했다. 정식 Play AAB에는 영향을 주지 않는다.
 - 릴리스 단계: 최종 AAB의 패키지·버전·targetSdk 36·업로드 인증서·권한·해시를 검증했다. EAS의 Google Service Account 미연결과 현재 세션의 Play Console 제어 부재로 Play 업로드 전에 중단됐다.
 
 ## Next
@@ -29,6 +30,7 @@
 - [x] 6시간 자동 수집, watchdog, 이상 데이터 차단, 마지막 정상본, 400일 시간 이동·장애 주입 검사를 반영했다.
 - [x] Android 0.21.0(15) AAB의 패키지·버전·targetSdk 36·업로드 인증서·해시와 EAS 소스 SHA를 검증했다.
 - [x] GitHub 공식 checkout·setup-node·artifact·Pages Action을 Node 24 기반 최신 major의 고정 SHA로 갱신하고 CI·Pages를 재검증했다.
+- [x] 분리 설치 Preview 0.21.0(67)을 기존 서명으로 빌드하고 고정 릴리스·인앱 업데이트 매니페스트·Pages 배포를 재검증했다.
 - [x] fail-closed 릴리스 가드의 Alpha 제출 dry-run과 공식 bundletool 검증을 GitHub Actions 실행 `31255912729`에서 통과했다.
 - [ ] Google Play Console에서 AAB를 직접 업로드하거나 EAS Google Service Account를 연결한 뒤 기존 Alpha 트랙에 0.21.0(15)을 제출한다.
 - [x] 패밀리 디자인과 대표 아이콘을 운영 배포했다.

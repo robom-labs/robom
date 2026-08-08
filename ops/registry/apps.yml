@@ -93,8 +93,8 @@ apps:
     stable_install_url: https://robom.kr/get/runningbom
     mobile_status: native-closed-test-active
     family_spec_version: 1.1.0
-    last_verified_at: "2026-08-08T22:34:00+09:00"
-    last_deployed_sha: 0b48526191c0e29ba2d650bfd8bc5ba0cb969713
+    last_verified_at: "2026-08-08T22:54:00+09:00"
+    last_deployed_sha: 9aac3826fba02a53c7d5b08b318ae5cc288cb2ca
     last_data_sync_at: "2026-08-08T04:18:56+09:00"
     freshness_status: healthy
     freshness_slo_hours: 168
