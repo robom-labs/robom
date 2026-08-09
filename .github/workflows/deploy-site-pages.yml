@@ -86,13 +86,15 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: robom.kr 운영 도메인·TLS·QR-only 게이트
+      - name: robom.kr 운영 도메인·TLS·앱별 설치 상태 게이트
         shell: bash
         run: |
           set -u
           BASE="https://robom.kr/"
           EXPECTED_IDS="$(node -e 'const fs=require("fs"); process.stdout.write([...fs.readFileSync("ops/registry/apps.yml", "utf8").matchAll(/^  - id: ([a-z0-9-]+)$/gm)].map(([, id]) => id).join(" "))')"
+          LIVE_IDS="$(node --input-type=module -e 'import { readFile } from "node:fs/promises"; import { parseRegistry } from "./ops/scripts/lib/registry.mjs"; const apps=parseRegistry(await readFile("ops/registry/apps.yml", "utf8")); process.stdout.write(apps.filter((app) => app.google_play_status === "live").map((app) => app.id).join(" "))')"
           EXPECTED_COUNT="$(wc -w <<<"${EXPECTED_IDS}" | tr -d ' ')"
+          LIVE_COUNT="$(wc -w <<<"${LIVE_IDS}" | tr -d ' ')"
           test "${EXPECTED_COUNT}" -eq 4
 
           for attempt in 1 2 3 4 5 6; do
@@ -106,8 +108,14 @@ jobs:
             test "${HTTP_CODE}" = "200" || ok=false
             test "${FINAL_URL}" = "${BASE}" || ok=false
             test "${APPS_STATUS}" = "404" || ok=false
-            grep -q "준비 중" <<<"${HOME}" || ok=false
-            grep -q "2026년 8월 초 출시 예정" <<<"${HOME}" || ok=false
+            if test "${LIVE_COUNT}" -gt 0; then
+              grep -q "출시됨" <<<"${HOME}" || ok=false
+              grep -q "Google Play에서 설치 가능" <<<"${HOME}" || ok=false
+            fi
+            if test "${LIVE_COUNT}" -lt "${EXPECTED_COUNT}"; then
+              grep -q "준비 중" <<<"${HOME}" || ok=false
+              grep -q "2026년 8월 초 출시 예정" <<<"${HOME}" || ok=false
+            fi
             grep -q "${GITHUB_SHA::7}" <<<"${HOME}" || ok=false
             grep -q "DNS:robom.kr" <<<"${CERTIFICATE}" || ok=false
             grep -q "SoftwareApplication" <<<"${HOME}" && ok=false
@@ -119,8 +127,14 @@ jobs:
               QR="$(curl -fsS --max-time 25 "${BASE}install/qr/${id}.svg" || true)"
               grep -q "install/qr/${id}.svg" <<<"${HOME}" || ok=false
               grep -q "robom.kr/get/${id}" <<<"${HOME}" || ok=false
-              grep -q "준비 중" <<<"${INSTALL}" || ok=false
-              grep -q "2026년 8월 초 출시 예정" <<<"${INSTALL}" || ok=false
+              if [[ " ${LIVE_IDS} " == *" ${id} "* ]]; then
+                grep -q "출시됨" <<<"${INSTALL}" || ok=false
+                grep -q "Google Play에서 설치" <<<"${INSTALL}" || ok=false
+                grep -q "play.google.com/store/apps/details?id=kr.robom.${id}" <<<"${INSTALL}" || ok=false
+              else
+                grep -q "준비 중" <<<"${INSTALL}" || ok=false
+                grep -q "2026년 8월 초 출시 예정" <<<"${INSTALL}" || ok=false
+              fi
               grep -q "robom.kr/get/${id}" <<<"${INSTALL}" || ok=false
               grep -q "<svg" <<<"${QR}" || ok=false
             done
