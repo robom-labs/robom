@@ -12,7 +12,8 @@ const outputDir = fileURLToPath(new URL(`../screenshots/family-final/${browserNa
 const externalBase = process.env.BASE_URL;
 const baseUrl = externalBase || "http://127.0.0.1:4193";
 const axeSource = await readFile(new URL("../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
-const familyAppCount = JSON.parse(await readFile(new URL("../public/family/apps.json", import.meta.url), "utf8")).apps.length;
+const familyApps = JSON.parse(await readFile(new URL("../public/family/apps.json", import.meta.url), "utf8")).apps;
+const familyAppCount = familyApps.length;
 const viewports = [
   [320, 568], [360, 800], [375, 667], [390, 844], [412, 915], [430, 932], [768, 1024], [1024, 768], [1440, 1000],
 ];
@@ -83,7 +84,10 @@ try {
       // 같은 폰에서 QR을 스캔시키지 않고, 48px 카드 버튼으로 설치 안내를 연다.
       const firstAction = await page.locator(".quick-install-card .install-address").first().boundingBox();
       assert.ok(firstAction && firstAction.height >= 48 && firstAction.y < Math.max(height, 620), `${width}: 첫 카드 설치 안내 버튼`);
-      assert.ok(cardAddresses.every((address) => address.includes("설치 안내 열기")), `${width}: 모바일 설치 안내 문구`);
+      for (const [index, address] of cardAddresses.entries()) {
+        const expected = familyApps[index].googlePlayStatus === "live" ? "Google Play 설치 열기" : "설치 안내 열기";
+        assert.ok(address.includes(expected), `${width}: 모바일 설치 안내 문구 ${familyApps[index].id}`);
+      }
       results.push({ width, height, firstActionY: Math.round(firstAction.y) });
     }
     // 하단 탭바(mobile-tabbar)는 QR 전용 개편 후에도 유지되며 48px 터치 영역을 지킨다.
@@ -123,7 +127,7 @@ try {
     await context.close();
   }
 
-  // QR 전용 개편 후에는 스토어/수동 설치 UI가 사라졌다. 모든 /get 페이지가 QR·준비 중만 노출하는지 확인한다.
+  // 출시 준비 앱은 QR·준비 중 안내만 노출한다.
   for (const id of ["outbom", "runningbom"]) {
     const prelaunchContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const prelaunchPage = await prelaunchContext.newPage();
@@ -133,6 +137,21 @@ try {
     assert.ok((await prelaunchPage.locator(".qr-card .install-address").innerText()).includes(`robom.kr/get/${id}`), `${id}: 공식 주소`);
     assert.equal(await prelaunchPage.locator(".store-action").count(), 0, `${id}: 스토어 버튼 없음`);
     await prelaunchContext.close();
+  }
+
+  // 출시된 앱은 같은 안정 주소에서 공식 Google Play 설치 버튼을 제공한다.
+  for (const app of familyApps.filter((item) => item.googlePlayStatus === "live")) {
+    const liveContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const livePage = await liveContext.newPage();
+    await livePage.goto(`${baseUrl}/get/${app.id}`, { waitUntil: "domcontentloaded" });
+    assert.equal(await livePage.locator(".qr-card img").isVisible(), true, `${app.id}: QR 표시`);
+    assert.ok((await livePage.locator("body").innerText()).includes("출시됨"), `${app.id}: 출시 안내`);
+    const storeAction = livePage.locator(".store-action");
+    assert.equal(await storeAction.count(), 1, `${app.id}: 스토어 버튼`);
+    assert.equal(await storeAction.getAttribute("href"), app.googlePlayUrl, `${app.id}: 스토어 주소`);
+    const storeBox = await storeAction.boundingBox();
+    assert.ok(storeBox && storeBox.height >= 48, `${app.id}: 스토어 버튼 터치 영역`);
+    await liveContext.close();
   }
 
   const zoomContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
