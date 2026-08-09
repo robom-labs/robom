@@ -56,20 +56,25 @@ test("registry ID 집합은 정확히 4개 활성 앱이다", async () => {
   assert.deepEqual(apps.map(({ id }) => id), ACTIVE_IDS);
 });
 
-test("첫 화면은 출시 준비 중인 4개 앱을 QR와 설치 안내 링크로 안내한다", async () => {
+test("첫 화면은 실제 출시 상태와 4개 앱의 QR·설치 안내 링크를 제공한다", async () => {
+  const apps = await registryApps();
+  const liveApps = apps.filter((app) => app.google_play_status === "live");
+  const preparingApps = apps.filter((app) => app.google_play_status !== "live");
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /<title>로봄 \| 날씨·청약·러닝·자격증 앱<\/title>/);
-  assert.match(html, /곧 출시됩니다/);
+  assert.match(html, /만나보세요/);
   assert.match(html, /본문 바로가기/);
   assert.match(html, /data-build-sha="[^"]+"/);
 
-  // 정확히 4개 QR 이미지 참조와, "준비 중"·"2026년 8월 초 출시 예정" 각각 4회
+  // 정확히 4개 QR과 registry 상태 수에 맞는 출시 문구를 제공한다.
   const visible = visibleHtml(html);
   assert.equal(countOccurrences(visible, 'src="/install/qr/'), 4);
-  assert.equal(countOccurrences(visible, "준비 중"), 4);
-  assert.equal(countOccurrences(visible, "2026년 8월 초 출시 예정"), 4);
+  assert.equal(countOccurrences(visible, "준비 중"), preparingApps.length);
+  assert.equal(countOccurrences(visible, "2026년 8월 초 출시 예정"), preparingApps.length);
+  assert.equal(countOccurrences(visible, "출시됨"), liveApps.length);
+  assert.equal(countOccurrences(visible, "Google Play에서 설치 가능"), liveApps.length);
 
   // 각 앱의 QR과 공식 주소 텍스트가 노출된다
   for (const id of ACTIVE_IDS) {
@@ -100,23 +105,30 @@ test("미리보기(/apps) 경로는 완전히 제거되어 404다", async () => 
   assert.equal((await render("/apps/zzznope")).status, 404, "apps/zzznope");
 });
 
-test("설치 안내 페이지는 QR·준비 중 안내·공식 주소만 제공한다", async () => {
-  for (const { id, name } of await registryApps()) {
+test("설치 안내 페이지는 앱별 실제 스토어 상태를 제공한다", async () => {
+  for (const { id, name, google_play_status: googlePlayStatus, google_play_url: googlePlayUrl } of await registryApps()) {
     const installResponse = await render(`/get/${id}`);
     assert.equal(installResponse.status, 200, `get/${id}`);
     const html = await installResponse.text();
     assert.match(html, new RegExp(`<title>${name} 설치 \\| 로봄<\\/title>`));
     assert.match(html, new RegExp(`robom\\.kr/get/${id}`));
     assert.match(html, new RegExp(`/install/qr/${id}\\.svg`));
-    assert.match(html, /준비 중/);
-    assert.match(html, /2026년 8월 초 출시 예정/);
-    assert.match(html, /스토어 출시 후 이 QR에서 설치할 수 있습니다/);
-    assert.match(html, /로봄 홈으로/);
-    // 스토어·PWA·웹 사용·미리보기·자동 이동은 모두 제거
-    for (const forbidden of ["Safari에서", "홈 화면에 추가", "화면 미리보기", "Google Play", "App Store", "웹으로"]) {
+    if (googlePlayStatus === "live") {
+      assert.match(html, /출시됨/);
+      assert.match(html, /Google Play에서 지금 설치할 수 있습니다/);
+      assert.match(html, new RegExp(googlePlayUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    } else {
+      assert.match(html, /준비 중/);
+      assert.match(html, /2026년 8월 초 출시 예정/);
+      assert.match(html, /스토어 출시 후 이 QR에서 설치할 수 있습니다/);
+      assert.match(html, /로봄 홈으로/);
+      assert.doesNotMatch(html, /Google Play/, `${id}: Google Play`);
+    }
+    // PWA·웹 사용·미리보기·자동 이동은 모두 제거
+    for (const forbidden of ["Safari에서", "홈 화면에 추가", "화면 미리보기", "App Store", "웹으로"]) {
       assert.doesNotMatch(html, new RegExp(forbidden), `${id}: ${forbidden}`);
     }
-    // 출시 전이므로 SoftwareApplication 구조화 데이터를 내지 않는다
+    // 현재 허브 정책은 앱별 Breadcrumb만 제공하고 SoftwareApplication은 내지 않는다.
     assert.doesNotMatch(html, /SoftwareApplication/, `${id}: SoftwareApplication`);
     const nodes = jsonLdNodes(html);
     assert.equal(nodes.filter((node) => node["@type"] === "SoftwareApplication").length, 0);
@@ -151,7 +163,7 @@ test("공개 검색 경로는 고유 title·description·canonical과 registry �
     seenTitles.add(meta.title);
     seenDescriptions.add(meta.description);
     // /apps 경로로의 내부 링크가 어디에도 남아있지 않다
-    assert.doesNotMatch(html, /href="[^"]*\/apps\/[^"]*"/, `${path}: /apps 링크 잔존`);
+    assert.doesNotMatch(html, /href="(?:https:\/\/robom\.kr)?\/apps\/[^"]*"/, `${path}: 내부 /apps 링크 잔존`);
   }
 
   const sitemap = await readFile(new URL("../public/sitemap.xml", import.meta.url), "utf8");

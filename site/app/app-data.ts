@@ -16,7 +16,7 @@ export type FamilyApp = {
   metadataDescription: string;
   mobileValue: string;
   mobileAction: string;
-  status: "preparing";
+  status: "preparing" | "live";
   statusLabel: string;
   launchWindow: string;
   accessLabel: string;
@@ -47,13 +47,14 @@ export const SITE_BUILD_SHA = process.env.NEXT_PUBLIC_BUILD_SHA ?? process.env.V
 export const familyApps: readonly FamilyApp[] = appCopy.map((copy) => {
   const meta = generatedAppMeta.find((item) => item.id === copy.id);
   if (!meta) throw new Error(`${copy.id}: generated registry metadata missing`);
+  const isGooglePlayLive = meta.googlePlayStatus === "live" && Boolean(meta.googlePlayUrl);
   return {
     ...copy,
     ...meta,
-    status: "preparing",
-    statusLabel: "준비 중",
-    launchWindow: "2026년 8월 초 출시 예정",
-    accessLabel: "설치 안내",
+    status: isGooglePlayLive ? "live" : "preparing",
+    statusLabel: isGooglePlayLive ? "출시됨" : "준비 중",
+    launchWindow: isGooglePlayLive ? "Google Play에서 설치 가능" : "2026년 8월 초 출시 예정",
+    accessLabel: isGooglePlayLive ? "Google Play 설치" : "설치 안내",
     installPath: `/get/${copy.id}`,
   } as FamilyApp;
 });
