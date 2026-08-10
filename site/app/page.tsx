@@ -5,17 +5,13 @@ import { AppGlyph, FamilyFooter, MobileNav, SiteHeader, Wordmark } from "./compo
 import { contactHref, familyApps } from "./app-data";
 import { appsItemList } from "./structured-data";
 
-const liveApps = familyApps.filter((app) => app.status === "live");
-const preparingApps = familyApps.filter((app) => app.status === "preparing");
-const installStatusDescription = `${liveApps.map((app) => app.name).join("·")}은 Google Play에서 지금 설치할 수 있습니다. ${preparingApps.map((app) => app.name).join("·")}은 출시를 준비하고 있습니다.`;
-
 export const metadata: Metadata = {
   title: { absolute: "로봄 | 날씨·청약·러닝·자격증 앱" },
-  description: installStatusDescription,
+  description: "자격증 시험 일정을 알려주는 자격증봄을 Google Play에서 설치하세요. 야외봄·청약봄·러닝봄의 출시 준비 소식도 확인할 수 있습니다.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "로봄 | 날씨·청약·러닝·자격증 앱",
-    description: installStatusDescription,
+    description: "자격증봄을 Google Play에서 설치하고 야외봄·청약봄·러닝봄의 출시 준비 소식을 확인하세요.",
     url: "/",
     siteName: "로봄",
     locale: "ko_KR",
@@ -25,12 +21,15 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "로봄 | 날씨·청약·러닝·자격증 앱",
-    description: installStatusDescription,
+    description: "자격증봄을 Google Play에서 설치하고 로봄 앱들의 출시 소식을 확인하세요.",
     images: ["/og.png"],
   },
 };
 
 export default function Home() {
+  const liveApps = familyApps.filter((app) => app.status === "live");
+  const preparingApps = familyApps.filter((app) => app.status === "preparing");
+
   return (
     <div className="site-shell">
       <SiteHeader />
