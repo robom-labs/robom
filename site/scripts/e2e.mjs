@@ -14,6 +14,8 @@ const baseUrl = externalBase || "http://127.0.0.1:4193";
 const axeSource = await readFile(new URL("../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
 const familyApps = JSON.parse(await readFile(new URL("../public/family/apps.json", import.meta.url), "utf8")).apps;
 const familyAppCount = familyApps.length;
+const outbomApp = familyApps.find((app) => app.id === "outbom");
+assert.ok(outbomApp, "outbom registry metadata missing");
 const viewports = [
   [320, 568], [360, 800], [375, 667], [390, 844], [412, 915], [430, 932], [768, 1024], [1024, 768], [1440, 1000],
 ];
@@ -105,14 +107,22 @@ try {
     }
     await page.screenshot({ path: resolve(outputDir, `home-${width}x${height}.png`), fullPage: true });
     await page.goto(`${baseUrl}/get/outbom`, { waitUntil: "domcontentloaded" });
-    // 출시 준비 단계의 설치 안내 페이지: QR·준비 중 안내·공식 주소·홈 링크만 노출한다.
+    // registry의 실제 출시 상태에 맞는 설치 안내와 공식 주소를 노출한다.
     assert.equal(await page.locator(".qr-card img").isVisible(), true, `${width}: QR 표시`);
     const installBody = await page.locator("body").innerText();
-    assert.ok(installBody.includes("준비 중"), `${width}: 설치 페이지 준비 중 안내`);
-    assert.ok(installBody.includes("2026년 8월 초 출시 예정"), `${width}: 설치 페이지 출시 예정 안내`);
     assert.ok(installBody.includes("robom.kr/get/outbom"), `${width}: 설치 페이지 공식 주소`);
-    assert.equal(await page.locator('a:has-text("로봄 홈으로")').count(), 1, `${width}: 로봄 홈으로 링크`);
-    assert.equal(await page.locator(".store-action").count(), 0, `${width}: 스토어 버튼 없음`);
+    if (outbomApp.googlePlayStatus === "live") {
+      assert.ok(installBody.includes("출시됨"), `${width}: 설치 페이지 출시 안내`);
+      const storeAction = page.locator(".store-action");
+      assert.equal(await storeAction.count(), 1, `${width}: 스토어 버튼`);
+      assert.equal(await storeAction.getAttribute("href"), outbomApp.googlePlayUrl, `${width}: 스토어 주소`);
+      assert.equal(await page.locator('a:has-text("로봄 홈으로")').count(), 0, `${width}: 준비 중 홈 링크 없음`);
+    } else {
+      assert.ok(installBody.includes("준비 중"), `${width}: 설치 페이지 준비 중 안내`);
+      assert.ok(installBody.includes("2026년 8월 초 출시 예정"), `${width}: 설치 페이지 출시 예정 안내`);
+      assert.equal(await page.locator('a:has-text("로봄 홈으로")').count(), 1, `${width}: 로봄 홈으로 링크`);
+      assert.equal(await page.locator(".store-action").count(), 0, `${width}: 스토어 버튼 없음`);
+    }
     assert.equal(await page.locator(".manual-install-guide").count(), 0, `${width}: 수동 설치 안내 없음`);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true, `${width}: 설치 페이지 가로 스크롤`);
     if (width === 390) {
@@ -127,8 +137,9 @@ try {
     await context.close();
   }
 
-  // 출시 준비 앱은 QR·준비 중 안내만 노출한다.
-  for (const id of ["outbom", "runningbom"]) {
+  // registry에서 출시 준비 중인 앱은 QR·준비 중 안내만 노출한다.
+  for (const app of familyApps.filter((item) => item.googlePlayStatus !== "live")) {
+    const { id } = app;
     const prelaunchContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const prelaunchPage = await prelaunchContext.newPage();
     await prelaunchPage.goto(`${baseUrl}/get/${id}`, { waitUntil: "domcontentloaded" });
