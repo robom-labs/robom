@@ -14,6 +14,10 @@ const baseUrl = externalBase || "http://127.0.0.1:4193";
 const axeSource = await readFile(new URL("../node_modules/axe-core/axe.min.js", import.meta.url), "utf8");
 const familyApps = JSON.parse(await readFile(new URL("../public/family/apps.json", import.meta.url), "utf8")).apps;
 const familyAppCount = familyApps.length;
+const liveApps = familyApps.filter((app) => app.googlePlayStatus === "live");
+const preparingApps = familyApps.filter((app) => app.googlePlayStatus !== "live");
+const outbomApp = familyApps.find((app) => app.id === "outbom");
+assert.ok(outbomApp, "outbom registry metadata missing");
 const viewports = [
   [320, 568], [360, 800], [375, 667], [390, 844], [412, 915], [430, 932], [768, 1024], [1024, 768], [1440, 1000],
 ];
@@ -72,10 +76,14 @@ try {
     // 각 카드가 안내하는 /get/<id> 설치 링크가 카드 자체와 푸터에 존재해야 한다.
     const getLinks = page.locator('a[href*="/get/"]');
     assert.ok(await getLinks.count() >= familyAppCount, `${width}: /get 설치 링크 노출`);
+    const appCards = page.locator(".quick-install-card");
+    const renderedOrder = await appCards.evaluateAll((cards) => cards.map((card) => card.getAttribute("data-app-id")));
+    assert.deepEqual(renderedOrder, [...liveApps, ...preparingApps].map(({ id }) => id), `${width}: 출시 상태 기반 카드 순서`);
     const cardAddresses = await page.locator(".quick-install-card .install-address").allInnerTexts();
-    assert.equal(cardAddresses.length, familyAppCount, `${width}: 카드 설치 주소 수`);
+    assert.equal(cardAddresses.length, familyAppCount, `${width}: 카드 설치 행동 수`);
     if (width > 760) {
-      for (const address of cardAddresses) assert.match(address, /robom\.kr\/get\/[a-z]+/, `${width}: 카드 설치 주소 ${address}`);
+      const stableAddresses = await page.locator(".quick-install-card :is(.card-stable-link, .card-stable-address)").allInnerTexts();
+      assert.equal(stableAddresses.length, familyAppCount, `${width}: 바뀌지 않는 설치 주소 수`);
       // 데스크톱에서는 첫 카드의 QR가 첫 화면 가까이에 있어야 한다.
       const firstAction = await cardQr.first().boundingBox();
       assert.ok(firstAction && firstAction.y < Math.max(height, 620), `${width}: 첫 카드 설치 QR가 첫 화면 가까이에 있어야 함`);
@@ -105,14 +113,22 @@ try {
     }
     await page.screenshot({ path: resolve(outputDir, `home-${width}x${height}.png`), fullPage: true });
     await page.goto(`${baseUrl}/get/outbom`, { waitUntil: "domcontentloaded" });
-    // 출시 준비 단계의 설치 안내 페이지: QR·준비 중 안내·공식 주소·홈 링크만 노출한다.
+    // OutBom 설치 페이지는 registry의 실제 출시 상태와 공식 설치 주소를 따른다.
     assert.equal(await page.locator(".qr-card img").isVisible(), true, `${width}: QR 표시`);
     const installBody = await page.locator("body").innerText();
-    assert.ok(installBody.includes("준비 중"), `${width}: 설치 페이지 준비 중 안내`);
-    assert.ok(installBody.includes("2026년 8월 초 출시 예정"), `${width}: 설치 페이지 출시 예정 안내`);
     assert.ok(installBody.includes("robom.kr/get/outbom"), `${width}: 설치 페이지 공식 주소`);
-    assert.equal(await page.locator('a:has-text("로봄 홈으로")').count(), 1, `${width}: 로봄 홈으로 링크`);
-    assert.equal(await page.locator(".store-action").count(), 0, `${width}: 스토어 버튼 없음`);
+    if (outbomApp.googlePlayStatus === "live") {
+      assert.ok(installBody.includes("정식 출시"), `${width}: 설치 페이지 출시 안내`);
+      const storeAction = page.locator(".store-action");
+      assert.equal(await storeAction.count(), 1, `${width}: 스토어 버튼`);
+      assert.equal(await storeAction.getAttribute("href"), outbomApp.googlePlayUrl, `${width}: 스토어 주소`);
+      assert.equal(await page.locator('a:has-text("로봄 홈으로")').count(), 0, `${width}: 출시 앱 홈 링크 없음`);
+    } else {
+      assert.ok(installBody.includes("출시 준비 중"), `${width}: 설치 페이지 준비 중 안내`);
+      assert.ok(installBody.includes("2026년 8월 출시 예정"), `${width}: 설치 페이지 출시 예정 안내`);
+      assert.equal(await page.locator('a:has-text("로봄 홈으로")').count(), 1, `${width}: 로봄 홈으로 링크`);
+      assert.equal(await page.locator(".store-action").count(), 0, `${width}: 스토어 버튼 없음`);
+    }
     assert.equal(await page.locator(".manual-install-guide").count(), 0, `${width}: 수동 설치 안내 없음`);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true, `${width}: 설치 페이지 가로 스크롤`);
     if (width === 390) {
@@ -127,13 +143,13 @@ try {
     await context.close();
   }
 
-  // 출시 준비 앱은 QR·준비 중 안내만 노출한다.
-  for (const id of ["outbom", "runningbom"]) {
+  // registry에서 출시 준비 중인 앱은 QR·준비 중 안내만 노출한다.
+  for (const { id } of preparingApps) {
     const prelaunchContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const prelaunchPage = await prelaunchContext.newPage();
     await prelaunchPage.goto(`${baseUrl}/get/${id}`, { waitUntil: "domcontentloaded" });
     assert.equal(await prelaunchPage.locator(".qr-card img").isVisible(), true, `${id}: QR 표시`);
-    assert.ok((await prelaunchPage.locator("body").innerText()).includes("준비 중"), `${id}: 준비 중 안내`);
+    assert.ok((await prelaunchPage.locator("body").innerText()).includes("출시 준비 중"), `${id}: 준비 중 안내`);
     assert.ok((await prelaunchPage.locator(".qr-card .install-address").innerText()).includes(`robom.kr/get/${id}`), `${id}: 공식 주소`);
     assert.equal(await prelaunchPage.locator(".store-action").count(), 0, `${id}: 스토어 버튼 없음`);
     await prelaunchContext.close();
@@ -145,7 +161,7 @@ try {
     const livePage = await liveContext.newPage();
     await livePage.goto(`${baseUrl}/get/${app.id}`, { waitUntil: "domcontentloaded" });
     assert.equal(await livePage.locator(".qr-card img").isVisible(), true, `${app.id}: QR 표시`);
-    assert.ok((await livePage.locator("body").innerText()).includes("출시됨"), `${app.id}: 출시 안내`);
+    assert.ok((await livePage.locator("body").innerText()).includes("정식 출시"), `${app.id}: 출시 안내`);
     const storeAction = livePage.locator(".store-action");
     assert.equal(await storeAction.count(), 1, `${app.id}: 스토어 버튼`);
     assert.equal(await storeAction.getAttribute("href"), app.googlePlayUrl, `${app.id}: 스토어 주소`);
