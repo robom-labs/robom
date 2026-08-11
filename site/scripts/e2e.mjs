@@ -106,7 +106,7 @@ try {
       const box = await navLinks.nth(index).boundingBox();
       assert.ok(box && box.height >= 48, `${width}: 하단 메뉴 ${index + 1} 터치 영역`);
     }
-    await page.locator('a[href*="get/outbom"]').first().focus();
+    await page.locator('.quick-install-card[data-app-id="outbom"] .install-address').focus();
     assert.notEqual(await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle), "none", `${width}: 키보드 focus`);
     if (width === 390) {
       await page.addScriptTag({ content: axeSource });
