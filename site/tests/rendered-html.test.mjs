@@ -1,4 +1,4 @@
-// 출시 준비(QR-only) 허브의 렌더 결과, registry 생성물, 접근성, 제거된 경로를 검증한다.
+// 출시·출시 예정 앱을 분리한 허브의 렌더 결과, registry 생성물, 접근성, 제거된 경로를 검증한다.
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
@@ -63,18 +63,23 @@ test("첫 화면은 실제 출시 상태와 4개 앱의 QR·설치 안내 링크
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /<title>로봄 \| 날씨·청약·러닝·자격증 앱<\/title>/);
-  assert.match(html, /만나보세요/);
+  assert.match(html, /<title>로봄 \| 야외봄·자격증봄 Google Play 출시<\/title>/);
+  assert.match(html, /이제 시작합니다/);
+  assert.match(html, /Google Play 정식 출시/);
+  assert.match(html, /다음 앱도 곧 만나요/);
   assert.match(html, /본문 바로가기/);
   assert.match(html, /data-build-sha="[^"]+"/);
 
   // 정확히 4개 QR과 registry 상태 수에 맞는 출시 문구를 제공한다.
   const visible = visibleHtml(html);
   assert.equal(countOccurrences(visible, 'src="/install/qr/'), 4);
-  assert.equal(countOccurrences(visible, "준비 중"), preparingApps.length);
-  assert.equal(countOccurrences(visible, "2026년 8월 초 출시 예정"), preparingApps.length);
-  assert.equal(countOccurrences(visible, "출시됨"), liveApps.length);
+  assert.ok(countOccurrences(visible, "출시 준비 중") >= preparingApps.length);
+  assert.ok(countOccurrences(visible, "2026년 8월 출시 예정") >= preparingApps.length);
+  assert.ok(countOccurrences(visible, "정식 출시") >= liveApps.length);
   assert.equal(countOccurrences(visible, "Google Play에서 설치 가능"), liveApps.length);
+  const expectedOrder = [...liveApps, ...preparingApps].map(({ id }) => id);
+  const renderedOrder = [...visible.matchAll(/data-app-id="([^"]+)"/g)].map((match) => match[1]);
+  assert.deepEqual(renderedOrder, expectedOrder);
 
   // 각 앱의 QR과 공식 주소 텍스트가 노출된다
   for (const id of ACTIVE_IDS) {
@@ -93,7 +98,7 @@ test("첫 화면은 실제 출시 상태와 4개 앱의 QR·설치 안내 링크
   assert.equal(nodes.filter((node) => node["@type"] === "WebSite").length, 1);
   assert.equal(nodes.find((node) => node["@type"] === "Organization").name, "로봄");
   assert.equal(nodes.filter((node) => node["@type"] === "ItemList").length, 1);
-  assert.equal(nodes.filter((node) => node["@type"] === "SoftwareApplication").length, 0);
+  assert.equal(nodes.filter((node) => node["@type"] === "SoftwareApplication").length, liveApps.length);
 });
 
 test("미리보기(/apps) 경로는 완전히 제거되어 404다", async () => {
@@ -110,17 +115,17 @@ test("설치 안내 페이지는 앱별 실제 스토어 상태를 제공한다"
     const installResponse = await render(`/get/${id}`);
     assert.equal(installResponse.status, 200, `get/${id}`);
     const html = await installResponse.text();
-    assert.match(html, new RegExp(`<title>${name} 설치 \\| 로봄<\\/title>`));
+    assert.match(html, new RegExp(`<title>${name} (?:Google Play 설치|출시 안내) \\| 로봄<\\/title>`));
     assert.match(html, new RegExp(`robom\\.kr/get/${id}`));
     assert.match(html, new RegExp(`/install/qr/${id}\\.svg`));
     if (googlePlayStatus === "live") {
-      assert.match(html, /출시됨/);
-      assert.match(html, /Google Play에서 지금 설치할 수 있습니다/);
+      assert.match(html, /정식 출시/);
+      assert.match(html, /Google Play에 정식 출시되었습니다/);
       assert.match(html, new RegExp(googlePlayUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
     } else {
-      assert.match(html, /준비 중/);
-      assert.match(html, /2026년 8월 초 출시 예정/);
-      assert.match(html, /스토어 출시 후 이 QR에서 설치할 수 있습니다/);
+      assert.match(html, /출시 준비 중/);
+      assert.match(html, /2026년 8월 출시 예정/);
+      assert.match(html, /출시 뒤에도 이 주소와 QR에서 공식 설치 안내를 만날 수 있습니다/);
       assert.match(html, /로봄 홈으로/);
       assert.doesNotMatch(html, /Google Play/, `${id}: Google Play`);
     }
@@ -128,12 +133,16 @@ test("설치 안내 페이지는 앱별 실제 스토어 상태를 제공한다"
     for (const forbidden of ["Safari에서", "홈 화면에 추가", "화면 미리보기", "App Store", "웹으로"]) {
       assert.doesNotMatch(html, new RegExp(forbidden), `${id}: ${forbidden}`);
     }
-    // 현재 허브 정책은 앱별 Breadcrumb만 제공하고 SoftwareApplication은 내지 않는다.
-    assert.doesNotMatch(html, /SoftwareApplication/, `${id}: SoftwareApplication`);
     const nodes = jsonLdNodes(html);
-    assert.equal(nodes.filter((node) => node["@type"] === "SoftwareApplication").length, 0);
     assert.equal(nodes.filter((node) => node["@type"] === "BreadcrumbList").length, 1);
-    assert.doesNotMatch(JSON.stringify(nodes), /operatingSystem|installUrl|"offers"|aggregateRating|review|FAQPage/);
+    assert.equal(nodes.filter((node) => node["@type"] === "SoftwareApplication").length, googlePlayStatus === "live" ? 1 : 0);
+    if (googlePlayStatus === "live") {
+      assert.match(JSON.stringify(nodes), /"operatingSystem":"Android"/);
+      assert.match(JSON.stringify(nodes), /"installUrl":"https:\/\/play\.google\.com/);
+    } else {
+      assert.doesNotMatch(JSON.stringify(nodes), /operatingSystem|installUrl/);
+    }
+    assert.doesNotMatch(JSON.stringify(nodes), /"offers"|aggregateRating|review|FAQPage/);
   }
 });
 

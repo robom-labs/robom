@@ -323,3 +323,73 @@ em { font-style: normal; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* 정식 출시 앱과 출시 예정 앱의 위계를 상태 기반으로 분리하는 홈페이지 출시 무대다. */
+.launch-stage { display: grid; gap: 34px; max-width: 1320px; margin: auto; }
+.launch-section { display: grid; gap: 18px; }
+.launch-section-head { display: grid; grid-template-columns: 130px minmax(0, 1fr); align-items: end; gap: 18px; }
+.section-kicker { display: inline-flex; width: fit-content; min-height: 34px; align-items: center; gap: 8px; margin: 0; border-radius: 999px; background: var(--ink); padding: 0 13px; color: #fff; font-size: 10px; font-weight: 950; letter-spacing: .13em; }
+.section-kicker > span { width: 7px; height: 7px; border-radius: 50%; background: #8be8aa; box-shadow: 0 0 0 4px rgba(139, 232, 170, .18); }
+.launch-section--preparing .section-kicker { border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
+.launch-section-head h2 { margin: 0 0 5px; font-size: clamp(28px, 3vw, 42px); font-weight: 950; line-height: 1.12; }
+.launch-section-head div > p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.quick-install-grid--live, .quick-install-grid--preparing { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.quick-install-card.is-live, .quick-install-card.is-preparing { display: grid; grid-template-columns: minmax(0, 1fr) 190px; grid-template-rows: auto; min-height: 330px; align-items: stretch; gap: 22px; padding: 26px; }
+.quick-install-card.is-live { border-width: 2px; background: color-mix(in srgb, var(--tint) 34%, white); box-shadow: 0 18px 44px rgba(74, 52, 28, .09); }
+.quick-install-card.is-preparing { min-height: 286px; grid-template-columns: minmax(0, 1fr) 166px; background: rgba(255, 255, 255, .78); box-shadow: none; }
+.quick-install-main { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; }
+.quick-install-card .quick-app-name { margin: 0; }
+.quick-install-card .quick-app-name .app-glyph { width: 48px; height: 48px; }
+.quick-install-card .quick-app-name .wordmark { font-size: 28px; }
+.quick-install-card .app-value { margin: 26px 0 13px; color: var(--ink); font-size: clamp(20px, 2vw, 28px); font-weight: 950; line-height: 1.25; letter-spacing: -.04em; }
+.quick-install-card.is-preparing .app-value { margin-top: 22px; font-size: 21px; }
+.quick-install-card .prelaunch-status { margin: 0; }
+.quick-install-card.is-live .status-pill { background: var(--tone-ink); color: #fff; }
+.quick-install-card .launch-note { max-width: 310px; margin: auto 0 0; color: var(--muted); font-size: 13px; font-weight: 750; line-height: 1.6; }
+.quick-install-action { display: flex; min-width: 0; flex-direction: column; justify-content: flex-end; }
+.quick-install-card .prelaunch-qr { width: 158px; margin: 0 auto 12px; }
+.quick-install-card .install-address { width: 100%; }
+.quick-install-card .install-address--live { background: var(--tone-ink); color: #fff; }
+.quick-install-card .install-address--live:hover { filter: brightness(.92); }
+.card-stable-link, .card-stable-address { display: block; margin-top: 10px; color: var(--muted); font-size: 10px; font-weight: 800; line-height: 1.45; text-align: center; overflow-wrap: anywhere; }
+.card-stable-link span { display: block; color: var(--tone-ink); }
+.card-stable-link:hover span { text-decoration: underline; text-underline-offset: 3px; }
+.launch-section--preparing { border-top: 1px solid var(--line); padding-top: 30px; }
+
+@media (max-width: 900px) {
+  .launch-section-head { grid-template-columns: 110px minmax(0, 1fr); }
+  .quick-install-card.is-live, .quick-install-card.is-preparing { grid-template-columns: minmax(0, 1fr) 150px; gap: 14px; padding: 20px; }
+  .quick-install-card .quick-app-name .wordmark { font-size: 24px; }
+  .quick-install-card .prelaunch-qr { width: 136px; }
+}
+
+@media (max-width: 760px) {
+  .family-hero--install { padding-bottom: 58px; }
+  .hero-intro { margin-bottom: 28px; }
+  .hero-intro .eyebrow { margin-bottom: 12px; }
+  .hero-intro h1 { margin-bottom: 14px; }
+  .launch-stage { gap: 28px; }
+  .launch-section { gap: 12px; }
+  .launch-section-head { display: block; }
+  .section-kicker { min-height: 30px; margin-bottom: 10px; }
+  .launch-section-head h2 { font-size: 27px; }
+  .launch-section-head div > p { font-size: 13px; }
+  .quick-install-grid--live, .quick-install-grid--preparing { grid-template-columns: 1fr; gap: 9px; }
+  .quick-install-card.is-live, .quick-install-card.is-preparing { display: grid; min-height: 0; grid-template-columns: minmax(0, 1fr) 112px; grid-template-rows: auto; align-items: center; gap: 10px; border-radius: 20px; padding: 14px; }
+  .quick-install-main { grid-column: 1; }
+  .quick-install-action { grid-column: 2; grid-row: 1; }
+  .quick-install-card .quick-app-name { display: grid; grid-template-columns: 34px minmax(0, 1fr); }
+  .quick-install-card .quick-app-name .app-glyph { width: 34px; height: 34px; }
+  .quick-install-card .quick-app-name .wordmark { font-size: 20px; }
+  .quick-install-card .app-value, .quick-install-card.is-preparing .app-value { margin: 10px 0 7px; font-size: 17px; }
+  .quick-install-card .prelaunch-status { display: block; margin: 0; }
+  .quick-install-card .prelaunch-status .status-pill { min-height: 25px; margin-bottom: 5px; padding-inline: 8px; font-size: 9px; }
+  .quick-install-card .launch-window { display: block; font-size: 10px; }
+  .quick-install-card .launch-note, .quick-install-card .prelaunch-qr, .card-stable-link, .card-stable-address { display: none; }
+  .quick-install-card .install-address { min-width: 0; min-height: 52px; border-radius: 14px; padding: 0 8px; }
+  .quick-install-card .install-address__desktop { display: none; }
+  .quick-install-card .install-address__mobile { display: inline-flex; align-items: center; gap: 5px; }
+  .launch-section--preparing { padding-top: 24px; }
+  .family-hero--install > .trust-copy { margin-top: 18px; }
+}
+

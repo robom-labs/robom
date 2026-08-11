@@ -9,9 +9,9 @@
 - 공식 배포: https://robom-labs.github.io/outbom/.
 - API·기존 PWA 호환 배포: https://outbom.robom.kr.
 - 호환 배포: https://runningcall.vercel.app.
-- 운영 main: `3cf078e8f77e3ce2e5ac71be72fe1c104eb996fe`.
+- 운영 main: `8866be9035196bac4912c4ff8182a73acd7d0c86`.
 - PWA 캐시: `outbom-v0.25.6`.
-- Google Play Alpha: versionCode 2, `0.25.6`, 2026-07-24 16:55부터 테스터 제공 상태.
+- Google Play 프로덕션: versionCode 5, `0.25.6`, 대한민국 공개·설치 가능 상태(2026-08-10 확인).
 
 ## Next
 

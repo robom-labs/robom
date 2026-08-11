@@ -52,8 +52,8 @@ export const familyApps: readonly FamilyApp[] = appCopy.map((copy) => {
     ...copy,
     ...meta,
     status: isGooglePlayLive ? "live" : "preparing",
-    statusLabel: isGooglePlayLive ? "출시됨" : "준비 중",
-    launchWindow: isGooglePlayLive ? "Google Play에서 설치 가능" : "2026년 8월 초 출시 예정",
+    statusLabel: isGooglePlayLive ? "정식 출시" : "출시 준비 중",
+    launchWindow: isGooglePlayLive ? "Google Play에서 설치 가능" : "2026년 8월 출시 예정",
     accessLabel: isGooglePlayLive ? "Google Play 설치" : "설치 안내",
     installPath: `/get/${copy.id}`,
   } as FamilyApp;
