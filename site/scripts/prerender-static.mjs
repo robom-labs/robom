@@ -53,7 +53,7 @@ for (const path of routes) {
 
   const depth = path === "/" ? 0 : path.split("/").filter(Boolean).length;
   const prefix = depth === 0 ? "./" : "../".repeat(depth);
-  const html = (await response.text())
+  let html = (await response.text())
     // 정적 허브에는 클라이언트 상태가 없으므로 루트 경로를 다시 요청하는 hydration 런타임을 싣지 않는다.
     .replace(/<link rel="modulepreload"[^>]*>/g, "")
     .replace(/<script(?![^>]*type="application\/ld\+json")[^>]*>[\s\S]*?<\/script>/g, "")
@@ -69,6 +69,14 @@ for (const path of routes) {
     .replaceAll('"/icons/', `"${prefix}icons/`)
     .replaceAll('"/brand/', `"${prefix}brand/`)
     .replaceAll('"/manifest.webmanifest', `"${prefix}manifest.webmanifest`);
+
+  // 정적 Pages 배포에서도 인증 query 값을 읽지 않고 주소 표시줄에서 즉시 제거한다.
+  if (path === "/auth/callback") {
+    html = html.replace(
+      "</head>",
+      '<script>if(location.search||location.hash)history.replaceState(null,"",location.pathname);</script></head>',
+    );
+  }
 
   if (html.includes('href="/') || html.includes('src="/') || html.includes('"/assets/') || html.includes('rel="modulepreload"')) {
     throw new Error(`prerender sanity check failed for ${path}: root-relative path remains`);

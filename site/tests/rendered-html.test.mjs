@@ -292,6 +292,7 @@ test("Pages 프리렌더에는 홈·설치·정책이 포함되고 미리보기 
   assert.match(script, /CNAME/);
   assert.match(script, /nojekyll/);
   assert.match(script, /sw\.js/);
+  assert.match(script, /history\.replaceState\(null,"",location\.pathname\)/);
 });
 
 test("분석 adapter는 기본 OFF이며 금지 필드와 비밀을 scrub한다", async () => {
