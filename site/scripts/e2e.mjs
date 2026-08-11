@@ -105,14 +105,21 @@ try {
     }
     await page.screenshot({ path: resolve(outputDir, `home-${width}x${height}.png`), fullPage: true });
     await page.goto(`${baseUrl}/get/outbom`, { waitUntil: "domcontentloaded" });
-    // 출시 준비 단계의 설치 안내 페이지: QR·준비 중 안내·공식 주소·홈 링크만 노출한다.
+    // registry의 출시 상태에 맞는 설치 안내와 공식 주소를 노출한다.
     assert.equal(await page.locator(".qr-card img").isVisible(), true, `${width}: QR 표시`);
     const installBody = await page.locator("body").innerText();
-    assert.ok(installBody.includes("준비 중"), `${width}: 설치 페이지 준비 중 안내`);
-    assert.ok(installBody.includes("2026년 8월 초 출시 예정"), `${width}: 설치 페이지 출시 예정 안내`);
+    const outbom = familyApps.find((app) => app.id === "outbom");
+    assert.ok(outbom, `${width}: 야외봄 registry`);
+    if (outbom.googlePlayStatus === "live") {
+      assert.ok(installBody.includes("출시됨"), `${width}: 설치 페이지 출시 안내`);
+      assert.equal(await page.locator('.store-action[href="https://play.google.com/store/apps/details?id=kr.robom.outbom"]').count(), 1, `${width}: Google Play 설치 버튼`);
+    } else {
+      assert.ok(installBody.includes("준비 중"), `${width}: 설치 페이지 준비 중 안내`);
+      assert.ok(installBody.includes("2026년 8월 초 출시 예정"), `${width}: 설치 페이지 출시 예정 안내`);
+      assert.equal(await page.locator(".store-action").count(), 0, `${width}: 스토어 버튼 없음`);
+    }
     assert.ok(installBody.includes("robom.kr/get/outbom"), `${width}: 설치 페이지 공식 주소`);
-    assert.equal(await page.locator('a:has-text("로봄 홈으로")').count(), 1, `${width}: 로봄 홈으로 링크`);
-    assert.equal(await page.locator(".store-action").count(), 0, `${width}: 스토어 버튼 없음`);
+    assert.equal(await page.locator('a:has-text("로봄 홈으로")').count(), outbom.googlePlayStatus === "live" ? 0 : 1, `${width}: 로봄 홈으로 링크`);
     assert.equal(await page.locator(".manual-install-guide").count(), 0, `${width}: 수동 설치 안내 없음`);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true, `${width}: 설치 페이지 가로 스크롤`);
     if (width === 390) {
@@ -128,7 +135,7 @@ try {
   }
 
   // 출시 준비 앱은 QR·준비 중 안내만 노출한다.
-  for (const id of ["outbom", "runningbom"]) {
+  for (const { id } of familyApps.filter((item) => item.googlePlayStatus !== "live")) {
     const prelaunchContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
     const prelaunchPage = await prelaunchContext.newPage();
     await prelaunchPage.goto(`${baseUrl}/get/${id}`, { waitUntil: "domcontentloaded" });
