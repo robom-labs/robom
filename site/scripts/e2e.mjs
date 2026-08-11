@@ -93,8 +93,10 @@ try {
       const firstAction = await page.locator(".quick-install-card .install-address").first().boundingBox();
       assert.ok(firstAction && firstAction.height >= 48 && firstAction.y < Math.max(height, 620), `${width}: 첫 카드 설치 안내 버튼`);
       for (const [index, address] of cardAddresses.entries()) {
-        const expected = familyApps[index].googlePlayStatus === "live" ? "Google Play 설치 열기" : "설치 안내 열기";
-        assert.ok(address.includes(expected), `${width}: 모바일 설치 안내 문구 ${familyApps[index].id}`);
+        const app = familyApps.find(({ id }) => id === renderedOrder[index]);
+        assert.ok(app, `${width}: 카드 순서에 해당하는 앱 메타데이터`);
+        const expected = app.googlePlayStatus === "live" ? "Google Play 설치 열기" : "설치 안내 열기";
+        assert.ok(address.includes(expected), `${width}: 모바일 설치 안내 문구 ${app.id}`);
       }
       results.push({ width, height, firstActionY: Math.round(firstAction.y) });
     }
