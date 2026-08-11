@@ -109,12 +109,12 @@ jobs:
             test "${FINAL_URL}" = "${BASE}" || ok=false
             test "${APPS_STATUS}" = "404" || ok=false
             if test "${LIVE_COUNT}" -gt 0; then
-              grep -q "출시됨" <<<"${HOME}" || ok=false
+              grep -q "정식 출시" <<<"${HOME}" || ok=false
               grep -q "Google Play에서 설치 가능" <<<"${HOME}" || ok=false
             fi
             if test "${LIVE_COUNT}" -lt "${EXPECTED_COUNT}"; then
-              grep -q "준비 중" <<<"${HOME}" || ok=false
-              grep -q "2026년 8월 초 출시 예정" <<<"${HOME}" || ok=false
+              grep -q "출시 준비 중" <<<"${HOME}" || ok=false
+              grep -q "2026년 8월 출시 예정" <<<"${HOME}" || ok=false
             fi
             grep -q "${GITHUB_SHA::7}" <<<"${HOME}" || ok=false
             grep -q "DNS:robom.kr" <<<"${CERTIFICATE}" || ok=false
@@ -128,12 +128,12 @@ jobs:
               grep -q "install/qr/${id}.svg" <<<"${HOME}" || ok=false
               grep -q "robom.kr/get/${id}" <<<"${HOME}" || ok=false
               if [[ " ${LIVE_IDS} " == *" ${id} "* ]]; then
-                grep -q "출시됨" <<<"${INSTALL}" || ok=false
+                grep -q "정식 출시" <<<"${INSTALL}" || ok=false
                 grep -q "Google Play에서 설치" <<<"${INSTALL}" || ok=false
                 grep -q "play.google.com/store/apps/details?id=kr.robom.${id}" <<<"${INSTALL}" || ok=false
               else
-                grep -q "준비 중" <<<"${INSTALL}" || ok=false
-                grep -q "2026년 8월 초 출시 예정" <<<"${INSTALL}" || ok=false
+                grep -q "출시 준비 중" <<<"${INSTALL}" || ok=false
+                grep -q "2026년 8월 출시 예정" <<<"${INSTALL}" || ok=false
               fi
               grep -q "robom.kr/get/${id}" <<<"${INSTALL}" || ok=false
               grep -q "<svg" <<<"${QR}" || ok=false
