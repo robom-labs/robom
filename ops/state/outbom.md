@@ -3,6 +3,7 @@
 ## 현재 상태
 
 - 웹·PWA 운영 버전: 0.25.6.
+- Android 코드·서명 후보: 0.30.0 (versionCode 130).
 - Google Play 운영 버전: 0.29.0 (versionCode 12).
 - 기존 이름: 러닝콜.
 - 역할: 걷기·산책·러닝·등산·자전거의 야외활동 컨디션과 추천 시간 제공.
@@ -10,10 +11,11 @@
 - 공식 배포: https://robom-labs.github.io/outbom/.
 - API·기존 PWA 호환 배포: https://outbom.robom.kr.
 - 호환 배포: https://runningcall.vercel.app.
-- 운영 main: `8866be9035196bac4912c4ff8182a73acd7d0c86`.
+- 운영 main: `1445e0f91831c1d813fecd71e297d04f7bb85ae5`.
 - PWA 캐시: `outbom-v0.25.6`.
 - Google Play 프로덕션: versionCode 12, `0.29.0`, 대한민국 공개·설치 가능 상태(2026-08-11 확인).
 - Google Play 배포 소스: `1c7dff3c036a292a31c39807b548a0f809dda13c`.
+- 0.30.0 서명 AAB: `versionCode 130`, R8·리소스 축소·16KB 페이지 정렬·4 ABI·대화면 기본 방향을 검증했으며 Play 트랙은 변경하지 않았다.
 
 ## Next
 
@@ -27,3 +29,5 @@
 - [x] TimeReel·가챠·큰 회전 로딩과 준비물 모달을 제거하고 필수·날씨·안전·선택 준비물을 준비 탭에 바로 표시한다.
 - [x] 패밀리 1.0 셸·설정·5앱 목록·guest-first 상태와 Android·iPhone 네이티브 기반을 0.25.1에 배포했다.
 - [x] 변형·중첩형 주소·정밀위치 키까지 차단하는 분석 scrubber와 모바일 대비를 release gate로 검증했다.
+- [x] 위치 검색·현재 위치·집·회사·즐겨찾기·최근 위치와 활동·시간·날씨별 준비물, 추천 시간·대안 시간, 여섯 날씨 지표 상세 보기를 0.30.0에 반영했다.
+- [x] 320·390 휴대전화, 600·840 대화면 분기, 1024 태블릿, 200% 글자 크기 회귀검사와 Android 16 대화면·R8 권장 조치를 코드와 서명 AAB에서 검증했다.

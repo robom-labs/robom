@@ -5,9 +5,9 @@ apps:
     name: 야외봄
     english_name: OutBom
     repo: robom-labs/outbom
-    version: 0.29.0
+    version: 0.30.0
     data_version: runtime-weather-v1
-    version_source: https://raw.githubusercontent.com/robom-labs/outbom/1c7dff3c036a292a31c39807b548a0f809dda13c/apps/mobile/package.json
+    version_source: https://raw.githubusercontent.com/robom-labs/outbom/1445e0f91831c1d813fecd71e297d04f7bb85ae5/apps/mobile/package.json
     web_url: https://robom-labs.github.io/outbom/
     healthcheck_url: https://robom-labs.github.io/outbom/
     deploy_provider: github-pages
@@ -26,8 +26,8 @@ apps:
     stable_install_url: https://robom.kr/get/outbom
     mobile_status: native-production-live
     family_spec_version: 1.1.0
-    last_verified_at: "2026-08-11T17:22:16+09:00"
-    last_deployed_sha: 1c7dff3c036a292a31c39807b548a0f809dda13c
+    last_verified_at: "2026-08-11T23:01:50+09:00"
+    last_deployed_sha: 1445e0f91831c1d813fecd71e297d04f7bb85ae5
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: runtime
     freshness_slo_hours: 48
@@ -125,8 +125,8 @@ apps:
     stable_install_url: https://robom.kr/get/certbom
     mobile_status: native-production-live
     family_spec_version: 1.1.0
-    last_verified_at: "2026-08-09T20:45:48+09:00"
-    last_deployed_sha: a8ec73a89ab9acece4738fa6b9148d16b6bb3fee
+    last_verified_at: "2026-08-11T23:01:50+09:00"
+    last_deployed_sha: 8cebe2ba9414717b2162329efcae2565e5aff7fd
     last_data_sync_at: "2026-07-24T14:30:00+09:00"
     freshness_status: last-known-good
     freshness_slo_hours: 48
