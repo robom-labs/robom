@@ -174,7 +174,7 @@ try {
 
   const zoomContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const zoomPage = await zoomContext.newPage();
-  await zoomPage.goto(baseUrl, { waitUntil: "domcontentloaded" });
+  await zoomPage.goto(baseUrl, { waitUntil: "networkidle" });
   await zoomPage.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
   assert.equal(await zoomPage.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), true, "200% 글자 확대 가로 스크롤");
   await zoomContext.close();
