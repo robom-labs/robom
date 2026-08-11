@@ -99,7 +99,7 @@ export async function verifyReleaseSync({ manifestPath, repo, skipStore = false,
   await check("release-files", async () => {
     await verifyChecksums(releaseDir);
     const bundle = path.join(releaseDir, manifest.backup.mainBundle);
-    execFileSync("git", ["bundle", "verify", bundle], { stdio: ["ignore", "pipe", "pipe"] });
+    execFileSync("git", ["-C", repo, "bundle", "verify", bundle], { stdio: ["ignore", "pipe", "pipe"] });
     if (manifest.artifact.file) {
       const artifact = path.join(releaseDir, manifest.artifact.file);
       assert(await sha256(artifact) === manifest.artifact.sha256, "AAB SHA-256이 다릅니다.");
