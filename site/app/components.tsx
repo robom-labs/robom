@@ -68,10 +68,15 @@ export function FamilyFooter() {
         <Wordmark />
         <p>먼저 보고, 필요한 순간에 분명하게 알립니다.</p>
       </div>
-      <div className="footer-links" aria-label="앱과 지원 링크">
+      <nav className="footer-links footer-links--wide" aria-label="푸터 링크">
         <div><strong>로봄 패밀리</strong>{familyApps.map((app) => <Link href={app.installPath} prefetch={false} key={app.id}>{app.name}</Link>)}</div>
         <div><strong>지원</strong><a href={contactHref()}>문의 · 광고 · 제휴</a><Link href="/support" prefetch={false}>고객 지원</Link></div>
         <div><strong>정보</strong><Link href="/privacy" prefetch={false}>개인정보처리방침</Link><Link href="/terms" prefetch={false}>이용약관</Link><Link href="/licenses" prefetch={false}>오픈소스 라이선스</Link><a href="https://robom.kr">robom.kr</a></div>
+      </nav>
+      <div className="footer-disclosures" aria-label="푸터 링크">
+        <details><summary>로봄 패밀리</summary><div>{familyApps.map((app) => <Link href={app.installPath} prefetch={false} key={app.id}>{app.name}</Link>)}</div></details>
+        <details><summary>지원</summary><div><a href={contactHref()}>문의 · 광고 · 제휴</a><Link href="/support" prefetch={false}>고객 지원</Link></div></details>
+        <details><summary>정보</summary><div><Link href="/privacy" prefetch={false}>개인정보처리방침</Link><Link href="/terms" prefetch={false}>이용약관</Link><Link href="/licenses" prefetch={false}>오픈소스 라이선스</Link><a href="https://robom.kr">robom.kr</a></div></details>
       </div>
       <div className="footer-meta" data-nosnippet data-build-sha={SITE_BUILD_SHA}><span>개발자 로봄</span><span>hello.robom@gmail.com</span><span>웹 v{SITE_VERSION}</span><span>build {SITE_BUILD_SHA.slice(0, 7)}</span><span>© 2026 ROBOM</span></div>
     </footer>

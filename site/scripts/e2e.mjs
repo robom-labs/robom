@@ -100,14 +100,33 @@ try {
       }
       results.push({ width, height, firstActionY: Math.round(firstAction.y) });
     }
-    // 하단 탭바(mobile-tabbar)는 QR 전용 개편 후에도 유지되며 48px 터치 영역을 지킨다.
+    // 화면 크기별 탐색 구조와 고정 하단바의 안전 여백을 함께 검증한다.
     const navLinks = page.locator(".mobile-tabbar a:visible");
-    for (let index = 0; index < await navLinks.count(); index += 1) {
-      const box = await navLinks.nth(index).boundingBox();
-      assert.ok(box && box.height >= 48, `${width}: 하단 메뉴 ${index + 1} 터치 영역`);
+    if (width <= 760) {
+      assert.equal(await navLinks.count(), 4, `${width}: 하단 메뉴 수`);
+      for (let index = 0; index < await navLinks.count(); index += 1) {
+        const box = await navLinks.nth(index).boundingBox();
+        assert.ok(box && box.width >= 48 && box.height >= 48, `${width}: 하단 메뉴 ${index + 1} 터치 영역`);
+      }
+      await page.locator(".footer-meta").scrollIntoViewIfNeeded();
+      const [tabbarBox, footerMetaBox] = await Promise.all([page.locator(".mobile-tabbar").boundingBox(), page.locator(".footer-meta").boundingBox()]);
+      assert.ok(tabbarBox && footerMetaBox && footerMetaBox.y + footerMetaBox.height <= tabbarBox.y - 8, `${width}: 하단 메뉴가 푸터 메타를 가리지 않음`);
+    } else {
+      const desktopNav = page.locator(".desktop-nav a");
+      assert.equal(await desktopNav.count(), 3, `${width}: 상단 메뉴 수`);
+      for (let index = 0; index < await desktopNav.count(); index += 1) {
+        const box = await desktopNav.nth(index).boundingBox();
+        assert.ok(box && box.width >= 48 && box.height >= 48, `${width}: 상단 메뉴 ${index + 1} 터치 영역`);
+      }
     }
     await page.locator('.quick-install-card[data-app-id="outbom"] .install-address').focus();
     assert.notEqual(await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle), "none", `${width}: 키보드 focus`);
+    if (width <= 760) {
+      const footerGroups = page.locator(".footer-disclosures details");
+      assert.equal(await footerGroups.count(), 3, `${width}: 접이식 푸터 그룹 수`);
+      await footerGroups.first().locator("summary").click();
+      assert.equal(await footerGroups.first().getAttribute("open"), "", `${width}: 푸터 그룹 펼치기`);
+    }
     if (width === 390) {
       await page.addScriptTag({ content: axeSource });
       const violations = await page.evaluate(async () => (await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa"] } })).violations.map(({ id, impact, nodes }) => ({ id, impact, targets: nodes.map((node) => node.target) })));

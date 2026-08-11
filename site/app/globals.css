@@ -177,6 +177,7 @@ em { font-style: normal; }
 .family-footer { display: grid; grid-template-columns: .8fr 1.2fr; gap: 50px; background: #f5f0e6; padding: 58px clamp(24px, 5vw, 80px) 35px; color: var(--ink); }
 .footer-brand p { max-width: 320px; margin: 18px 0 0; color: var(--muted); line-height: 1.6; }.family-footer .wordmark { color: var(--ink); }
 .footer-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }.footer-links div { display: grid; align-content: start; gap: 2px; }.footer-links strong { margin-bottom: 6px; font-size: 13px; }.footer-links a { display: flex; min-height: 44px; align-items: center; color: var(--muted); font-size: 12px; }
+.footer-disclosures { display: none; }
 .footer-meta { display: flex; grid-column: 1 / -1; flex-wrap: wrap; gap: 12px 24px; border-top: 1px solid #dfd5c8; padding-top: 25px; color: var(--muted); font-size: 11px; }
 .mobile-tabbar { display: none; }
 .family-line-icon { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
@@ -220,8 +221,15 @@ em { font-style: normal; }
   .hero-intro { grid-template-columns: 1fr; }.hero-intro .eyebrow { margin-bottom: -3px; }.quick-install-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.quick-install-card { min-height: 360px; }
 }
 
+@media (min-width: 761px) and (max-width: 1023px) {
+  .site-header { min-height: 72px; padding-inline: clamp(24px, 4vw, 40px); }
+  .site-brand > span:last-child { display: none; }
+  .family-footer { grid-template-columns: 1fr; gap: 32px; padding: 48px clamp(28px, 5vw, 48px) 32px; }
+  .footer-links { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
 @media (max-width: 760px) {
-  body { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  body { padding-bottom: calc(112px + env(safe-area-inset-bottom)); }
   .site-header { position: relative; min-height: 74px; padding: 12px 20px; }
   .site-brand > span:last-child, .desktop-nav { display: none; }
   .wordmark { font-size: 28px; }
@@ -256,9 +264,11 @@ em { font-style: normal; }
   .filter-row { margin: 18px 0 14px; }.app-hero-card { padding: 24px; }.app-hero-card h3 { font-size: 29px; }.metric-row b { font-size: 15px; }
   .standard-section { display: block; padding: 88px 22px; }.standard-section h2 { font-size: 39px; }.standard-section ol { margin-top: 48px; }
   .support-band { display: block; margin: 0 16px 70px; padding: 34px 25px; }.support-band .button { width: 100%; margin-top: 24px; }
-  .family-footer { display: block; padding: 46px 24px 34px; }.footer-links { grid-template-columns: 1fr 1fr; margin-top: 40px; }.footer-links div:last-child { grid-column: 1 / -1; }.footer-meta { margin-top: 35px; }
-  .mobile-tabbar { position: fixed; right: 0; bottom: 0; left: 0; z-index: 60; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); background: rgba(255, 255, 255, .95); padding: 7px 8px calc(7px + env(safe-area-inset-bottom)); backdrop-filter: blur(18px); }
-  .mobile-tabbar a { display: flex; min-width: 0; min-height: 58px; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: 16px; color: var(--muted); font-size: 11px; font-weight: 850; }.mobile-tabbar a[aria-current="page"] { background: var(--robom-soft); color: var(--robom); }
+  .family-footer { display: block; padding: 36px 20px 32px; }.footer-brand p { margin-top: 12px; font-size: 14px; }.footer-links--wide { display: none; }
+  .footer-disclosures { display: grid; gap: 0; margin-top: 28px; border-bottom: 1px solid #dfd5c8; }.footer-disclosures details { border-top: 1px solid #dfd5c8; }.footer-disclosures summary { display: flex; min-height: 54px; align-items: center; justify-content: space-between; cursor: pointer; font-size: 14px; font-weight: 900; list-style: none; }.footer-disclosures summary::-webkit-details-marker { display: none; }.footer-disclosures summary::after { width: 8px; height: 8px; transform: rotate(45deg); border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); content: ""; transition: transform .15s ease; }.footer-disclosures details[open] summary::after { transform: rotate(225deg); }.footer-disclosures details > div { display: grid; gap: 2px; padding: 0 0 12px; }.footer-disclosures a { display: flex; min-height: 44px; align-items: center; color: var(--muted); font-size: 13px; }
+  .footer-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; margin-top: 28px; padding-top: 20px; font-size: 12px; line-height: 1.5; }
+  .mobile-tabbar { position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); left: max(12px, env(safe-area-inset-left)); z-index: 60; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 540px; margin: auto; border: 1px solid rgba(236, 223, 205, .96); border-radius: 22px; background: rgba(255, 253, 249, .98); padding: 6px; box-shadow: 0 12px 30px rgba(74, 52, 28, .16); }
+  .mobile-tabbar a { display: flex; min-width: 0; min-height: 56px; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: 15px; color: var(--muted); font-size: 11px; font-weight: 850; }.mobile-tabbar a[aria-current="page"] { background: var(--robom-soft); color: var(--robom-strong); }
   .product-page { padding: 44px 16px 80px; }.breadcrumb { margin-bottom: 18px; }.product-appbar { align-items: center; }.app-glyph.large { width: 64px; height: 64px; border-radius: 21px; }.product-appbar .wordmark { font-size: 31px; }.product-appbar .status-pill { min-height: 38px; padding: 0 10px; font-size: 10px; }
   .product-hero { display: block; padding: 30px 24px; }.product-copy h1 { font-size: 43px; }.product-copy > p:not(.card-eyebrow) { font-size: 16px; }.product-actions .button { width: 100%; }.product-score { width: auto; min-height: 74px; grid-template-columns: auto auto auto; gap: 10px; align-items: center; margin-top: 28px; border-width: 2px; border-radius: 22px; }.product-score strong { margin: 0; font-size: 21px; }
   .product-metrics { margin-bottom: 76px; }.product-metrics span { padding: 8px 10px; }.product-metrics b { font-size: 18px; }.product-metrics small { font-size: 10px; }
@@ -392,4 +402,3 @@ em { font-style: normal; }
   .launch-section--preparing { padding-top: 24px; }
   .family-hero--install > .trust-copy { margin-top: 18px; }
 }
-
