@@ -23,7 +23,7 @@ export const generatedAppMeta = [
     "stableInstallUrl": "https://robom.kr/get/outbom",
     "mobileStatus": "native-production-live",
     "familySpecVersion": "1.1.0",
-    "lastVerifiedAt": "2026-08-11T23:01:50+09:00",
+    "lastVerifiedAt": "2026-08-11T23:40:00+09:00",
     "lastDeployedSha": "1445e0f91831c1d813fecd71e297d04f7bb85ae5",
     "lastDataSyncAt": "2026-07-16T13:42:23+09:00",
     "freshnessStatus": "runtime"

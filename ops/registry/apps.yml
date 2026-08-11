@@ -26,7 +26,7 @@ apps:
     stable_install_url: https://robom.kr/get/outbom
     mobile_status: native-production-live
     family_spec_version: 1.1.0
-    last_verified_at: "2026-08-11T23:01:50+09:00"
+    last_verified_at: "2026-08-11T23:40:00+09:00"
     last_deployed_sha: 1445e0f91831c1d813fecd71e297d04f7bb85ae5
     last_data_sync_at: "2026-07-16T13:42:23+09:00"
     freshness_status: runtime
