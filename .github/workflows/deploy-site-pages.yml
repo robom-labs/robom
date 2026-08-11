@@ -103,6 +103,7 @@ jobs:
             FINAL_URL="$(curl -sS -o /dev/null -w '%{url_effective}' --max-time 25 "${BASE}" || true)"
             APPS_STATUS="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 25 "${BASE}apps/" || true)"
             CERTIFICATE="$(openssl s_client -connect robom.kr:443 -servername robom.kr </dev/null 2>/dev/null | openssl x509 -noout -ext subjectAltName 2>/dev/null || true)"
+            SOFTWARE_APPLICATION_COUNT="$(grep -o '"@type":"SoftwareApplication"' <<<"${HOME}" | wc -l | tr -d ' ')"
 
             ok=true
             test "${HTTP_CODE}" = "200" || ok=false
@@ -118,7 +119,7 @@ jobs:
             fi
             grep -q "${GITHUB_SHA::7}" <<<"${HOME}" || ok=false
             grep -q "DNS:robom.kr" <<<"${CERTIFICATE}" || ok=false
-            grep -q "SoftwareApplication" <<<"${HOME}" && ok=false
+            test "${SOFTWARE_APPLICATION_COUNT}" -eq "${LIVE_COUNT}" || ok=false
             grep -Eqi 'rel=[^>]*manifest' <<<"${HOME}" && ok=false
             grep -q "serviceWorker.register" <<<"${HOME}" && ok=false
 
