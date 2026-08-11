@@ -2,7 +2,8 @@
 
 ## 현재 상태
 
-- 운영 버전: 0.25.6.
+- 웹·PWA 운영 버전: 0.25.6.
+- Google Play 운영 버전: 0.29.0 (versionCode 12).
 - 기존 이름: 러닝콜.
 - 역할: 걷기·산책·러닝·등산·자전거의 야외활동 컨디션과 추천 시간 제공.
 - 목표 저장소: `robom-labs/outbom`.
@@ -11,7 +12,8 @@
 - 호환 배포: https://runningcall.vercel.app.
 - 운영 main: `8866be9035196bac4912c4ff8182a73acd7d0c86`.
 - PWA 캐시: `outbom-v0.25.6`.
-- Google Play 프로덕션: versionCode 5, `0.25.6`, 대한민국 공개·설치 가능 상태(2026-08-10 확인).
+- Google Play 프로덕션: versionCode 12, `0.29.0`, 대한민국 공개·설치 가능 상태(2026-08-11 확인).
+- Google Play 배포 소스: `1c7dff3c036a292a31c39807b548a0f809dda13c`.
 
 ## Next
 
