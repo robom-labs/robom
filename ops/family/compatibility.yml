@@ -10,7 +10,7 @@ apps:
     build: pass
     visual: pass
     analytics: pass
-    deployed_sha: 3cf078e8f77e3ce2e5ac71be72fe1c104eb996fe
+    deployed_sha: 1c7dff3c036a292a31c39807b548a0f809dda13c
   homebom:
     family_spec: 1.1.0
     generated_commit: 75d4f9d4c803e1dbaa6dda67e48b6ed23960520f
