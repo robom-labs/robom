@@ -15,11 +15,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://robom.kr"),
   title: {
-    default: "로봄 | 날씨·청약·러닝·자격증",
+    default: "로봄 | 야외봄·자격증봄 Google Play 출시",
     template: "%s | 로봄",
   },
   description:
-    "날씨, 청약, 러닝 대회, 자격증 시험을 한곳에서 확인하고 로봄 패밀리 앱으로 바로 이동하세요.",
+    "야외봄과 자격증봄을 Google Play에서 만나보세요. 청약봄과 러닝봄도 2026년 8월 출시 예정입니다.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/icons/robom-180.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
-    title: "로봄 | 날씨·청약·러닝·자격증",
+    title: "로봄 | 야외봄·자격증봄 Google Play 출시",
     description: "날씨, 청약, 러닝 대회, 자격증 시험을 한곳에서 확인하고 로봄 패밀리 앱으로 바로 이동하세요.",
     siteName: "로봄",
     url: "https://robom.kr/",
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "로봄 | 날씨·청약·러닝·자격증",
-    description: "날씨, 청약, 러닝 대회, 자격증 시험을 한곳에서 확인하세요.",
+    description: "야외봄·자격증봄 정식 출시. 청약봄·러닝봄은 2026년 8월 출시 예정입니다.",
     images: ["/og.png"],
   },
   verification: {
@@ -89,7 +89,7 @@ export default function RootLayout({
                 width: 512,
                 height: 512,
               },
-              description: "야외봄·청약봄·러닝봄·자격증봄을 준비하는 생활 타이밍 앱 패밀리",
+              description: "야외봄과 자격증봄을 정식 출시하고 청약봄과 러닝봄을 준비하는 생활 타이밍 앱 패밀리",
             }),
           }}
         />
