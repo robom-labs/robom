@@ -13,11 +13,11 @@
 - 운영 앱 소스 SHA: `86e1682468d8d0979d95943c957148d2c76cbc29`.
 - PWA 캐시: `pushrun-v0.21.0`.
 - 데이터 리비전: `2026.08.08-race-data-34`, 전체 212개 대회, 마지막 대회일 2027-04-18.
-- Google Play Alpha: 기존 비공개 테스트와 테스터는 보존했다.
+- Google Play Production: 0.21.0(15)을 대한민국에 정식 공개했으며 일반 사용자용 스토어에서 설치 가능 상태를 확인했다.
 - 자동 최신화: 6시간마다 공식·검증 소스 동기화를 시도하고 watchdog이 누락·지연을 감시한다. 스키마 오류·0건·대량 삭제는 배포하지 않고 마지막 정상본을 유지한다.
 - Android 후보: versionCode 15, `0.21.0`, EAS build `0cc5c452-54bc-492c-a983-19639df72127`, AAB SHA-256 `4cf319b97ea19b9bdf320974bdaa3496d5ccc5282ca0492a45ba9c6d7445e703`.
 - 분리 설치 Preview: package `kr.robom.runningbom.preview`, 0.21.0(67), GitHub Actions `31259700180`에서 기존 EAS Preview 서명·패키지·APK SHA-256 검증 후 Pages `31260542895`로 업데이트 매니페스트를 운영 배포했다. 정식 Play AAB에는 영향을 주지 않는다.
-- 릴리스 단계: 최종 AAB의 패키지·버전·targetSdk 36·업로드 인증서·권한·해시를 검증했다. EAS의 Google Service Account 미연결과 현재 세션의 Play Console 제어 부재로 Play 업로드 전에 중단됐다.
+- 릴리스 단계: 최종 AAB의 패키지·버전·targetSdk 36·업로드 인증서·권한·해시를 검증하고 Play 프로덕션 심사·대한민국 공개·일반 사용자 설치 페이지를 확인했다.
 
 ## Next
 
@@ -32,7 +32,7 @@
 - [x] GitHub 공식 checkout·setup-node·artifact·Pages Action을 Node 24 기반 최신 major의 고정 SHA로 갱신하고 CI·Pages를 재검증했다.
 - [x] 분리 설치 Preview 0.21.0(67)을 기존 서명으로 빌드하고 고정 릴리스·인앱 업데이트 매니페스트·Pages 배포를 재검증했다.
 - [x] fail-closed 릴리스 가드의 Alpha 제출 dry-run과 공식 bundletool 검증을 GitHub Actions 실행 `31255912729`에서 통과했다.
-- [ ] Google Play Console에서 AAB를 직접 업로드하거나 EAS Google Service Account를 연결한 뒤 기존 Alpha 트랙에 0.21.0(15)을 제출한다.
+- [x] Google Play Console에서 기존 Alpha의 0.21.0(15)을 프로덕션으로 승격하고 대한민국 일반 사용자용 스토어 공개를 확인했다.
 - [x] 패밀리 디자인과 대표 아이콘을 운영 배포했다.
 - [x] 러닝봄 브랜딩 PR을 merge했다.
 - [x] 저장소 이전 후 Pages 배포와 HTTP 200 응답을 확인했다.
@@ -47,5 +47,5 @@
 - [x] vNext 1차에서 5탭·로컬 코칭·스트릭·배지·러닝화·보호된 소셜 기반과 Release Guard를 구현하고 웹 0.19.0을 운영 배포했다.
 - [x] Android 0.19.0(versionCode 7) production 후보 AAB와 분리 설치 Preview APK를 서명·권한·16KB·bundletool 기준으로 검증했다.
 - [ ] 0.21.0 Android 후보의 삼성·Pixel 실기기 장시간 코칭·전화·Bluetooth·절전·업데이트 설치 검증은 실제 기기가 연결될 때 수행한다.
-- [ ] Play Alpha의 기존 활성 0.17.13(2)에서 0.21.0(15)으로 올리고 Google 처리 상태와 테스터 설치 업데이트를 확인한다.
+- [x] Play Alpha를 0.21.0(15)으로 갱신하고 같은 검증 AAB를 프로덕션에 공개했다.
 - [ ] GitHub 계정 이전으로 404가 된 기존 개인 계정 Pages 주소는 해당 계정의 별도 redirect 저장소를 만들 수 있을 때 안내 페이지로 전환한다.

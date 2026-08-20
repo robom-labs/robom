@@ -85,16 +85,16 @@ apps:
     support_url: https://robom.kr/support
     android_app_id: kr.robom.runningbom
     ios_bundle_id: kr.robom.runningbom
-    google_play_url: ""
-    google_play_status: internal
+    google_play_url: https://play.google.com/store/apps/details?id=kr.robom.runningbom
+    google_play_status: live
     app_store_url: ""
     app_store_status: planned
     pwa_install_url: https://robom-labs.github.io/runningbom/
     stable_install_url: https://robom.kr/get/runningbom
-    mobile_status: native-closed-test-active
+    mobile_status: native-production-live
     family_spec_version: 1.1.0
-    last_verified_at: "2026-08-08T22:54:00+09:00"
-    last_deployed_sha: 9aac3826fba02a53c7d5b08b318ae5cc288cb2ca
+    last_verified_at: "2026-08-20T22:28:50+09:00"
+    last_deployed_sha: 86e1682468d8d0979d95943c957148d2c76cbc29
     last_data_sync_at: "2026-08-08T04:18:56+09:00"
     freshness_status: healthy
     freshness_slo_hours: 168

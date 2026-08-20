@@ -12,7 +12,7 @@ const preparingNames = preparingApps.map((app) => app.name).join("·");
 const homepageDescription = `${liveNames}을 Google Play에서 만나보세요. ${preparingNames}도 2026년 8월 출시 예정입니다.`;
 
 export const metadata: Metadata = {
-  title: { absolute: "로봄 | 야외봄·자격증봄 Google Play 출시" },
+  title: { absolute: `로봄 | ${liveNames} Google Play 출시` },
   description: homepageDescription,
   alternates: { canonical: "/" },
   openGraph: {
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "로봄 | 야외봄·자격증봄 정식 출시",
+    title: `로봄 | ${liveNames} 정식 출시`,
     description: homepageDescription,
     images: ["/og.png"],
   },

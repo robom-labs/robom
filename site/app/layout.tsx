@@ -1,7 +1,12 @@
 // 로봄 브랜드 사이트의 전역 메타데이터와 문서 구조를 설정한다.
 import type { Metadata, Viewport } from "next";
+import { familyApps } from "./app-data";
 import { PwaCleanup } from "./PwaRegistration";
 import "./globals.css";
+
+const liveAppNames = familyApps.filter((app) => app.status === "live").map((app) => app.name).join("·");
+const preparingAppNames = familyApps.filter((app) => app.status === "preparing").map((app) => app.name).join("·");
+const releaseDescription = `${liveAppNames}을 Google Play에서 만나보세요.${preparingAppNames ? ` ${preparingAppNames}도 2026년 8월 출시 예정입니다.` : ""}`;
 
 // 모바일에서 브라우저 UI까지 패밀리 배경색으로 맞추고 하단 탭바가 기기 안전 영역을 존중하게 한다.
 export const viewport: Viewport = {
@@ -15,11 +20,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL("https://robom.kr"),
   title: {
-    default: "로봄 | 야외봄·자격증봄 Google Play 출시",
+    default: `로봄 | ${liveAppNames} Google Play 출시`,
     template: "%s | 로봄",
   },
-  description:
-    "야외봄과 자격증봄을 Google Play에서 만나보세요. 청약봄과 러닝봄도 2026년 8월 출시 예정입니다.",
+  description: releaseDescription,
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -30,7 +34,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/icons/robom-180.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
-    title: "로봄 | 야외봄·자격증봄 Google Play 출시",
+    title: `로봄 | ${liveAppNames} Google Play 출시`,
     description: "날씨, 청약, 러닝 대회, 자격증 시험을 한곳에서 확인하고 로봄 패밀리 앱으로 바로 이동하세요.",
     siteName: "로봄",
     url: "https://robom.kr/",
@@ -48,7 +52,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "로봄 | 날씨·청약·러닝·자격증",
-    description: "야외봄·자격증봄 정식 출시. 청약봄·러닝봄은 2026년 8월 출시 예정입니다.",
+    description: releaseDescription,
     images: ["/og.png"],
   },
   verification: {
@@ -89,7 +93,7 @@ export default function RootLayout({
                 width: 512,
                 height: 512,
               },
-              description: "야외봄과 자격증봄을 정식 출시하고 청약봄과 러닝봄을 준비하는 생활 타이밍 앱 패밀리",
+              description: `${liveAppNames}을 정식 출시하고 ${preparingAppNames || "다음 앱"}을 준비하는 생활 타이밍 앱 패밀리`,
             }),
           }}
         />

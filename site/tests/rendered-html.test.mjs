@@ -63,7 +63,8 @@ test("첫 화면은 실제 출시 상태와 4개 앱의 QR·설치 안내 링크
   const response = await render();
   assert.equal(response.status, 200);
   const html = await response.text();
-  assert.match(html, /<title>로봄 \| 야외봄·자격증봄 Google Play 출시<\/title>/);
+  const liveNames = liveApps.map((app) => app.name).join("·");
+  assert.match(html, new RegExp(`<title>로봄 \\| ${liveNames} Google Play 출시<\\/title>`));
   assert.match(html, /이제 시작합니다/);
   assert.match(html, /Google Play 정식 출시/);
   assert.match(html, /다음 앱도 곧 만나요/);
@@ -127,7 +128,7 @@ test("설치 안내 페이지는 앱별 실제 스토어 상태를 제공한다"
       assert.match(html, /2026년 8월 출시 예정/);
       assert.match(html, /출시 뒤에도 이 주소와 QR에서 공식 설치 안내를 만날 수 있습니다/);
       assert.match(html, /로봄 홈으로/);
-      assert.doesNotMatch(html, /Google Play/, `${id}: Google Play`);
+      assert.doesNotMatch(html, /href="https:\/\/play\.google\.com/, `${id}: Google Play 설치 링크`);
     }
     // PWA·웹 사용·미리보기·자동 이동은 모두 제거
     for (const forbidden of ["Safari에서", "홈 화면에 추가", "화면 미리보기", "App Store", "웹으로"]) {

@@ -1,5 +1,6 @@
 # changelog: robom
 
+- 2026-08-20: 러닝봄 0.21.0(15)의 대한민국 Google Play 정식 공개를 확인하고 registry·설치 허브·사이트 메타데이터를 프로덕션 상태로 동기화했다.
 - 2026-08-08: 2.2.3. 청약봄 0.17.1과 러닝봄 0.21.0의 운영 버전·배포 SHA·AAB 검증·자동 최신화 상태를 중앙 registry와 설치 허브에 동기화했다.
 - 2026-08-08: GitHub-hosted runner의 Node 20 강제 전환 경고를 제거하도록 checkout·setup-node·artifact·Pages 공식 Action을 Node 24 기반 최신 major와 고정 SHA로 갱신했다.
 - 2026-07-17: 2.1.7. Company OS 1.2.0을 중앙 정본과 CI에 연결하고 registry 앱 수 고정·mutable Action 참조·관제의 URL/provider 오독을 제거했다. 본사와 앱 Production을 같은 신호등으로 검증하고 canonical Pages 배포 SHA를 실제 운영 값으로 동기화했다.
