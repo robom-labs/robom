@@ -63,7 +63,7 @@
       "englishName": "RunningBom",
       "repo": "robom-labs/runningbom",
       "version": "0.21.0",
-      "dataVersion": "2026.08.08-race-data-34",
+      "dataVersion": "2026.08.22-race-data-52",
       "webUrl": "https://robom-labs.github.io/runningbom/",
       "healthcheckUrl": "https://robom-labs.github.io/runningbom/",
       "deployProvider": "github-pages",
@@ -80,9 +80,9 @@
       "stableInstallUrl": "https://robom.kr/get/runningbom",
       "mobileStatus": "native-production-live",
       "familySpecVersion": "1.1.0",
-      "lastVerifiedAt": "2026-08-20T22:28:50+09:00",
-      "lastDeployedSha": "86e1682468d8d0979d95943c957148d2c76cbc29",
-      "lastDataSyncAt": "2026-08-08T04:18:56+09:00",
+      "lastVerifiedAt": "2026-08-22T15:13:45+09:00",
+      "lastDeployedSha": "bfcc686142eca9c9719de5627e84a1e2e13f66ef",
+      "lastDataSyncAt": "2026-08-22T03:59:41+09:00",
       "freshnessStatus": "healthy"
     },
     {
