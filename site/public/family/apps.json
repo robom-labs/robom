@@ -108,8 +108,8 @@
       "stableInstallUrl": "https://robom.kr/get/certbom",
       "mobileStatus": "native-production-live",
       "familySpecVersion": "1.1.0",
-      "lastVerifiedAt": "2026-08-11T23:01:50+09:00",
-      "lastDeployedSha": "8cebe2ba9414717b2162329efcae2565e5aff7fd",
+      "lastVerifiedAt": "2026-08-22T20:37:12+09:00",
+      "lastDeployedSha": "c65359cf172f29a9ba42e10951652c47e1a4df9f",
       "lastDataSyncAt": "2026-07-24T14:30:00+09:00",
       "freshnessStatus": "last-known-good"
     }
