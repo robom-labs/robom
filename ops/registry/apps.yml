@@ -75,7 +75,7 @@ apps:
     english_name: RunningBom
     repo: robom-labs/runningbom
     version: 0.21.0
-    data_version: 2026.08.08-race-data-34
+    data_version: 2026.08.22-race-data-52
     version_source: https://raw.githubusercontent.com/robom-labs/runningbom/main/package.json
     web_url: https://robom-labs.github.io/runningbom/
     healthcheck_url: https://robom-labs.github.io/runningbom/
@@ -93,9 +93,9 @@ apps:
     stable_install_url: https://robom.kr/get/runningbom
     mobile_status: native-production-live
     family_spec_version: 1.1.0
-    last_verified_at: "2026-08-20T22:28:50+09:00"
-    last_deployed_sha: 86e1682468d8d0979d95943c957148d2c76cbc29
-    last_data_sync_at: "2026-08-08T04:18:56+09:00"
+    last_verified_at: "2026-08-22T15:13:45+09:00"
+    last_deployed_sha: bfcc686142eca9c9719de5627e84a1e2e13f66ef
+    last_data_sync_at: "2026-08-22T03:59:41+09:00"
     freshness_status: healthy
     freshness_slo_hours: 168
     stack: static HTML + CSS + JavaScript
