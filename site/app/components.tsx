@@ -46,17 +46,18 @@ export function SiteHeader({ current }: { current?: string }) {
         <Link href="/support" prefetch={false} aria-current={current === "support" ? "page" : undefined}>지원</Link>
         <Link href="/privacy" prefetch={false} aria-current={current === "privacy" ? "page" : undefined}>개인정보</Link>
       </nav>
+      <MobileNav current={current} />
     </header>
   );
 }
 
 export function MobileNav({ current = "home" }: { current?: string }) {
   return (
-    <nav className="mobile-tabbar" aria-label="하단 메뉴">
-      <Link href="/" prefetch={false} aria-current={current === "home" ? "page" : undefined}><FamilyIcon name="home" />홈</Link>
-      <Link href="/#apps" prefetch={false} aria-current={current === "apps" ? "page" : undefined}><FamilyIcon name="family" />앱</Link>
-      <Link href="/support" prefetch={false} aria-current={current === "support" ? "page" : undefined}><FamilyIcon name="info" />지원</Link>
-      <Link href="/#about" prefetch={false} aria-current={current === "about" ? "page" : undefined}><FamilyIcon name="settings" />정보</Link>
+    <nav className="mobile-tabbar" aria-label="빠른 메뉴">
+      <Link href="/" prefetch={false} aria-current={current === "home" ? "page" : undefined}>홈</Link>
+      <Link href="/#apps" prefetch={false} aria-current={current === "apps" ? "page" : undefined}>앱</Link>
+      <Link href="/support" prefetch={false} aria-current={current === "support" ? "page" : undefined}>지원</Link>
+      <Link href="/#about" prefetch={false} aria-current={current === "about" ? "page" : undefined}>정보</Link>
     </nav>
   );
 }
@@ -84,5 +85,5 @@ export function FamilyFooter() {
 }
 
 export function PageShell({ children, current }: { children: ReactNode; current?: string }) {
-  return <><SiteHeader current={current} /><main id="main">{children}</main><FamilyFooter /><MobileNav current={current} /></>;
+  return <><SiteHeader current={current} /><main id="main">{children}</main><FamilyFooter /></>;
 }

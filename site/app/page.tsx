@@ -1,7 +1,7 @@
 // 로봄 패밀리의 실제 스토어 출시 상태와 공식 설치 QR을 안내하는 허브다.
 /* eslint-disable @next/next/no-img-element -- 빌드 타임 QR SVG는 고정 크기이며 이미지 런타임을 싣지 않는다. */
 import type { Metadata } from "next";
-import { AppGlyph, FamilyFooter, MobileNav, SiteHeader, Wordmark } from "./components";
+import { AppGlyph, FamilyFooter, SiteHeader, Wordmark } from "./components";
 import { contactHref, familyApps } from "./app-data";
 import { appsItemList } from "./structured-data";
 
@@ -105,7 +105,6 @@ export default function Home() {
         <section className="support-band" aria-labelledby="support-title"><div><p>문의 · 광고 · 제휴</p><h2 id="support-title">궁금한 내용은 한곳으로 편하게 보내주세요.</h2><span>서비스 문의와 광고·제휴 제안 모두 hello.robom@gmail.com에서 확인합니다.</span></div><a className="button light" href={contactHref()}>이메일 보내기 <span aria-hidden="true">→</span></a></section>
       </main>
       <FamilyFooter />
-      <MobileNav />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context": "https://schema.org", "@type": "WebSite", "@id": "https://robom.kr/#website",
         url: "https://robom.kr/", name: "로봄", alternateName: ["ROBOM", "robom.kr"], inLanguage: "ko-KR",

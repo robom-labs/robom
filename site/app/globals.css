@@ -229,11 +229,11 @@ em { font-style: normal; }
 }
 
 @media (max-width: 760px) {
-  /* 화면 가장자리에서 한 칸 띄운 고정 메뉴로 현재 위치와 안전 영역을 함께 분명하게 한다. */
-  body { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
-  .site-header { position: relative; min-height: 74px; padding: 12px 20px; }
+  /* 브라우저 하단 도구막대와 겹치지 않도록 빠른 메뉴를 헤더 안에 고정한다. */
+  body { padding-bottom: env(safe-area-inset-bottom); }
+  .site-header { position: sticky; min-height: 64px; gap: 8px; padding: 8px 14px; }
   .site-brand > span:last-child, .desktop-nav { display: none; }
-  .wordmark { font-size: 28px; }
+  .site-brand { min-width: 0; min-height: 48px; gap: 6px; }.site-brand .robom-icon { width: 30px; height: 30px; border-radius: 9px; }.site-brand .wordmark { font-size: 24px; }
   .family-hero { display: block; min-height: auto; padding: 34px 20px 74px; }
   .family-hero--install { padding-top: 24px; }.hero-intro { display: block; margin-bottom: 18px; }.hero-intro .eyebrow { margin-bottom: 10px; }.hero-intro h1 { margin-bottom: 12px; font-size: clamp(33px, 10vw, 44px); }.hero-intro .hero-lead { font-size: 15px; line-height: 1.6; }
   /* 등록 앱이 390×844 첫 화면 안에 들어오도록 카드 2열 대신 압축 행으로 세운다 */
@@ -268,8 +268,8 @@ em { font-style: normal; }
   .family-footer { display: block; padding: 36px 20px 32px; }.footer-brand p { margin-top: 12px; font-size: 14px; }.footer-links--wide { display: none; }
   .footer-disclosures { display: grid; gap: 0; margin-top: 28px; border-bottom: 1px solid #dfd5c8; }.footer-disclosures details { border-top: 1px solid #dfd5c8; }.footer-disclosures summary { display: flex; min-height: 54px; align-items: center; justify-content: space-between; cursor: pointer; font-size: 14px; font-weight: 900; list-style: none; }.footer-disclosures summary::-webkit-details-marker { display: none; }.footer-disclosures summary::after { width: 8px; height: 8px; transform: rotate(45deg); border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); content: ""; transition: transform .15s ease; }.footer-disclosures details[open] summary::after { transform: rotate(225deg); }.footer-disclosures details > div { display: grid; gap: 2px; padding: 0 0 12px; }.footer-disclosures a { display: flex; min-height: 44px; align-items: center; color: var(--muted); font-size: 13px; }
   .footer-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; margin-top: 28px; padding-top: 20px; font-size: 12px; line-height: 1.5; }
-  .mobile-tabbar { position: fixed; right: max(8px, env(safe-area-inset-right)); bottom: max(8px, env(safe-area-inset-bottom)); left: max(8px, env(safe-area-inset-left)); z-index: 60; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid rgba(236, 223, 205, .96); border-radius: 20px; background: rgba(255, 253, 249, .96); padding: 5px; box-shadow: 0 12px 30px rgba(74, 52, 28, .14); backdrop-filter: blur(18px); }
-  .mobile-tabbar a { display: flex; min-width: 0; min-height: 58px; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 15px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: -.02em; }.mobile-tabbar .family-line-icon { width: 22px; height: 22px; }.mobile-tabbar a[aria-current="page"] { background: var(--robom-soft); color: var(--robom-strong); font-weight: 950; box-shadow: inset 0 0 0 1px rgba(199, 119, 46, .12); }
+  .mobile-tabbar { display: grid; flex: 1 1 auto; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
+  .mobile-tabbar a { display: grid; min-width: 0; min-height: 48px; place-items: center; border-radius: 12px; color: var(--muted); font-size: 11px; font-weight: 850; letter-spacing: -.03em; }.mobile-tabbar a[aria-current="page"] { background: var(--robom-soft); color: var(--robom-strong); font-weight: 950; box-shadow: inset 0 0 0 1px rgba(199, 119, 46, .12); }
   .product-page { padding: 44px 16px 80px; }.breadcrumb { margin-bottom: 18px; }.product-appbar { align-items: center; }.app-glyph.large { width: 64px; height: 64px; border-radius: 21px; }.product-appbar .wordmark { font-size: 31px; }.product-appbar .status-pill { min-height: 38px; padding: 0 10px; font-size: 10px; }
   .product-hero { display: block; padding: 30px 24px; }.product-copy h1 { font-size: 43px; }.product-copy > p:not(.card-eyebrow) { font-size: 16px; }.product-actions .button { width: 100%; }.product-score { width: auto; min-height: 74px; grid-template-columns: auto auto auto; gap: 10px; align-items: center; margin-top: 28px; border-width: 2px; border-radius: 22px; }.product-score strong { margin: 0; font-size: 21px; }
   .product-metrics { margin-bottom: 76px; }.product-metrics span { padding: 8px 10px; }.product-metrics b { font-size: 18px; }.product-metrics small { font-size: 10px; }
@@ -286,7 +286,7 @@ em { font-style: normal; }
 }
 
 @media (max-width: 390px) {
-  .site-header { padding-inline: 16px; }.family-hero { padding-inline: 16px; }.hero-actions { display: grid; }.preview-head { align-items: flex-start; }.preview-head .live-badge { max-width: 86px; text-align: center; }
+  .site-header { gap: 2px; padding-inline: 10px; }.site-brand .robom-icon { width: 26px; height: 26px; }.site-brand .wordmark { font-size: 21px; }.mobile-tabbar { gap: 0; }.mobile-tabbar a { min-height: 48px; font-size: 10px; }.family-hero { padding-inline: 16px; }.hero-actions { display: grid; }.preview-head { align-items: flex-start; }.preview-head .live-badge { max-width: 86px; text-align: center; }
   /* 좁은 화면에서도 네 앱 행이 첫 viewport 안팎에 이어지도록 세로 간격을 한 단계 더 압축한다. */
   .hero-intro { margin-bottom: 14px; }.quick-install-grid { gap: 6px; }
   .hero-intro h1 { font-size: clamp(30px, 9.5vw, 38px); }.hero-intro .hero-lead { font-size: 14px; line-height: 1.55; }
@@ -366,6 +366,11 @@ em { font-style: normal; }
 .card-stable-link span { display: block; color: var(--tone-ink); }
 .card-stable-link:hover span { text-decoration: underline; text-underline-offset: 3px; }
 .launch-section--preparing { border-top: 1px solid var(--line); padding-top: 30px; }
+
+@media (min-width: 1101px) {
+  /* 공개된 세 앱을 한 행에 놓아 큰 화면의 빈 공간과 불필요한 스크롤을 없앤다. */
+  .quick-install-grid--live { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
 @media (max-width: 900px) {
   .launch-section-head { grid-template-columns: 110px minmax(0, 1fr); }

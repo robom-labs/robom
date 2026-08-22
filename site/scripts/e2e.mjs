@@ -100,7 +100,7 @@ try {
       }
       results.push({ width, height, firstActionY: Math.round(firstAction.y) });
     }
-    // 화면 크기별 탐색 구조와 고정 하단바의 안전 여백을 함께 검증한다.
+    // 화면 크기별 탐색 구조와 헤더 안 빠른 메뉴의 푸터 비가림 방지를 함께 검증한다.
     const navLinks = page.locator(".mobile-tabbar a:visible");
     if (width <= 760) {
       assert.equal(await navLinks.count(), 4, `${width}: 하단 메뉴 수`);
@@ -109,8 +109,13 @@ try {
         assert.ok(box && box.width >= 48 && box.height >= 48, `${width}: 하단 메뉴 ${index + 1} 터치 영역`);
       }
       await page.locator(".footer-meta").scrollIntoViewIfNeeded();
-      const [tabbarBox, footerMetaBox] = await Promise.all([page.locator(".mobile-tabbar").boundingBox(), page.locator(".footer-meta").boundingBox()]);
-      assert.ok(tabbarBox && footerMetaBox && footerMetaBox.y + footerMetaBox.height <= tabbarBox.y - 8, `${width}: 하단 메뉴가 푸터 메타를 가리지 않음`);
+      const [tabbarBox, footerMetaBox, navPosition] = await Promise.all([
+        page.locator(".mobile-tabbar").boundingBox(),
+        page.locator(".footer-meta").boundingBox(),
+        page.locator(".mobile-tabbar").evaluate((element) => getComputedStyle(element).position),
+      ]);
+      assert.equal(navPosition, "static", `${width}: 빠른 메뉴는 화면 하단에 고정하지 않음`);
+      assert.ok(tabbarBox && footerMetaBox && tabbarBox.y + tabbarBox.height <= footerMetaBox.y - 8, `${width}: 빠른 메뉴가 푸터 메타를 가리지 않음`);
     } else {
       const desktopNav = page.locator(".desktop-nav a");
       assert.equal(await desktopNav.count(), 3, `${width}: 상단 메뉴 수`);
